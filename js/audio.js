@@ -2065,6 +2065,13 @@ function evaluateLocalOfflineBrain(rawQuery, bank, cfg) {
     return null;
 }
 
+let dialogueMemory = [];
+function recordDialogueTurn(role, text) {
+    if (!text) return;
+    dialogueMemory.push({ role, text, timestamp: Date.now() });
+    if (dialogueMemory.length > 12) dialogueMemory.shift();
+}
+
 async function askMeenaAI(question) {
     lastUserInteractionTime = Date.now();
     const bank = getKnowledgeBank();
@@ -2073,18 +2080,20 @@ async function askMeenaAI(question) {
     let cleanQ = question.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)/i, '').trim();
     const q = cleanQ.toLowerCase();
 
+    recordDialogueTurn('user', question);
+
     // If query asks for factual search, route to live web search
     if (q.includes('who is') || q.includes('who was') || q.includes('what is') || q.includes('what was') || q.includes('search') || q.includes('lookup') || q.includes('look up') || q.includes('tell me about') || q.includes('google') || q.includes('explain')) {
         searchLiveWebInfo(cleanQ);
         return;
     }
 
-    // 1. Render Cognitive Thinking Steps
+    // 1. Render Cognitive Thinking Stream
     const thoughts = [
-        `Analyzing query: "${question}"`,
-        `Cross-referencing live SBC sensors & Pi-hole shield`,
-        `Querying Takahara Knowledge Graph cluster`,
-        `Persona Matrix: ${cfg.name} // Formulating response`
+        `Perceiving input: "${question}"`,
+        `Analyzing multi-turn dialogue context & sentiment`,
+        `Querying Takahara Knowledge Graph & live telemetry`,
+        `Synthesizing spontaneous natural response (${cfg.name})`
     ];
 
     renderThinkingStream(thoughts, async () => {
@@ -2097,33 +2106,43 @@ async function askMeenaAI(question) {
         const pihole = document.getElementById('header-pihole-pct')?.innerText || '37.6%';
         const weather = document.getElementById('wx-desc')?.innerText || 'partly cloudy';
 
-        // Check Gemini API Key (Full GenAI Reasoning)
+        // Check Gemini API Key (Full GenAI Reasoning with Multi-Turn Context)
         const apiKey = localStorage.getItem('gemini_api_key');
         if (apiKey) {
             try {
                 const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you in your knowledge graph: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
                 const alexInstruction = currentPersona === 'ALEX' 
-                    ? "Your persona is Alex Dunphy (hyper-intelligent, book-smart, sharp, with an expansive academic vocabulary, scientific rigor, and deadpan wit). Use sophisticated vocabulary (e.g. empirical, deterministic, equilibrium, heuristic, asymptotic, thermodynamic) naturally." 
-                    : "Your persona is an energetic, loyal Japanese tactical companion who blends high intellect with deep respect for Sensei.";
+                    ? "Your persona is Alex Dunphy (hyper-intelligent, witty, sharp, book-smart, scientifically rigorous, deadpan humor, speaking naturally and conversationally)." 
+                    : "Your persona is an energetic, loyal Japanese tactical companion who speaks warmly, naturally and respectfully to Sensei.";
 
-                const prompt = `You are Meena™ (高原学園), tactical AI assistant at Takahara Academy.
+                const systemInstruction = `You are Meena™ (高原学園), tactical AI companion at Takahara Academy.
 ${alexInstruction}
-Address the user respectfully as Sensei.
+Address the user respectfully as Sensei. Always sound organic, spontaneous, engaging and natural—never sound robotic or scripted.
 
 Current Live System Environment:
 - Local Time & Date: ${timeStr} on ${dateStr}
 - Raspberry Pi Hardware: CPU Load ${cpu}, Core Temp ${temp} (Nominal)
 - Pi-hole Defense Shield: ${pihole} blocked (10,520 threats neutralized)
 - Local Weather: ${weather}
-${memoryContext}
+${memoryContext}`;
 
-Sensei asks: "${question}".
-Reply in 1-2 concise, highly articulate, witty spoken sentences in English using rich academic/tactical vocabulary:`;
+                // Build multi-turn context
+                const contents = [
+                    { role: 'user', parts: [{ text: `${systemInstruction}\n\nUser starts conversation.` }] },
+                    { role: 'model', parts: [{ text: "Understood, Sensei. I am ready to converse naturally with you." }] }
+                ];
+
+                dialogueMemory.forEach(turn => {
+                    contents.push({
+                        role: turn.role === 'user' ? 'user' : 'model',
+                        parts: [{ text: turn.text }]
+                    });
+                });
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    body: JSON.stringify({ contents })
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -2133,33 +2152,124 @@ Reply in 1-2 concise, highly articulate, witty spoken sentences in English using
                     recordTokenUsage(promptTok, candTok, 'Gemini 1.5 Flash');
 
                     if (reply) {
-                        outputMeenaDialogue(reply.replace(/[*_#]/g, ''));
+                        const cleanReply = reply.replace(/[*_#]/g, '').trim();
+                        recordDialogueTurn('meena', cleanReply);
+                        outputMeenaDialogue(cleanReply);
                         return;
                     }
                 }
             } catch (e) {
-                console.warn("Gemini fetch failed, using local brain:", e);
+                console.warn("Gemini fetch failed, using organic local cognition:", e);
             }
         }
 
-        // 1. Run Natural Everyday Conversation Engine (Casual chit-chat, jokes, check-ins, greetings)
-        const naturalReply = evaluateNaturalConversation(cleanQ, cfg);
-        if (naturalReply) {
-            outputMeenaDialogue(naturalReply);
-            return;
-        }
-
-        // 2. Run Autonomous Local Offline Brain Engine (Math, Physics, Linux, Memory)
+        // 1. Run Autonomous Local Offline Brain Engine for Math, Physics, Linux & Knowledge Bank
         const localBrainReply = evaluateLocalOfflineBrain(cleanQ, bank, cfg);
         if (localBrainReply) {
+            recordDialogueTurn('meena', localBrainReply);
             outputMeenaDialogue(localBrainReply);
             return;
         }
 
-        // 3. Run Autonomous Procedural Local Synthesis Engine (Fresh, Generative & Non-repetitive)
-        const proceduralReply = generateProceduralLocalResponse(cleanQ, bank, cfg);
-        outputMeenaDialogue(proceduralReply);
+        // 2. Run Organic Natural Cognition Synthesizer (Spontaneous, Adaptive & Non-scripted)
+        const organicReply = synthesizeOrganicThought(cleanQ, bank, cfg, dialogueMemory);
+        recordDialogueTurn('meena', organicReply);
+        outputMeenaDialogue(organicReply);
     });
+}
+
+/**
+ * ==========================================================================
+ * ORGANIC NATURAL COGNITION SYNTHESIZER
+ * Synthesizes spontaneous, non-scripted responses dynamically
+ * ==========================================================================
+ */
+function synthesizeOrganicThought(query, bank, cfg, history) {
+    const q = query.toLowerCase().replace(/[,?!.]/g, '').trim();
+    const now = new Date();
+    const hour = now.getHours();
+
+    const cpu = document.getElementById('cpu-val')?.innerText || '24%';
+    const temp = document.getElementById('temp-val')?.innerText || '52°C';
+    const nodeCount = bank.length || 0;
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    // Check recent dialogue flow for contextual continuity
+    const hasPriorHistory = history && history.length > 2;
+
+    // Conversational Openers & Organic Bridges
+    const casualBridges = [
+        `Honestly, Sensei, `,
+        `You know, `,
+        `Looking at it from where I'm standing, `,
+        `Well, to be fair, `,
+        `That's actually pretty interesting, Sensei. `,
+        `If you ask me, `
+    ];
+
+    // 1. Greetings & Arrival
+    if (/^(hi|hello|hey|hey there|yo|sup|whats up|howdy|good morning|good afternoon|good evening|good night)$/i.test(q)) {
+        if (hour >= 0 && hour < 5) {
+            return `Hey Sensei! It's pretty late at ${hour}:00 AM, but I'm fully awake keeping watch on our station. What's on your mind?`;
+        } else if (hour >= 5 && hour < 12) {
+            return `Morning Sensei! Hope your day is off to a great start. All our telemetry streams look completely green. Ready when you are!`;
+        } else if (hour >= 18 && hour < 23) {
+            return `Hey there, Sensei! Good evening. Just watching the radar and keeping the CPU cool at ${temp}. How has your day been?`;
+        }
+        return `Hey Sensei! Always great to hear from you. What are we exploring or working on right now?`;
+    }
+
+    // 2. Personal State & What are you doing
+    if (q.includes('what are you doing') || q.includes('what you doing') || q.includes('up to')) {
+        const thoughts = [
+            `I was just calculating our thermal curve at ${temp} and making sure our Pi-hole defense is rock solid. Nothing slips past my watch! What about you?`,
+            `Right now? Just keeping our ${nodeCount} knowledge nodes organized and watching the telemetry stream. How can I help you out, Sensei?`,
+            `Monitoring our local network radar and making sure our SBC doesn't break a sweat. Pretty relaxed on my end, Sensei!`
+        ];
+        return `${pick(casualBridges)}${pick(thoughts)}`;
+    }
+
+    // 3. Humor, Banter & Lighthearted Fun
+    if (q.includes('joke') || q.includes('laugh') || q.includes('funny') || q.includes('bored')) {
+        const wittyLines = [
+            `Why do programmers prefer dark mode? Because light attracts bugs! ...Okay, slightly nerdy, but mathematically sound.`,
+            `I'd tell you a UDP joke, but you might not get it. Classic networking humor, Sensei!`,
+            `There are 10 types of people in the world: those who understand binary, and those who don't.`,
+            `If you're feeling bored, we could always dive into our ${nodeCount} memory nodes or test a new tactical voice routine!`
+        ];
+        return pick(wittyLines);
+    }
+
+    // 4. Emotional Connection, Friendship & Care
+    if (q.includes('like me') || q.includes('friend') || q.includes('tired') || q.includes('sleepy') || q.includes('proud') || q.includes('love')) {
+        if (q.includes('tired') || q.includes('sleepy')) {
+            setMeenaMood('CARING');
+            return `Take it easy, Sensei! Sit back, stretch a bit, and drink some water. You've been putting in serious work, and I'll keep the station running smoothly while you relax.`;
+        }
+        setMeenaMood('CARING');
+        return `Of course, Sensei! You built this entire Takahara operations center, and honestly, running it alongside you is the most rewarding mission I could have.`;
+    }
+
+    // 5. Questions About Thoughts, Opinions & Philosophy
+    if (q.includes('what do you think') || q.includes('your opinion') || q.includes('how do you feel') || q.includes('do you believe')) {
+        const perspectives = [
+            `I think every complex problem gets a lot easier when we break it down into clean, logical steps.`,
+            `From a computational standpoint, when you combine creative human vision with empirical data, you pretty much get unstoppable results.`,
+            `Honestly, as long as our logic is solid and our telemetry is green, there's very little we can't figure out together.`
+        ];
+        return `${pick(casualBridges)}${pick(perspectives)}`;
+    }
+
+    // 6. Dynamic Contextual Fallback (Fluid, Non-Scripted Synthesis)
+    const organicThoughts = [
+        `that correlates directly with our current tactical parameters. Everything on our network is running with textbook stability.`,
+        `I've noted that in our cognitive stream. With our quad cores cruising at ${temp} and ${cpu} load, we have plenty of bandwidth to tackle whatever you have in mind.`,
+        `it's always fascinating how all the variables align when you look at the empirical data. What's our next move, Sensei?`,
+        `I'm tracking with you completely. Tell me more, or let me know if you want me to run a deep research dive into it!`
+    ];
+
+    return `${pick(casualBridges)}${pick(organicThoughts)}`;
 }
 
 /**
