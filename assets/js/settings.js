@@ -5,8 +5,25 @@
  * ==========================================================================
  */
 
+const DEFAULT_CALENDARS = [
+    {
+        id: 'cal_school',
+        name: 'School',
+        url: 'https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics',
+        color: '#ffe253',
+        enabled: true
+    },
+    {
+        id: 'cal_manaphassan',
+        name: 'Manaphassan',
+        url: 'https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics',
+        color: '#c2c1ff',
+        enabled: true
+    }
+];
+
 let settingsCalendarState = {
-    calendars: []
+    calendars: [...DEFAULT_CALENDARS]
 };
 
 function switchTab(tabId) {
@@ -123,6 +140,14 @@ function savePersona(persona) {
     alert(`AI Persona switched to: ${persona === 'ALEX' ? 'Alex (Tactical Assistant)' : 'Sensei Takahara (Academy Mentor)'}`);
 }
 
+function savePersonaSetting(persona) {
+    savePersona(persona);
+}
+
+function changeVoiceSetting(voiceName) {
+    localStorage.setItem('meena_voice_name', voiceName);
+}
+
 function updateRateSlider(val) {
     const rateTxt = document.getElementById('rate-val-txt');
     if (rateTxt) rateTxt.innerText = `${parseFloat(val).toFixed(2)}x`;
@@ -151,6 +176,10 @@ function testCurrentVoice() {
         }
         window.speechSynthesis.speak(u);
     }
+}
+
+function testVoicePreview() {
+    testCurrentVoice();
 }
 
 function saveGeminiKey() {
@@ -192,26 +221,11 @@ function resetTokenQuota() {
     if (costElem) costElem.innerText = '$0.00';
 }
 
-const DEFAULT_CALENDARS = [
-    {
-        id: 'cal_school',
-        name: 'School',
-        url: 'https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics',
-        color: '#ffe253',
-        enabled: true
-    },
-    {
-        id: 'cal_manaphassan',
-        name: 'Manaphassan',
-        url: 'https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics',
-        color: '#c2c1ff',
-        enabled: true
-    }
-];
-
-let settingsCalendarState = {
-    calendars: [...DEFAULT_CALENDARS]
-};
+/**
+ * ==========================================================================
+ * MULTI-CALENDAR MANAGEMENT IN SETTINGS
+ * ==========================================================================
+ */
 
 async function loadSettingsCalendars() {
     try {
@@ -397,12 +411,38 @@ function importKnowledgeJSON(e) {
     reader.readAsText(file);
 }
 
+/**
+ * ==========================================================================
+ * HARDWARE MAINTENANCE ACTIONS (DIETPI / LINUX)
+ * ==========================================================================
+ */
+async function executeMaintenanceAction(action) {
+    let confirmMsg = "";
+    if (action === 'system_reboot') confirmMsg = "Are you sure you want to REBOOT the Raspberry Pi host?";
+    else if (action === 'dietpi_update') confirmMsg = "Trigger non-interactive DietPi OS and package update?";
+    else if (action === 'purge_ram') confirmMsg = "Purge Linux buffer and page cache to free RAM?";
+    else if (action === 'flush_dns') confirmMsg = "Flush Pi-hole DNS resolver cache?";
+
+    if (confirmMsg && !confirm(confirmMsg)) return;
+
+    try {
+        const res = await fetch(`api.php?action=${action}`, { method: 'POST' });
+        const data = await res.json();
+        alert(data.result || data.message || `Action [${action}] executed successfully!`);
+    } catch(e) {
+        alert(`Failed to execute ${action}: ${e.message}`);
+    }
+}
+
 // Window Exports
 window.switchTab = switchTab;
 window.savePersona = savePersona;
+window.savePersonaSetting = savePersonaSetting;
+window.changeVoiceSetting = changeVoiceSetting;
 window.updateRateSlider = updateRateSlider;
 window.updatePitchSlider = updatePitchSlider;
 window.testCurrentVoice = testCurrentVoice;
+window.testVoicePreview = testVoicePreview;
 window.saveGeminiKey = saveGeminiKey;
 window.clearGeminiKey = clearGeminiKey;
 window.resetTokenQuota = resetTokenQuota;
@@ -412,3 +452,4 @@ window.removeCalendarFromSettings = removeCalendarFromSettings;
 window.testAllCalendarFeeds = testAllCalendarFeeds;
 window.exportKnowledgeJSON = exportKnowledgeJSON;
 window.importKnowledgeJSON = importKnowledgeJSON;
+window.executeMaintenanceAction = executeMaintenanceAction;
