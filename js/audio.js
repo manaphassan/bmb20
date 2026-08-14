@@ -25,48 +25,49 @@ window.addEventListener('click', unlockAudioContext, { once: true });
 window.addEventListener('keydown', unlockAudioContext, { once: true });
 
 /**
- * J.A.R.V.I.S. AI Voice Synthesizer (Web Speech API)
- * Calibrated for sophisticated, deep British AI assistant cadence
+ * M.E.E.N.A. AI Voice Synthesizer (Web Speech API)
+ * Master Electronic Executive Neural Assistant
+ * Calibrated for a young, cheerful Asian/Japanese-accent English female AI assistant
  */
-let jarvisVoice = null;
+let meenaVoice = null;
 
-function loadJarvisVoice() {
+function loadMeenaVoice() {
     if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
     if (!voices || voices.length === 0) return;
 
-    // Prioritize British Male / Sophisticated AI Voices
-    const match = voices.find(v => (v.name.includes('Google UK English Male') || v.name.includes('George') || v.name.includes('Oliver') || v.name.includes('Daniel') || v.name.includes('Arthur') || v.name.includes('Ryan') || (v.lang === 'en-GB' && v.name.toLowerCase().includes('male'))))
-        || voices.find(v => v.lang === 'en-GB' || v.lang === 'en_GB')
-        || voices.find(v => v.name.includes('Natural') || v.name.includes('Guy') || v.name.includes('David'))
-        || voices.find(v => v.lang.startsWith('en'));
+    // Prioritize Japanese Female / Asian English Voices (Nanami, Keiko, Kyoko, Luna, Singapore/Asian English)
+    const match = voices.find(v => (v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Google 日本語')))
+        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP')
+        || voices.find(v => (v.lang === 'en-SG' || v.lang === 'en-PH' || v.lang === 'en-HK' || v.name.includes('Luna') || v.name.includes('Jenny') || v.name.includes('Sonia') || v.name.includes('Zira') || v.name.includes('Karen') || v.name.includes('Victoria')))
+        || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Natural')));
 
-    if (match) jarvisVoice = match;
+    if (match) meenaVoice = match;
 }
 
 if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = loadJarvisVoice;
-    loadJarvisVoice();
+    window.speechSynthesis.onvoiceschanged = loadMeenaVoice;
+    loadMeenaVoice();
 }
 
 function speakComputerVoice(text) {
     if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) return;
     try {
         window.speechSynthesis.cancel(); // Stop overlapping speech
-        if (!jarvisVoice) loadJarvisVoice();
+        if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.96;   // Composed, dignified British cadence
-        utterance.pitch = 0.88;  // Deeper, smooth resonance
+        utterance.rate = 1.08;   // Cheerful, youthful, energetic tempo
+        utterance.pitch = 1.25;  // Bright, friendly young female pitch
         utterance.volume = 1.0;
 
-        if (jarvisVoice) {
-            utterance.voice = jarvisVoice;
+        if (meenaVoice) {
+            utterance.voice = meenaVoice;
         }
 
         window.speechSynthesis.speak(utterance);
     } catch (e) {
-        console.warn("JARVIS speech synthesis skipped:", e);
+        console.warn("M.E.E.N.A. speech synthesis skipped:", e);
     }
 }
 
@@ -240,7 +241,7 @@ function playWarpSequence() {
         osc.stop(now + 1.45);
         subOsc.stop(now + 1.45);
 
-        speakComputerVoice("Warp drive engaged. Heading locked, sir.");
+        speakComputerVoice("Warp speed! Ikimashou! Accelerating warp drive now, Commander!");
     } catch (e) {}
 }
 
@@ -275,7 +276,7 @@ function startRedAlertKlaxon() {
     
     // Play immediately & speak announcement
     playSound('alert');
-    speakComputerVoice("Code Red, sir. Tactical shields at maximum. All defense stations armed.");
+    speakComputerVoice("Code Red! Hai! Tactical shields energized at maximum! Battle stations ready, Commander!");
 
     // Loop every 1200ms
     redAlertInterval = setInterval(() => {
@@ -297,7 +298,7 @@ function stopRedAlertKlaxon() {
 function playYellowAlertChirp() {
     stopRedAlertKlaxon();
     playSound('caution');
-    speakComputerVoice("Code Yellow, sir. Monitoring subspace anomalies and power grid.");
+    speakComputerVoice("Code Yellow! Subspace sensors are scanning for anomalies, Commander!");
 }
 
 // Deep 48Hz Warp Core Engine Ambient Hum
@@ -387,7 +388,7 @@ function toggleAudio() {
         animateEqualizer(true);
         playSound('chime');
         setTimeout(() => {
-            speakComputerVoice("JARVIS interface online. At your service, sir.");
+            speakComputerVoice("Konnichiwa, Commander! M.E.E.N.A. online and ready to assist you!");
         }, 400);
     } else {
         if (icon) icon.innerText = 'volume_off';
@@ -471,14 +472,14 @@ function toggleVoiceRecognition() {
         recognition.stop();
         updateVoiceHUD("MIC OFF", false);
         if (playSound) playSound('beep1');
-        if (speakComputerVoice) speakComputerVoice("Voice listening deactivated, sir.");
+        if (speakComputerVoice) speakComputerVoice("M.E.E.N.A. voice listening deactivated, Commander.");
     } else {
         isListening = true;
         try {
             recognition.start();
             updateVoiceHUD("LISTENING...", true);
             if (playSound) playSound('beep2');
-            if (speakComputerVoice) speakComputerVoice("Standing by for your command, sir.");
+            if (speakComputerVoice) speakComputerVoice("Hai, Commander! M.E.E.N.A. is listening!");
         } catch (e) {
             console.warn("Voice recognition start error:", e);
             openVoiceModal();
@@ -570,7 +571,7 @@ function speakVerbalStatusReport() {
     const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52 degrees';
     const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'active';
 
-    speakComputerVoice(`Status report, sir. CPU load is at ${cpu}, memory utilization is ${mem}. Processor temperature is ${temp}. Pi-hole shield is ${pihole}. All subsystems nominal.`);
+    speakComputerVoice(`Status report, Commander! CPU is at ${cpu}, memory utilization is ${mem}. Processor temperature is ${temp}. Pi-hole shield is ${pihole}. Terra base is running smoothly!`);
 }
 
 function speakVerbalWeatherReport() {
@@ -579,7 +580,7 @@ function speakVerbalWeatherReport() {
     const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75 percent';
     const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
 
-    speakComputerVoice(`Atmospheric report for Terra base: Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Planetary conditions are optimal, sir.`);
+    speakComputerVoice(`Atmospheric forecast for Terra base, Commander! Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Have a wonderful day!`);
 }
 
 // Window Global Exports

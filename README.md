@@ -14,12 +14,14 @@ An authentic, high-performance Starfleet LCARS (Library Computer Access and Retr
 * **Vector Line Callout Notations**: Dynamic 60 FPS projected SVG leader lines and glassmorphic HUD telemetry cards tracking coordinates in real time.
 * **Interactive Orbit & Zoom Controls**: Mouse drag / touch to orbit in 3D with smooth inertial damping; scroll wheel to zoom.
 
-### 2. 🎙️ J.A.R.V.I.S. AI Voice Engine & Speech Recognition
-* **Web Speech Recognition API (`[VOICE: ON]` / `V`)**: Direct voice commands through your microphone:
-  * *"Computer, Red Alert"* $\to$ Arms tactical shields and sounds klaxon.
-  * *"Computer, Status Report"* $\to$ J.A.R.V.I.S. speaks live CPU, temperature, memory, and Pi-hole metrics.
-  * *"Computer, Warp Speed"* $\to$ Executes warp drive acceleration sweep.
-  * *"Computer, Planet Earth"* $\to$ Switches 3D stage to terrestrial view.
+### 2. 🎙️ M.E.E.N.A. AI Voice Engine & Speech Recognition
+* **Persona**: Master Electronic Executive Neural Assistant — energetic, cheerful young female Asian English voice with Japanese cadence.
+* **Web Speech Recognition API (`[VOICE: ON]` / `V`)**: Direct microphone command parsing:
+  * *"Computer, Code Red"* $\to$ *"Code Red! Hai! Tactical shields energized at maximum, Commander!"*
+  * *"Computer, Status Report"* $\to$ M.E.E.N.A. speaks live CPU, temperature, memory, and Pi-hole metrics.
+  * *"Computer, Weather Forecast"* $\to$ Speaks atmospheric telemetry for Terra base.
+  * *"Computer, Warp Speed"* $\to$ *"Warp speed! Ikimashou! Accelerating warp drive now, Commander!"*
+  * *"Computer, Terra"* $\to$ Switches 3D stage to Terra planetary hologram.
 * **Web Audio API Procedural Synthesizer**: TNG Door Chimes (`C`), Warp Drive (`W`), Transporter Beaming (`B`), 48Hz Warp Core Hum, and Emergency Klaxon.
 * **High-Clarity / CRT Scanline Toggle (`R`)**: Instant toggle between razor-sharp typography and retro phosphor CRT scanlines.
 
