@@ -74,6 +74,7 @@ function initEarth() {
 
     // Handle Window Resize
     window.addEventListener('resize', onWindowResize, false);
+    setTimeout(onWindowResize, 80);
 
     // Start Master Render Loop
     animate();
