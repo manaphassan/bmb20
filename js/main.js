@@ -119,17 +119,50 @@ function generateCascade() {
     }, duration * 1000);
 }
 
-function toggleCascade() {
-    cascadeActive = !cascadeActive;
-    const btn = document.getElementById('cascade-toggle');
-    if (btn) {
-        btn.innerText = cascadeActive ? 'FREEZE' : 'PLAY';
+// CRT Retro Scanline & High-Clarity Mode Engine
+let scanlinesActive = false; // Default to OFF for maximum text readability
+
+function initScanlines() {
+    const saved = localStorage.getItem('lcars_scanlines');
+    if (saved !== null) {
+        scanlinesActive = (saved === 'true');
     }
-    if (!cascadeActive) {
-        const container = document.getElementById('cascade-container');
-        if (container) container.innerHTML = '';
+    applyScanlinesUI();
+}
+
+function applyScanlinesUI() {
+    const body = document.body;
+    const btn = document.getElementById('scanline-toggle');
+    const icon = document.getElementById('scanline-icon');
+    const label = document.getElementById('scanline-label');
+
+    if (scanlinesActive) {
+        body.classList.remove('no-scanlines');
+        if (icon) icon.innerText = 'tv';
+        if (label) label.innerText = 'CRT: ON';
+        if (btn) {
+            btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+            btn.classList.remove('bg-surface-variant');
+        }
+    } else {
+        body.classList.add('no-scanlines');
+        if (icon) icon.innerText = 'tv_off';
+        if (label) label.innerText = 'CRT: OFF';
+        if (btn) {
+            btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+            btn.classList.add('bg-surface-variant');
+        }
     }
+}
+
+function toggleScanlines() {
+    scanlinesActive = !scanlinesActive;
+    localStorage.setItem('lcars_scanlines', scanlinesActive ? 'true' : 'false');
+    applyScanlinesUI();
     if (window.playSound) window.playSound('beep2');
+    if (window.speakComputerVoice) {
+        window.speakComputerVoice(scanlinesActive ? "Retro scan lines enabled." : "High clarity mode active.");
+    }
 }
 
 // Page Visibility Lifecycle Engine
@@ -143,7 +176,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Keyboard Hotkey Support (1=Green, 2=Yellow, 3=Red, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, M/A=Audio)
+// Keyboard Hotkey Support (1=Green, 2=Yellow, 3=Red, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, M/A=Audio)
 window.addEventListener('keydown', (e) => {
     // Ignore input if focused in text fields
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
@@ -167,6 +200,8 @@ window.addEventListener('keydown', (e) => {
         if (window.playDoorChime) window.playDoorChime();
     } else if (k === 'b') {
         if (window.playTransporterChime) window.playTransporterChime();
+    } else if (k === 'r') {
+        toggleScanlines();
     } else if (k === 'm' || k === 'a') {
         if (window.toggleAudio) window.toggleAudio();
     }
@@ -178,12 +213,15 @@ window.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    // 2. Initialize 3D Earth Hologram
+    // 2. Initialize CRT Scanline Display Preference (Default High Clarity Mode)
+    initScanlines();
+
+    // 3. Initialize 3D Earth Hologram
     if (window.initEarth) {
         window.initEarth();
     }
 
-    // 3. Start Telemetry Engine & Initial Canvas Draw
+    // 4. Start Telemetry Engine & Initial Canvas Draw
     if (window.drawBandwidthCanvas) {
         window.drawBandwidthCanvas();
     }
@@ -192,12 +230,12 @@ window.addEventListener('DOMContentLoaded', () => {
         telemetryTimer = setInterval(window.fetchTelemetry, (window.BMB20_CONFIG && window.BMB20_CONFIG.pollIntervalMs) || 1000);
     }
 
-    // 4. Start Background Cascade Effect
+    // 5. Start Background Cascade Effect
     cascadeTimer = setInterval(generateCascade, 250);
 
-    // 5. Default Condition Green
+    // 6. Default Condition Green
     setAlertCondition('green', false);
 });
 
-window.toggleCascade = toggleCascade;
+window.toggleScanlines = toggleScanlines;
 window.setAlertCondition = setAlertCondition;

@@ -121,9 +121,9 @@
                 <button onclick="playWarpSequence()" class="bg-surface-container-high hover:bg-primary hover:text-black py-1 px-1.5 rounded-r text-center font-bold transition-colors">WARP [W]</button>
             </div>
 
-            <button class="bg-tertiary-container text-on-tertiary-container font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-tertiary transition-colors flex justify-between items-center font-bold" id="cascade-toggle" onclick="toggleCascade()">
-                <span class="material-symbols-outlined text-sm">pause_circle</span>
-                <span>FREEZE</span>
+            <button class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-surface-bright transition-colors flex justify-between items-center font-bold" id="scanline-toggle" onclick="toggleScanlines()">
+                <span class="material-symbols-outlined text-sm" id="scanline-icon">tv_off</span>
+                <span id="scanline-label">CRT: OFF</span>
             </button>
             <button class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-surface-bright transition-colors flex justify-between items-center font-bold" id="audio-toggle" onclick="toggleAudio()">
                 <div class="flex items-center gap-1">

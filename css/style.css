@@ -60,6 +60,21 @@ html, body {
     z-index: 999;
 }
 
+/* CRT & Scanline Toggle Support (High Clarity Mode) */
+body.no-scanlines .scanlines,
+body.no-scanlines .earth-scanlines,
+body.no-scanlines .crt-vignette {
+    display: none !important;
+}
+
+body.no-scanlines .glitch-effect {
+    animation: none !important;
+}
+
+body.no-scanlines {
+    text-shadow: none !important;
+}
+
 /* Subtle Tactical Glitch Animation */
 @keyframes subtle-glitch {
     0% { transform: translate(0); filter: hue-rotate(0deg); }
