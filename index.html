@@ -608,11 +608,12 @@ body {
                             <span>192.168.0.14</span>
                             <span class="material-symbols-outlined text-xs text-center text-primary">wifi</span>
                             <span class="text-right text-primary font-bold">OK</span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div> <!-- End .main-area -->
+
     <!-- Maximize 3D Globe Fullscreen LCARS Modal Overlay -->
     <div id="globe-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col hidden p-4 transition-all duration-300">
         <div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
@@ -1433,6 +1434,9 @@ function initEarth() {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
+    });
+}
+
 function openGlobeModal() {
     const modal = document.getElementById('globe-modal');
     if (!modal) return;
