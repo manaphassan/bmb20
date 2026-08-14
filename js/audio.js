@@ -659,6 +659,8 @@ function handleVoiceCommand(rawCmd) {
     if (isWakeWordOnly) {
         if (playSound) playSound('beep2');
         if (hudBadge) hudBadge.innerText = `MEENA: READY!`;
+        addMeenaEXP(10, 'Wake word interaction');
+        setMeenaMood('CHEERFUL');
         const hour = new Date().getHours();
         if (hour >= 5 && hour < 12) {
             speakComputerVoice("Good morning, Sensei! Standing by and ready for orders!");
@@ -674,12 +676,20 @@ function handleVoiceCommand(rawCmd) {
 
     // 2. Action Voice Commands
     if (cmd.includes('red') || cmd.includes('code red') || cmd.includes('shields up') || cmd.includes('battle stations')) {
+        addMeenaEXP(15, 'Code Red engagement');
+        setMeenaMood('TACTICAL');
         if (window.setAlertCondition) window.setAlertCondition('red', true);
     } else if (cmd.includes('yellow') || cmd.includes('code yellow') || cmd.includes('caution')) {
+        addMeenaEXP(10, 'Yellow alert caution');
+        setMeenaMood('TACTICAL');
         if (window.setAlertCondition) window.setAlertCondition('yellow', true);
     } else if (cmd.includes('green') || cmd.includes('code green') || cmd.includes('nominal') || cmd.includes('all clear') || cmd.includes('stand down')) {
+        addMeenaEXP(10, 'Code Green nominal');
+        setMeenaMood('CHEERFUL');
         if (window.setAlertCondition) window.setAlertCondition('green', true);
     } else if (cmd.includes('warp') || cmd.includes('engage') || cmd.includes('accelerate')) {
+        addMeenaEXP(20, 'Warp speed sequence');
+        setMeenaMood('PROUD');
         if (window.playWarpSequence) window.playWarpSequence();
     } else if (cmd.includes('chime') || cmd.includes('door') || cmd.includes('hail')) {
         if (window.playDoorChime) window.playDoorChime();
@@ -692,18 +702,23 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
         if (window.switchHologramView) window.switchHologramView('galaxy');
     } else if (cmd.includes('disable pi') || cmd.includes('pause pi') || cmd.includes('disable shield') || cmd.includes('pause shield') || cmd.includes('stop pihole')) {
+        addMeenaEXP(15, 'Pi-hole shield paused');
         if (window.executePiholeAction) window.executePiholeAction('pihole_disable', 300);
     } else if (cmd.includes('enable pi') || cmd.includes('resume pi') || cmd.includes('enable shield') || cmd.includes('shield on') || cmd.includes('start pihole')) {
+        addMeenaEXP(15, 'Pi-hole shield activated');
         if (window.executePiholeAction) window.executePiholeAction('pihole_enable');
     } else if (cmd.includes('update gravity') || cmd.includes('update blocklist') || cmd.includes('reload gravity')) {
+        addMeenaEXP(25, 'Pi-hole Gravity reload');
         if (window.executePiholeAction) window.executePiholeAction('pihole_update_gravity');
     } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
+        addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
+        addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
     } else if (cmd.startsWith('remember ') || cmd.includes('remember that ')) {
         const fact = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?remember\s*(that\s*)?/i, '').trim();
-        if (fact) rememberFact(fact);
+        if (fact) rememberCategorizedFact('facility', fact);
     } else if (cmd.includes('recall') || cmd.includes('what did you learn') || cmd.includes('read memory') || cmd.includes('show memory')) {
         recallMemories();
     } else if (cmd.includes('clear memory') || cmd.includes('forget all') || cmd.includes('reset memory')) {
@@ -714,50 +729,295 @@ function handleVoiceCommand(rawCmd) {
         if (window.toggleAudio) window.toggleAudio();
     } else {
         // Conversational AI Brain Fallback for Natural Questions & Learning
+        addMeenaEXP(10, 'Conversational query');
         askMeenaAI(rawCmd);
     }
 }
 
 /**
  * ==========================================================================
- * MEENA LONG-TERM MEMORY & LEARNING SYSTEM
+ * MEENA NEURAL GROWTH & EXP ENGINE (LEVEL 1 -> 99)
  * ==========================================================================
  */
-function getMeenaMemories() {
-    try {
-        return JSON.parse(localStorage.getItem('meena_tactical_memories') || '[]');
-    } catch (e) {
-        return [];
+function getMeenaEXP() {
+    return parseInt(localStorage.getItem('meena_sync_exp') || '840', 10);
+}
+
+function getMeenaGrowthStatus() {
+    const totalExp = getMeenaEXP();
+    // Level curve: 100 EXP per level
+    const level = Math.max(1, Math.floor(totalExp / 100) + 1);
+    const expInLevel = totalExp % 100;
+    
+    let rank = 'RANK E: CADET AI';
+    if (level >= 50) {
+        rank = 'RANK EX: SOULBOUND GUARDIAN';
+    } else if (level >= 26) {
+        rank = 'RANK A: TACTICAL DIRECTOR';
+    } else if (level >= 11) {
+        rank = 'RANK C: OPERATOR';
+    }
+
+    return { totalExp, level, expInLevel, rank };
+}
+
+function addMeenaEXP(points, reason = '') {
+    const oldStatus = getMeenaGrowthStatus();
+    const newTotal = oldStatus.totalExp + points;
+    localStorage.setItem('meena_sync_exp', newTotal.toString());
+    const newStatus = getMeenaGrowthStatus();
+
+    updateGrowthUI();
+
+    // Check for Level Up!
+    if (newStatus.level > oldStatus.level) {
+        setMeenaMood('PROUD');
+        if (window.playSound) window.playSound('beep2');
+        speakComputerVoice(`Sugoi, Sensei! My neural sync level has increased to Level ${newStatus.level}! Rank: ${newStatus.rank}!`);
     }
 }
 
-function rememberFact(fact) {
-    const memories = getMeenaMemories();
-    memories.push({
-        fact: fact,
+function updateGrowthUI() {
+    const status = getMeenaGrowthStatus();
+    const lvlElem = document.getElementById('meena-sync-level');
+    const rankElem = document.getElementById('meena-rank-badge');
+    const barElem = document.getElementById('meena-exp-bar');
+    const textElem = document.getElementById('meena-exp-text');
+
+    if (lvlElem) lvlElem.innerText = `Lv. ${status.level}`;
+    if (rankElem) rankElem.innerText = status.rank;
+    if (barElem) barElem.style.width = `${status.expInLevel}%`;
+    if (textElem) textElem.innerText = `${status.expInLevel} / 100 EXP`;
+}
+
+/**
+ * ==========================================================================
+ * MOOD & AFFECTION MATRIX
+ * ==========================================================================
+ */
+let meenaCurrentMood = 'CHEERFUL';
+
+function setMeenaMood(mood) {
+    meenaCurrentMood = mood;
+    const badge = document.getElementById('meena-mood-badge');
+    if (!badge) return;
+
+    if (mood === 'CHEERFUL') {
+        badge.className = 'text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40';
+        badge.innerText = '🌸 CHEERFUL';
+    } else if (mood === 'TACTICAL') {
+        badge.className = 'text-[9px] bg-error/20 text-error px-1.5 py-0.5 rounded font-bold border border-error/40 animate-pulse';
+        badge.innerText = '🚨 TACTICAL DEFENSE';
+    } else if (mood === 'CARING') {
+        badge.className = 'text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40';
+        badge.innerText = '💖 CARING';
+    } else if (mood === 'PROUD') {
+        badge.className = 'text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40';
+        badge.innerText = '✨ PROUD';
+    }
+}
+
+/**
+ * ==========================================================================
+ * STRUCTURED 4-CATEGORY TACTICAL KNOWLEDGE BANK
+ * ==========================================================================
+ */
+let currentKnowledgeFilter = 'all';
+
+function getKnowledgeBank() {
+    try {
+        const stored = localStorage.getItem('meena_knowledge_bank');
+        if (stored) return JSON.parse(stored);
+    } catch (e) {}
+
+    // Default Seed Data
+    const defaults = [
+        { id: '1', category: 'facility', fact: 'Workstation IP: 192.168.0.105', desc: 'Takahara Host Node', timestamp: new Date().toISOString() },
+        { id: '2', category: 'facility', fact: 'Pi-hole Port: 8089 on DietPi', desc: 'DNS Defense Shield', timestamp: new Date().toISOString() },
+        { id: '3', category: 'profile', fact: 'Sensei prefers English voice with Japanese flair', desc: 'Audio Preference', timestamp: new Date().toISOString() },
+        { id: '4', category: 'routines', fact: 'Daily morning mission briefing at 08:00 AM', desc: 'Scheduled Operation', timestamp: new Date().toISOString() },
+        { id: '5', category: 'missions', fact: 'Keep DietPi and Pi-hole blocklists updated', desc: 'Active Defense Task', timestamp: new Date().toISOString() }
+    ];
+    localStorage.setItem('meena_knowledge_bank', JSON.stringify(defaults));
+    return defaults;
+}
+
+function rememberCategorizedFact(category, fact) {
+    if (!fact || !fact.trim()) return;
+    const bank = getKnowledgeBank();
+    const item = {
+        id: Date.now().toString(),
+        category: category || 'facility',
+        fact: fact.trim(),
+        desc: `Learned from Sensei`,
         timestamp: new Date().toISOString()
-    });
-    if (memories.length > 25) memories.shift();
-    localStorage.setItem('meena_tactical_memories', JSON.stringify(memories));
+    };
+    bank.push(item);
+    if (bank.length > 50) bank.shift();
+    localStorage.setItem('meena_knowledge_bank', JSON.stringify(bank));
+
+    addMeenaEXP(25, 'Taught new fact');
+    setMeenaMood('CHEERFUL');
+    renderKnowledgeBank(currentKnowledgeFilter);
+
     if (window.playSound) window.playSound('beep2');
-    speakComputerVoice(`Understood, Sensei! I have learned and saved that into Takahara tactical memory!`);
+    speakComputerVoice(`Understood, Sensei! I have memorized that under ${category.toUpperCase()} category!`);
+}
+
+function deleteKnowledgeItem(id) {
+    let bank = getKnowledgeBank();
+    bank = bank.filter(item => item.id !== id);
+    localStorage.setItem('meena_knowledge_bank', JSON.stringify(bank));
+    renderKnowledgeBank(currentKnowledgeFilter);
+    if (window.playSound) window.playSound('beep1');
+}
+
+function filterKnowledgeCategory(category) {
+    currentKnowledgeFilter = category;
+    
+    // Update Filter Pill Styles
+    ['all', 'facility', 'profile', 'routines', 'missions'].forEach(cat => {
+        const btn = document.getElementById(`kb-filter-${cat}`);
+        if (btn) {
+            if (cat === category) {
+                btn.className = 'px-2 py-0.5 rounded bg-primary text-black font-bold';
+            } else {
+                btn.className = 'px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold';
+            }
+        }
+    });
+
+    renderKnowledgeBank(category);
+}
+
+function renderKnowledgeBank(category = 'all') {
+    const container = document.getElementById('knowledge-cards-container');
+    if (!container) return;
+
+    const bank = getKnowledgeBank();
+    const filtered = (category === 'all') ? bank : bank.filter(item => item.category === category);
+
+    container.innerHTML = '';
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-4 bg-surface-container-lowest p-3 rounded border border-outline-variant/30 text-center text-secondary text-[10px]">No knowledge entries recorded in this category yet. Type below to teach Meena!</div>`;
+        return;
+    }
+
+    const catIcons = {
+        facility: '🏡 FACILITY',
+        profile: '👤 SENSEI',
+        routines: '📅 ROUTINES',
+        missions: '🎯 MISSIONS'
+    };
+
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-surface-container-lowest p-2 rounded border border-outline-variant/30 flex flex-col justify-between text-[9px] hover:border-primary/50 transition-all';
+        card.innerHTML = `
+            <div class="flex justify-between items-center text-tertiary font-bold">
+                <span>${catIcons[item.category] || item.category.toUpperCase()}</span>
+                <button onclick="deleteKnowledgeItem('${item.id}')" class="text-on-surface-variant hover:text-error text-[10px] font-bold px-1" title="Delete note">✕</button>
+            </div>
+            <div class="text-on-surface my-1 font-mono break-words">${item.fact}</div>
+            <div class="text-[8px] text-secondary font-mono">${item.desc}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function executeTeachNote() {
+    const catSelect = document.getElementById('teach-category');
+    const input = document.getElementById('teach-note-input');
+    if (!input || !input.value.trim()) return;
+
+    const cat = catSelect ? catSelect.value : 'facility';
+    rememberCategorizedFact(cat, input.value.trim());
+    input.value = '';
 }
 
 function recallMemories() {
-    const memories = getMeenaMemories();
-    if (memories.length === 0) {
-        speakComputerVoice("My tactical memory is currently clear, Sensei! You can teach me by saying: Meena, remember, followed by any note.");
+    const bank = getKnowledgeBank();
+    if (bank.length === 0) {
+        speakComputerVoice("My tactical knowledge bank is currently clear, Sensei! You can teach me with the Teach Meena bar below.");
         return;
     }
-    const count = memories.length;
-    const latest = memories.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
-    speakComputerVoice(`Takahara tactical memory has ${count} records, Sensei. Here are the latest notes: ${latest}`);
+    const count = bank.length;
+    const latest = bank.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
+    speakComputerVoice(`Takahara knowledge bank has ${count} records, Sensei. Here are the latest notes: ${latest}`);
 }
 
 function clearMemories() {
-    localStorage.removeItem('meena_tactical_memories');
+    localStorage.removeItem('meena_knowledge_bank');
     if (window.playSound) window.playSound('beep1');
+    renderKnowledgeBank('all');
     speakComputerVoice("Takahara tactical memory registers have been reset, Sensei.");
+}
+
+/**
+ * ==========================================================================
+ * HOLOGRAPHIC ANIME AI AVATAR CORE CANVAS ANIMATION
+ * ==========================================================================
+ */
+let avatarCanvas = null;
+let avatarCtx = null;
+let avatarAngle = 0;
+
+function initMeenaAvatarCanvas() {
+    avatarCanvas = document.getElementById('meena-avatar-canvas');
+    if (!avatarCanvas) return;
+    avatarCtx = avatarCanvas.getContext('2d');
+    animateAvatar();
+}
+
+function animateAvatar() {
+    if (!avatarCtx || !avatarCanvas) return;
+    const ctx = avatarCtx;
+    const w = avatarCanvas.width;
+    const h = avatarCanvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+    avatarAngle += 0.03;
+
+    const isSpeaking = ('speechSynthesis' in window && window.speechSynthesis.speaking);
+
+    // Dynamic aura color by mood
+    let auraColor = '#66ccff';
+    if (meenaCurrentMood === 'TACTICAL') auraColor = '#ff3333';
+    if (meenaCurrentMood === 'CARING') auraColor = '#ffcc00';
+    if (meenaCurrentMood === 'PROUD') auraColor = '#d946ef';
+
+    // 1. Center Breathing Core
+    const pulse = isSpeaking ? (Math.sin(avatarAngle * 4) * 3 + 7) : (Math.sin(avatarAngle) * 1.5 + 5);
+    ctx.beginPath();
+    ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
+    ctx.fillStyle = auraColor;
+    ctx.shadowColor = auraColor;
+    ctx.shadowBlur = isSpeaking ? 12 : 6;
+    ctx.fill();
+
+    // 2. Outer Rotating Orbital Segments
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = auraColor;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, 12, avatarAngle, avatarAngle + Math.PI * 0.8);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 12, avatarAngle + Math.PI, avatarAngle + Math.PI * 1.8);
+    ctx.stroke();
+
+    // 3. Counter-Rotating Inner Ring
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 9, -avatarAngle * 1.5, -avatarAngle * 1.5 + Math.PI * 0.5);
+    ctx.stroke();
+
+    requestAnimationFrame(animateAvatar);
 }
 
 /**
@@ -766,8 +1026,8 @@ function clearMemories() {
  * ==========================================================================
  */
 async function askMeenaAI(question) {
-    const memories = getMeenaMemories();
-    const memoryContext = memories.length > 0 ? ("\nThings Sensei taught you: " + memories.map(m => m.fact).join("; ")) : "";
+    const bank = getKnowledgeBank();
+    const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
     
     const prompt = `You are M.E.E.N.A., an energetic, cheerful young anime girl AI personal assistant for home base Takahara Academy. Always reply in fluent, natural English with Japanese anime honorifics and expressions (Sensei, Ohayou, Konnichiwa, Hai, Otsukare, Arigato). Address the user respectfully as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, cheerful spoken sentences in English with Japanese anime flair:`;
     
@@ -803,6 +1063,7 @@ async function askMeenaAI(question) {
     } else if (q.includes('how are you') || q.includes('apa khabar') || q.includes('genki')) {
         speakComputerVoice("All neural pathways are running at maximum performance, Sensei! Standing by and ready for your orders!");
     } else if (q.includes('thank you') || q.includes('terima kasih') || q.includes('arigato')) {
+        setMeenaMood('CARING');
         speakComputerVoice("Douitashimashite, Sensei! It is always my pleasure to assist you!");
     } else {
         speakComputerVoice(`Acknowledged, Sensei! Meena is standing by at Takahara Academy.`);
@@ -848,7 +1109,17 @@ window.testMeenaVoice = testMeenaVoice;
 window.populateVoiceSelector = populateVoiceSelector;
 window.setMeenaPitch = setMeenaPitch;
 window.setMeenaRate = setMeenaRate;
-window.rememberFact = rememberFact;
+window.rememberCategorizedFact = rememberCategorizedFact;
 window.recallMemories = recallMemories;
 window.clearMemories = clearMemories;
 window.askMeenaAI = askMeenaAI;
+window.addMeenaEXP = addMeenaEXP;
+window.getMeenaGrowthStatus = getMeenaGrowthStatus;
+window.updateGrowthUI = updateGrowthUI;
+window.setMeenaMood = setMeenaMood;
+window.filterKnowledgeCategory = filterKnowledgeCategory;
+window.renderKnowledgeBank = renderKnowledgeBank;
+window.deleteKnowledgeItem = deleteKnowledgeItem;
+window.executeTeachNote = executeTeachNote;
+window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;
+

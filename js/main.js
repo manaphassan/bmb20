@@ -176,16 +176,43 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Keyboard Hotkey Support (1=Green, 2=Yellow, 3=Red, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, V=Voice Mic, M/A=Audio)
+// Dual-Deck Operational Routing Master Controller
+let currentDeck = 1;
+
+function switchDeck(deckNumber) {
+    currentDeck = deckNumber;
+    const deck1 = document.getElementById('deck-1-container');
+    const deck2 = document.getElementById('deck-2-container');
+    const tab1 = document.getElementById('deck-tab-1');
+    const tab2 = document.getElementById('deck-tab-2');
+
+    if (deckNumber === 1) {
+        if (deck1) deck1.classList.remove('hidden');
+        if (deck2) deck2.classList.add('hidden');
+        if (tab1) tab1.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#66ccff]";
+        if (tab2) tab2.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
+        if (window.renderKnowledgeBank) window.renderKnowledgeBank();
+        if (window.updateGrowthUI) window.updateGrowthUI();
+    } else {
+        if (deck1) deck1.classList.add('hidden');
+        if (deck2) deck2.classList.remove('hidden');
+        if (tab1) tab1.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
+        if (tab2) tab2.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#66ccff]";
+        // Trigger Three.js resize to ensure crisp 3D rendering on Deck 2
+        window.dispatchEvent(new Event('resize'));
+    }
+}
+
+// Keyboard Hotkey Support (1=Deck 1 Meena AI, 2=Deck 2 Observatory NOC, 3=Red Alert, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, V=Voice Mic, M/A=Audio)
 window.addEventListener('keydown', (e) => {
     // Ignore input if focused in text fields
-    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 
     const k = e.key.toLowerCase();
     if (e.key === '1') {
-        setAlertCondition('green', true);
+        switchDeck(1);
     } else if (e.key === '2') {
-        setAlertCondition('yellow', true);
+        switchDeck(2);
     } else if (e.key === '3') {
         setAlertCondition('red', true);
     } else if (e.key === '4' || k === 'p') {
@@ -203,7 +230,7 @@ window.addEventListener('keydown', (e) => {
     } else if (k === 'r') {
         toggleScanlines();
     } else if (k === 'v') {
-        if (window.toggleVoiceRecognition) window.toggleVoiceRecognition();
+        if (window.openVoiceModal) window.openVoiceModal();
     } else if (k === 'm' || k === 'a') {
         if (window.toggleAudio) window.toggleAudio();
     }
@@ -218,12 +245,23 @@ window.addEventListener('DOMContentLoaded', () => {
     // 2. Initialize CRT Scanline Display Preference (Default High Clarity Mode)
     initScanlines();
 
-    // 3. Initialize 3D Earth Hologram
+    // 3. Initialize Meena AI Avatar Core & Knowledge Bank
+    if (window.initMeenaAvatarCanvas) {
+        window.initMeenaAvatarCanvas();
+    }
+    if (window.updateGrowthUI) {
+        window.updateGrowthUI();
+    }
+    if (window.renderKnowledgeBank) {
+        window.renderKnowledgeBank('all');
+    }
+
+    // 4. Initialize 3D Earth Hologram
     if (window.initEarth) {
         window.initEarth();
     }
 
-    // 4. Start Telemetry Engine & Initial Canvas Draw
+    // 5. Start Telemetry Engine & Initial Canvas Draw
     if (window.drawBandwidthCanvas) {
         window.drawBandwidthCanvas();
     }
@@ -232,12 +270,15 @@ window.addEventListener('DOMContentLoaded', () => {
         telemetryTimer = setInterval(window.fetchTelemetry, (window.BMB20_CONFIG && window.BMB20_CONFIG.pollIntervalMs) || 1000);
     }
 
-    // 5. Start Background Cascade Effect
+    // 6. Start Background Cascade Effect
     cascadeTimer = setInterval(generateCascade, 250);
 
-    // 6. Default Condition Green
+    // 7. Default Condition Green & Default Deck 1 (Meena AI Deck)
     setAlertCondition('green', false);
+    switchDeck(1);
 });
 
 window.toggleScanlines = toggleScanlines;
 window.setAlertCondition = setAlertCondition;
+window.switchDeck = switchDeck;
+
