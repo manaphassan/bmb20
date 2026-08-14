@@ -1587,7 +1587,7 @@ function animateAvatar() {
  * ==========================================================================
  */
 let pendingSudoAction = null;
-let currentPersona = localStorage.getItem('meena_persona') || 'KOUHAI';
+let currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
 let lastUserInteractionTime = Date.now();
 
 const PERSONA_CONFIGS = {
