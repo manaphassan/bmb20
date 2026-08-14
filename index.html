@@ -356,16 +356,27 @@ body {
             </a>
         </div>
 
-        <!-- Resource Monitor Quick View -->
-        <div class="px-4 mb-2 text-right font-data-mono text-data-mono flex flex-col gap-1.5">
-            <div class="text-tertiary uppercase text-xs font-bold">Hardware QuickMon</div>
-            <div class="flex flex-col gap-1 items-end">
-                <div class="flex justify-between w-full text-secondary text-xs"><span>RAM</span> <span id="side-ram-val">45%</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end"><div class="bg-primary h-full transition-all" id="side-ram-bar" style="width: 45%;"></div></div>
+        <!-- Resource Monitor Quick View (All Hardware Metrics) -->
+        <div class="px-3 mb-2 text-right font-data-mono text-data-mono flex flex-col gap-1.5 border-t border-b border-outline-variant/30 py-2">
+            <div class="text-tertiary uppercase text-xs font-bold flex justify-between items-center">
+                <span class="text-[10px] text-primary">SBC TELEMETRY</span>
+                <span>Hardware Metrics</span>
             </div>
-            <div class="flex flex-col gap-1 items-end">
-                <div class="flex justify-between w-full text-secondary text-xs"><span>TEMP</span> <span id="side-temp-val">48°C</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end"><div class="bg-tertiary h-full transition-all" id="side-temp-bar" style="width: 48%;"></div></div>
+            <div class="flex flex-col gap-0.5 items-end">
+                <div class="flex justify-between w-full text-secondary text-[11px]"><span>CPU LOAD</span> <span id="side-cpu-val" class="text-primary font-bold">--%</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-primary h-full transition-all" id="side-cpu-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-0.5 items-end">
+                <div class="flex justify-between w-full text-secondary text-[11px]"><span>MEMORY</span> <span id="side-ram-val" class="text-tertiary font-bold">--%</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-tertiary h-full transition-all" id="side-ram-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-0.5 items-end">
+                <div class="flex justify-between w-full text-secondary text-[11px]"><span>SOC TEMP</span> <span id="side-temp-val" class="text-error font-bold">--°C</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-error h-full transition-all" id="side-temp-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-0.5 items-end">
+                <div class="flex justify-between w-full text-secondary text-[11px]"><span>DISK USAGE</span> <span id="side-disk-val" class="text-secondary font-bold">--%</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-secondary-container h-full transition-all" id="side-disk-bar" style="width: 0%;"></div></div>
             </div>
         </div>
 
@@ -518,8 +529,8 @@ body {
 
                     <!-- Morse Preset Quick-Send Chips -->
                     <div class="flex gap-1 justify-between text-[9px] font-data-mono">
+                        <button onclick="playTodayDateMorse()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[TODAY DATE]</button>
                         <button onclick="document.getElementById('morse-input').value='SOS'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[SOS]</button>
-                        <button onclick="document.getElementById('morse-input').value='MAYDAY'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[MAYDAY]</button>
                         <button onclick="document.getElementById('morse-input').value='PING'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[PING]</button>
                         <button onclick="document.getElementById('morse-input').value='DIETPI'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[DIETPI]</button>
                     </div>
@@ -892,33 +903,31 @@ async function fetchTelemetry() {
 }
 
 function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText) {
-    document.getElementById('telemetry-source').innerText = sourceText;
-    document.getElementById('hero-uptime').innerText = uptime || "UPTIME OK";
+    const srcElem = document.getElementById('telemetry-source');
+    if (srcElem) srcElem.innerText = sourceText;
+    const uptimeElem = document.getElementById('hero-uptime');
+    if (uptimeElem) uptimeElem.innerText = uptime || "UPTIME OK";
 
-    document.getElementById('cpu-val').innerText = `${cpu}%`;
-    const cpuBar = document.getElementById('cpu-bar');
-    cpuBar.style.width = `${cpu}%`;
-    if (cpu > 80) {
-        cpuBar.className = "bg-error danger-glow h-full transition-all";
-        document.getElementById('cpu-alert').classList.remove('hidden');
-        playSound('alert');
-    } else {
-        cpuBar.className = "bg-primary h-full transition-all";
-        document.getElementById('cpu-alert').classList.add('hidden');
-    }
+    // Sidebar Telemetry Updates (CPU, RAM, TEMP, DISK)
+    const sideCpuVal = document.getElementById('side-cpu-val');
+    const sideCpuBar = document.getElementById('side-cpu-bar');
+    if (sideCpuVal) sideCpuVal.innerText = `${cpu}%`;
+    if (sideCpuBar) sideCpuBar.style.width = `${cpu}%`;
 
-    document.getElementById('mem-val').innerText = `${mem}%`;
-    document.getElementById('mem-bar').style.width = `${mem}%`;
-    document.getElementById('side-ram-val').innerText = `${mem}%`;
-    document.getElementById('side-ram-bar').style.width = `${mem}%`;
+    const sideRamVal = document.getElementById('side-ram-val');
+    const sideRamBar = document.getElementById('side-ram-bar');
+    if (sideRamVal) sideRamVal.innerText = `${mem}%`;
+    if (sideRamBar) sideRamBar.style.width = `${mem}%`;
 
-    document.getElementById('temp-val').innerText = `${temp}°C`;
-    document.getElementById('temp-bar').style.width = `${temp}%`;
-    document.getElementById('side-temp-val').innerText = `${temp}°C`;
-    document.getElementById('side-temp-bar').style.width = `${temp}%`;
+    const sideTempVal = document.getElementById('side-temp-val');
+    const sideTempBar = document.getElementById('side-temp-bar');
+    if (sideTempVal) sideTempVal.innerText = `${temp}°C`;
+    if (sideTempBar) sideTempBar.style.width = `${temp}%`;
 
-    document.getElementById('disk-val').innerText = `${disk}%`;
-    document.getElementById('disk-bar').style.width = `${disk}%`;
+    const sideDiskVal = document.getElementById('side-disk-val');
+    const sideDiskBar = document.getElementById('side-disk-bar');
+    if (sideDiskVal) sideDiskVal.innerText = `${disk}%`;
+    if (sideDiskBar) sideDiskBar.style.width = `${disk}%`;
 }
 
 let txHistory = new Array(40).fill(0.3);
@@ -1324,6 +1333,20 @@ let isMorseTransmitting = false;
 
 function textToMorse(text) {
     return text.toUpperCase().split('').map(char => MORSE_MAP[char] || '').join(' ');
+}
+
+function getTodayDateString() {
+    const now = new Date();
+    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+
+function playTodayDateMorse() {
+    const dateStr = getTodayDateString();
+    const inputElem = document.getElementById('morse-input');
+    if (inputElem) inputElem.value = dateStr;
+    transmitMorseMessage();
 }
 
 function playMorseBeep(durationMs) {
@@ -2128,6 +2151,9 @@ window.onload = () => {
     initEarth();
     fetchRealtimeGeoIP();
     setInterval(fetchRealtimeGeoIP, 30000);
+
+    const inputElem = document.getElementById('morse-input');
+    if (inputElem) inputElem.value = getTodayDateString();
 };
 </script>
 </body>
