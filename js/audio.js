@@ -36,13 +36,67 @@ function loadMeenaVoice() {
     const voices = window.speechSynthesis.getVoices();
     if (!voices || voices.length === 0) return;
 
-    // Prioritize Japanese Female / Asian English Voices (Nanami, Keiko, Kyoko, Luna, Singapore/Asian English)
-    const match = voices.find(v => (v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Google 日本語')))
-        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP')
-        || voices.find(v => (v.lang === 'en-SG' || v.lang === 'en-PH' || v.lang === 'en-HK' || v.name.includes('Luna') || v.name.includes('Jenny') || v.name.includes('Sonia') || v.name.includes('Zira') || v.name.includes('Karen') || v.name.includes('Victoria')))
-        || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Natural')));
+    // Check if user has saved a preference
+    const savedVoiceName = localStorage.getItem('lcars_meena_voice');
+    if (savedVoiceName) {
+        const saved = voices.find(v => v.name === savedVoiceName);
+        if (saved) {
+            meenaVoice = saved;
+            populateVoiceSelector();
+            return;
+        }
+    }
+
+    // Priority 1: Fluent English with Japanese Accent / Multilingual Neural Japanese Female Voices
+    const match = voices.find(v => v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Aoi') || v.name.includes('Mayu') || v.name.includes('Shiori'))
+        || voices.find(v => (v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual') || v.name.includes('Luna') || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao') || v.name.includes('Yunxi')))
+        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.name.includes('Google 日本語') || v.name.includes('Kyoko') || v.name.includes('Ayumi'))
+        || voices.find(v => v.lang === 'en-SG' || v.lang === 'en-PH' || v.lang === 'en-HK')
+        || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Natural') || v.name.includes('Zira')));
 
     if (match) meenaVoice = match;
+    populateVoiceSelector();
+}
+
+function populateVoiceSelector() {
+    const select = document.getElementById('meena-voice-select');
+    if (!select || !('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return;
+
+    select.innerHTML = '';
+    
+    // Sort: Japanese and Asian voices first
+    const sorted = [...voices].sort((a, b) => {
+        const aScore = (a.lang.includes('ja') || a.name.includes('Nanami') || a.name.includes('Keiko') || a.lang.includes('SG')) ? 2 : (a.lang.startsWith('en') ? 1 : 0);
+        const bScore = (b.lang.includes('ja') || b.name.includes('Nanami') || b.name.includes('Keiko') || b.lang.includes('SG')) ? 2 : (b.lang.startsWith('en') ? 1 : 0);
+        return bScore - aScore;
+    });
+
+    sorted.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.innerText = `${v.name} (${v.lang})`;
+        if (meenaVoice && v.name === meenaVoice.name) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+}
+
+function setMeenaVoiceByName(voiceName) {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const found = voices.find(v => v.name === voiceName);
+    if (found) {
+        meenaVoice = found;
+        localStorage.setItem('lcars_meena_voice', voiceName);
+        testMeenaVoice();
+    }
+}
+
+function testMeenaVoice() {
+    speakComputerVoice("Konnichiwa, Commander. Meena is online and speaking fluent English with Japanese accent.");
 }
 
 if ('speechSynthesis' in window) {
@@ -57,8 +111,8 @@ function speakComputerVoice(text) {
         if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.02;   // Serene, polite, composed Academy AI tempo
-        utterance.pitch = 1.18;  // Gentle, melodic young Japanese female pitch
+        utterance.rate = 1.02;   // Fluent, natural, calm Japanese anime assistant tempo
+        utterance.pitch = 1.16;  // Gentle, youthful female pitch
         utterance.volume = 1.0;
 
         if (meenaVoice) {
@@ -611,6 +665,6 @@ window.playTransporterChime = playTransporterChime;
 window.speakComputerVoice = speakComputerVoice;
 window.speakVerbalStatusReport = speakVerbalStatusReport;
 window.speakVerbalWeatherReport = speakVerbalWeatherReport;
-window.playTransporterChime = playTransporterChime;
-window.speakComputerVoice = speakComputerVoice;
-window.speakVerbalStatusReport = speakVerbalStatusReport;
+window.setMeenaVoiceByName = setMeenaVoiceByName;
+window.testMeenaVoice = testMeenaVoice;
+window.populateVoiceSelector = populateVoiceSelector;

@@ -495,13 +495,30 @@
 
         <!-- Direct Voice Prompt Input Field -->
         <div class="flex gap-2 mt-1">
-            <input type="text" id="manual-voice-input" placeholder="Type voice command (e.g. 'status report', 'warp', 'red alert')..."
+            <input type="text" id="manual-voice-input" placeholder="Type voice command (e.g. 'status report', 'warp', 'code red')..."
                    class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono"
                    onkeydown="if (event.key === 'Enter') { handleVoiceCommand(this.value); this.value = ''; closeVoiceModal(); }"/>
             <button onclick="const inp = document.getElementById('manual-voice-input'); if (inp && inp.value) { handleVoiceCommand(inp.value); inp.value = ''; closeVoiceModal(); }"
                     class="bg-primary text-black font-bold px-3 py-1.5 rounded text-xs hover:bg-primary/80 transition-colors">
                 TRANSMIT
             </button>
+        </div>
+
+        <!-- Japanese / Asian English Voice Engine Selector -->
+        <div class="bg-surface p-2 rounded text-[10px] border border-outline-variant/30 flex flex-col gap-1.5">
+            <div class="flex justify-between items-center">
+                <span class="text-tertiary font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">record_voice_over</span>
+                    <span>MEENA VOICE ENGINE (JAPANESE ACCENT ENGLISH):</span>
+                </span>
+                <button onclick="testMeenaVoice()" class="text-[9px] bg-primary text-black font-bold px-2 py-0.5 rounded hover:bg-primary/80 transition-all flex items-center gap-0.5">
+                    <span class="material-symbols-outlined text-[10px]">volume_up</span>
+                    <span>TEST VOICE</span>
+                </button>
+            </div>
+            <select id="meena-voice-select" onchange="setMeenaVoiceByName(this.value)" class="w-full bg-surface-dim border border-outline-variant px-2 py-1 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
+                <option value="">Detecting Japanese / Asian English voices...</option>
+            </select>
         </div>
 
         <!-- Microsoft Edge HTTP Microphone Guide Notice -->
