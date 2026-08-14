@@ -2181,7 +2181,7 @@ function initEarth() {
             const x1 = (tempVec.x * 0.5 + 0.5) * w;
             const y1 = (-tempVec.y * 0.5 + 0.5) * h;
 
-            if (x1 < -80 || x1 > w + 80 || y1 < -80 || y1 > h + 80) return;
+            if (x1 < -200 || x1 > w + 200 || y1 < -200 || y1 > h + 200) return;
 
             const x2 = x1 + offsetX;
             const y2 = y1 + offsetY;
@@ -2443,12 +2443,12 @@ function openGlobeModal() {
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
 
-    // DEFAULT TOP VIEW: Position camera directly above looking straight down at circular planet orbits
+    // DEFAULT TOP VIEW: Position camera high enough (Y = 26.0) to frame ALL 8 planets from Mercury (1.4 AU) to Neptune (10.6 AU)
     if (camera) {
-        camera.position.set(0, 14.0, 0.01);
+        camera.position.set(0, 26.0, 0.01);
         camera.lookAt(0, 0, 0);
     }
-    window.targetCamY = 14.0;
+    window.targetCamY = 26.0;
     window.targetCamZ = 0.01;
 
     // Move 3D Globe Canvas into Modal Container
