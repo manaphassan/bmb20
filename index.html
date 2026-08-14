@@ -2179,9 +2179,9 @@ function initEarth() {
             `;
         }
 
-        // 1. Maximized Solar System View: Draw Sun & 8 Orbiting Planets Callout Pins
+        // 1. Maximized Solar System View: Draw Orbiting Planets Callout Pins
         if (window.solarSystemGroup && window.solarSystemGroup.visible) {
-            if (window.sunGroup) {
+            if (window.sunGroup && window.sunGroup.visible) {
                 const sunWorld = new THREE.Vector3();
                 window.sunGroup.getWorldPosition(sunWorld);
                 drawCalloutPin(sunWorld, "☀️ SUN CORE", "SOLAR ANCHOR 0.0 AU", "#ffe253", -50, -45);
@@ -2338,12 +2338,13 @@ function openGlobeModal() {
     modal.classList.remove('hidden');
     playSound('beep2');
 
-    // MAXIMIZED VIEW: Hide Earth-only globe, show Sun-centered Solar System & Milky Way Galaxy
+    // MAXIMIZED VIEW: Hide central Earth globe & central Sun globe, show pure planet system orbits & Milky Way
     if (window.globeGroup) window.globeGroup.visible = false;
+    if (window.sunGroup) window.sunGroup.visible = false; // Remove central globe in center!
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
 
-    // DEFAULT TOP VIEW: Position camera directly above Sun looking straight down at circular planet orbits
+    // DEFAULT TOP VIEW: Position camera directly above looking straight down at circular planet orbits
     if (camera) {
         camera.position.set(0, 14.0, 0.01);
         camera.lookAt(0, 0, 0);
@@ -2376,7 +2377,7 @@ function closeGlobeModal() {
     modal.classList.add('hidden');
     playSound('beep1');
 
-    // MINIMIZED VIEW: Restore Earth-only globe, hide Sun & outer Solar System
+    // MINIMIZED VIEW: Restore Earth-only globe, hide outer planet system
     if (window.globeGroup) window.globeGroup.visible = true;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
