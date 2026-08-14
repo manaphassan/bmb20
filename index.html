@@ -1728,8 +1728,12 @@ function initEarth() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.z = 2.4;
+    camera.position.set(0, 0, 2.4);
+    camera.lookAt(0, 0, 0);
     globalCamera = camera;
+    window.targetCamX = 0;
+    window.targetCamY = 0;
+    window.targetCamZ = 2.4;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(width, height);
@@ -2388,17 +2392,19 @@ function initEarth() {
         // Render 3D-to-2D Vector Callout Leader Lines
         updateCalloutAnnotations();
         
-        // Smooth Camera Y & Z Interpolation for Top View & Presets
-        if (camera) {
+        // Smooth Camera X, Y & Z Interpolation & Always Point at Origin (0,0,0)
+        const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
+        if (activeCam) {
+            if (window.targetCamX !== undefined) {
+                activeCam.position.x += (window.targetCamX - activeCam.position.x) * 0.08;
+            }
             if (window.targetCamY !== undefined) {
-                camera.position.y += (window.targetCamY - camera.position.y) * 0.06;
+                activeCam.position.y += (window.targetCamY - activeCam.position.y) * 0.08;
             }
             if (window.targetCamZ !== undefined) {
-                camera.position.z += (window.targetCamZ - camera.position.z) * 0.06;
+                activeCam.position.z += (window.targetCamZ - activeCam.position.z) * 0.08;
             }
-            if (window.targetCamY !== undefined && window.targetCamY > 5.0) {
-                camera.lookAt(0, 0, 0);
-            }
+            activeCam.lookAt(0, 0, 0);
         }
 
         if (!isUserDragging) {
@@ -2500,12 +2506,15 @@ function openGlobeModal() {
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
 
     // SOLAR SYSTEM SCOPE 3D PERSPECTIVE MODE: Tilted 3D Orbit View looking over ecliptic plane
-    if (camera) {
-        camera.position.set(0, 18.0, 20.0);
-        camera.lookAt(0, 0, 0);
+    window.targetCamX = 0;
+    window.targetCamY = 16.0;
+    window.targetCamZ = 18.0;
+
+    const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
+    if (activeCam) {
+        activeCam.position.set(0, 16.0, 18.0);
+        activeCam.lookAt(0, 0, 0);
     }
-    window.targetCamY = 18.0;
-    window.targetCamZ = 20.0;
 
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
@@ -2537,13 +2546,16 @@ function closeGlobeModal() {
     if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
 
-    // Reset camera back to default angled Earth view
-    if (camera) {
-        camera.position.set(0, 0, 2.4);
-        camera.lookAt(0, 0, 0);
-    }
+    // Reset camera back to default angled Earth view for Minimized Monitor
+    window.targetCamX = 0;
     window.targetCamY = 0;
     window.targetCamZ = 2.4;
+
+    const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
+    if (activeCam) {
+        activeCam.position.set(0, 0, 2.4);
+        activeCam.lookAt(0, 0, 0);
+    }
 
     // Move 3D Globe Canvas back to Main Hero Container
     earthContainer.appendChild(globalRenderer.domElement);
