@@ -57,14 +57,29 @@ function loadMeenaVoice() {
     }
 
     // Priority 1: Fluent English with Japanese Accent / Multilingual Neural Japanese Female Voices
-    const match = voices.find(v => v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Aoi') || v.name.includes('Mayu') || v.name.includes('Shiori'))
-        || voices.find(v => (v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual') || v.name.includes('Luna') || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao') || v.name.includes('Yunxi')))
+    const match = voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
+        || voices.find(v => v.name.includes('Luna') || v.lang === 'en-SG' || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao'))
+        || voices.find(v => v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Aoi') || v.name.includes('Mayu') || v.name.includes('Shiori'))
         || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.name.includes('Google 日本語') || v.name.includes('Kyoko') || v.name.includes('Ayumi'))
-        || voices.find(v => v.lang === 'en-SG' || v.lang === 'en-PH' || v.lang === 'en-HK')
-        || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Natural') || v.name.includes('Zira')));
+        || voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.toLowerCase().includes('female') || v.name.includes('Zira') || v.name.includes('Samantha')));
 
     if (match) meenaVoice = match;
     populateVoiceSelector();
+}
+
+function appendMeenaChat(sender, message, isMeena = true) {
+    const feed = document.getElementById('meena-chat-feed');
+    if (!feed) return;
+    const row = document.createElement('div');
+    row.className = isMeena ? 'flex items-start gap-1.5 text-primary' : 'flex items-start gap-1.5 text-lcars-gold';
+    row.innerHTML = `<span class="${isMeena ? 'text-tertiary' : 'text-secondary'} font-bold">[${sender}]:</span><span>${message}</span>`;
+    feed.appendChild(row);
+    feed.scrollTop = feed.scrollHeight;
+    
+    // Keep max 30 messages in feed
+    while (feed.children.length > 30) {
+        feed.removeChild(feed.firstChild);
+    }
 }
 
 function populateVoiceSelector() {
@@ -75,10 +90,10 @@ function populateVoiceSelector() {
 
     select.innerHTML = '';
     
-    // Sort: Japanese and Asian voices first
+    // Sort: Fluent Multilingual & Japanese Asian voices first
     const sorted = [...voices].sort((a, b) => {
-        const aScore = (a.lang.includes('ja') || a.name.includes('Nanami') || a.name.includes('Keiko') || a.lang.includes('SG')) ? 2 : (a.lang.startsWith('en') ? 1 : 0);
-        const bScore = (b.lang.includes('ja') || b.name.includes('Nanami') || b.name.includes('Keiko') || b.lang.includes('SG')) ? 2 : (b.lang.startsWith('en') ? 1 : 0);
+        const aScore = (a.name.includes('Jenny Multilingual') || a.name.includes('Aria Multilingual') || a.name.includes('Nanami') || a.name.includes('Keiko') || a.lang.includes('SG') || a.lang.includes('ja')) ? 2 : (a.lang.startsWith('en') ? 1 : 0);
+        const bScore = (b.name.includes('Jenny Multilingual') || b.name.includes('Aria Multilingual') || b.name.includes('Nanami') || b.name.includes('Keiko') || b.lang.includes('SG') || b.lang.includes('ja')) ? 2 : (b.lang.startsWith('en') ? 1 : 0);
         return bScore - aScore;
     });
 
@@ -144,23 +159,40 @@ if ('speechSynthesis' in window) {
 }
 
 function speakComputerVoice(text) {
-    if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) return;
+    appendMeenaChat('MEENA', text, true);
+    const status = document.getElementById('meena-status-indicator');
+    if (status) status.innerText = 'TRANSMITTING VOICE';
+
+    if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) {
+        if (status) setTimeout(() => { status.innerText = 'STANDBY [LISTENING]'; }, 1500);
+        return;
+    }
+
     try {
         window.speechSynthesis.cancel(); // Stop overlapping speech
         if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = meenaRate;   // Natural teenage girl conversational tempo
-        utterance.pitch = meenaPitch; // Lower, natural teenage girl pitch (1.10)
+        utterance.rate = meenaRate;   // Natural conversational tempo
+        utterance.pitch = meenaPitch; // Lower natural teenage girl pitch
         utterance.volume = 1.0;
+        utterance.lang = 'en-US';     // Ensure fluent English phonetics with bilingual voices
 
         if (meenaVoice) {
             utterance.voice = meenaVoice;
         }
 
+        utterance.onend = () => {
+            if (status) status.innerText = 'STANDBY [LISTENING]';
+        };
+        utterance.onerror = () => {
+            if (status) status.innerText = 'STANDBY [LISTENING]';
+        };
+
         window.speechSynthesis.speak(utterance);
     } catch (e) {
         console.warn("M.E.E.N.A. speech synthesis skipped:", e);
+        if (status) status.innerText = 'STANDBY [LISTENING]';
     }
 }
 
@@ -583,7 +615,14 @@ function updateVoiceHUD(text, active) {
 }
 
 function handleVoiceCommand(rawCmd) {
+    if (!rawCmd || !rawCmd.trim()) return;
     const cmd = rawCmd.trim().toLowerCase();
+
+    // Log to Meena live dashboard feed
+    appendMeenaChat('SENSEI', rawCmd.trim(), false);
+    const status = document.getElementById('meena-status-indicator');
+    if (status) status.innerText = 'PROCESSING...';
+
     const hudBadge = document.getElementById('voice-hud-badge');
     if (hudBadge) {
         hudBadge.innerText = `CMD: "${rawCmd}"`;

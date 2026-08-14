@@ -87,28 +87,41 @@
             </a>
         </div>
 
-        <!-- Sidebar Warp Core Power Distribution Matrix -->
-        <div class="px-3 mb-2 font-data-mono text-[10px] flex flex-col gap-1.5 mt-auto">
-            <div class="text-tertiary uppercase text-[10px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between">
-                <span>POWER MATRIX</span>
-                <span class="text-primary font-bold">100%</span>
+        <!-- Sidebar System Hardware Telemetry (Moved from Main Grid) -->
+        <div class="px-2.5 mb-2 font-data-mono text-[10px] flex flex-col gap-1 mt-auto bg-surface-container/70 p-2 rounded mr-2 border border-outline-variant/30 shadow-inner">
+            <div class="text-secondary uppercase text-[9px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between items-center">
+                <span>SYSTEM TELEMETRY</span>
+                <span class="text-primary text-[8px] font-bold" id="os-upgrades-badge">OPTIMIZED</span>
             </div>
+            <!-- CPU -->
             <div class="flex flex-col gap-0.5">
-                <div class="flex justify-between text-secondary text-[9px]"><span>WARP CORE</span> <span class="text-primary font-bold">100%</span></div>
-                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
-                    <div class="bg-primary h-full w-full"></div>
+                <div class="flex justify-between text-secondary text-[9px]">
+                    <span class="flex items-center gap-1">CPU <span class="hidden text-[7px] bg-error text-on-error px-0.5 rounded font-bold" id="cpu-alert">HOT</span></span>
+                    <span id="cpu-val" class="text-primary font-bold">--%</span>
+                </div>
+                <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-primary h-full w-[25%] transition-all" id="cpu-bar"></div>
                 </div>
             </div>
+            <!-- RAM -->
             <div class="flex flex-col gap-0.5">
-                <div class="flex justify-between text-secondary text-[9px]"><span>SHIELD GRID</span> <span class="text-tertiary font-bold">100%</span></div>
-                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
-                    <div class="bg-tertiary h-full w-full"></div>
+                <div class="flex justify-between text-secondary text-[9px]"><span>RAM</span> <span id="mem-val" class="text-tertiary font-bold">--%</span></div>
+                <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-tertiary h-full w-[35%] transition-all" id="mem-bar"></div>
                 </div>
             </div>
+            <!-- SOC TEMP -->
             <div class="flex flex-col gap-0.5">
-                <div class="flex justify-between text-secondary text-[9px]"><span>SUBSPACE SENSORS</span> <span class="text-lcars-blue font-bold">100%</span></div>
-                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
-                    <div class="bg-lcars-blue h-full w-full"></div>
+                <div class="flex justify-between text-secondary text-[9px]"><span>TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--°C</span></div>
+                <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
+                </div>
+            </div>
+            <!-- SD DISK -->
+            <div class="flex flex-col gap-0.5">
+                <div class="flex justify-between text-secondary text-[9px]"><span>DISK</span> <span id="disk-val" class="text-on-surface font-bold">--%</span></div>
+                <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-secondary-container h-full w-[40%]" id="disk-bar"></div>
                 </div>
             </div>
         </div>
@@ -251,83 +264,42 @@
             <div class="w-full h-full absolute inset-0 z-10 earth-scanlines" id="earth-container"></div>
         </div>
 
-        <!-- System Hardware Metrics & Power Matrix Panel -->
-        <div class="col-span-1 row-span-1 bg-surface-container-low p-3 flex flex-col justify-between border-t-4 border-lcars-orange rounded-sm overflow-hidden">
+        <!-- M.E.E.N.A. AI Conversation Log & Tactical Control Panel (Row 1 Col 3) -->
+        <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-t-4 border-primary rounded-sm overflow-hidden font-data-mono">
+            <!-- Panel Header -->
             <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
-                <span class="font-headline-sm text-xs text-lcars-orange uppercase tracking-wider font-bold">System Telemetry</span>
-                <span class="text-[9px] font-data-mono text-tertiary" id="os-upgrades-badge">DIETPI: OPTIMIZED</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_#66ccff]"></span>
+                    <span class="font-headline-sm text-xs text-primary uppercase tracking-wider font-bold">MEENA AI CONSOLE</span>
+                </div>
+                <span class="text-[9px] text-tertiary font-bold" id="meena-status-indicator">STANDBY [LISTENING]</span>
             </div>
-            
-            <div class="grid grid-cols-2 gap-x-3 gap-y-2 font-data-mono text-xs">
-                <!-- CPU Load -->
-                <div class="flex flex-col gap-0.5">
-                    <div class="flex justify-between text-secondary text-[11px]">
-                        <span class="flex items-center gap-1">CPU <span class="hidden text-[8px] bg-error text-on-error px-1 rounded font-bold animate-pulse" id="cpu-alert">ALERT</span></span>
-                        <span id="cpu-val" class="font-bold text-on-surface">--%</span>
-                    </div>
-                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
-                        <div class="bg-primary h-full w-[25%] transition-all" id="cpu-bar"></div>
-                    </div>
-                </div>
 
-                <!-- Memory -->
-                <div class="flex flex-col gap-0.5">
-                    <div class="flex justify-between text-secondary text-[11px]">
-                        <span>RAM</span>
-                        <span id="mem-val" class="font-bold text-on-surface">--%</span>
-                    </div>
-                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
-                        <div class="bg-tertiary h-full w-[35%] transition-all" id="mem-bar"></div>
-                    </div>
-                </div>
-
-                <!-- SOC Temp -->
-                <div class="flex flex-col gap-0.5">
-                    <div class="flex justify-between text-secondary text-[11px]">
-                        <span>TEMP (PI 3)</span>
-                        <span id="temp-val" class="font-bold text-on-surface">--°C</span>
-                    </div>
-                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
-                        <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
-                    </div>
-                </div>
-
-                <!-- Storage -->
-                <div class="flex flex-col gap-0.5">
-                    <div class="flex justify-between text-secondary text-[11px]">
-                        <span>SD DISK</span>
-                        <span id="disk-val" class="font-bold text-on-surface">--%</span>
-                    </div>
-                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
-                        <div class="bg-secondary-container h-full w-[40%]" id="disk-bar"></div>
-                    </div>
+            <!-- Conversation Log Stream -->
+            <div class="flex-1 overflow-y-auto max-h-[120px] bg-surface-container-lowest p-2 rounded border border-outline-variant/30 flex flex-col gap-1.5 text-[10px] my-1 font-mono" id="meena-chat-feed">
+                <div class="flex items-start gap-1.5 text-primary">
+                    <span class="text-tertiary font-bold">[MEENA]:</span>
+                    <span>Konnichiwa, Sensei! Meena AI tactical systems active. How can I assist Takahara Academy today?</span>
                 </div>
             </div>
 
-            <!-- Warp Core Power Distribution Matrix -->
-            <div class="bg-surface p-2 rounded mt-1 border border-outline-variant/30 flex flex-col gap-1 font-data-mono">
-                <div class="flex justify-between items-center text-[9px] text-tertiary font-bold">
-                    <span>WARP CORE POWER MATRIX</span>
-                    <span class="text-primary font-mono">NOMINAL</span>
-                </div>
-                <div class="grid grid-cols-4 gap-1.5 text-center text-[8px]">
-                    <div class="bg-surface-container px-1 py-1 rounded border border-outline-variant/20">
-                        <span class="text-secondary block">EPS-A</span>
-                        <span class="text-primary font-bold">98.4%</span>
-                    </div>
-                    <div class="bg-surface-container px-1 py-1 rounded border border-outline-variant/20">
-                        <span class="text-secondary block">EPS-B</span>
-                        <span class="text-tertiary font-bold">99.1%</span>
-                    </div>
-                    <div class="bg-surface-container px-1 py-1 rounded border border-outline-variant/20">
-                        <span class="text-secondary block">INTERMIX</span>
-                        <span class="text-lcars-gold font-bold">1:1.0</span>
-                    </div>
-                    <div class="bg-surface-container px-1 py-1 rounded border border-outline-variant/20">
-                        <span class="text-secondary block">SHIELDS</span>
-                        <span class="text-primary font-bold">100%</span>
-                    </div>
-                </div>
+            <!-- Quick Action Command Chips -->
+            <div class="grid grid-cols-4 gap-1 text-[8px] font-bold mb-1">
+                <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-0.5 rounded text-center transition-colors">STATUS</button>
+                <button onclick="handleVoiceCommand('weather forecast')" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-0.5 rounded text-center transition-colors">WEATHER</button>
+                <button onclick="handleVoiceCommand('code red')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-0.5 rounded text-center transition-colors">CODE RED</button>
+                <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-secondary hover:text-black py-1 px-0.5 rounded text-center transition-colors">PI-HOLE</button>
+            </div>
+
+            <!-- Direct Text Prompt Input Form -->
+            <div class="flex gap-1">
+                <input type="text" id="meena-dash-input" placeholder="Talk or command Meena..."
+                       class="flex-1 bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[10px] text-on-surface focus:outline-none focus:border-primary font-mono"
+                       onkeydown="if (event.key === 'Enter' && this.value.trim()) { handleVoiceCommand(this.value.trim()); this.value = ''; }"/>
+                <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { handleVoiceCommand(inp.value.trim()); inp.value = ''; }"
+                        class="bg-primary text-black font-bold px-2 py-1 rounded text-[10px] hover:bg-primary/80 transition-colors">
+                    SEND
+                </button>
             </div>
         </div>
 
