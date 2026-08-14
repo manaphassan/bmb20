@@ -6,7 +6,7 @@
  */
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let audioActive = false;
+let audioActive = localStorage.getItem('lcars_audio_active') !== 'false';
 let voiceEnabled = true;
 let humOsc = null;
 let humHarmonicOsc = null;
@@ -14,15 +14,25 @@ let humGain = null;
 let lfoOsc = null;
 let redAlertInterval = null;
 let isRedAlertPlaying = false;
+let audioInitialized = false;
 
-// Auto-resume AudioContext on user interaction
+// Auto-resume AudioContext on first user interaction and start default audio
 function unlockAudioContext() {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume().catch(e => console.warn("AudioContext resume failed:", e));
     }
+    if (audioActive && !audioInitialized) {
+        audioInitialized = true;
+        startAmbientHum();
+        animateEqualizer(true);
+        setTimeout(() => {
+            speakComputerVoice(getMeenaTimeGreeting());
+        }, 400);
+    }
 }
 window.addEventListener('click', unlockAudioContext, { once: true });
 window.addEventListener('keydown', unlockAudioContext, { once: true });
+window.addEventListener('touchstart', unlockAudioContext, { once: true });
 
 /**
  * M.E.E.N.A. AI Voice Synthesizer (Web Speech API)
@@ -440,16 +450,18 @@ function animateEqualizer(active) {
 function toggleAudio() {
     unlockAudioContext();
     audioActive = !audioActive;
+    localStorage.setItem('lcars_audio_active', audioActive ? 'true' : 'false');
     const icon = document.getElementById('audio-icon');
     const label = document.getElementById('audio-label');
     const btn = document.getElementById('audio-toggle');
 
     if (audioActive) {
+        audioInitialized = true;
         if (icon) icon.innerText = 'volume_up';
         if (label) label.innerText = 'AUDIO: ON';
         if (btn) {
             btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
-            btn.classList.remove('bg-surface-variant');
+            btn.classList.remove('bg-surface-variant', 'text-on-surface-variant');
         }
         startAmbientHum();
         animateEqualizer(true);
@@ -462,7 +474,7 @@ function toggleAudio() {
         if (label) label.innerText = 'AUDIO: OFF';
         if (btn) {
             btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
-            btn.classList.add('bg-surface-variant');
+            btn.classList.add('bg-surface-variant', 'text-on-surface-variant');
         }
         stopAmbientHum();
         stopRedAlertKlaxon();
