@@ -511,22 +511,21 @@ body {
             </div>
         </div>
 
-        <!-- Row 2: Location Telemetry & Network Sparklines (1 Col) -->
-        <div class="col-span-1 row-span-1 flex flex-col gap-2 h-full">
-            <div class="bg-surface-container-low p-2.5 h-1/2 flex items-center justify-between border-b-2 border-secondary rounded-sm">
-                <div class="flex flex-col">
-                    <span class="font-label-caps text-[10px] text-secondary font-bold">LOCATION TELEMETRY</span>
-                    <span class="font-headline-md text-base text-primary font-bold truncate" id="telemetry-city">SEARCHING...</span>
-                    <span class="font-data-mono text-on-surface-variant text-[10px]" id="telemetry-country">REALTIME GEOIP LOCK</span>
+        <!-- Row 2: Tailscale Mesh Status (1 Col) -->
+        <div class="col-span-1 row-span-1 bg-surface-container-low p-3 flex flex-col justify-between border-l-4 border-primary rounded-sm">
+            <div class="font-label-caps text-label-caps text-primary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-1 mb-1">Tailscale Mesh Status</div>
+            <div class="bg-surface p-3 border border-secondary flex flex-col justify-between shadow-sm h-full my-auto rounded-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-on-surface text-sm font-bold">BMB20-DIETPI-NODE</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-data-mono text-xs text-primary font-bold">CONNECTED</span>
+                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#c2c1ff]"></div>
+                    </div>
                 </div>
-                <span class="material-symbols-outlined text-3xl text-tertiary">my_location</span>
-            </div>
-            <div class="bg-surface-container-highest p-2 h-1/2 font-data-mono text-secondary flex flex-col justify-between relative overflow-hidden rounded-sm border border-outline-variant/30">
-                <div class="absolute top-0 left-0 bg-secondary text-on-secondary font-label-caps text-[9px] px-2 py-0.5 font-bold">NETWORK TRAFFIC</div>
-                <div class="flex items-end gap-1 h-8 w-full mt-3" id="bandwidth-graph"></div>
-                <div class="flex justify-between text-[10px] font-bold">
-                    <span id="tx-rate" class="text-primary">TX: 1.2 MB/s</span>
-                    <span id="rx-rate" class="text-tertiary">RX: 4.8 MB/s</span>
+                <div class="flex flex-col font-data-mono text-data-mono mt-2">
+                    <span class="text-tertiary text-xs font-bold">IP: 100.85.42.12</span>
+                    <span class="text-on-surface-variant text-[10px] mt-0.5">INTERFACE: tailscale0 [ACTIVE]</span>
+                    <span class="text-secondary text-[10px] mt-0.5">ENCRYPTION: WireGuard AES</span>
                 </div>
             </div>
         </div>
@@ -543,18 +542,21 @@ body {
 
         <!-- Row 3: Network Security & Live Device Discovery Panel (Full Width) -->
         <div class="col-span-3 row-span-1 bg-surface-container-low p-3 flex gap-4 border-l-4 border-primary items-stretch justify-between h-full rounded-sm border border-outline-variant/30">
-            <!-- Tailscale Status -->
+            <!-- Location Telemetry & Network Traffic -->
             <div class="flex-1 flex flex-col justify-between h-full border-r border-outline-variant/40 pr-4">
-                <div class="font-label-caps text-label-caps text-primary mb-1 font-bold">Tailscale Mesh Status</div>
-                <div class="bg-surface p-3 border border-secondary flex items-center justify-between shadow-sm h-full my-auto rounded-sm">
-                    <div class="flex flex-col font-data-mono text-data-mono">
-                        <span class="text-on-surface text-sm font-bold">BMB20-DIETPI-NODE</span>
-                        <span class="text-tertiary text-xs mt-0.5">IP: 100.85.42.12</span>
-                        <span class="text-on-surface-variant text-[10px] mt-0.5">INTERFACE: tailscale0 [ACTIVE]</span>
+                <div class="font-label-caps text-label-caps text-secondary mb-1 font-bold">Location & Network Traffic</div>
+                <div class="bg-surface p-2.5 flex flex-col h-full justify-between border border-outline-variant/40 rounded-sm">
+                    <div class="flex items-center justify-between border-b border-outline-variant/20 pb-1">
+                        <div class="flex flex-col">
+                            <span class="font-headline-md text-xs text-primary font-bold truncate" id="telemetry-city">SEARCHING...</span>
+                            <span class="font-data-mono text-on-surface-variant text-[9px]" id="telemetry-country">REALTIME GEOIP LOCK</span>
+                        </div>
+                        <span class="material-symbols-outlined text-xl text-tertiary">my_location</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="font-data-mono text-xs text-primary font-bold">CONNECTED</span>
-                        <div class="w-3.5 h-3.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#c2c1ff]"></div>
+                    <div class="flex items-end gap-1 h-8 w-full mt-1" id="bandwidth-graph"></div>
+                    <div class="flex justify-between text-[10px] font-bold font-data-mono mt-1 pt-0.5 border-t border-outline-variant/20">
+                        <span id="tx-rate" class="text-primary">TX: 1.2 MB/s</span>
+                        <span id="rx-rate" class="text-tertiary">RX: 4.8 MB/s</span>
                     </div>
                 </div>
             </div>
