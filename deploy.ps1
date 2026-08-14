@@ -17,9 +17,9 @@ if (-not (Test-Path "$LocalDir\index.html")) {
     exit 1
 }
 
-# Helper function to convert CRLF -> LF for Linux execution
+# Helper function to convert CRLF -> LF for Linux execution with UTF-8 encoding
 function Get-UnixContent ($path) {
-    return (Get-Content $path -Raw).Replace("`r`n", "`n")
+    return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8).Replace("`r`n", "`n")
 }
 
 # 1. Create remote staging directory
@@ -30,11 +30,17 @@ if (Test-Path $KeyPath) {
     ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "mkdir -p ${RemoteStaging}"
 }
 
-# 2. Upload files to /tmp staging directory with Unix LF line endings
+# 2. Upload files to /tmp staging directory with Unix LF line endings (UTF-8 preserved)
 Write-Host "[2/4] Uploading index.html, api.php, deploy-dietpi.sh with Unix LF line endings..." -ForegroundColor Yellow
-Get-UnixContent "$LocalDir\index.html" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/index.html"
-Get-UnixContent "$LocalDir\api.php" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.php"
-Get-UnixContent "$LocalDir\deploy-dietpi.sh" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/deploy-dietpi.sh"
+if (Test-Path $KeyPath) {
+    Get-UnixContent "$LocalDir\index.html" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/index.html"
+    Get-UnixContent "$LocalDir\api.php" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.php"
+    Get-UnixContent "$LocalDir\deploy-dietpi.sh" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/deploy-dietpi.sh"
+} else {
+    Get-UnixContent "$LocalDir\index.html" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/index.html"
+    Get-UnixContent "$LocalDir\api.php" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.php"
+    Get-UnixContent "$LocalDir\deploy-dietpi.sh" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/deploy-dietpi.sh"
+}
 
 # 3. Execute remote deployment script with sudo
 Write-Host "[3/4] Executing remote deployment script with sudo..." -ForegroundColor Yellow
@@ -44,12 +50,12 @@ if (Test-Path $KeyPath) {
     ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "sed -i 's/\r$//' ${RemoteStaging}/deploy-dietpi.sh && chmod +x ${RemoteStaging}/deploy-dietpi.sh && sudo ${RemoteStaging}/deploy-dietpi.sh"
 }
 
-# 4. Reload web server to clear cache
-Write-Host "[4/4] Reloading web server service..." -ForegroundColor Yellow
+# 4. Restart web server to flush ETags & clear cache
+Write-Host "[4/4] Restarting web server service..." -ForegroundColor Yellow
 if (Test-Path $KeyPath) {
-    ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "sudo systemctl reload lighttpd 2>/dev/null || sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload apache2 2>/dev/null || true"
+    ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "sudo systemctl restart nginx 2>/dev/null || sudo systemctl restart lighttpd 2>/dev/null || sudo systemctl restart apache2 2>/dev/null || true"
 } else {
-    ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "sudo systemctl reload lighttpd 2>/dev/null || sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload apache2 2>/dev/null || true"
+    ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "sudo systemctl restart nginx 2>/dev/null || sudo systemctl restart lighttpd 2>/dev/null || sudo systemctl restart apache2 2>/dev/null || true"
 }
 
 Write-Host "==================================================" -ForegroundColor Green

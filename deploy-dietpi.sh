@@ -88,9 +88,9 @@ if [ -d "/var/www/html" ]; then
     chmod 644 /var/www/html/index.html /var/www/html/api.php /var/www/html/api.json 2>/dev/null || true
 fi
 
-# Reload Web Server
-echo "[+] Reloading web server service..."
-systemctl reload lighttpd 2>/dev/null || systemctl reload nginx 2>/dev/null || systemctl reload apache2 2>/dev/null || true
+# Restart Web Server to Flush ETags and Disk Caches
+echo "[+] Flushing web server cache & restarting service..."
+systemctl restart nginx 2>/dev/null || systemctl restart lighttpd 2>/dev/null || systemctl restart apache2 2>/dev/null || true
 
 # Test Web Server HTTP Response
 echo "[+] Testing Web Server Response..."
