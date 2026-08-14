@@ -528,12 +528,24 @@ function updateVoiceHUD(text, active) {
     }
 }
 
-function handleVoiceCommand(cmd) {
+function handleVoiceCommand(rawCmd) {
+    const cmd = rawCmd.trim().toLowerCase();
     const hudBadge = document.getElementById('voice-hud-badge');
     if (hudBadge) {
-        hudBadge.innerText = `CMD: "${cmd}"`;
+        hudBadge.innerText = `CMD: "${rawCmd}"`;
+        hudBadge.style.opacity = '1';
     }
 
+    // 1. Wake Word Only Trigger ("Meena", "Hey Meena", "Mina", "Computer")
+    const isWakeWordOnly = (cmd === 'meena' || cmd === 'hey meena' || cmd === 'mina' || cmd === 'hey mina' || cmd === 'computer' || cmd === 'hello meena' || cmd === 'konnichiwa meena');
+    if (isWakeWordOnly) {
+        if (playSound) playSound('beep2');
+        if (hudBadge) hudBadge.innerText = `MEENA: READY...`;
+        speakComputerVoice("Hai, Commander? Meena is ready for your command.");
+        return;
+    }
+
+    // 2. Action Voice Commands
     if (cmd.includes('red') || cmd.includes('code red') || cmd.includes('shields up') || cmd.includes('battle stations')) {
         if (window.setAlertCondition) window.setAlertCondition('red', true);
     } else if (cmd.includes('yellow') || cmd.includes('code yellow') || cmd.includes('caution')) {
