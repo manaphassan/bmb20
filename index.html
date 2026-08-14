@@ -755,8 +755,67 @@ function updateClock() {
     document.getElementById('stardate').innerText = `STARDATE ${stardate.toFixed(1)}`;
 }
 
-// Fetch Realtime GeoIP location to pinpoint user on 3D Earth
+// High-Precision Realtime Geolocation & GeoIP Cascade Engine
 async function fetchRealtimeGeoIP() {
+    const geoBadge = document.getElementById('geo-city-country');
+    if (geoBadge) geoBadge.innerText = "LOCKING POSITION...";
+
+    // 1. Try High-Accuracy Browser HTML5 Geolocation first
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                userGeoLocation.lat = lat;
+                userGeoLocation.lon = lon;
+
+                // Reverse Geocode coordinates to City & Country via ipwho.is
+                try {
+                    const res = await fetch(`https://ipwho.is/`, { cache: 'no-store' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        userGeoLocation.city = (data.city || "LOCAL").toUpperCase();
+                        userGeoLocation.country = (data.country_code || "GPS").toUpperCase();
+                        userGeoLocation.ip = data.ip || "GPS LOCK";
+                    }
+                } catch(e) {}
+
+                updateGeoIPDisplay();
+                updateGlobeBeacon();
+            },
+            (err) => {
+                // If HTML5 Geolocation is denied or unavailable, cascade to GeoIP APIs
+                fetchGeoIPCascade();
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 }
+        );
+    } else {
+        fetchGeoIPCascade();
+    }
+}
+
+async function fetchGeoIPCascade() {
+    // Cascade 1: ipwho.is (High reliability, native CORS)
+    try {
+        const res = await fetch('https://ipwho.is/', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success !== false && data.latitude && data.longitude) {
+                userGeoLocation = {
+                    lat: parseFloat(data.latitude),
+                    lon: parseFloat(data.longitude),
+                    city: (data.city || "UNKNOWN").toUpperCase(),
+                    country: (data.country_code || data.country || "").toUpperCase(),
+                    ip: data.ip || "LOCKED"
+                };
+                updateGeoIPDisplay();
+                updateGlobeBeacon();
+                return;
+            }
+        }
+    } catch(e) {}
+
+    // Cascade 2: ipapi.co
     try {
         const res = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
         if (res.ok) {
@@ -771,27 +830,34 @@ async function fetchRealtimeGeoIP() {
                 };
                 updateGeoIPDisplay();
                 updateGlobeBeacon();
+                return;
             }
         }
-    } catch (e) {
-        // Fallback to secondary GeoIP provider
-        try {
-            const res = await fetch('https://api.ipify.org?format=json');
-            if (res.ok) {
-                const data = await res.json();
-                userGeoLocation.ip = data.ip;
-                updateGeoIPDisplay();
-            }
-        } catch (err) {}
-    }
+    } catch (e) {}
+
+    // Cascade 3: ipify IP lookup fallback
+    try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        if (res.ok) {
+            const data = await res.json();
+            userGeoLocation.ip = data.ip;
+            updateGeoIPDisplay();
+        }
+    } catch (err) {}
 }
 
 function updateGeoIPDisplay() {
-    document.getElementById('geo-city-country').innerText = `${userGeoLocation.city}, ${userGeoLocation.country}`;
-    document.getElementById('geo-coords').innerText = `LAT: ${userGeoLocation.lat.toFixed(2)}° | LON: ${userGeoLocation.lon.toFixed(2)}°`;
-    document.getElementById('geo-ip').innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
-    document.getElementById('telemetry-city').innerText = userGeoLocation.city;
-    document.getElementById('telemetry-country').innerText = `GEOIP TARGET [${userGeoLocation.country}]`;
+    const cityCountryElem = document.getElementById('geo-city-country');
+    const coordsElem = document.getElementById('geo-coords');
+    const ipElem = document.getElementById('geo-ip');
+    const telemetryCityElem = document.getElementById('telemetry-city');
+    const telemetryCountryElem = document.getElementById('telemetry-country');
+
+    if (cityCountryElem) cityCountryElem.innerText = `${userGeoLocation.city}, ${userGeoLocation.country}`;
+    if (coordsElem) coordsElem.innerText = `LAT: ${userGeoLocation.lat.toFixed(2)}° | LON: ${userGeoLocation.lon.toFixed(2)}°`;
+    if (ipElem) ipElem.innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
+    if (telemetryCityElem) telemetryCityElem.innerText = userGeoLocation.city;
+    if (telemetryCountryElem) telemetryCountryElem.innerText = `REALTIME GEO LOCK [${userGeoLocation.country}]`;
 }
 
 // Telemetry Data Engine
@@ -1719,6 +1785,7 @@ window.onload = () => {
     setInterval(generateCascade, 250);
     initEarth();
     fetchRealtimeGeoIP();
+    setInterval(fetchRealtimeGeoIP, 30000);
 };
 </script>
 </body>
