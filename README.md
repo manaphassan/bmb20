@@ -56,22 +56,22 @@ The system establishes **Takahara Academy (高原学園)** as your secure, self-
     <td width="50%">
       <h3>Deck 1: Meena™ AI Assistant Bridge</h3>
       <ul>
-        <li><b>Holographic Avatar Core</b>: Rotating orbital rings with real-time reactive audio waveform EQ arcs.</li>
+        <li><b>3D Dot-Matrix Neural Brain (AI Core)</b>: Procedural 3D point-cloud brain with dual cerebral hemispheres, cerebellum, nearest-neighbor synaptic lines, active firing sparks, and live audio excitation.</li>
+        <li><b>Obsidian-Style Neural Knowledge Graph</b>: Interactive HTML5 Canvas force-directed physics graph with central core, 4 category hubs (<code>FACILITY</code>, <code>SENSEI</code>, <code>ROUTINES</code>, <code>MISSIONS</code>), node dragging, and dynamic leaf spawning.</li>
+        <li><b>Dynamic Status Cycler</b>: Single-pill condition cycler (<code>GREEN</code> &rarr; <code>YELLOW</code> &rarr; <code>RED</code>) with synchronized alarms, audio chirps, and visual themes.</li>
         <li><b>Neural Sync EXP System</b>: Real-time Level 1 to 99 progression with custom rank badges and voice fanfares.</li>
         <li><b>Dynamic Mood Matrix</b>: Visual emotional states (<code>CHEERFUL</code>, <code>TACTICAL</code>, <code>CARING</code>, <code>PROUD</code>).</li>
-        <li><b>4-Category Knowledge Bank</b>: Remembers facility devices, user habits, routines, and missions.</li>
-        <li><b>Live Conversational Console</b>: Real-time dialogue feed with direct text & voice triggers.</li>
-        <li><b>Atmospheric Sensors</b>: Real-time weather telemetry & 3-day meteorological forecast.</li>
+        <li><b>Atmospheric Sensors</b>: Real-time meteorological telemetry &amp; 3-day weather forecast.</li>
       </ul>
     </td>
     <td width="50%">
       <h3>Deck 2: Observatory & Infrastructure NOC</h3>
       <ul>
-        <li><b>Full-Screen 3D WebGL Hologram</b>: Point-cloud Earth, Solar System, and Milky Way Galaxy map.</li>
+        <li><b>Full-Screen 3D WebGL Hologram</b>: Point-cloud Earth, Solar System, and Milky Way Galaxy map with orbital trajectory selectors (<code>[TERRA / ISS]</code>, <code>[SOLAR ORBIT]</code>, <code>[MILKY WAY]</code>).</li>
         <li><b>Live ISS Subspace Tracker</b>: Real-time orbital coordinates, altitude (~420 km), and speed (~27,600 km/h).</li>
-        <li><b>Subspace Network Radar</b>: Live ARP scan of active LAN devices with ICMP ping diagnostics.</li>
-        <li><b>Subspace Bandwidth Meter</b>: Real-time dynamic Tx/Rx canvas throughput graph.</li>
-        <li><b>Linux Kernel Stream</b>: Real-time system event & <code>dmesg</code> log feed.</li>
+        <li><b>Subspace Network Radar 2.0</b>: Live ARP scan of active LAN devices with auto-detected hardware icons (router, smartphone, desktop, core) and ping latency tracking.</li>
+        <li><b>Pi-hole v6 Defense Shield</b>: Direct telemetry matching rolling 24-hour queries, blocked count, block percentage, and gravity list.</li>
+        <li><b>Subspace Bandwidth &amp; Kernel Stream</b>: Real-time dynamic Tx/Rx canvas throughput graph and live Linux <code>dmesg</code> event feed.</li>
         <li><b>Hardware Telemetry Sidebar</b>: Continuous CPU, RAM, SOC Temp, and SD storage step gauges.</li>
       </ul>
     </td>
