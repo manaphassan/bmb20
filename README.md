@@ -1,9 +1,9 @@
 <div align="center">
 
 # Meena™ - Takahara Academy (高原学園)
-### *Next-Generation Intelligent AI Voice Assistant & Dual-Deck Operations Hub for Single-Board Computers*
+### *Next-Generation Intelligent AI Voice Assistant & Multi-Deck Operations Hub for Single-Board Computers*
 
-[![Version](https://img.shields.io/badge/version-2.0.0--takahara--meena-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
+[![Version](https://img.shields.io/badge/version-2.5.0--takahara--meena-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
 [![Platform](https://img.shields.io/badge/Platform-DietPi%20%7C%20Raspberry%20Pi%203%2F4%2F5-C51A4A?style=for-the-badge&logo=raspberry-pi&logoColor=white)](https://dietpi.com)
 [![Web Speech API](https://img.shields.io/badge/AI%20Voice-Web%20Speech%20%2B%20Web%20Audio-FFAA00?style=for-the-badge&logo=google-chrome&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
 [![Zero Cost](https://img.shields.io/badge/Token%20Cost-%240.00%20Zero%20Cloud%20Billing-00E676?style=for-the-badge&logo=cashapp&logoColor=black)](https://github.com/manaphassan/bmb20)
@@ -17,62 +17,66 @@
    [ 高原学園 ]   MEENA™ AI BRIDGE     //   OPERATIONS COMMAND   //   [2] OBSERVATORY NOC 
   ========================================================================================
    - Holographic AI Avatar Core     - Dynamic 4-Category Knowledge Bank     - Pi-hole v6 Shield
-   - Neural Sync EXP Engine (1-99)  - Real-Time 3D Earth ISS Tracker        - Subspace Radar
+   - 5 AI Agent Skills Suite        - Real-Time 3D Earth ISS Tracker        - Sentinel Daemon
+   - Local Offline Brain Engine     - Live AI Token Consumption Meter       - Hands-Free Wake Word
   ========================================================================================
 ```
 
 <p align="center">
   <a href="#key-features"><b>Key Features</b></a> •
-  <a href="#dual-deck-architecture"><b>Dual-Deck Modes</b></a> •
-  <a href="#neural-growth-engine"><b>Meena Growth System</b></a> •
+  <a href="#ai-agent-skills-suite"><b>AI Agent Skills</b></a> •
+  <a href="#dual-brain-architecture"><b>Dual-Brain System</b></a> •
+  <a href="#hands-free-wake-word"><b>Wake Word</b></a> •
   <a href="#quick-start--installation"><b>Quick Start</b></a> •
-  <a href="#hotkeys--voice-commands"><b>Voice Commands</b></a> •
-  <a href="#roadmap"><b>Roadmap</b></a>
+  <a href="#voice-commands"><b>Voice Commands</b></a>
 </p>
 
 ---
 
 </div>
 
-## Overview & Core Philosophy
+## 🌟 Overview & Core Philosophy
 
-**Meena™** (*Master Electronic Executive Neural Assistant*) is a high-performance, single-pane-of-glass **Home Personal Assistant & Infrastructure Command Center** designed for single-board computers (SBCs) such as **Raspberry Pi 3/4/5 running DietPi or Debian**.
+**Meena™** (*Master Electronic Executive Neural Assistant*) is a high-performance, single-pane-of-glass **Home Personal Assistant & Infrastructure Command Center** designed for single-board computers (SBCs) such as **Raspberry Pi 3/4/5 running DietPi or Debian Linux**.
 
-The system establishes **Takahara Academy (高原学園)** as your secure, self-hosted smart operations center.
+The system establishes **Takahara Academy (高原学園)** as your self-hosted, sovereign, zero-latency smart operations center.
 
-### Core Tenets
-* **Zero Cloud Token Cost**: 100% client-accelerated Web Speech API and procedural Web Audio synthesis. Runs locally in any modern browser with **0% CPU load** on your SBC.
-* **Intelligent Vocal Personality**: Cheerful, charismatic female voice assistant speaking fluent English with natural Japanese intonation and respectful honorifics (*Sensei*, *Ohayou*, *Konnichiwa*, *Otsukare*).
-* **Neural Growth & Sync EXP Engine**: Meena actively learns what you teach her, gaining Synapse EXP from every interaction to rank up from Cadet to Soulbound Guardian.
-* **Dual-Deck Operations**: Seamless instant tab switching between **Deck 1 (AI Assistant Bridge)** and **Deck 2 (3D Observatory & System NOC)** without reloading or interrupting audio.
-* **Ultra-Lightweight Linux Footprint**: Near-zero RAM consumption with static memory caching and an atomic background Bash telemetry daemon (`bmb20-stats.sh`).
+### Core Architectural Tenets
+* **Alex Dunphy (Hyper-Genius) Default Persona**: High-intellect wit, rigorous academic reasoning, and deadpan charm.
+* **Dual-Brain Hybrid Architecture**: Seamless transition between **Cloud GenAI (Gemini 1.5 Flash)** and **100% Autonomous Local Offline Brain** with zero token cost.
+* **5 Production AI Agent Skills**: Multi-step query decomposition, system audits, ergonomic morale coaching, academic claim verification, and autonomous concept ingestion.
+* **Deck 2 Live ISS Orbital Satellite Tracker**: Three.js WebGL Earth globe tracking the International Space Station in real time ($27,580\text{ km/h}$, $418\text{ km}$ altitude) along its $51.6^\circ$ inclined orbit track.
+* **DietPi Background Sentinel Daemon (`bmb20-patrol.sh`)**: Background watchdog scanning LAN ARP nodes, CPU temperature spikes ($>72^\circ\text{C}$), and Pi-hole DNS health.
+* **Always-Listening Hands-Free Wake Word Engine**: Continuous client-side hotword detection for `"Hey Meena"`, `"Meena"`, `"Hey Alex"`, `"Alex"`, and `"Computer"`.
+* **Live AI Token Consumption Telemetry Meter**: Real-time prompt/output token tracking, estimated cost ($0.00 Free Tier), and quota audit in Deck 1 and `[AI DOSSIER]`.
+* **Host-Synchronized Synaptic Memory**: All Knowledge Graph nodes persist permanently on the DietPi server at `/var/www/html/knowledge_bank.json`.
 
 ---
 
-## Key Features
+## 🛠️ Key Features
 
 <table>
   <tr>
     <td width="50%">
       <h3>Deck 1: Meena™ AI Assistant Bridge</h3>
       <ul>
-        <li><b>3D Dot-Matrix Neural Brain (AI Core)</b>: Procedural 3D point-cloud brain with dual cerebral hemispheres, cerebellum, nearest-neighbor synaptic lines, active firing sparks, and live audio excitation.</li>
-        <li><b>Obsidian-Style Neural Knowledge Graph</b>: Interactive HTML5 Canvas force-directed physics graph with central core, 4 category hubs (<code>FACILITY</code>, <code>SENSEI</code>, <code>ROUTINES</code>, <code>MISSIONS</code>), node dragging, and dynamic leaf spawning.</li>
-        <li><b>Dynamic Status Cycler</b>: Single-pill condition cycler (<code>GREEN</code> &rarr; <code>YELLOW</code> &rarr; <code>RED</code>) with synchronized alarms, audio chirps, and visual themes.</li>
-        <li><b>Neural Sync EXP System</b>: Real-time Level 1 to 99 progression with custom rank badges and voice fanfares.</li>
-        <li><b>Dynamic Mood Matrix</b>: Visual emotional states (<code>CHEERFUL</code>, <code>TACTICAL</code>, <code>CARING</code>, <code>PROUD</code>).</li>
-        <li><b>Atmospheric Sensors</b>: Real-time meteorological telemetry &amp; 3-day weather forecast.</li>
+        <li><b>3D Dot-Matrix Neural Brain Core</b>: Point-cloud brain with dual cerebral hemispheres, cerebellum, nearest-neighbor synaptic lines, active firing sparks, and live audio excitation.</li>
+        <li><b>Obsidian-Style Neural Knowledge Graph</b>: Full-screen interactive HTML5 Canvas force-directed physics graph with central core, 4 category hubs (<code>FACILITY</code>, <code>SENSEI</code>, <code>ROUTINES</code>, <code>MISSIONS</code>), and dynamic leaf spawning.</li>
+        <li><b>5 Production AI Agent Skills Tray</b>: 1-click execution buttons for Deep Research, Report Audit, Morale Boost, Fact Check, and Self-Learning.</li>
+        <li><b>Live AI Token Meter Badge</b>: Real-time HUD tracking cumulative tokens used today.</li>
+        <li><b>Sentinel Status Pill</b>: Real-time indication of DietPi watchdog integrity (<code>[SENTINEL: NOMINAL]</code>).</li>
+        <li><b>Level-4 Sudo Authorization Protocol</b>: Secure authorization cards with glowing <code>[AUTHORIZE]</code> / <code>[ABORT]</code> verification.</li>
       </ul>
     </td>
     <td width="50%">
       <h3>Deck 2: Observatory & Infrastructure NOC</h3>
       <ul>
-        <li><b>Full-Screen 3D WebGL Hologram</b>: Point-cloud Earth, Solar System, and Milky Way Galaxy map with orbital trajectory selectors (<code>[TERRA / ISS]</code>, <code>[SOLAR ORBIT]</code>, <code>[MILKY WAY]</code>).</li>
-        <li><b>Live ISS Subspace Tracker</b>: Real-time orbital coordinates, altitude (~420 km), and speed (~27,600 km/h).</li>
-        <li><b>Subspace Network Radar 2.0</b>: Live ARP scan of active LAN devices with auto-detected hardware icons (router, smartphone, desktop, core) and ping latency tracking.</li>
-        <li><b>Pi-hole v6 Defense Shield</b>: Direct telemetry matching rolling 24-hour queries, blocked count, block percentage, and gravity list.</li>
+        <li><b>Full-Screen 3D WebGL Hologram</b>: Point-cloud Earth, Solar System, and Milky Way Galaxy map with orbital selectors (<code>[TERRA / ISS]</code>, <code>[SOLAR ORBIT]</code>, <code>[MILKY WAY]</code>).</li>
+        <li><b>Live ISS Satellite Subspace Tracker</b>: Real-time orbital coordinates, altitude (~418 km), and speed (~27,580 km/h) with 3D solar-wing satellite mesh.</li>
+        <li><b>Subspace Network Radar 2.0</b>: Live ARP scan of active LAN devices with auto-detected hardware icons and ping tracking.</li>
+        <li><b>Pi-hole v6 Defense Shield</b>: Direct telemetry matching rolling 24-hour queries, blocked count, block percentage (37.6%), and 2.49M gravity list.</li>
         <li><b>Subspace Bandwidth &amp; Kernel Stream</b>: Real-time dynamic Tx/Rx canvas throughput graph and live Linux <code>dmesg</code> event feed.</li>
-        <li><b>Hardware Telemetry Sidebar</b>: Continuous CPU, RAM, SOC Temp, and SD storage step gauges.</li>
+        <li><b>Hardware Telemetry Sidebar</b>: Continuous CPU, RAM, SOC Temp (52°C), and storage step gauges.</li>
       </ul>
     </td>
   </tr>
@@ -80,120 +84,49 @@ The system establishes **Takahara Academy (高原学園)** as your secure, self-
 
 ---
 
-## Architecture & Data Flow
+## 🔬 AI Agent Skills Suite
 
-```mermaid
-graph TD
-    subgraph Raspberry Pi Host (DietPi)
-        HW[Linux Kernel / Hardware] -->|/proc/stat, /sys/thermal, /proc/net| DAEMON[bmb20-stats.sh Systemd Daemon]
-        DAEMON -->|Atomic JSON Write every 1s| JSON[/var/www/html/api.json]
-        NGINX[Lighttpd / Nginx Web Server] -->|Static Memory Cache| JSON
-        NGINX -->|Serves Web Assets| WEB[HTML5 / CSS / ES6 Modules]
-    end
-
-    subgraph Client Browser / Touchscreen Dashboard
-        WEB --> UI[Dual-Deck Interface]
-        UI --> DECK1[Deck 1: Meena™ AI Assistant Bridge]
-        UI --> DECK2[Deck 2: Takahara Observatory NOC]
-        JSON -->|1000ms Polling| TELEMETRY[telemetry.js Gauges & Radar]
-        DECK1 --> AUDIO[audio.js Web Speech + Waveform Synth]
-        DECK2 --> GLOBE[globe.js Three.js 3D WebGL Engine]
-    end
-```
+| Skill | Trigger / Button | What Meena Does |
+|---|---|---|
+| **🔬 Deep Research & Analytics** | Click **`🔬 DEEP RESEARCH`** or say *"Deep research on [Topic]"* | Decomposes query, retrieves empirical evidence, tags `[FACT]` & `[SOURCE]`, and auto-maps the results to your **Knowledge Graph**. |
+| **📊 Executive Report Audit** | Click **`📊 REPORT AUDIT`** or say *"Report analysis"* | Aggregates Raspberry Pi sensors & Pi-hole drop rates into a structured **Grade A+ Audit Card** with recommendations. |
+| **💖 Mental Health & Morale Boost** | Click **`💖 MORALE BOOST`** or say *"Morale boost"* | Performs an ergonomic posture check, hydration reminder, and delivers genuine intellectual encouragement with Alex Dunphy wit! |
+| **🔍 Fact Check & Provenance** | Click **`🔍 FACT CHECK`** or say *"Fact check [Statement]"* | Rigorously evaluates claims with empirical validation, confidence score, and verified source lineage. |
+| **🧠 Autonomous Self-Learning** | Continuous / Say *"Remember that [Fact]"* | Forms new synaptic nodes and syncs them directly to the DietPi host (`knowledge_bank.json`). |
 
 ---
 
-## Quick Start & Installation
+## 🎙️ Hands-Free Wake Word Engine
 
-### Prerequisites
-* Raspberry Pi 3 Model B, 4, 5, or any Linux SBC running **DietPi / Debian**.
-* Web server installed (**Lighttpd**, **Nginx**, or **Apache2** with PHP).
+Meena features continuous background voice activity listening:
 
-### 1. One-Line Remote Deployment (From Windows / Linux)
+* **Wake Words**: `"Hey Meena"`, `"Meena"`, `"Hey Alex"`, `"Alex"`, `"Computer"`.
+* **Example Spoken Commands**:
+  * *"Hey Meena, what is the temperature?"*
+  * *"Computer, report analysis"*
+  * *"Hey Alex, tell me a joke"*
+  * *"Meena, switch to Deck 2"*
+  * *"Computer, purge RAM cache"* &rarr; triggers Level-4 Authorization Modal
 
+---
+
+## 🚀 Quick Start & Deployment
+
+### 1. One-Click Automated Deployment (From Windows Dev Host)
 ```powershell
-# From your development machine with SSH keys configured:
-.\deploy.ps1 -TargetHost "dietpi.local"
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1 -TargetHost "dietpi.local"
 ```
 
-### 2. Manual Linux Server Setup
-
+### 2. Manual Deployment on Linux / SBC Host
 ```bash
-# Clone the repository to the web root
-git clone https://github.com/manaphassan/bmb20.git /var/www/html/
-
-# Install the background telemetry daemon
-sudo cp /var/www/html/daemon/bmb20-stats.sh /usr/local/bin/bmb20-stats.sh
-sudo chmod +x /usr/local/bin/bmb20-stats.sh
-sudo cp /var/www/html/daemon/bmb20-stats.service /etc/systemd/system/bmb20-stats.service
-
-# Enable and start the telemetry service
-sudo systemctl daemon-reload
-sudo systemctl enable --now bmb20-stats.service
-
-# Set web permissions
-sudo chown -R www-data:www-data /var/www/html/
-sudo chmod -R 755 /var/www/html/
+sudo bash deploy-dietpi.sh
 ```
 
-Access the dashboard in your browser at:  
-`http://dietpi.local` or `http://<YOUR_PI_IP>`
+### 3. Accessing the Command Bridge
+Open your browser and navigate to:
+* **`http://dietpi.local`** or **`http://192.168.0.100`**
 
 ---
 
-## Voice Commands & Hotkeys Guide
-
-### Spoken Voice Dialogues (Default: English with Japanese Intonation)
-
-| Trigger Command | Meena Spoken Response / Action |
-| :--- | :--- |
-| **`"Meena"`** / **`"Hey Meena"`** | *"Konnichiwa, Sensei! Standing by and ready for orders!"* |
-| **`"Status Report"`** | Reads verbal CPU load, RAM utilization, SOC temperature, and Pi-hole shield state. |
-| **`"Weather Forecast"`** | Speaks current temperature, sky condition, humidity, and wind for home base. |
-| **`"Remember [note]"`** | Learns and indexes fact into the 4-category tactical knowledge bank (+25 EXP). |
-| **`"Recall Memory"`** | Reads back recent learned notes and records. |
-| **`"Code Red"`** | Triggers red alert klaxon and raises absolute defense barrier. |
-| **`"Warp Speed"`** | Plays main thrusters acceleration warp sound sequence. |
-
----
-
-### Master Keyboard Shortcuts
-
-| Hotkey | Action | Hotkey | Action |
-| :---: | :--- | :---: | :--- |
-| **`1`** | **Switch to Deck 1 (Meena™ AI Bridge)** | **`W`** | Warp Drive Engagement |
-| **`2`** | **Switch to Deck 2 (Observatory NOC)** | **`C`** | Facility Door / Comm Hail Chime |
-| **`3`** | Trigger Code Red Alert Klaxon | **`B`** | Transporter Beaming Shimmer |
-| **`4`** / **`P`** | 3D Terra Planetary View | **`V`** | Open Voice & Acoustic Settings Modal |
-| **`5`** / **`S`** | 3D Solar System View | **`R`** | Toggle Retro CRT Scanlines / Clarity |
-| **`6`** / **`G`** | 3D Milky Way Galaxy View | **`M`** / **`A`** | Audio Interface Toggle (Mute/Unmute) |
-
----
-
-## Connected Services Roster
-
-| Identifier | Service | Port / Endpoint | Description |
-| :---: | :--- | :--- | :--- |
-| **`[01-89]`** | **Pi-hole v6** | `http://dietpi.local:8089/admin/login` | DNS Ad-Blocking & Network Shield |
-| **`[80-84]`** | **File Browser** | `http://dietpi.local:8084/` | Web-Based File Manager |
-| **`[33-84]`** | **Syncthing** | `http://dietpi.local:8384` | Continuous P2P File Synchronization |
-| **`[10-52]`** | **Tailscale VPN** | `https://login.tailscale.com/admin/machines` | Secure Mesh Network Gateway |
-| **`[52-52]`** | **Cockpit** | `http://dietpi.local:5252` | Linux Server Web Administration |
-
----
-
-## Project Roadmap
-
-- [x] **v1.0.0**: LCARS Telemetry & 3D Earth Globe (`Three.js`).
-- [x] **v1.5.0**: Interactive Pi-hole v6 Action Modal & Automated Sudoers Controls.
-- [x] **v2.0.0**: **Meena™ - Takahara Academy (高原学園)** Dual-Deck Architecture, Neural Growth EXP Engine, Holographic Avatar HUD, and 4-Category Knowledge Bank.
-- [ ] **v2.1.0**: Smart Home & IoT Switch Controls (Home Assistant / Tasmota / Tuya integration).
-- [ ] **v2.2.0**: Scheduled Audio Reminders & Hourly Chimes.
-
----
-
-## License & Attribution
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
-* Developed for **Takahara Academy (高原学園)** by **[manaphassan](https://github.com/manaphassan)**.
+## 📜 License
+MIT License. Created with ❤️ for **Takahara Academy (高原学園)**.
