@@ -418,8 +418,8 @@ body {
     <!-- Main Content Grid -->
     <div class="main-area">
 
-        <!-- Row 1: Central Hologram Planet Monitor (2 Cols) -->
-        <div class="col-span-2 row-span-1 bg-surface-container-lowest border border-outline-variant relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm h-full" id="global-monitor-card">
+        <!-- Row 1 & 2: Central Hologram Planet Monitor (Spans 2 Cols x 2 Rows) -->
+        <div class="col-span-2 row-span-2 bg-surface-container-lowest border border-outline-variant relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm h-full" id="global-monitor-card">
             <div class="absolute top-0 left-0 bg-primary text-on-primary font-label-caps text-label-caps px-2.5 py-1 z-30 font-bold tracking-widest flex items-center gap-2">
                 <span>SBC GLOBAL MONITOR</span>
                 <span class="w-2 h-2 rounded-full bg-on-primary animate-ping"></span>
@@ -483,172 +483,62 @@ body {
             <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-40 mix-blend-screen" id="tactical-shader"></canvas>
         </div>
 
-        <!-- Row 1: Hardware & System Metrics (1 Col) -->
-        <div class="col-span-1 row-span-1 bg-surface-container-low p-3 flex flex-col justify-between border-t-4 border-secondary rounded-sm h-full">
-            <div class="font-headline-sm text-headline-sm text-primary uppercase flex justify-between items-center border-b border-outline-variant/30 pb-1">
-                <span class="font-bold tracking-wider">Metrics</span>
-                <span class="text-[10px] text-tertiary font-data-mono px-2 py-0.5 bg-surface-container border border-tertiary/40 rounded-sm" id="telemetry-source">REAL DIETPI</span>
+        <!-- Right Column: Sys Log Stream & Morse Transmitter (Spans 1 Col x 2 Rows) -->
+        <div class="col-span-1 row-span-2 flex flex-col gap-2 h-full">
+            <!-- Top Half: System Log Stream Terminal -->
+            <div class="flex-1 bg-surface p-2.5 border border-outline-variant font-data-mono text-[11px] leading-tight text-primary flex flex-col relative rounded-sm overflow-hidden">
+                <div class="absolute top-0 left-0 bg-outline-variant text-on-surface font-label-caps text-[10px] px-2.5 py-0.5 font-bold z-10 flex items-center justify-between w-full pr-3">
+                    <span>SYS LOG STREAM</span>
+                    <span class="text-[9px] text-tertiary">LIVE TELEMETRY</span>
+                </div>
+                <div class="overflow-hidden h-full flex flex-col justify-end pt-6 opacity-90" id="sys-log">
+                    <div>&gt; dietpi core initialised...</div>
+                    <div>&gt; network interfaces UP [dietpi.local]</div>
+                    <div>&gt; telemetry loop active...</div>
+                </div>
             </div>
-            <div class="flex-1 flex flex-col justify-around py-1">
-                <div class="flex flex-col gap-1 font-data-mono text-data-mono">
-                    <div class="flex justify-between text-secondary text-xs">
-                        <span class="flex items-center gap-2">CPU LOAD <span class="hidden text-[10px] bg-error text-on-error px-1 rounded font-bold animate-pulse" id="cpu-alert">HIGH</span></span>
+
+            <!-- Bottom Half: Morse Code Subspace Transmitter -->
+            <div class="flex-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-l-4 border-tertiary rounded-sm">
+                <div class="font-label-caps text-tertiary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs flex justify-between items-center">
+                    <span>Morse Transmitter</span>
+                    <span class="text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm" id="morse-status">READY</span>
+                </div>
+                <div class="bg-surface p-2 border border-secondary/60 flex-1 flex flex-col justify-between shadow-sm rounded-sm gap-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <input type="text" id="morse-input" placeholder="Type message (e.g. SOS / BMB20)..." 
+                               class="flex-1 bg-surface-container-lowest text-primary font-data-mono text-xs px-2 py-1 border border-outline-variant focus:outline-none focus:border-tertiary rounded-sm uppercase tracking-wider"
+                               onkeydown="if(event.key==='Enter') transmitMorseMessage()">
+                        <button onclick="transmitMorseMessage()" 
+                                class="bg-tertiary text-on-tertiary font-label-caps text-[10px] px-2.5 py-1 font-bold rounded-sm hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">send</span>
+                            <span>SEND</span>
+                        </button>
+                    </div>
+
+                    <!-- Morse Preset Quick-Send Chips -->
+                    <div class="flex gap-1 justify-between text-[9px] font-data-mono">
+                        <button onclick="document.getElementById('morse-input').value='SOS'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[SOS]</button>
+                        <button onclick="document.getElementById('morse-input').value='MAYDAY'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[MAYDAY]</button>
+                        <button onclick="document.getElementById('morse-input').value='PING'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[PING]</button>
+                        <button onclick="document.getElementById('morse-input').value='DIETPI'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[DIETPI]</button>
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-1.5 border border-outline-variant/30 rounded-sm font-data-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
+                        <div class="flex justify-between text-on-surface-variant text-[9px]">
+                            <span>SIGNAL ENCODING:</span>
+                            <span class="text-tertiary font-bold" id="morse-code-output">...---...</span>
+                        </div>
+                        <div class="text-primary font-bold truncate text-xs" id="morse-live-text">&gt; ENTER SIGNAL MESSAGE ABOVE</div>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] font-data-mono text-secondary pt-0.5 border-t border-outline-variant/20">
+                        <span>AUDIO KEYER: CW 750Hz</span>
                         <div class="flex items-center gap-1">
-                            <div class="flex items-end gap-0.5 h-2.5 w-6">
-                                <div class="w-1 bg-primary h-1/2"></div>
-                                <div class="w-1 bg-primary h-3/4"></div>
-                                <div class="w-1 bg-primary h-full"></div>
-                            </div>
-                            <span id="cpu-val" class="font-bold text-primary">--%</span>
+                            <span>TX PULSE</span>
+                            <div class="w-2.5 h-2.5 rounded-full bg-surface-variant" id="morse-tx-led"></div>
                         </div>
                     </div>
-                    <div class="w-full bg-surface h-2 rounded-sm overflow-hidden"><div class="bg-primary h-full transition-all" id="cpu-bar" style="width: 0%;"></div></div>
                 </div>
-                <div class="flex flex-col gap-1 font-data-mono text-data-mono">
-                    <div class="flex justify-between text-secondary text-xs">
-                        <span>MEMORY</span>
-                        <div class="flex items-center gap-1">
-                            <div class="flex items-end gap-0.5 h-2.5 w-6">
-                                <div class="w-1 bg-tertiary h-2/3"></div>
-                                <div class="w-1 bg-tertiary h-1/2"></div>
-                                <div class="w-1 bg-tertiary h-3/4"></div>
-                            </div>
-                            <span id="mem-val" class="font-bold text-tertiary">--%</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-surface h-2 rounded-sm overflow-hidden"><div class="bg-tertiary h-full transition-all" id="mem-bar" style="width: 0%;"></div></div>
-                </div>
-                <div class="flex flex-col gap-1 font-data-mono text-data-mono">
-                    <div class="flex justify-between text-secondary text-xs">
-                        <span>SOC TEMP</span>
-                        <div class="flex items-center gap-1">
-                            <div class="flex items-end gap-0.5 h-2.5 w-6">
-                                <div class="w-1 bg-error h-1/2"></div>
-                                <div class="w-1 bg-error h-1/2"></div>
-                                <div class="w-1 bg-error h-2/3"></div>
-                            </div>
-                            <span id="temp-val" class="font-bold text-error">--°C</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-surface h-2 rounded-sm overflow-hidden"><div class="bg-error h-full transition-all" id="temp-bar" style="width: 0%;"></div></div>
-                </div>
-                <div class="flex flex-col gap-1 font-data-mono text-data-mono">
-                    <div class="flex justify-between text-secondary text-xs">
-                        <span>DISK (/var/www)</span>
-                        <div class="flex items-center gap-1">
-                            <div class="flex items-end gap-0.5 h-2.5 w-6">
-                                <div class="w-1 bg-secondary h-1/3"></div>
-                                <div class="w-1 bg-secondary h-1/2"></div>
-                                <div class="w-1 bg-secondary h-1/3"></div>
-                            </div>
-                            <span id="disk-val" class="font-bold text-secondary">--%</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-surface h-2 rounded-sm overflow-hidden"><div class="bg-secondary-container h-full transition-all" id="disk-bar" style="width: 0%;"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 2: Service Health (1 Col) -->
-        <div class="col-span-1 row-span-1 bg-surface-container p-2.5 border-l-4 border-tertiary flex flex-col justify-between rounded-sm h-full">
-            <div class="font-label-caps text-label-caps text-tertiary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs flex justify-between items-center">
-                <span>Service Health</span>
-                <span class="text-[9px] text-primary bg-surface px-1 rounded border border-primary/30 font-data-mono">4 ACTIVE</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1.5 justify-between">
-                <div class="flex-1 bg-surface-container-highest p-2 flex items-center justify-between border border-outline-variant/30 rounded-sm hover:border-tertiary/50 transition-colors">
-                    <div class="flex flex-col">
-                        <span class="font-data-mono text-xs text-on-surface font-bold">PI-HOLE DNS</span>
-                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 53/80 | DNS Filter</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[9px] text-tertiary font-data-mono font-bold bg-surface px-1.5 py-0.5 rounded border border-tertiary/30">12ms</span>
-                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
-                    </div>
-                </div>
-                <div class="flex-1 bg-surface-container-highest p-2 flex items-center justify-between border border-outline-variant/30 rounded-sm hover:border-tertiary/50 transition-colors">
-                    <div class="flex flex-col">
-                        <span class="font-data-mono text-xs text-on-surface font-bold">SYNCTHING</span>
-                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 8384 | P2P Sync</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[9px] text-tertiary font-data-mono font-bold bg-surface px-1.5 py-0.5 rounded border border-tertiary/30">8ms</span>
-                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
-                    </div>
-                </div>
-                <div class="flex-1 bg-surface-container-highest p-2 flex items-center justify-between border border-outline-variant/30 rounded-sm hover:border-tertiary/50 transition-colors">
-                    <div class="flex flex-col">
-                        <span class="font-data-mono text-xs text-on-surface font-bold">JELLYFIN MEDIA</span>
-                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 8096 | Streaming</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[9px] text-tertiary font-data-mono font-bold bg-surface px-1.5 py-0.5 rounded border border-tertiary/30">15ms</span>
-                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
-                    </div>
-                </div>
-                <div class="flex-1 bg-surface-container-highest p-2 flex items-center justify-between border border-outline-variant/30 rounded-sm hover:border-tertiary/50 transition-colors">
-                    <div class="flex flex-col">
-                        <span class="font-data-mono text-xs text-on-surface font-bold">LIGHTTPD / NGINX</span>
-                        <span class="text-[10px] text-primary font-data-mono font-bold">Port 80 | Web Server [OK]</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[9px] text-primary font-data-mono font-bold bg-surface px-1.5 py-0.5 rounded border border-primary/30">4ms</span>
-                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 2: Morse Code Subspace Transmitter (1 Col) -->
-        <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-l-4 border-tertiary rounded-sm h-full">
-            <div class="font-label-caps text-tertiary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs flex justify-between items-center">
-                <span>Morse Transmitter</span>
-                <span class="text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm" id="morse-status">READY</span>
-            </div>
-            <div class="bg-surface p-2 border border-secondary/60 flex-1 flex flex-col justify-between shadow-sm rounded-sm gap-1.5">
-                <div class="flex items-center gap-1.5">
-                    <input type="text" id="morse-input" placeholder="Type message (e.g. SOS / BMB20)..." 
-                           class="flex-1 bg-surface-container-lowest text-primary font-data-mono text-xs px-2 py-1 border border-outline-variant focus:outline-none focus:border-tertiary rounded-sm uppercase tracking-wider"
-                           onkeydown="if(event.key==='Enter') transmitMorseMessage()">
-                    <button onclick="transmitMorseMessage()" 
-                            class="bg-tertiary text-on-tertiary font-label-caps text-[10px] px-2.5 py-1 font-bold rounded-sm hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs">send</span>
-                        <span>SEND</span>
-                    </button>
-                </div>
-
-                <!-- Morse Preset Quick-Send Chips -->
-                <div class="flex gap-1 justify-between text-[9px] font-data-mono">
-                    <button onclick="document.getElementById('morse-input').value='SOS'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[SOS]</button>
-                    <button onclick="document.getElementById('morse-input').value='MAYDAY'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[MAYDAY]</button>
-                    <button onclick="document.getElementById('morse-input').value='PING'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[PING]</button>
-                    <button onclick="document.getElementById('morse-input').value='DIETPI'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[DIETPI]</button>
-                </div>
-
-                <div class="bg-surface-container-lowest p-1.5 border border-outline-variant/30 rounded-sm font-data-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
-                    <div class="flex justify-between text-on-surface-variant text-[9px]">
-                        <span>SIGNAL ENCODING:</span>
-                        <span class="text-tertiary font-bold" id="morse-code-output">...---...</span>
-                    </div>
-                    <div class="text-primary font-bold truncate text-xs" id="morse-live-text">&gt; ENTER SIGNAL MESSAGE ABOVE</div>
-                </div>
-                <div class="flex items-center justify-between text-[9px] font-data-mono text-secondary pt-0.5 border-t border-outline-variant/20">
-                    <span>AUDIO KEYER: CW 750Hz</span>
-                    <div class="flex items-center gap-1">
-                        <span>TX PULSE</span>
-                        <div class="w-2.5 h-2.5 rounded-full bg-surface-variant" id="morse-tx-led"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 2: System Log Stream Terminal (1 Col) -->
-        <div class="col-span-1 row-span-1 bg-surface p-2 border border-outline-variant font-data-mono text-[11px] leading-tight text-primary flex flex-col relative rounded-sm h-full">
-            <div class="absolute top-0 left-0 bg-outline-variant text-on-surface font-label-caps text-[10px] px-2 py-0.5 font-bold z-10">SYS LOG STREAM</div>
-            <div class="overflow-hidden h-full flex flex-col justify-end pt-5 opacity-90" id="sys-log">
-                <div>&gt; dietpi core initialised...</div>
-                <div>&gt; network interfaces UP [dietpi.local]</div>
-                <div>&gt; telemetry loop active...</div>
             </div>
         </div>
 
@@ -1681,68 +1571,84 @@ let earthMapCtx = null;
 
 function initEarthMapCanvas() {
     const canvas = document.createElement('canvas');
-    canvas.width = 360;
-    canvas.height = 180;
+    canvas.width = 720;
+    canvas.height = 360;
     earthMapCtx = canvas.getContext('2d', { willReadFrequently: true });
 
     // Fill Ocean (Black)
     earthMapCtx.fillStyle = '#000000';
-    earthMapCtx.fillRect(0, 0, 360, 180);
+    earthMapCtx.fillRect(0, 0, 720, 360);
 
     // Draw High-Precision World Continent Map (White Landmasses)
     earthMapCtx.fillStyle = '#ffffff';
 
-    // North America
+    // North America (Alaska, Canada, USA, Mexico, Central America)
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(15, 18); earthMapCtx.lineTo(130, 12); earthMapCtx.lineTo(135, 38); 
-    earthMapCtx.lineTo(110, 72); earthMapCtx.lineTo(95, 78); earthMapCtx.lineTo(82, 65); 
-    earthMapCtx.lineTo(55, 48); earthMapCtx.lineTo(35, 40); earthMapCtx.closePath();
+    earthMapCtx.moveTo(30, 36); earthMapCtx.lineTo(260, 24); earthMapCtx.lineTo(270, 76); 
+    earthMapCtx.lineTo(220, 144); earthMapCtx.lineTo(190, 156); earthMapCtx.lineTo(164, 130); 
+    earthMapCtx.lineTo(110, 96); earthMapCtx.lineTo(70, 80); earthMapCtx.closePath();
     earthMapCtx.fill();
 
-    // Greenland
+    // Greenland & Iceland
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(125, 8); earthMapCtx.lineTo(160, 10); earthMapCtx.lineTo(145, 32); earthMapCtx.closePath();
+    earthMapCtx.moveTo(250, 16); earthMapCtx.lineTo(320, 20); earthMapCtx.lineTo(290, 64); earthMapCtx.closePath();
+    earthMapCtx.fill();
+    earthMapCtx.fillRect(330, 48, 12, 10); // Iceland
+
+    // South America (Colombia, Brazil, Chile, Argentina, Patagonia)
+    earthMapCtx.beginPath();
+    earthMapCtx.moveTo(196, 156); earthMapCtx.lineTo(290, 190); earthMapCtx.lineTo(270, 290); 
+    earthMapCtx.lineTo(220, 310); earthMapCtx.lineTo(190, 230); earthMapCtx.closePath();
     earthMapCtx.fill();
 
-    // South America
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(98, 78); earthMapCtx.lineTo(145, 95); earthMapCtx.lineTo(135, 145); 
-    earthMapCtx.lineTo(110, 155); earthMapCtx.lineTo(95, 115); earthMapCtx.closePath();
-    earthMapCtx.fill();
+    // British Isles (UK & Ireland)
+    earthMapCtx.fillRect(344, 52, 16, 24);
 
-    // Europe & UK
+    // Europe (Scandinavia, Iberian Peninsula, Italy, Balkans, Eastern Europe)
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(165, 18); earthMapCtx.lineTo(220, 22); earthMapCtx.lineTo(215, 55); 
-    earthMapCtx.lineTo(170, 52); earthMapCtx.closePath();
+    earthMapCtx.moveTo(330, 36); earthMapCtx.lineTo(440, 44); earthMapCtx.lineTo(430, 110); 
+    earthMapCtx.lineTo(340, 104); earthMapCtx.closePath();
     earthMapCtx.fill();
 
     // Africa & Madagascar
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(162, 52); earthMapCtx.lineTo(230, 55); earthMapCtx.lineTo(222, 125); 
-    earthMapCtx.lineTo(190, 130); earthMapCtx.lineTo(162, 92); earthMapCtx.closePath();
+    earthMapCtx.moveTo(324, 104); earthMapCtx.lineTo(460, 110); earthMapCtx.lineTo(444, 250); 
+    earthMapCtx.lineTo(380, 260); earthMapCtx.lineTo(324, 184); earthMapCtx.closePath();
+    earthMapCtx.fill();
+    earthMapCtx.fillRect(470, 200, 18, 50); // Madagascar
+
+    // Asia (Siberia, China, India peninsula, Indochina, Arabia)
+    earthMapCtx.beginPath();
+    earthMapCtx.moveTo(430, 24); earthMapCtx.lineTo(710, 24); earthMapCtx.lineTo(696, 170); 
+    earthMapCtx.lineTo(570, 164); earthMapCtx.lineTo(500, 190); earthMapCtx.lineTo(476, 150); 
+    earthMapCtx.lineTo(430, 104); earthMapCtx.closePath();
     earthMapCtx.fill();
 
-    // Asia & India & SE Asia
+    // Japan Archipelago & Korea
+    earthMapCtx.fillRect(660, 70, 14, 40); // Japan
+    earthMapCtx.fillRect(638, 82, 12, 22); // Korea
+
+    // Indonesia & SE Asia Archipelago
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(215, 12); earthMapCtx.lineTo(355, 12); earthMapCtx.lineTo(348, 85); 
-    earthMapCtx.lineTo(285, 82); earthMapCtx.lineTo(250, 95); earthMapCtx.lineTo(238, 75); 
-    earthMapCtx.lineTo(215, 52); earthMapCtx.closePath();
+    earthMapCtx.moveTo(560, 170); earthMapCtx.lineTo(670, 170); earthMapCtx.lineTo(660, 210); 
+    earthMapCtx.lineTo(560, 210); earthMapCtx.closePath();
     earthMapCtx.fill();
 
-    // Australia & NZ
+    // Australia, Tasmania & New Zealand
     earthMapCtx.beginPath();
-    earthMapCtx.moveTo(290, 110); earthMapCtx.lineTo(345, 110); earthMapCtx.lineTo(338, 148); 
-    earthMapCtx.lineTo(290, 142); earthMapCtx.closePath();
+    earthMapCtx.moveTo(580, 220); earthMapCtx.lineTo(690, 220); earthMapCtx.lineTo(676, 296); 
+    earthMapCtx.lineTo(580, 284); earthMapCtx.closePath();
     earthMapCtx.fill();
+    earthMapCtx.fillRect(690, 270, 12, 34); // NZ
 
     // Antarctica
-    earthMapCtx.fillRect(0, 158, 360, 22);
+    earthMapCtx.fillRect(0, 316, 720, 44);
 }
 
 function isRealEarthLand(lat, lon) {
     if (!earthMapCtx) initEarthMapCanvas();
-    const x = Math.floor(((lon + 180) % 360));
-    const y = Math.floor(90 - lat);
+    const x = Math.floor(((lon + 180) / 360) * 720);
+    const y = Math.floor(((90 - lat) / 180) * 360);
     try {
         const pixel = earthMapCtx.getImageData(x, y, 1, 1).data[0];
         return pixel > 128;
@@ -1966,7 +1872,7 @@ function initEarth() {
     };
 
     // High-Precision Real Earth Continent Dot Matrix
-    const count = 10500;
+    const count = 25000;
     const dotGeo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
