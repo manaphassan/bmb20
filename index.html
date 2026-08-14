@@ -191,9 +191,9 @@
                     <span>ISS: 28.5°N, 80.5°W // 27,580 KM/H</span>
                 </div>
                 <!-- Voice Command Transcription Badge -->
-                <div class="bg-surface-container-high/90 backdrop-blur-sm border border-primary/40 px-2 py-0.5 rounded text-[9px] font-data-mono text-primary flex items-center gap-1 opacity-40 transition-opacity" id="voice-hud-badge">
+                <div onclick="openVoiceModal()" class="bg-surface-container-high/90 backdrop-blur-sm border border-primary/40 px-2 py-0.5 rounded text-[9px] font-data-mono text-primary flex items-center gap-1 opacity-60 hover:opacity-100 transition-all cursor-pointer" id="voice-hud-badge">
                     <span class="material-symbols-outlined text-xs">mic</span>
-                    <span>MIC STANDBY [V]</span>
+                    <span>VOICE CONSOLE [V]</span>
                 </div>
             </div>
 
@@ -438,6 +438,74 @@
         <!-- Console Output Log Stream -->
         <div class="bg-surface-dim p-2 rounded text-[11px] text-primary border border-outline-variant/30 min-h-[45px] max-h-[70px] overflow-y-auto" id="modal-console-out">
             > AWAITING COMMAND INPUT...
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     LCARS J.A.R.V.I.S. VOICE COMMAND CONSOLE MODAL
+     ========================================== -->
+<div id="voice-command-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface-container border-2 border-primary rounded-tl-2xl rounded-br-2xl p-4 max-w-lg w-full shadow-2xl flex flex-col gap-3 font-data-mono">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#66ccff]"></span>
+                <span class="font-headline-sm text-sm text-primary font-bold tracking-wider">J.A.R.V.I.S. TACTICAL VOICE COMMANDS</span>
+            </div>
+            <button onclick="closeVoiceModal()" class="text-on-surface-variant hover:text-error text-xs font-bold px-2 py-0.5 rounded bg-surface-bright">CLOSE [ESC]</button>
+        </div>
+
+        <!-- Quick 1-Click Voice Command Buttons -->
+        <div class="text-[10px] text-secondary font-bold">SELECT TACTICAL COMMAND OR SPEAK INTO MIC:</div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="handleVoiceCommand('status report'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>1. STATUS REPORT</span>
+                <span class="text-[9px] text-tertiary">DIAGNOSTICS</span>
+            </button>
+            <button onclick="handleVoiceCommand('red alert'); closeVoiceModal();" class="bg-surface-container-high hover:bg-error hover:text-white p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>2. RED ALERT</span>
+                <span class="text-[9px] text-error font-mono">BATTLE STATIONS</span>
+            </button>
+            <button onclick="handleVoiceCommand('green'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>3. CONDITION GREEN</span>
+                <span class="text-[9px] text-primary">ALL NOMINAL</span>
+            </button>
+            <button onclick="handleVoiceCommand('warp'); closeVoiceModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>4. WARP SPEED</span>
+                <span class="text-[9px] text-tertiary">ENGAGE</span>
+            </button>
+            <button onclick="handleVoiceCommand('solar'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>5. SOL SYSTEM VIEW</span>
+                <span class="text-[9px] text-primary">8 PLANETS</span>
+            </button>
+            <button onclick="handleVoiceCommand('galaxy'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>6. MILKY WAY MAP</span>
+                <span class="text-[9px] text-primary">3.8K STARS</span>
+            </button>
+        </div>
+
+        <!-- Direct Voice Prompt Input Field -->
+        <div class="flex gap-2 mt-1">
+            <input type="text" id="manual-voice-input" placeholder="Type voice command (e.g. 'status report', 'warp', 'red alert')..."
+                   class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono"
+                   onkeydown="if (event.key === 'Enter') { handleVoiceCommand(this.value); this.value = ''; closeVoiceModal(); }"/>
+            <button onclick="const inp = document.getElementById('manual-voice-input'); if (inp && inp.value) { handleVoiceCommand(inp.value); inp.value = ''; closeVoiceModal(); }"
+                    class="bg-primary text-black font-bold px-3 py-1.5 rounded text-xs hover:bg-primary/80 transition-colors">
+                TRANSMIT
+            </button>
+        </div>
+
+        <!-- Microsoft Edge HTTP Microphone Guide Notice -->
+        <div class="bg-surface p-2 rounded text-[10px] text-on-surface-variant border border-outline-variant/30 flex flex-col gap-0.5">
+            <div class="text-tertiary font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">info</span>
+                <span>To Enable Live Mic in Edge for HTTP origins:</span>
+            </div>
+            <div class="font-mono text-[9px] text-secondary">
+                1. Open <strong class="text-on-surface">edge://flags/#unsafely-treat-insecure-origin-as-secure</strong><br/>
+                2. Add <strong class="text-primary">http://dietpi.local,http://192.168.0.100</strong> and set to <strong>Enabled</strong>.
+            </div>
         </div>
     </div>
 </div>

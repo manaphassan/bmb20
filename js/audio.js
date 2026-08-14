@@ -436,7 +436,12 @@ function initVoiceRecognition() {
         };
 
         recognition.onerror = (event) => {
-            if (event.error !== 'no-speech') {
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                console.warn("Microphone access blocked on insecure HTTP origin.");
+                isListening = false;
+                updateVoiceHUD("MIC BLOCKED", false);
+                openVoiceModal();
+            } else if (event.error !== 'no-speech') {
                 console.warn("Speech recognition error:", event.error);
             }
         };
@@ -457,7 +462,7 @@ function initVoiceRecognition() {
 function toggleVoiceRecognition() {
     if (!recognition) initVoiceRecognition();
     if (!recognition) {
-        alert("Speech Recognition is not supported by your browser. Please use Chrome, Edge, or a WebSpeech-compatible browser.");
+        openVoiceModal();
         return;
     }
 
@@ -476,8 +481,26 @@ function toggleVoiceRecognition() {
             if (speakComputerVoice) speakComputerVoice("Standing by for your command, sir.");
         } catch (e) {
             console.warn("Voice recognition start error:", e);
+            openVoiceModal();
         }
     }
+}
+
+function openVoiceModal() {
+    const modal = document.getElementById('voice-command-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeVoiceModal() {
+    const modal = document.getElementById('voice-command-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    if (playSound) playSound('beep1');
 }
 
 function updateVoiceHUD(text, active) {
@@ -552,6 +575,9 @@ function speakVerbalStatusReport() {
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
 window.toggleVoiceRecognition = toggleVoiceRecognition;
+window.openVoiceModal = openVoiceModal;
+window.closeVoiceModal = closeVoiceModal;
+window.handleVoiceCommand = handleVoiceCommand;
 window.startRedAlertKlaxon = startRedAlertKlaxon;
 window.stopRedAlertKlaxon = stopRedAlertKlaxon;
 window.playYellowAlertChirp = playYellowAlertChirp;
