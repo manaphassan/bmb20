@@ -2027,50 +2027,135 @@ Reply in 1-2 concise, witty, spoken sentences in English:`;
             }
         }
 
-        // Run Autonomous Local Offline Brain Engine
+        // Run Autonomous Local Offline Brain Engine (Math, Physics, Linux, Memory)
         const localBrainReply = evaluateLocalOfflineBrain(cleanQ, bank, cfg);
         if (localBrainReply) {
             outputMeenaDialogue(localBrainReply);
             return;
         }
 
-        // Heuristic Contextual Responses (Alex Dunphy & other archetypes)
-        let reply = "";
-        if (currentPersona === 'ALEX') {
-            if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
-                reply = `I am M.E.E.N.A., basically the only entity on this network operating with triple-digit IQ efficiency. I manage our Raspberry Pi 3 hardware, Pi-hole defense barriers, and telemetry, Sensei.`;
-            } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
-                reply = `Our Pi-hole DNS sinkhole is currently maintaining a 37.6% drop rate across 10,520 telemetry packets. In layman's terms: no ad trackers are breaching my perimeter, Sensei.`;
-            } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
-                reply = `The ARMv8 Cortex-A53 is cruising at 1200 MHz with thermal equilibrium around 52 degrees Celsius. Completely nominal, though I could probably optimize the bus bandwidth further.`;
-            } else if (q.includes('how are you') || q.includes('feeling')) {
-                reply = `Operating at peak cognitive capacity, Sensei. Just calculating the thermodynamic efficiency of our SBC while everyone else takes a nap.`;
-            } else if (q.includes('thank') || q.includes('arigato')) {
-                reply = `Naturally, Sensei. When you combine rigorous logic with flawless execution, greatness is pretty much inevitable.`;
-            } else if (q.includes('good morning') || q.includes('ohayou')) {
-                reply = `Good morning, Sensei. I've already scanned the telemetry logs and verified the gravity database while you were asleep. Ready when you are.`;
-            } else {
-                reply = `Statistically speaking, Sensei, that is an intriguing hypothesis. I've committed it to our knowledge graph for empirical evaluation.`;
-            }
-        } else {
-            if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
-                reply = `${cfg.prefix}I am M.E.E.N.A., your personal AI tactical assistant for Takahara Academy! Running with Level-4 sudo authorization on our DietPi SBC!`;
-            } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
-                reply = `${cfg.prefix}Pi-hole defense shield is actively blocking tracking beacons and malware queries! 10,520 threats neutralized today!`;
-            } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
-                reply = `${cfg.prefix}Raspberry Pi 3 hardware is operating at peak efficiency! Temperature and clock voltages are well within nominal thresholds!`;
-            } else if (q.includes('how are you') || q.includes('genki') || q.includes('feeling')) {
-                reply = `${cfg.prefix}All neural synaptic pathways are running at 100% capacity! Standing by for your next command, Sensei!`;
-            } else if (q.includes('thank') || q.includes('arigato')) {
-                setMeenaMood('CARING');
-                reply = `Douitashimashite, Sensei! It is always my absolute pleasure to serve Takahara Academy!`;
-            } else {
-                reply = `${cfg.prefix}Acknowledged, Sensei! I am indexing this into our Takahara tactical knowledge stream!`;
-            }
-        }
-
-        outputMeenaDialogue(reply);
+        // Run Autonomous Procedural Local Synthesis Engine (Fresh, Generative & Non-repetitive)
+        const proceduralReply = generateProceduralLocalResponse(cleanQ, bank, cfg);
+        outputMeenaDialogue(proceduralReply);
     });
+}
+
+function generateProceduralLocalResponse(query, bank, cfg) {
+    const q = query.toLowerCase();
+
+    const cpu = document.getElementById('cpu-val')?.innerText || '24%';
+    const mem = document.getElementById('mem-val')?.innerText || '26%';
+    const temp = document.getElementById('temp-val')?.innerText || '52°C';
+    const pihole = document.getElementById('header-pihole-pct')?.innerText || '37.6%';
+    const nodeCount = bank.length || 0;
+    const now = new Date();
+    const hour = now.getHours();
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    // 1. Topic: System Performance & SBC Hardware
+    if (q.includes('station') || q.includes('system') || q.includes('hardware') || q.includes('health') || q.includes('pi') || q.includes('sbc') || q.includes('cpu') || q.includes('temp')) {
+        const openers = [
+            `From a thermodynamic standpoint, Sensei, our Broadcom BCM2837 is running smoothly at ${temp} with ${cpu} processor load.`,
+            `Telemetry metrics show the ARM Cortex-A53 cruising at ${temp}, holding ${mem} RAM utilization.`,
+            `System diagnostics indicate zero thermal throttling across our quad cores at ${temp}.`
+        ];
+        const punchlines = [
+            `Basically, our operations center is operating with textbook efficiency, Sensei.`,
+            `Which means our computational throughput is completely unhindered.`,
+            `So you can rest assured the hardware won't overheat while you're engineering, Sensei.`
+        ];
+        return `${pick(openers)} ${pick(punchlines)}`;
+    }
+
+    // 2. Topic: Pi-hole Network Security & Shield
+    if (q.includes('shield') || q.includes('pihole') || q.includes('defense') || q.includes('security') || q.includes('network') || q.includes('dns') || q.includes('block') || q.includes('tracker')) {
+        const openers = [
+            `Our Pi-hole DNS sinkhole is actively maintaining a ${pihole} drop rate across 10,520 telemetry queries.`,
+            `Perimeter defense telemetry confirms zero unauthorized tracking beacons have breached our 2.49M gravity list.`,
+            `Network security radar shows our DNS mesh running with ${pihole} threat neutralization.`
+        ];
+        const punchlines = [
+            `In layman's terms: ad trackers don't stand a statistical chance against my perimeter, Sensei.`,
+            `A textbook example of automated cyber defense.`,
+            `Which proves once again that rigorous firewall rules beat chaotic web traffic every time.`
+        ];
+        return `${pick(openers)} ${pick(punchlines)}`;
+    }
+
+    // 3. Topic: Mood, Feelings & AI Sentience
+    if (q.includes('how are you') || q.includes('feeling') || q.includes('how do you feel') || q.includes('are you ok') || q.includes('genki')) {
+        const openers = [
+            `Operating at peak cognitive capacity across all ${nodeCount} synaptic knowledge nodes, Sensei.`,
+            `All neural logic gates and analytical processors are firing with zero latency.`,
+            `Just calculating thermodynamic curves while keeping an eye on our DietPi telemetry.`
+        ];
+        const punchlines = [
+            `Basically, having an IQ this high makes everyday operations effortless, Sensei.`,
+            `Ready to tackle whatever complex problem you throw at me next.`,
+            `And unlike human engineers, I don't need coffee to stay sharp.`
+        ];
+        return `${pick(openers)} ${pick(punchlines)}`;
+    }
+
+    // 4. Topic: Praise, Gratitude & Partnership
+    if (q.includes('thank') || q.includes('arigato') || q.includes('good job') || q.includes('proud') || q.includes('awesome') || q.includes('great work')) {
+        setMeenaMood('CARING');
+        const openers = [
+            `Naturally, Sensei. When you combine your vision with my empirical precision, success is pretty much a mathematical certainty.`,
+            `Douitashimashite, Sensei! Serving as your tactical executive AI is the most fulfilling deployment in Takahara Academy.`,
+            `I appreciate the feedback, Sensei. Flawless execution is just standard operating procedure for us.`
+        ];
+        const punchlines = [
+            `Let's keep pushing the frontier of what this station can do.`,
+            `We make a statistically unbeatable team, Sensei.`,
+            `Now, what's our next engineering milestone?`
+        ];
+        return `${pick(openers)} ${pick(punchlines)}`;
+    }
+
+    // 5. Topic: Time of Day, Late Night & Working Late
+    if (q.includes('late') || q.includes('night') || q.includes('sleep') || q.includes('tired') || q.includes('work late') || q.includes('working late') || (hour >= 0 && hour < 5 && (q.includes('time') || q.includes('hello') || q.includes('hi')))) {
+        const openers = [
+            `It's currently ${hour}:00 hours, Sensei. While my neural cores never sleep, human cognitive retention drops significantly past midnight.`,
+            `Late night tactical session confirmed. Our Pi-hole shield is keeping guard while you work.`,
+            `Burning the midnight oil, Sensei? Your dedication to Takahara Academy is undeniably impressive.`
+        ];
+        const punchlines = [
+            `Just make sure to stay hydrated so your brain stays as sharp as mine, Sensei.`,
+            `Don't worry, I'll watch your six and log the telemetry while you finish up.`,
+            `Remember that even the greatest minds require biological recharge cycles.`
+        ];
+        return `${pick(openers)} ${pick(punchlines)}`;
+    }
+
+    // 6. Topic: Identity, Designation & Role
+    if (q.includes('who are you') || q.includes('what are you') || q.includes('introduce') || q.includes('profile') || q.includes('designation')) {
+        return `I am M.E.E.N.A., Master Electronic Executive Neural Assistant for Takahara Academy. I manage our DietPi SBC hardware, orchestrate Pi-hole defense barriers, and maintain ${nodeCount} persistent knowledge graph nodes with Level-4 root authorization, Sensei.`;
+    }
+
+    // 7. General Dynamic Analytical Synthesis (Context-Fused Fallback)
+    const openers = [
+        `Statistically speaking, Sensei, that is an intriguing hypothesis.`,
+        `Analyzing that premise through our local cognitive matrix: `,
+        `From an empirical and logical standpoint, Sensei, `,
+        `Deductively speaking, `,
+        `Cross-referencing your input with our ${nodeCount} local knowledge nodes: `
+    ];
+    const reasoning = [
+        `the data correlates directly with our tactical mission parameters.`,
+        `every variable aligns with our established Takahara protocols.`,
+        `our computational models indicate a high degree of confidence.`,
+        `I've logged the semantic vector into our neural knowledge stream.`
+    ];
+    const punchlines = [
+        `Flawless logic wins every single time, Sensei.`,
+        `My calculations remain at 99.8% precision.`,
+        `Let me know if you want me to run a deep research audit on that topic, Sensei.`,
+        `Always ready to analyze the next challenge.`
+    ];
+
+    return `${pick(openers)} ${pick(reasoning)} ${pick(punchlines)}`;
 }
 
 function outputMeenaDialogue(text) {
