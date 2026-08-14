@@ -1,7 +1,7 @@
-# 🌸 MEENA 2.0 // TAKAHARA ACADEMY (高原学園)
+# 🌸 Meena™ - Takahara Academy (高原学園)
 ## Next-Generation Home Personal Assistant & SBC Telemetry Architecture
 
-This document serves as the master engineering guide, technical specification, and multi-phase execution roadmap for developing, deploying, and maintaining **M.E.E.N.A.** (*Master Electronic Executive Neural Assistant*) as an anime-inspired, privacy-first **Home Personal Assistant & Smart Hub** for home base **Takahara Academy (高原学園)** on **DietPi (Raspberry Pi 3)** (`192.168.0.100` / `dietpi.local`).
+This document serves as the master engineering guide, technical specification, and multi-phase execution roadmap for developing, deploying, and maintaining **Meena™** (*Master Electronic Executive Neural Assistant*) as a privacy-first **Home Personal Assistant & Smart Operations Hub** for home base **Takahara Academy (高原学園)** on **DietPi (Raspberry Pi 3)** (`192.168.0.100` / `dietpi.local`).
 
 ---
 
@@ -18,13 +18,13 @@ This document serves as the master engineering guide, technical specification, a
 
 # 1. Executive Summary & Core Philosophy
 
-**Project MEENA** is an intelligent, dual-deck **Home Personal Assistant & Operations Command Center** that manages self-hosted services (Pi-hole, File Browser, Syncthing, Tailscale, Cockpit) and real-time hardware telemetry for home base **Takahara Academy**.
+**Meena™ (高原学園)** is an intelligent, dual-deck **Home Personal Assistant & Operations Command Center** that manages self-hosted services (Pi-hole, File Browser, Syncthing, Tailscale, Cockpit) and real-time hardware telemetry for home base **Takahara Academy**.
 
 ### Core Tenets:
 * **Zero-Cost, Privacy-First Home Assistant**: Powered by browser-native Web Speech Recognition API and Web Audio procedural synthesis with **0 token cost** and **0% CPU load on the Pi**.
-* **Authentic Anime Personality**: High-energy, charismatic anime assistant speaking fluent English with a natural Japanese anime accent, addressing the user as **Sensei**.
+* **Intelligent Vocal Assistant**: High-energy, charismatic assistant speaking fluent English with a natural Japanese accent and respectful honorifics, addressing the user as **Sensei**.
 * **Dual-Deck Operations**: Deck 1 (Personal AI Assistant & Tactical Controls) and Deck 2 (3D Observatory & System NOC).
-* **Neural Growth System**: Real-time Synapse EXP gain, Level 1-99 progression, and evolving anime companion affinity.
+* **Neural Growth System**: Real-time Synapse EXP gain, Level 1-99 progression, and evolving assistant affinity.
 
 ---
 
@@ -33,7 +33,7 @@ This document serves as the master engineering guide, technical specification, a
 ```mermaid
 graph TD
     subgraph Navigation
-        Header[Top Tactical Header] --> Deck1Tab[Deck 1: Meena Tactical AI '1']
+        Header[Top Tactical Header 高原学園] --> Deck1Tab[Deck 1: Meena™ AI Assistant '1']
         Header --> Deck2Tab[Deck 2: Observatory & Infrastructure NOC '2']
     end
 
@@ -41,7 +41,7 @@ graph TD
         Deck1Tab --> AvatarHUD[Holographic AI Avatar & Audio Visualizer]
         Deck1Tab --> SyncEXP[Neural Sync Level & Growth Gauge Lv. 1-99]
         Deck1Tab --> ChatFeed[Live Conversational Dialogue Console]
-        Deck1Tab --> MoodMatrix[Dynamic Anime Mood & Affection Matrix]
+        Deck1Tab --> MoodMatrix[Dynamic Mood & Affection Matrix]
         Deck1Tab --> KnowledgeBank[4-Category Tactical Knowledge Bank]
         Deck1Tab --> QuickTactical[Pi-hole Shield & Code Red Triggers]
         Deck1Tab --> WeatherStrip[Atmospheric Sensors & Forecast]
@@ -93,20 +93,17 @@ Meena evolves over time as Sensei interacts with her:
 - Clickable header Pi-hole badge with interactive action modal (`Disable 5 min`, `Disable 10 min`, `Enable`, `Update Gravity`).
 - Real-time countdown timer in header badge with sudoers execution permissions.
 
-### ✅ Milestone 2: Rebrand to MEENA // Takahara Academy (Completed)
-- Rebranded facility to **Takahara Academy (高原学園)**.
+### ✅ Milestone 2: Rebrand to Takahara Academy (高原学園) (Completed)
+- Standardized facility brand to **Meena™ - Takahara Academy (高原学園)** with Kanji logo mark.
 - Added dynamic time-of-day greeting engine and Sensei honorific.
 
 ### ✅ Milestone 3: Dual-Deck Operations & Neural Growth System (v2.0.0)
 - **Deck 1**: Holographic Avatar HUD, Neural Sync Level Lv. 1-99, 4-Category Knowledge Bank, Live Chat Feed.
 - **Deck 2**: Full-screen 3D wireframe observatory stage, camera presets, LAN radar, and bandwidth charts.
-- **Strict Female Voice Engine**: English replies with Japanese anime accent by default.
+- **Strict Female Voice Engine**: English replies with Japanese intonation by default.
 
 ### 🔮 Milestone 4: Smart Home & IoT Switch Control (Planned)
 - Direct Home Assistant / Tasmota / Tuya smart plug & light control (*"Meena, living room lights on"*).
-
-### 🔮 Milestone 5: Voicevox Local Neural Engine Container (Planned)
-- Optional Dockerized VOICEVOX micro-service for studio-quality anime Japanese audio.
 
 ---
 
@@ -121,7 +118,7 @@ Meena evolves over time as Sensei interacts with her:
 | **`[52-52]`** | **Cockpit** | `http://dietpi.local:5252` | Linux Server Web Administration |
 
 ### ⌨️ Master Keyboard Hotkey Guide:
-* **`1`**: Deck 1 (Meena AI Assistant)
+* **`1`**: Deck 1 (Meena™ AI Assistant)
 * **`2`**: Deck 2 (3D Observatory & NOC)
 * **`3`**: Code Red Alert Klaxon
 * **`4`** / **`P`**: Terra 3D View

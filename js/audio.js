@@ -34,9 +34,9 @@ window.addEventListener('keydown', unlockAudioContext, { once: true });
 window.addEventListener('touchstart', unlockAudioContext, { once: true });
 
 /**
- * M.E.E.N.A. AI Voice Synthesizer (Strict Female Voice Engine)
+ * Meena™ - Takahara Academy (高原学園)
  * Master Electronic Executive Neural Assistant
- * Strictly filters to female anime / young woman voices
+ * Strictly filters to verified young female voice profiles
  */
 let meenaVoice = null;
 
@@ -112,7 +112,7 @@ function populateVoiceSelector() {
 
     select.innerHTML = '';
     
-    // Filter to female voices and sort best anime/multilingual voices first
+    // Filter to female voices and sort best multilingual voices first
     const femaleOnly = voices.filter(isFemaleVoice);
     const displayList = femaleOnly.length > 0 ? femaleOnly : voices;
 
@@ -955,7 +955,7 @@ function clearMemories() {
 
 /**
  * ==========================================================================
- * HOLOGRAPHIC ANIME AI AVATAR CORE CANVAS ANIMATION
+ * HOLOGRAPHIC AI AVATAR CORE CANVAS ANIMATION
  * ==========================================================================
  */
 let avatarCanvas = null;
@@ -1029,7 +1029,7 @@ async function askMeenaAI(question) {
     const bank = getKnowledgeBank();
     const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
     
-    const prompt = `You are M.E.E.N.A., an energetic, cheerful young anime girl AI personal assistant for home base Takahara Academy. Always reply in fluent, natural English with Japanese anime honorifics and expressions (Sensei, Ohayou, Konnichiwa, Hai, Otsukare, Arigato). Address the user respectfully as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, cheerful spoken sentences in English with Japanese anime flair:`;
+    const prompt = `You are Meena™ (高原学園), an energetic, cheerful young female AI personal assistant for home base Takahara Academy. Always reply in fluent, natural English with Japanese honorifics and expressions (Sensei, Ohayou, Konnichiwa, Hai, Otsukare, Arigato). Address the user respectfully as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, cheerful spoken sentences in English with Japanese flair:`;
     
     const apiKey = localStorage.getItem('gemini_api_key');
     if (apiKey) {

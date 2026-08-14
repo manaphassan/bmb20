@@ -1,7 +1,7 @@
 <div align="center">
 
-# 🌸 M.E.E.N.A. // 高原学園 (TAKAHARA ACADEMY)
-### *Next-Generation Anime AI Voice Assistant & Dual-Deck Operations Hub for Single-Board Computers*
+# 🌸 Meena™ - Takahara Academy (高原学園)
+### *Next-Generation Intelligent AI Voice Assistant & Dual-Deck Operations Hub for Single-Board Computers*
 
 [![Version](https://img.shields.io/badge/version-2.0.0--takahara--meena-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
 [![Platform](https://img.shields.io/badge/Platform-DietPi%20%7C%20Raspberry%20Pi%203%2F4%2F5-C51A4A?style=for-the-badge&logo=raspberry-pi&logoColor=white)](https://dietpi.com)
@@ -14,7 +14,7 @@
 
 ```
   ========================================================================================
-   [1] MEENA AI BRIDGE        //  TACTICAL COMMAND CENTER  //   [2] OBSERVATORY NOC      
+   [ 高原学園 ]   MEENA™ AI BRIDGE     //   OPERATIONS COMMAND   //   [2] OBSERVATORY NOC 
   ========================================================================================
    - Holographic AI Avatar Core     - Dynamic 4-Category Knowledge Bank     - Pi-hole v6 Shield
    - Neural Sync EXP Engine (1-99)  - Real-Time 3D Earth ISS Tracker        - Subspace Radar
@@ -36,13 +36,13 @@
 
 ## 📖 Overview & Core Philosophy
 
-**M.E.E.N.A.** (*Master Electronic Executive Neural Assistant*) is an authentic, anime-inspired, single-pane-of-glass **Home Personal Assistant & Infrastructure Command Center** designed for single-board computers (SBCs) such as **Raspberry Pi 3/4/5 running DietPi or Debian**.
+**Meena™** (*Master Electronic Executive Neural Assistant*) is a high-performance, single-pane-of-glass **Home Personal Assistant & Infrastructure Command Center** designed for single-board computers (SBCs) such as **Raspberry Pi 3/4/5 running DietPi or Debian**.
 
-Inspired by the visual design language of ***Tengoku Daimakyou (Heavenly Delusion)*** and the tactical operations bridges of ***Neon Genesis Evangelion***, Meena transforms your home server into **Takahara Academy (高原学園)**.
+The system establishes **Takahara Academy (高原学園)** as your secure, self-hosted smart operations center.
 
-### 💎 Why MEENA?
-* 🚀 **Zero Cloud Token Cost**: 100% client-accelerated Web Speech API and procedural Web Audio synthesis. Runs locally in any browser with **0% CPU load** on your SBC.
-* 🌸 **Living Anime Personality**: High-energy, charismatic assistant speaking fluent English with a natural Japanese anime accent and polite honorifics (*Sensei*, *Ohayou*, *Konnichiwa*, *Otsukare*).
+### 💎 Core Tenets
+* 🚀 **Zero Cloud Token Cost**: 100% client-accelerated Web Speech API and procedural Web Audio synthesis. Runs locally in any modern browser with **0% CPU load** on your SBC.
+* 🌸 **Intelligent Vocal Personality**: Cheerful, charismatic female voice assistant speaking fluent English with natural Japanese intonation and respectful honorifics (*Sensei*, *Ohayou*, *Konnichiwa*, *Otsukare*).
 * 📈 **Neural Growth & Sync EXP Engine**: Meena actively learns what you teach her, gaining Synapse EXP from every interaction to rank up from Cadet to Soulbound Guardian.
 * 🖥️ **Dual-Deck Operations**: Seamless instant tab switching between **Deck 1 (AI Assistant Bridge)** and **Deck 2 (3D Observatory & System NOC)** without reloading or interrupting audio.
 * ⚡ **Ultra-Lightweight Linux Footprint**: Near-zero RAM consumption with static memory caching and an atomic background Bash telemetry daemon (`bmb20-stats.sh`).
@@ -54,7 +54,7 @@ Inspired by the visual design language of ***Tengoku Daimakyou (Heavenly Delusio
 <table>
   <tr>
     <td width="50%">
-      <h3>🌸 Deck 1: Meena Tactical AI Bridge</h3>
+      <h3>🌸 Deck 1: Meena™ AI Assistant Bridge</h3>
       <ul>
         <li><b>Holographic Avatar Core</b>: Rotating orbital rings with real-time reactive audio waveform EQ arcs.</li>
         <li><b>Neural Sync EXP System</b>: Real-time Level 1 to 99 progression with custom rank badges and voice fanfares.</li>
@@ -93,7 +93,7 @@ graph TD
 
     subgraph Client Browser / Touchscreen Dashboard
         WEB --> UI[Dual-Deck Interface]
-        UI --> DECK1[🌸 Deck 1: Meena AI Assistant Bridge]
+        UI --> DECK1[🌸 Deck 1: Meena™ AI Assistant Bridge]
         UI --> DECK2[🛰️ Deck 2: Takahara Observatory NOC]
         JSON -->|1000ms Polling| TELEMETRY[telemetry.js Gauges & Radar]
         DECK1 --> AUDIO[audio.js Web Speech + Waveform Synth]
@@ -143,7 +143,7 @@ Access the dashboard instantly in your browser at:
 
 ## 🎙️ Voice Commands & Hotkeys Guide
 
-### 🌸 Spoken Voice Dialogues (Default: English with Japanese Anime Accent)
+### 🌸 Spoken Voice Dialogues (Default: English with Japanese Intonation)
 
 | Trigger Command | Meena Spoken Response / Action |
 | :--- | :--- |
@@ -161,7 +161,7 @@ Access the dashboard instantly in your browser at:
 
 | Hotkey | Action | Hotkey | Action |
 | :---: | :--- | :---: | :--- |
-| **`1`** | **Switch to Deck 1 (Meena AI Bridge)** | **`W`** | Warp Drive Engagement |
+| **`1`** | **Switch to Deck 1 (Meena™ AI Bridge)** | **`W`** | Warp Drive Engagement |
 | **`2`** | **Switch to Deck 2 (Observatory NOC)** | **`C`** | Facility Door / Comm Hail Chime |
 | **`3`** | Trigger Code Red Alert Klaxon | **`B`** | Transporter Beaming Shimmer |
 | **`4`** / **`P`** | 3D Terra Planetary View | **`V`** | Open Voice & Acoustic Settings Modal |
@@ -184,12 +184,11 @@ Access the dashboard instantly in your browser at:
 
 ## 🗺️ Project Roadmap
 
-- [x] **v1.0.0**: LCARS Starfleet Telemetry & 3D Earth Globe (`Three.js`).
+- [x] **v1.0.0**: LCARS Telemetry & 3D Earth Globe (`Three.js`).
 - [x] **v1.5.0**: Interactive Pi-hole v6 Action Modal & Automated Sudoers Controls.
-- [x] **v2.0.0**: **MEENA // Takahara Academy** Dual-Deck Architecture, Neural Growth EXP Engine, Holographic Avatar HUD, and 4-Category Knowledge Bank.
+- [x] **v2.0.0**: **Meena™ - Takahara Academy (高原学園)** Dual-Deck Architecture, Neural Growth EXP Engine, Holographic Avatar HUD, and 4-Category Knowledge Bank.
 - [ ] **v2.1.0**: Smart Home & IoT Switch Controls (Home Assistant / Tasmota / Tuya integration).
 - [ ] **v2.2.0**: Scheduled Audio Reminders & Hourly Chimes.
-- [ ] **v2.3.0**: Dedicated Local Voicevox Engine Container.
 
 ---
 
@@ -197,5 +196,4 @@ Access the dashboard instantly in your browser at:
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
-* Created by **[manaphassan](https://github.com/manaphassan)** for **Takahara Academy (高原学園)**.
-* Design inspirations: ***Tengoku Daimakyou (Heavenly Delusion)***, ***Neon Genesis Evangelion (NERV MAGI)***, and Star Trek LCARS.
+* Developed for **Takahara Academy (高原学園)** by **[manaphassan](https://github.com/manaphassan)**.
