@@ -967,37 +967,73 @@ function updateGeoIPDisplay() {
 // Telemetry Data Engine
 async function fetchTelemetry() {
     if (!isTabVisible) return;
+
+    // 1. Try api.json first (Live Daemon Endpoint)
     try {
-        let res = await fetch('api.json', { cache: 'no-store' });
-        if (!res.ok) {
-            res = await fetch('api.php', { cache: 'no-store' });
-        }
+        const res = await fetch('api.json', { cache: 'no-store' });
         if (res.ok) {
             const data = await res.json();
-            updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
-            if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
-                userGeoLocation = {
-                    lat: parseFloat(data.geoip.latitude),
-                    lon: parseFloat(data.geoip.longitude),
-                    city: data.geoip.city || "KUALA LUMPUR",
-                    country: data.geoip.country || "MY",
-                    ip: data.geoip.ip || "LOCKED"
-                };
-                updateGeoIPDisplay();
-                updateGlobeBeacon();
+            if (data && data.cpu !== undefined) {
+                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
+                if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
+                    userGeoLocation = {
+                        lat: parseFloat(data.geoip.latitude),
+                        lon: parseFloat(data.geoip.longitude),
+                        city: data.geoip.city || "KUALA LUMPUR",
+                        country: data.geoip.country || "MY",
+                        ip: data.geoip.ip || "LOCKED"
+                    };
+                    updateGeoIPDisplay();
+                    updateGlobeBeacon();
+                }
+                if (data.lan_devices && Array.isArray(data.lan_devices)) {
+                    updateLANDevicesUI(data.lan_devices);
+                }
+                return;
             }
-            if (data.lan_devices && Array.isArray(data.lan_devices)) {
-                updateLANDevicesUI(data.lan_devices);
-            }
-            return;
         }
     } catch (e) {}
 
-    const simulatedCpu = Math.floor(15 + Math.random() * 55);
-    const simulatedMem = Math.floor(35 + Math.random() * 20);
-    const simulatedTemp = Math.floor(42 + Math.random() * 12);
-    const simulatedDisk = 50;
+    // 2. Try api.php fallback
+    try {
+        const res = await fetch('api.php', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.cpu !== undefined) {
+                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
+                if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
+                    userGeoLocation = {
+                        lat: parseFloat(data.geoip.latitude),
+                        lon: parseFloat(data.geoip.longitude),
+                        city: data.geoip.city || "KUALA LUMPUR",
+                        country: data.geoip.country || "MY",
+                        ip: data.geoip.ip || "LOCKED"
+                    };
+                    updateGeoIPDisplay();
+                    updateGlobeBeacon();
+                }
+                if (data.lan_devices && Array.isArray(data.lan_devices)) {
+                    updateLANDevicesUI(data.lan_devices);
+                }
+                return;
+            }
+        }
+    } catch (e) {}
+
+    // 3. Fallback: Active live simulated telemetry + LAN devices
+    const simulatedCpu = Math.floor(18 + Math.random() * 45);
+    const simulatedMem = Math.floor(32 + Math.random() * 15);
+    const simulatedTemp = Math.floor(43 + Math.random() * 8);
+    const simulatedDisk = 38;
     updateMetricsUI(simulatedCpu, simulatedMem, simulatedTemp, simulatedDisk, "ONLINE", "SIMULATED");
+
+    const defaultDevices = [
+        { name: "DIETPI-GATEWAY", ip: "192.168.0.1", signal: "100%", status: "OK" },
+        { name: "LOCAL-HOST", ip: "192.168.0.100", signal: "98%", status: "OK" },
+        { name: "DESKTOP-CLIENT", ip: "192.168.0.105", signal: "88%", status: "OK" },
+        { name: "MOBILE-NODE", ip: "192.168.0.42", signal: "94%", status: "OK" }
+    ];
+    updateLANDevicesUI(defaultDevices);
 }
 
 function updateLANDevicesUI(devices) {
