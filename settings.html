@@ -199,29 +199,69 @@
                 </div>
             </section>
 
-            <!-- 3. Google Calendar Sync Settings -->
+            <!-- 3. Multi-Google Calendar Management Console -->
             <section id="panel-calendar-sync" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
-                <div class="border-b border-outline-variant/30 pb-2">
-                    <h2 class="text-sm font-bold text-tertiary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-base">calendar_month</span>
-                        <span>GOOGLE CALENDAR & CHRONO AGENDA SYNC</span>
-                    </h2>
-                    <p class="text-[11px] text-secondary">Sync your daily Google Calendar schedule so Meena can read your daily events on voice command.</p>
+                <div class="border-b border-outline-variant/30 pb-2 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-sm font-bold text-tertiary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">calendar_month</span>
+                            <span>MULTI-GOOGLE CALENDAR FEEDS & CHRONO ENGINE</span>
+                        </h2>
+                        <p class="text-[11px] text-secondary">Manage, aggregate, and color-code multiple Google Calendar feeds for unified scheduling.</p>
+                    </div>
+                    <button onclick="testAllCalendarFeeds()" class="bg-surface-bright text-tertiary hover:bg-tertiary hover:text-black font-bold px-3 py-1.5 rounded-lg text-[11px] font-mono transition-all flex items-center gap-1 border border-tertiary/40">
+                        <span class="material-symbols-outlined text-sm">sync</span>
+                        <span>TEST & REFRESH FEEDS</span>
+                    </button>
                 </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label class="text-xs text-on-surface font-bold">Google Calendar Secret iCal Address (.ics):</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="settings-ical-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
-                            <button onclick="saveCalendarSetting()" class="bg-tertiary text-black font-bold px-4 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono">SAVE & TEST</button>
-                        </div>
-                        <div id="calendar-sync-feedback" class="text-xs text-secondary font-mono"></div>
-                    <div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/30 text-[10px] text-secondary leading-relaxed">
-                        <strong class="text-on-surface block mb-1">3-Step Setup Instructions:</strong>
-                        1. Open <strong class="text-tertiary">calendar.google.com</strong> on your desktop browser.<br/>
-                        2. Click the 3 dots next to your calendar &rarr; <strong>Settings and sharing</strong>.<br/>
-                        3. Scroll down to <strong>"Integrate calendar"</strong> &rarr; Copy the <strong>"Secret address in iCal format"</strong> and paste it above!
+                <!-- Configured Feeds Table / List -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs text-on-surface font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-primary">format_list_bulleted</span>
+                        <span>CONFIGURED CALENDAR FEEDS:</span>
+                    </span>
+                    <div id="settings-calendars-list" class="flex flex-col gap-2 min-h-[60px]">
+                        <!-- Populated dynamically by assets/js/settings.js -->
                     </div>
+                </div>
+
+                <!-- Add New Calendar Feed Card -->
+                <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2.5 mt-1">
+                    <span class="text-xs font-bold text-tertiary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">add_circle</span>
+                        <span>ADD NEW GOOGLE CALENDAR FEED</span>
+                    </span>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
+                        <div class="md:col-span-3">
+                            <input type="text" id="new-cal-name" placeholder="Name (e.g. Work, School)" class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                        </div>
+                        <div class="md:col-span-6">
+                            <input type="text" id="new-cal-url" placeholder="Paste Google Calendar secret .ics link..." class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                        </div>
+                        <div class="md:col-span-3 flex gap-2">
+                            <select id="new-cal-color" class="flex-1 bg-surface-container-lowest border border-outline-variant/40 rounded-lg px-2 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none cursor-pointer">
+                                <option value="#ffe253">🟡 Gold</option>
+                                <option value="#c2c1ff" selected>🔵 Cyan</option>
+                                <option value="#78e4a5">🟢 Green</option>
+                                <option value="#ff7b72">🔴 Coral</option>
+                                <option value="#d494ff">🟣 Purple</option>
+                            </select>
+                            <button onclick="addNewCalendarFromSettings()" class="bg-tertiary text-black font-bold px-3 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono whitespace-nowrap flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                                <span>ADD</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="calendar-sync-feedback" class="text-xs text-secondary font-mono mt-1"></div>
+                </div>
+
+                <!-- Setup Instructions -->
+                <div class="bg-surface-container-lowest p-3.5 rounded-lg border border-outline-variant/30 text-[10.5px] text-secondary leading-relaxed">
+                    <strong class="text-on-surface block mb-1 text-xs">How to get your Google Calendar Secret iCal address:</strong>
+                    1. Open <a href="https://calendar.google.com" target="_blank" class="text-tertiary font-bold hover:underline">calendar.google.com</a> on your computer browser.<br/>
+                    2. On the left sidebar under <em>"My calendars"</em>, hover over your calendar, click the <strong>3 vertical dots</strong> &rarr; <strong>Settings and sharing</strong>.<br/>
+                    3. Scroll down to the <strong>"Integrate calendar"</strong> section &rarr; Copy the <strong>"Secret address in iCal format"</strong> (.ics) and paste it above!
                 </div>
             </section>
 

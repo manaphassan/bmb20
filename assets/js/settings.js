@@ -1,9 +1,13 @@
 /**
  * ==========================================================================
- * MEENA™ SETTINGS & HARDWARE MAINTENANCE CONTROLLER (js/settings.js)
+ * MEENA™ SETTINGS & HARDWARE MAINTENANCE CONTROLLER (assets/js/settings.js)
  * Centralized settings manager for AI personas, voice, Gemini API, and DietPi
  * ==========================================================================
  */
+
+let settingsCalendarState = {
+    calendars: []
+};
 
 function switchTab(tabId) {
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
@@ -81,16 +85,8 @@ function loadAllSettings() {
     if (tokElem) tokElem.innerText = parseInt(tokens, 10).toLocaleString();
     if (costElem) costElem.innerText = `$${cost}`;
 
-    // 5. Calendar Config
-    fetch('api.php?action=get_calendar_config')
-        .then(r => r.json())
-        .then(d => {
-            const calInput = document.getElementById('settings-ical-input');
-            if (calInput && d.ical_url) {
-                calInput.value = d.ical_url;
-            }
-        })
-        .catch(() => {});
+    // 5. Multi-Calendar Config
+    loadSettingsCalendars();
 
     // 6. Speech Voices
     populateVoices();
@@ -118,73 +114,72 @@ function populateVoices() {
     });
 }
 
-function savePersonaSetting(p) {
-    localStorage.setItem('meena_persona', p);
+function savePersona(persona) {
+    localStorage.setItem('meena_persona', persona);
+    alert(`AI Persona switched to: ${persona === 'ALEX' ? 'Alex (Tactical Assistant)' : 'Sensei Takahara (Academy Mentor)'}`);
 }
 
-function changeVoiceSetting(name) {
-    localStorage.setItem('meena_voice_name', name);
+function updateRateSlider(val) {
+    const rateTxt = document.getElementById('rate-val-txt');
+    if (rateTxt) rateTxt.innerText = `${parseFloat(val).toFixed(2)}x`;
+    localStorage.setItem('meena_speech_rate', val);
 }
 
-function updateRateSlider(v) {
-    const txt = document.getElementById('rate-val-txt');
-    if (txt) txt.innerText = `${parseFloat(v).toFixed(2)}x`;
-    localStorage.setItem('meena_speech_rate', v);
+function updatePitchSlider(val) {
+    const pitchTxt = document.getElementById('pitch-val-txt');
+    if (pitchTxt) pitchTxt.innerText = `${parseFloat(val).toFixed(2)}x`;
+    localStorage.setItem('meena_speech_pitch', val);
 }
 
-function updatePitchSlider(v) {
-    const txt = document.getElementById('pitch-val-txt');
-    if (txt) txt.innerText = `${parseFloat(v).toFixed(2)}x`;
-    localStorage.setItem('meena_speech_pitch', v);
-}
-
-function testVoicePreview() {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const text = "All Takahara Academy settings verified, Sensei. Systems operational.";
-    const u = new SpeechSynthesisUtterance(text);
-    const vName = localStorage.getItem('meena_voice_name');
+function testCurrentVoice() {
     const rate = parseFloat(localStorage.getItem('meena_speech_rate') || '1.14');
     const pitch = parseFloat(localStorage.getItem('meena_speech_pitch') || '1.10');
-    
-    if (vName) {
-        const voices = window.speechSynthesis.getVoices();
-        const matched = voices.find(v => v.name === vName);
-        if (matched) u.voice = matched;
+    const voiceName = localStorage.getItem('meena_voice_name') || '';
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance("Greetings Sensei! Meena neural auditory synthesis engine is operational and ready for your command.");
+        u.rate = rate;
+        u.pitch = pitch;
+        if (voiceName) {
+            const v = window.speechSynthesis.getVoices().find(x => x.name === voiceName);
+            if (v) u.voice = v;
+        }
+        window.speechSynthesis.speak(u);
     }
-    u.rate = rate;
-    u.pitch = pitch;
-    window.speechSynthesis.speak(u);
 }
 
 function saveGeminiKey() {
     const input = document.getElementById('gemini-key-input');
-    const k = input ? input.value.trim() : '';
-    if (!k) return;
-    localStorage.setItem('gemini_api_key', k);
-    
+    const key = input ? input.value.trim() : '';
+    if (!key) {
+        alert('Please enter a valid Gemini API key.');
+        return;
+    }
+    localStorage.setItem('gemini_api_key', key);
     const keyStatus = document.getElementById('gemini-status-label');
     if (keyStatus) {
         keyStatus.innerText = 'Status: Gemini 1.5 Flash Active 🟢';
         keyStatus.className = 'font-bold text-tertiary';
     }
-    alert('Gemini API key saved successfully!');
+    alert('Gemini API Key saved successfully!');
 }
 
 function clearGeminiKey() {
+    if (!confirm('Are you sure you want to remove your Gemini API key?')) return;
     localStorage.removeItem('gemini_api_key');
     const input = document.getElementById('gemini-key-input');
     if (input) input.value = '';
-    
     const keyStatus = document.getElementById('gemini-status-label');
     if (keyStatus) {
         keyStatus.innerText = 'Status: Offline Local Brain (0 Tokens)';
         keyStatus.className = 'font-bold text-primary';
     }
-    alert('Gemini key removed. Meena is now operating in 100% Offline Local Brain mode.');
+    alert('Gemini API key removed.');
 }
 
 function resetTokenQuota() {
+    if (!confirm('Reset local token telemetry counter?')) return;
     localStorage.setItem('meena_daily_tokens', '0');
     localStorage.setItem('meena_daily_cost', '0.00');
     const tokElem = document.getElementById('stat-tokens-today');
@@ -193,58 +188,169 @@ function resetTokenQuota() {
     if (costElem) costElem.innerText = '$0.00';
 }
 
-async function saveCalendarSetting() {
-    const input = document.getElementById('settings-ical-input');
-    const resultMsg = document.getElementById('calendar-sync-feedback');
-    const url = input ? input.value.trim() : '';
-    if (!url) {
-        alert('Please enter a valid Google Calendar Secret iCal address (.ics)');
+/**
+ * ==========================================================================
+ * MULTI-CALENDAR MANAGEMENT IN SETTINGS
+ * ==========================================================================
+ */
+
+async function loadSettingsCalendars() {
+    try {
+        const res = await fetch('api.php?action=get_calendar_config');
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+        
+        let cals = data.calendars || [];
+        if (cals.length === 0 && data.ical_url) {
+            cals.push({
+                id: 'cal_primary',
+                name: 'Primary Calendar',
+                url: data.ical_url,
+                color: '#c2c1ff',
+                enabled: true
+            });
+        }
+        settingsCalendarState.calendars = cals;
+        renderSettingsCalendarsList();
+    } catch(e) {
+        console.warn('Failed to load settings calendar list:', e);
+    }
+}
+
+function renderSettingsCalendarsList() {
+    const container = document.getElementById('settings-calendars-list');
+    if (!container) return;
+
+    if (settingsCalendarState.calendars.length === 0) {
+        container.innerHTML = `
+            <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs italic">
+                No Google Calendar feeds configured yet. Use the form below to add your first secret iCal address (.ics).
+            </div>
+        `;
         return;
     }
-    
-    if (resultMsg) {
-        resultMsg.innerText = 'Connecting to Google Calendar and verifying feed...';
-        resultMsg.className = 'text-xs text-lcars-gold font-bold animate-pulse';
+
+    container.innerHTML = settingsCalendarState.calendars.map(cal => `
+        <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-high border transition-all ${cal.enabled ? 'border-outline-variant/40' : 'opacity-50 border-outline-variant/20'}">
+            <div class="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                <span class="w-3.5 h-3.5 rounded-full flex-shrink-0" style="background-color: ${cal.color || '#c2c1ff'}; box-shadow: 0 0 8px ${cal.color || '#c2c1ff'};"></span>
+                <div class="flex flex-col min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-on-surface truncate">${cal.name}</span>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold ${cal.enabled ? 'bg-primary/20 text-primary border border-primary/40' : 'bg-surface-bright text-secondary'}">${cal.enabled ? 'ACTIVE' : 'MUTED'}</span>
+                    </div>
+                    <span class="text-[9.5px] text-secondary font-mono truncate">${cal.url}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="toggleCalendarFromSettings('${cal.id}')" class="px-2.5 py-1 rounded text-[10px] font-bold font-mono transition-all ${cal.enabled ? 'bg-primary/20 text-primary hover:bg-primary hover:text-black border border-primary/40' : 'bg-surface-bright text-secondary hover:text-primary'}">
+                    ${cal.enabled ? 'DISABLE' : 'ENABLE'}
+                </button>
+                <button onclick="removeCalendarFromSettings('${cal.id}')" class="p-1 rounded text-secondary hover:text-error hover:bg-error/10 transition-all" title="Delete Feed">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function addNewCalendarFromSettings() {
+    const nameInput = document.getElementById('new-cal-name');
+    const urlInput = document.getElementById('new-cal-url');
+    const colorInput = document.getElementById('new-cal-color');
+    const feedback = document.getElementById('calendar-sync-feedback');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const url = urlInput ? urlInput.value.trim() : '';
+    const color = colorInput ? colorInput.value : '#c2c1ff';
+
+    if (!url) {
+        alert('Please enter a valid Google Calendar secret iCal URL (.ics)');
+        return;
     }
 
+    const newCal = {
+        id: 'cal_' + Date.now(),
+        name: name || ('Calendar ' + (settingsCalendarState.calendars.length + 1)),
+        url: url,
+        color: color,
+        enabled: true
+    };
+
+    settingsCalendarState.calendars.push(newCal);
+    if (urlInput) urlInput.value = '';
+    if (nameInput) nameInput.value = '';
+
+    await saveSettingsCalendarState();
+    if (feedback) {
+        feedback.innerText = `✅ Feed "${newCal.name}" added successfully!`;
+        feedback.className = 'text-xs text-tertiary font-bold';
+    }
+}
+
+async function toggleCalendarFromSettings(calId) {
+    const cal = settingsCalendarState.calendars.find(c => c.id === calId);
+    if (cal) {
+        cal.enabled = !cal.enabled;
+        await saveSettingsCalendarState();
+    }
+}
+
+async function removeCalendarFromSettings(calId) {
+    if (!confirm('Are you sure you want to remove this calendar feed?')) return;
+    settingsCalendarState.calendars = settingsCalendarState.calendars.filter(c => c.id !== calId);
+    await saveSettingsCalendarState();
+}
+
+async function saveSettingsCalendarState() {
     try {
+        const payload = {
+            calendars: settingsCalendarState.calendars,
+            ical_url: settingsCalendarState.calendars[0]?.url || '',
+            updated_at: new Date().toISOString()
+        };
         const res = await fetch('api.php?action=save_calendar_config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ical_url: url, enabled: true, updated_at: new Date().toISOString() })
+            body: JSON.stringify(payload)
         });
-        
         if (res.ok) {
-            // Test fetch immediately
-            const testRes = await fetch('api.php?action=get_calendar_events');
-            const data = await testRes.json();
-            
-            if (data.status === 'success') {
-                const todayCount = (data.events_today || []).length;
-                const upCount = (data.events_upcoming || []).length;
-                if (resultMsg) {
-                    resultMsg.innerText = `✅ Verified & Synced! (${todayCount} event(s) today, ${upCount} upcoming this week)`;
-                    resultMsg.className = 'text-xs text-tertiary font-bold';
-                }
-                alert(`Google Calendar verified and saved! Found ${todayCount} event(s) today.`);
-            } else {
-                if (resultMsg) {
-                    resultMsg.innerText = `⚠️ Saved, but Google returned: ${data.message || 'Check link format'}`;
-                    resultMsg.className = 'text-xs text-lcars-gold font-bold';
-                }
-                alert('Saved configuration! ' + (data.message || ''));
-            }
-        } else {
-            if (resultMsg) {
-                resultMsg.innerText = '❌ Failed to save configuration to DietPi host.';
-                resultMsg.className = 'text-xs text-error font-bold';
-            }
-            alert('Failed to save to server.');
+            renderSettingsCalendarsList();
         }
     } catch(e) {
-        if (resultMsg) {
-            resultMsg.innerText = `❌ Error: ${e.message}`;
-            resultMsg.className = 'text-xs text-error font-bold';
+        alert('Failed to save calendar changes: ' + e.message);
+    }
+}
+
+async function testAllCalendarFeeds() {
+    const feedback = document.getElementById('calendar-sync-feedback');
+    if (feedback) {
+        feedback.innerText = 'Connecting to Google Calendar servers & verifying all feeds...';
+        feedback.className = 'text-xs text-lcars-gold font-bold animate-pulse';
+    }
+
+    try {
+        const res = await fetch('api.php?action=get_calendar_events');
+        const data = await res.json();
+        if (data.status === 'success') {
+            const todayCount = (data.events_today || []).length;
+            const upCount = (data.events_upcoming || []).length;
+            if (feedback) {
+                feedback.innerText = `✅ All feeds verified & synchronized! (${todayCount} event(s) today, ${upCount} upcoming this week)`;
+                feedback.className = 'text-xs text-tertiary font-bold';
+            }
+            alert(`Synchronized successfully! Found ${todayCount} event(s) today and ${upCount} upcoming this week across all active calendars.`);
+        } else {
+            if (feedback) {
+                feedback.innerText = `⚠️ Sync notice: ${data.message || 'Check link format'}`;
+                feedback.className = 'text-xs text-lcars-gold font-bold';
+            }
+            alert('Notice: ' + (data.message || 'Check configuration.'));
+        }
+    } catch(e) {
+        if (feedback) {
+            feedback.innerText = `❌ Error: ${e.message}`;
+            feedback.className = 'text-xs text-error font-bold';
         }
         alert('Connection error: ' + e.message);
     }
@@ -266,27 +372,32 @@ function importKnowledgeJSON(e) {
     const reader = new FileReader();
     reader.onload = function(evt) {
         try {
-            const parsed = JSON.parse(evt.target.result);
-            if (Array.isArray(parsed)) {
-                localStorage.setItem('meena_knowledge_bank', JSON.stringify(parsed));
-                alert(`Successfully imported ${parsed.length} knowledge nodes!`);
+            const json = JSON.parse(evt.target.result);
+            if (Array.isArray(json)) {
+                localStorage.setItem('meena_knowledge_bank', JSON.stringify(json));
+                alert(`Successfully imported ${json.length} knowledge nodes!`);
+            } else {
+                alert('Invalid knowledge JSON format.');
             }
-        } catch(err) {
-            alert('Invalid JSON file format.');
+        } catch (err) {
+            alert('Error parsing JSON file: ' + err.message);
         }
     };
     reader.readAsText(file);
 }
 
-async function executeMaintenanceAction(action) {
-    if (!confirm(`Are you sure you want to execute ${action}?`)) return;
-    try {
-        const res = await fetch(`api.php?action=${action}`);
-        if (res.ok) {
-            const d = await res.json();
-            alert(`Result: ${d.result || 'Executed successfully.'}`);
-        }
-    } catch(e) {
-        alert('Action execution failed');
-    }
-}
+// Window Exports
+window.switchTab = switchTab;
+window.savePersona = savePersona;
+window.updateRateSlider = updateRateSlider;
+window.updatePitchSlider = updatePitchSlider;
+window.testCurrentVoice = testCurrentVoice;
+window.saveGeminiKey = saveGeminiKey;
+window.clearGeminiKey = clearGeminiKey;
+window.resetTokenQuota = resetTokenQuota;
+window.addNewCalendarFromSettings = addNewCalendarFromSettings;
+window.toggleCalendarFromSettings = toggleCalendarFromSettings;
+window.removeCalendarFromSettings = removeCalendarFromSettings;
+window.testAllCalendarFeeds = testAllCalendarFeeds;
+window.exportKnowledgeJSON = exportKnowledgeJSON;
+window.importKnowledgeJSON = importKnowledgeJSON;
