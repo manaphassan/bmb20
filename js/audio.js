@@ -654,122 +654,146 @@ function handleVoiceCommand(rawCmd) {
         hudBadge.style.opacity = '1';
     }
 
-    // 1. Wake Word Only Trigger ("Meena", "Hey Meena", "Mina", "Computer")
-    const isWakeWordOnly = (cmd === 'meena' || cmd === 'hey meena' || cmd === 'mina' || cmd === 'hey mina' || cmd === 'computer' || cmd === 'hello meena' || cmd === 'konnichiwa meena');
-    if (isWakeWordOnly) {
+    // 1. Hands-Free Wake Word Parsing ("Hey Meena", "Meena", "Hey Alex", "Alex", "Computer")
+    let cleanedCmd = cmd;
+    let wakeWordTriggered = false;
+    const prefixes = ['hey meena', 'meena', 'hey mina', 'mina', 'hey alex', 'alex', 'computer', 'hello meena', 'konnichiwa meena'];
+    for (const p of prefixes) {
+        if (cleanedCmd.startsWith(p)) {
+            wakeWordTriggered = true;
+            cleanedCmd = cleanedCmd.substring(p.length).replace(/^[,:\s]+/, '').trim();
+            break;
+        }
+    }
+
+    // If only wake word was spoken, chime and greet Sensei
+    if (wakeWordTriggered && !cleanedCmd) {
         if (playSound) playSound('beep2');
         if (hudBadge) hudBadge.innerText = `MEENA: READY!`;
         addMeenaEXP(10, 'Wake word interaction');
         setMeenaMood('CHEERFUL');
         const hour = new Date().getHours();
-        if (hour >= 5 && hour < 12) {
-            speakComputerVoice("Good morning, Sensei! Standing by and ready for orders!");
-        } else if (hour >= 12 && hour < 18) {
-            speakComputerVoice("Konnichiwa, Sensei! What's our next mission?");
-        } else if (hour >= 18 && hour < 22) {
-            speakComputerVoice("Good evening, Sensei! All tactical stations are ready!");
+        if (currentPersona === 'ALEX') {
+            if (hour >= 5 && hour < 12) {
+                speakComputerVoice("Good morning, Sensei. Telemetry logs are nominal. Ready when you are.");
+            } else if (hour >= 18 && hour < 23) {
+                speakComputerVoice("Good evening, Sensei. What problem are we solving tonight?");
+            } else {
+                speakComputerVoice("Yes, Sensei? I'm listening with triple-digit efficiency.");
+            }
         } else {
-            speakComputerVoice("Hai, Sensei! Don't stay up too late! I'm standing by!");
+            if (hour >= 5 && hour < 12) {
+                speakComputerVoice("Good morning, Sensei! Standing by and ready for orders!");
+            } else if (hour >= 12 && hour < 18) {
+                speakComputerVoice("Konnichiwa, Sensei! What's our next mission?");
+            } else if (hour >= 18 && hour < 22) {
+                speakComputerVoice("Good evening, Sensei! All tactical stations are ready!");
+            } else {
+                speakComputerVoice("Hai, Sensei! Standing by for your next command!");
+            }
         }
         return;
     }
 
+    // Use cleaned command without prefix for action evaluation
+    const cmdToEvaluate = cleanedCmd || cmd;
+
     // 2. Action Voice Commands
-    if (cmd.includes('red') || cmd.includes('code red') || cmd.includes('shields up') || cmd.includes('battle stations')) {
+    if (cmdToEvaluate.includes('red') || cmdToEvaluate.includes('code red') || cmdToEvaluate.includes('shields up') || cmdToEvaluate.includes('battle stations')) {
         addMeenaEXP(15, 'Code Red engagement');
         setMeenaMood('TACTICAL');
         if (window.setAlertCondition) window.setAlertCondition('red', true);
-    } else if (cmd.includes('yellow') || cmd.includes('code yellow') || cmd.includes('caution')) {
+    } else if (cmdToEvaluate.includes('yellow') || cmdToEvaluate.includes('code yellow') || cmdToEvaluate.includes('caution')) {
         addMeenaEXP(10, 'Yellow alert caution');
         setMeenaMood('TACTICAL');
         if (window.setAlertCondition) window.setAlertCondition('yellow', true);
-    } else if (cmd.includes('green') || cmd.includes('code green') || cmd.includes('nominal') || cmd.includes('all clear') || cmd.includes('stand down')) {
+    } else if (cmdToEvaluate.includes('green') || cmdToEvaluate.includes('code green') || cmdToEvaluate.includes('nominal') || cmdToEvaluate.includes('all clear') || cmdToEvaluate.includes('stand down')) {
         addMeenaEXP(10, 'Code Green nominal');
         setMeenaMood('CHEERFUL');
         if (window.setAlertCondition) window.setAlertCondition('green', true);
-    } else if (cmd.includes('warp') || cmd.includes('engage') || cmd.includes('accelerate')) {
+    } else if (cmdToEvaluate.includes('warp') || cmdToEvaluate.includes('engage') || cmdToEvaluate.includes('accelerate')) {
         addMeenaEXP(20, 'Warp speed sequence');
         setMeenaMood('PROUD');
         if (window.playWarpSequence) window.playWarpSequence();
-    } else if (cmd.includes('chime') || cmd.includes('door') || cmd.includes('hail')) {
+    } else if (cmdToEvaluate.includes('chime') || cmdToEvaluate.includes('door') || cmdToEvaluate.includes('hail')) {
         if (window.playDoorChime) window.playDoorChime();
-    } else if (cmd.includes('beam') || cmd.includes('transport') || cmd.includes('energize')) {
+    } else if (cmdToEvaluate.includes('beam') || cmdToEvaluate.includes('transport') || cmdToEvaluate.includes('energize')) {
         if (window.playTransporterChime) window.playTransporterChime();
-    } else if (cmd.includes('terra') || cmd.includes('planet') || cmd.includes('earth') || cmd.includes('terrestrial')) {
+    } else if (cmdToEvaluate.includes('terra') || cmdToEvaluate.includes('planet') || cmdToEvaluate.includes('earth') || cmdToEvaluate.includes('terrestrial')) {
         if (window.switchHologramView) window.switchHologramView('earth');
-    } else if (cmd.includes('solar') || cmd.includes('system') || cmd.includes('sun')) {
+    } else if (cmdToEvaluate.includes('solar') || cmdToEvaluate.includes('system') || cmdToEvaluate.includes('sun')) {
         if (window.switchHologramView) window.switchHologramView('solar');
-    } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
+    } else if (cmdToEvaluate.includes('galaxy') || cmdToEvaluate.includes('milky way') || cmdToEvaluate.includes('stars')) {
         if (window.switchHologramView) window.switchHologramView('galaxy');
-    } else if (cmd.includes('disable pi') || cmd.includes('pause pi') || cmd.includes('disable shield') || cmd.includes('pause shield') || cmd.includes('stop pihole')) {
+    } else if (cmdToEvaluate.includes('disable pi') || cmdToEvaluate.includes('pause pi') || cmdToEvaluate.includes('disable shield') || cmdToEvaluate.includes('pause shield') || cmdToEvaluate.includes('stop pihole')) {
         requestSudoAuthorization('pihole_disable', 'Pause Pi-hole Defense Shield (5 Mins)');
-    } else if (cmd.includes('enable pi') || cmd.includes('resume pi') || cmd.includes('enable shield') || cmd.includes('shield on') || cmd.includes('start pihole')) {
+    } else if (cmdToEvaluate.includes('enable pi') || cmdToEvaluate.includes('resume pi') || cmdToEvaluate.includes('enable shield') || cmdToEvaluate.includes('shield on') || cmdToEvaluate.includes('start pihole')) {
         requestSudoAuthorization('pihole_enable', 'Enable Pi-hole Defense Shield');
-    } else if (cmd.includes('update gravity') || cmd.includes('update blocklist') || cmd.includes('reload gravity')) {
+    } else if (cmdToEvaluate.includes('update gravity') || cmdToEvaluate.includes('update blocklist') || cmdToEvaluate.includes('reload gravity')) {
         requestSudoAuthorization('pihole_update_gravity', 'Rebuild Pi-hole Gravity Blocklists');
-    } else if (cmd.includes('purge ram') || cmd.includes('clean memory') || cmd.includes('free ram') || cmd.includes('drop caches')) {
+    } else if (cmdToEvaluate.includes('purge ram') || cmdToEvaluate.includes('clean memory') || cmdToEvaluate.includes('free ram') || cmdToEvaluate.includes('drop caches')) {
         requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)');
-    } else if (cmd.includes('flush dns') || cmd.includes('restart dns') || cmd.includes('clear dns')) {
+    } else if (cmdToEvaluate.includes('flush dns') || cmdToEvaluate.includes('restart dns') || cmdToEvaluate.includes('clear dns')) {
         requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver');
-    } else if (cmd.includes('reload daemon') || cmd.includes('restart telemetry') || cmd.includes('restart daemon')) {
+    } else if (cmdToEvaluate.includes('reload daemon') || cmdToEvaluate.includes('restart telemetry') || cmdToEvaluate.includes('restart daemon')) {
         requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service');
-    } else if (cmd.includes('reboot') || cmd.includes('restart pi') || cmd.includes('power cycle')) {
+    } else if (cmdToEvaluate.includes('reboot') || cmdToEvaluate.includes('restart pi') || cmdToEvaluate.includes('power cycle')) {
         requestSudoAuthorization('system_reboot', 'Power Cycle & Reboot Raspberry Pi Host');
-    } else if (cmd.includes('authorize') || cmd.includes('confirm') || cmd.includes('proceed') || cmd.includes('yes do it') || cmd.includes('approved')) {
+    } else if (cmdToEvaluate.includes('authorize') || cmdToEvaluate.includes('confirm') || cmdToEvaluate.includes('proceed') || cmdToEvaluate.includes('yes do it') || cmdToEvaluate.includes('approved')) {
         if (pendingSudoAction) {
             confirmSudoAuthorization(true);
         } else {
             speakComputerVoice("No pending authorization requests on the bridge, Sensei.");
         }
-    } else if (cmd.includes('abort') || cmd.includes('cancel') || cmd.includes('stand down') || cmd.includes('stop')) {
+    } else if (cmdToEvaluate.includes('abort') || cmdToEvaluate.includes('cancel') || cmdToEvaluate.includes('stand down') || cmdToEvaluate.includes('stop')) {
         if (pendingSudoAction) {
             confirmSudoAuthorization(false);
         } else {
             speakComputerVoice("All systems nominal, Sensei.");
         }
-    } else if (cmd.includes('morale boost') || cmd.includes('encourage') || cmd.includes('cheer me up') || cmd.includes('mental health') || cmd.includes('stress')) {
+    } else if (cmdToEvaluate.includes('morale boost') || cmdToEvaluate.includes('encourage') || cmdToEvaluate.includes('cheer me up') || cmdToEvaluate.includes('mental health') || cmdToEvaluate.includes('stress')) {
         addMeenaEXP(20, 'Agent Skill: Morale Boost');
         executeSkillMoraleBoost();
-    } else if (cmd.includes('report analysis') || cmd.includes('audit report') || cmd.includes('system audit') || cmd.includes('executive report')) {
+    } else if (cmdToEvaluate.includes('report analysis') || cmdToEvaluate.includes('audit report') || cmdToEvaluate.includes('system audit') || cmdToEvaluate.includes('executive report')) {
         addMeenaEXP(25, 'Agent Skill: Report Audit');
         executeSkillReportAnalysis();
-    } else if (cmd.includes('fact check') || cmd.includes('verify claim') || cmd.includes('is it true that')) {
-        const claim = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?(fact check|verify claim|is it true that)\s*/i, '').trim();
+    } else if (cmdToEvaluate.includes('fact check') || cmdToEvaluate.includes('verify claim') || cmdToEvaluate.includes('is it true that')) {
+        const claim = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(fact check|verify claim|is it true that)\s*/i, '').trim();
         addMeenaEXP(25, 'Agent Skill: Fact Provenance');
         executeSkillFactVerify(claim);
-    } else if (cmd.includes('deep research') || cmd.includes('research topic') || cmd.includes('analytic thinking on')) {
-        const topic = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?(deep research|research topic|analytic thinking on|research)\s*/i, '').trim();
+    } else if (cmdToEvaluate.includes('deep research') || cmdToEvaluate.includes('research topic') || cmdToEvaluate.includes('analytic thinking on')) {
+        const topic = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(deep research|research topic|analytic thinking on|research)\s*/i, '').trim();
         addMeenaEXP(35, 'Agent Skill: Deep Research');
         executeSkillDeepResearch(topic);
-    } else if (cmd.includes('time') || cmd.includes('date') || cmd.includes('today') || cmd.includes('day is it') || cmd.includes('what time') || cmd.includes('stardate') || cmd.includes('current time')) {
+    } else if (cmdToEvaluate.includes('time') || cmdToEvaluate.includes('date') || cmdToEvaluate.includes('today') || cmdToEvaluate.includes('day is it') || cmdToEvaluate.includes('what time') || cmdToEvaluate.includes('stardate') || cmdToEvaluate.includes('current time')) {
         addMeenaEXP(10, 'Time & Chrono check');
         speakVerbalTimeReport();
-    } else if (cmd.includes('hardware') || cmd.includes('cpu clock') || cmd.includes('undervoltage') || cmd.includes('voltage') || cmd.includes('throttle')) {
+    } else if (cmdToEvaluate.includes('hardware') || cmdToEvaluate.includes('cpu clock') || cmdToEvaluate.includes('undervoltage') || cmdToEvaluate.includes('voltage') || cmdToEvaluate.includes('throttle')) {
         addMeenaEXP(20, 'Hardware diagnostics');
         speakVerbalHardwareReport();
-    } else if (cmd.includes('briefing') || cmd.includes('morning report') || cmd.includes('daily briefing')) {
+    } else if (cmdToEvaluate.includes('briefing') || cmdToEvaluate.includes('morning report') || cmdToEvaluate.includes('daily briefing')) {
         triggerMorningBriefing();
-    } else if (cmd.includes('profile') || cmd.includes('dossier') || cmd.includes('who are you') || cmd.includes('designation')) {
+    } else if (cmdToEvaluate.includes('profile') || cmdToEvaluate.includes('dossier') || cmdToEvaluate.includes('who are you') || cmdToEvaluate.includes('designation')) {
         addMeenaEXP(15, 'AI Profile check');
         openMeenaProfileModal();
         speakComputerVoice("I am M.E.E.N.A., Master Electronic Executive Neural Assistant of Takahara Academy! Running on our dedicated DietPi single-board computer with Level-4 administrative authorization protocols, ready to serve Sensei!");
-    } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
+    } else if (cmdToEvaluate.includes('weather') || cmdToEvaluate.includes('forecast') || cmdToEvaluate.includes('atmospheric') || cmdToEvaluate.includes('meteo')) {
         addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
-    } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
+    } else if (cmdToEvaluate.includes('status') || cmdToEvaluate.includes('report') || cmdToEvaluate.includes('diagnostics')) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
-    } else if (cmd.includes('who is') || cmd.includes('who was') || cmd.includes('what is') || cmd.includes('what was') || cmd.includes('search') || cmd.includes('lookup') || cmd.includes('look up') || cmd.includes('google') || cmd.includes('tell me about') || cmd.includes('explain')) {
+    } else if (cmdToEvaluate.includes('who is') || cmdToEvaluate.includes('who was') || cmdToEvaluate.includes('what is') || cmdToEvaluate.includes('what was') || cmdToEvaluate.includes('search') || cmdToEvaluate.includes('lookup') || cmdToEvaluate.includes('look up') || cmdToEvaluate.includes('google') || cmdToEvaluate.includes('tell me about') || cmdToEvaluate.includes('explain')) {
         addMeenaEXP(25, 'Live web intelligence');
         searchLiveWebInfo(rawCmd);
-    } else if (cmd.startsWith('remember ') || cmd.includes('remember that ')) {
-        const fact = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?remember\s*(that\s*)?/i, '').trim();
+    } else if (cmdToEvaluate.startsWith('remember ') || cmdToEvaluate.includes('remember that ')) {
+        const fact = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?remember\s*(that\s*)?/i, '').trim();
         if (fact) rememberCategorizedFact('facility', fact);
-    } else if (cmd.includes('recall') || cmd.includes('what did you learn') || cmd.includes('read memory') || cmd.includes('show memory')) {
+    } else if (cmdToEvaluate.includes('recall') || cmdToEvaluate.includes('what did you learn') || cmdToEvaluate.includes('read memory') || cmdToEvaluate.includes('show memory')) {
         recallMemories();
-    } else if (cmd.includes('clear memory') || cmd.includes('forget all') || cmd.includes('reset memory')) {
+    } else if (cmdToEvaluate.includes('clear memory') || cmdToEvaluate.includes('forget all') || cmdToEvaluate.includes('reset memory')) {
         clearMemories();
-    } else if (cmd.includes('audio off') || cmd.includes('mute') || cmd.includes('silence')) {
+    } else if (cmdToEvaluate.includes('audio off') || cmdToEvaluate.includes('mute') || cmdToEvaluate.includes('silence')) {
         if (window.toggleAudio) window.toggleAudio();
     } else {
         // Conversational AI Brain Fallback for Natural Questions & Learning

@@ -8,6 +8,7 @@
 let txHistory = new Array(30).fill(0.15);
 let rxHistory = new Array(30).fill(0.35);
 let isTelemetryActive = true;
+let lastSentinelAlertTimestamp = null;
 
 // Core Telemetry Polling Engine
 async function fetchTelemetry() {
@@ -46,6 +47,35 @@ async function fetchTelemetry() {
     } catch (err) {
         console.warn("Telemetry fetch fallback active:", err);
     }
+}
+
+async function fetchSentinelAlerts() {
+    try {
+        const res = await fetch('api.php?action=sentinel_status', { cache: 'no-store' });
+        if (res.ok) {
+            const alertData = await res.json();
+            if (alertData && alertData.level) {
+                const badge = document.getElementById('sentinel-status-badge');
+                if (badge) {
+                    badge.innerText = `SENTINEL: ${alertData.status}`;
+                    if (alertData.level === 'YELLOW') {
+                        badge.className = "text-[9px] bg-warning/20 text-warning px-1.5 py-0.5 rounded font-bold border border-warning/40 animate-pulse";
+                        if (lastSentinelAlertTimestamp !== alertData.timestamp) {
+                            lastSentinelAlertTimestamp = alertData.timestamp;
+                            if (window.playSound) window.playSound('redalert');
+                        }
+                    } else {
+                        badge.className = "text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40";
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Sentinel patrol poll failed:", e);
+    }
+}
+setInterval(fetchSentinelAlerts, 20000);
+setTimeout(fetchSentinelAlerts, 2000);
 
     // Fallback Simulated Data if daemon is restarting
     const simCpu = Math.floor(15 + Math.random() * 35);

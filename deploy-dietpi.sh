@@ -49,13 +49,18 @@ if [ -d "/etc/sudoers.d" ]; then
     chmod 0440 /etc/sudoers.d/dietpi-bmb20
 fi
 
-# 2. Deploy Background Telemetry Daemon
-echo "[+] Installing telemetry daemon service..."
+# 2. Deploy Background Telemetry Daemon & Sentinel Patrol
+echo "[+] Installing telemetry & sentinel daemon services..."
 if [ -f "${SCRIPT_DIR}/daemon/bmb20-stats.sh" ]; then
     cp -fv "${SCRIPT_DIR}/daemon/bmb20-stats.sh" /usr/local/bin/bmb20-stats.sh
     chmod +x /usr/local/bin/bmb20-stats.sh
 elif [ -f "/usr/local/bin/bmb20-stats.sh" ]; then
     chmod +x /usr/local/bin/bmb20-stats.sh
+fi
+
+if [ -f "${SCRIPT_DIR}/daemon/bmb20-patrol.sh" ]; then
+    cp -fv "${SCRIPT_DIR}/daemon/bmb20-patrol.sh" /usr/local/bin/bmb20-patrol.sh
+    chmod +x /usr/local/bin/bmb20-patrol.sh
 fi
 
 if [ -f "${SCRIPT_DIR}/daemon/bmb20-stats.service" ]; then

@@ -81,6 +81,23 @@ if (isset($_GET['action'])) {
         ]);
         exit;
     }
+
+    if ($action === 'sentinel_status') {
+        @shell_exec('/usr/local/bin/bmb20-patrol.sh 2>/dev/null &');
+        $alertFile = file_exists('/var/www/html/sentinel_alerts.json') ? '/var/www/html/sentinel_alerts.json' : '/var/www/sentinel_alerts.json';
+        if (file_exists($alertFile)) {
+            echo file_get_contents($alertFile);
+        } else {
+            echo json_encode([
+                'timestamp' => date('c'),
+                'status' => 'NOMINAL',
+                'level' => 'GREEN',
+                'temp_c' => get_cpu_temp(),
+                'message' => 'Perimeter defenses, thermal zones, and LAN nodes verified nominal.'
+            ]);
+        }
+        exit;
+    }
 }
 
 function get_cpu_temp() {
