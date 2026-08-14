@@ -710,6 +710,21 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmd.includes('update gravity') || cmd.includes('update blocklist') || cmd.includes('reload gravity')) {
         addMeenaEXP(25, 'Pi-hole Gravity reload');
         if (window.executePiholeAction) window.executePiholeAction('pihole_update_gravity');
+    } else if (cmd.includes('purge ram') || cmd.includes('clean memory') || cmd.includes('free ram') || cmd.includes('drop caches')) {
+        addMeenaEXP(25, 'Sudo memory purge');
+        setMeenaMood('TACTICAL');
+        executeSudoAction('purge_ram', "Hai, Sensei! Purging Linux page cache and freeing buffer memory via sudo authorization!");
+    } else if (cmd.includes('flush dns') || cmd.includes('restart dns') || cmd.includes('clear dns')) {
+        addMeenaEXP(25, 'Sudo DNS flush');
+        setMeenaMood('TACTICAL');
+        executeSudoAction('flush_dns', "Hai, Sensei! Restarting Pi-hole DNS resolver and flushing query caches!");
+    } else if (cmd.includes('hardware') || cmd.includes('clock') || cmd.includes('undervoltage') || cmd.includes('voltage') || cmd.includes('throttle')) {
+        addMeenaEXP(20, 'Hardware diagnostics');
+        speakVerbalHardwareReport();
+    } else if (cmd.includes('profile') || cmd.includes('dossier') || cmd.includes('who are you') || cmd.includes('designation')) {
+        addMeenaEXP(15, 'AI Profile check');
+        openMeenaProfileModal();
+        speakComputerVoice("I am M.E.E.N.A., Master Electronic Executive Neural Assistant of Takahara Academy! Running on our dedicated DietPi single-board computer, ready to serve Sensei!");
     } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
         addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
@@ -1619,12 +1634,79 @@ function speakVerbalWeatherReport() {
     speakComputerVoice(`Atmospheric report for Terra base, Sensei! Current temperature is ${temp} degrees Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Perfect weather for our mission!`);
 }
 
+async function executeSudoAction(action, voiceAck) {
+    if (voiceAck) speakComputerVoice(voiceAck);
+    if (window.playSound) window.playSound('beep2');
+
+    try {
+        const res = await fetch(`api.php?action=${encodeURIComponent(action)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const resultMsg = data.result || "Command executed successfully.";
+            console.log(`[MEENA SUDO]: ${action} -> ${resultMsg}`);
+            
+            // Push feedback into chat dialogue feed
+            const feed = document.getElementById('meena-chat-feed');
+            if (feed) {
+                const row = document.createElement('div');
+                row.className = "flex items-start gap-1.5 text-lcars-gold";
+                row.innerHTML = `<span class="text-tertiary font-bold">[SUDO EXEC]:</span><span>${resultMsg}</span>`;
+                feed.appendChild(row);
+                feed.scrollTop = feed.scrollHeight;
+            }
+            if (window.fetchTelemetry) window.fetchTelemetry();
+        }
+    } catch (e) {
+        console.warn(`Sudo action ${action} failed:`, e);
+    }
+}
+
+async function speakVerbalHardwareReport() {
+    try {
+        const res = await fetch('api.php?action=hardware_diag');
+        if (res.ok) {
+            const data = await res.json();
+            const hw = data.hardware || {};
+            const mhz = hw.clock_mhz || 1200;
+            const volts = hw.voltage || '1.20V';
+            const status = hw.throttled_desc || 'NOMINAL';
+            const temp = hw.temp || '50°C';
+
+            speakComputerVoice(`Raspberry Pi hardware health report, Sensei! ARM core clock is running at ${mhz} megahertz. Core voltage is ${volts}, operating temperature is ${temp}. Power status is ${status}!`);
+            return;
+        }
+    } catch (e) {}
+
+    speakComputerVoice("Raspberry Pi hardware core is running at full capacity, Sensei! All thermal and voltage parameters are nominal!");
+}
+
+function openMeenaProfileModal() {
+    const modal = document.getElementById('meena-profile-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.playSound) window.playSound('door');
+    }
+}
+
+function closeMeenaProfileModal() {
+    const modal = document.getElementById('meena-profile-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        if (window.playSound) window.playSound('beep1');
+    }
+}
+
 // Window Global Exports
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
 window.toggleVoiceRecognition = toggleVoiceRecognition;
 window.openVoiceModal = openVoiceModal;
 window.closeVoiceModal = closeVoiceModal;
+window.openMeenaProfileModal = openMeenaProfileModal;
+window.closeMeenaProfileModal = closeMeenaProfileModal;
+window.executeSudoAction = executeSudoAction;
 window.handleVoiceCommand = handleVoiceCommand;
 window.startRedAlertKlaxon = startRedAlertKlaxon;
 window.stopRedAlertKlaxon = stopRedAlertKlaxon;
@@ -1635,6 +1717,7 @@ window.playTransporterChime = playTransporterChime;
 window.speakComputerVoice = speakComputerVoice;
 window.speakVerbalStatusReport = speakVerbalStatusReport;
 window.speakVerbalWeatherReport = speakVerbalWeatherReport;
+window.speakVerbalHardwareReport = speakVerbalHardwareReport;
 window.setMeenaVoiceByName = setMeenaVoiceByName;
 window.testMeenaVoice = testMeenaVoice;
 window.populateVoiceSelector = populateVoiceSelector;

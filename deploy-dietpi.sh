@@ -43,9 +43,9 @@ if [ -d "${SCRIPT_DIR}/js" ]; then
     cp -rfv "${SCRIPT_DIR}/js/"* "/var/www/js/" 2>/dev/null || true
 fi
 
-# Configure sudoers for www-data to manage Pi-hole and daemon actions without password
+# Configure sudoers for www-data to manage Pi-hole, hardware and daemon actions without password
 if [ -d "/etc/sudoers.d" ]; then
-    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee" > /etc/sudoers.d/dietpi-bmb20
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee, /usr/bin/vcgencmd, /sbin/reboot, /usr/sbin/reboot" > /etc/sudoers.d/dietpi-bmb20
     chmod 0440 /etc/sudoers.d/dietpi-bmb20
 fi
 

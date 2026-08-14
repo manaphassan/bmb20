@@ -213,6 +213,45 @@ while true; do
     fi
 
     # --------------------------------------------------------------------------
+    # 8.7. Raspberry Pi Native Hardware Diagnostics (vcgencmd)
+    # --------------------------------------------------------------------------
+    HW_MHZ=1200
+    HW_VOLTS="1.2000V"
+    HW_THROTTLE_HEX="0x0"
+    HW_THROTTLE_DESC="NOMINAL"
+
+    if command -v vcgencmd >/dev/null 2>&1; then
+        RAW_CLOCK=$(vcgencmd measure_clock arm 2>/dev/null)
+        if [ -n "$RAW_CLOCK" ]; then
+            RAW_HZ=$(echo "$RAW_CLOCK" | awk -F= '{print $2}')
+            if [ -n "$RAW_HZ" ] && [ "$RAW_HZ" -gt 0 ]; then
+                HW_MHZ=$(( RAW_HZ / 1000000 ))
+            fi
+        fi
+
+        RAW_VOLT=$(vcgencmd measure_volts core 2>/dev/null | sed 's/volt=//')
+        if [ -n "$RAW_VOLT" ]; then HW_VOLTS="$RAW_VOLT"; fi
+
+        RAW_THROT=$(vcgencmd get_throttled 2>/dev/null | sed 's/throttled=//')
+        if [ -n "$RAW_THROT" ]; then
+            HW_THROTTLE_HEX="$RAW_THROT"
+            if [ "$RAW_THROT" = "0x0" ]; then
+                HW_THROTTLE_DESC="NOMINAL"
+            elif echo "$RAW_THROT" | grep -qi "0x50000"; then
+                HW_THROTTLE_DESC="HISTORICAL UNDERVOLTAGE"
+            elif echo "$RAW_THROT" | grep -qi "0x1"; then
+                HW_THROTTLE_DESC="UNDERVOLTAGE ACTIVE"
+            elif echo "$RAW_THROT" | grep -qi "0x2"; then
+                HW_THROTTLE_DESC="ARM FREQ CAPPED"
+            else
+                HW_THROTTLE_DESC="THROTTLED"
+            fi
+        fi
+    fi
+
+    HW_JSON="{\"clock_mhz\":${HW_MHZ},\"volts\":\"${HW_VOLTS}\",\"throttled_hex\":\"${HW_THROTTLE_HEX}\",\"throttled_desc\":\"${HW_THROTTLE_DESC}\"}"
+
+    # --------------------------------------------------------------------------
     # 8.9. OS Package Updates & System Health (every 300s)
     # --------------------------------------------------------------------------
     if [ -z "$LAST_UPD_TIME" ]; then LAST_UPD_TIME=0; fi
@@ -241,6 +280,7 @@ while true; do
   "rx_rate": ${RX_RATE},
   "tx_rate": ${TX_RATE},
   "syslog": "${SYSLOG_MSG}",
+  "hardware": ${HW_JSON},
   "pihole": ${PIHOLE_JSON},
   "weather": ${WEATHER_JSON},
   "os_health": ${UPD_JSON},

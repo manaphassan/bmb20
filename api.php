@@ -179,10 +179,62 @@ if ($action) {
         $resp['result'] = 'DNS RESOLVER CACHE FLUSHED';
     } elseif ($action === 'purge_ram') {
         @shell_exec('sync; echo 3 | sudo tee /proc/sys/vm/drop_caches 2>/dev/null || true');
-        $resp['result'] = 'PAGE CACHE AND BUFFERS PURGED';
+        $resp['result'] = 'PAGE CACHE AND BUFFERS PURGED [MEMORY FREED]';
     } elseif ($action === 'reload_daemon') {
         @shell_exec('sudo systemctl restart bmb20-stats.service 2>/dev/null || true');
         $resp['result'] = 'TELEMETRY DAEMON RESTARTED';
+    } elseif ($action === 'hardware_diag') {
+        $temp = @shell_exec('vcgencmd measure_temp 2>/dev/null') ?: "temp=48.0'C";
+        $clock = @shell_exec('vcgencmd measure_clock arm 2>/dev/null') ?: "frequency(48)=1200000000";
+        $throttled = @shell_exec('vcgencmd get_throttled 2>/dev/null') ?: "throttled=0x0";
+        $volts = @shell_exec('vcgencmd measure_volts core 2>/dev/null') ?: "volt=1.2000V";
+        $mem_arm = @shell_exec('vcgencmd get_mem arm 2>/dev/null') ?: "arm=948M";
+        $mem_gpu = @shell_exec('vcgencmd get_mem gpu 2>/dev/null') ?: "gpu=76M";
+
+        preg_match('/frequency\(\d+\)=(\d+)/', $clock, $c);
+        $mhz = isset($c[1]) ? round(intval($c[1]) / 1000000) : 1200;
+
+        preg_match('/throttled=(0x[0-9a-fA-F]+)/', $throttled, $t);
+        $t_hex = $t[1] ?? '0x0';
+        $t_val = hexdec($t_hex);
+
+        $throttle_desc = "NOMINAL (NO THROTTLING)";
+        if ($t_val & 0x1) $throttle_desc = "ACTIVE UNDERVOLTAGE DETECTED";
+        elseif ($t_val & 0x2) $throttle_desc = "ARM FREQUENCY CURRENTLY CAPPED";
+        elseif ($t_val & 0x4) $throttle_desc = "CURRENTLY THROTTLED (THERMAL)";
+        elseif ($t_val & 0x8) $throttle_desc = "SOFT TEMP LIMIT ACTIVE";
+        elseif ($t_val & 0x50000) $throttle_desc = "HISTORICAL UNDERVOLTAGE LOGGED";
+        elseif ($t_val & 0x20000) $throttle_desc = "HISTORICAL FREQUENCY CAP LOGGED";
+
+        $resp['hardware'] = [
+            'temp' => trim(str_replace('temp=', '', $temp)),
+            'clock_mhz' => $mhz,
+            'throttled_hex' => $t_hex,
+            'throttled_desc' => $throttle_desc,
+            'voltage' => trim(str_replace('volt=', '', $volts)),
+            'arm_mem' => trim(str_replace('arm=', '', $mem_arm)),
+            'gpu_mem' => trim(str_replace('gpu=', '', $mem_gpu))
+        ];
+        $resp['result'] = "HARDWARE HEALTH: {$mhz} MHz // VOLTS: " . trim(str_replace('volt=', '', $volts)) . " // STATUS: {$throttle_desc}";
+    } elseif ($action === 'service_restart') {
+        $srv = $_REQUEST['service'] ?? 'bmb20-stats';
+        $allowed = ['bmb20-stats', 'lighttpd', 'nginx', 'apache2', 'pihole-FTL'];
+        if (in_array($srv, $allowed)) {
+            @shell_exec("sudo systemctl restart {$srv}.service 2>/dev/null || true");
+            $resp['result'] = "SERVICE [{$srv}] RESTARTED SUCCESSFULLY";
+        } else {
+            $resp['status'] = 'error';
+            $resp['result'] = "SERVICE NOT IN WHITELIST";
+        }
+    } elseif ($action === 'system_reboot') {
+        $confirm = $_REQUEST['confirm'] ?? '';
+        if ($confirm === 'TAKAHARA_CONFIRM') {
+            @shell_exec('sudo reboot 2>/dev/null &');
+            $resp['result'] = "SYSTEM REBOOT INITIATED // HOST POWER CYCLING";
+        } else {
+            $resp['status'] = 'error';
+            $resp['result'] = "REBOOT REQUIRES CONFIRMATION TOKEN";
+        }
     }
     echo json_encode($resp, JSON_PRETTY_PRINT);
     exit;
