@@ -430,6 +430,8 @@ body {
                 <div class="w-2 h-2 rounded-full bg-[#ff9900] animate-pulse shadow-[0_0_8px_#ff9900]"></div>
             </div>
             <div class="tracking-widest font-bold text-[#ff9900] bg-[#ff9900]/10 border border-[#ff9900]/40 px-2.5 py-0.5 rounded-sm" id="stardate">STARDATE 104184.25</div>
+            <div class="font-bold text-[#ffcc66]" id="clock">00:00:00 UTC</div>
+        </div>
     </div>
 
     <!-- Main Content Grid -->
@@ -1808,7 +1810,10 @@ function isRealEarthLand(lat, lon) {
 }
 
 function initEarth() {
-    if (typeof THREE === 'undefined') return;
+    if (typeof THREE === 'undefined') {
+        setTimeout(initEarth, 200);
+        return;
+    }
     const container = document.getElementById('earth-container');
     if (!container) return;
 
