@@ -622,29 +622,17 @@ body {
                         <span class="text-center font-bold">SIGNAL</span>
                         <span class="text-right">STAT</span>
                     </div>
-                    <div class="flex flex-col justify-between flex-1">
+                    <div class="flex flex-col justify-between flex-1" id="lan-devices-list">
                         <div class="grid grid-cols-4 text-on-surface border-b border-outline-variant/20 py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold">iPhone-15</span>
-                            <span>192.168.0.42</span>
+                            <span class="truncate pr-1 font-bold text-[#ffcc66]">DIETPI-GATEWAY</span>
+                            <span class="text-[#66ccff]">192.168.0.1</span>
                             <span class="text-center text-primary font-bold text-[10px]">📶 100%</span>
                             <span class="text-right text-primary font-bold">OK</span>
                         </div>
                         <div class="grid grid-cols-4 text-on-surface border-b border-outline-variant/20 py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold">Desktop-PC</span>
-                            <span>192.168.0.105</span>
-                            <span class="text-center text-tertiary font-bold text-[10px]">📶 88%</span>
-                            <span class="text-right text-primary font-bold">OK</span>
-                        </div>
-                        <div class="grid grid-cols-4 text-on-surface border-b border-outline-variant/20 py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold">Unknown-MAC</span>
-                            <span>10.0.0.55</span>
-                            <span class="text-center text-error font-bold text-[10px]">📶 35%</span>
-                            <span class="text-right text-error font-bold animate-pulse">BLK</span>
-                        </div>
-                        <div class="grid grid-cols-4 text-on-surface py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold">Living-Room-TV</span>
-                            <span>192.168.0.14</span>
-                            <span class="text-center text-primary font-bold text-[10px]">📶 92%</span>
+                            <span class="truncate pr-1 font-bold text-[#ffcc66]">LOCAL-CLIENT</span>
+                            <span class="text-[#66ccff]">192.168.0.100</span>
+                            <span class="text-center text-tertiary font-bold text-[10px]">📶 98%</span>
                             <span class="text-right text-primary font-bold">OK</span>
                         </div>
                     </div>
@@ -957,6 +945,8 @@ async function fetchTelemetry() {
                 };
                 updateGeoIPDisplay();
                 updateGlobeBeacon();
+            if (data.lan_devices && Array.isArray(data.lan_devices)) {
+                updateLANDevicesUI(data.lan_devices);
             }
             return;
         }
@@ -976,6 +966,26 @@ async function fetchTelemetry() {
     const simulatedTemp = Math.floor(42 + Math.random() * 12);
     const simulatedDisk = 50;
     updateMetricsUI(simulatedCpu, simulatedMem, simulatedTemp, simulatedDisk, "ONLINE", "SIMULATED");
+}
+
+function updateLANDevicesUI(devices) {
+    const listElem = document.getElementById('lan-devices-list');
+    if (!listElem || !Array.isArray(devices)) return;
+
+    let html = '';
+    devices.forEach((dev, idx) => {
+        const borderClass = idx < devices.length - 1 ? 'border-b border-outline-variant/20' : '';
+        const statColor = dev.status === 'OK' ? 'text-primary font-bold' : 'text-error font-bold animate-pulse';
+        html += `
+            <div class="grid grid-cols-4 text-on-surface ${borderClass} py-0.5 items-center hover:bg-surface-bright transition-colors text-[10px]">
+                <span class="truncate pr-1 font-bold text-[#ffcc66]">${dev.name}</span>
+                <span class="text-[#66ccff] font-mono">${dev.ip}</span>
+                <span class="text-center text-tertiary font-bold text-[9px]">📶 ${dev.signal}</span>
+                <span class="text-right ${statColor}">${dev.status}</span>
+            </div>
+        `;
+    });
+    listElem.innerHTML = html;
 }
 
 function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText) {
