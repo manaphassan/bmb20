@@ -121,6 +121,23 @@ function getMeenaTimeGreeting() {
     }
 }
 
+let meenaPitch = parseFloat(localStorage.getItem('lcars_meena_pitch') || '1.10');
+let meenaRate = parseFloat(localStorage.getItem('lcars_meena_rate') || '1.05');
+
+function setMeenaPitch(val) {
+    meenaPitch = parseFloat(val) || 1.10;
+    localStorage.setItem('lcars_meena_pitch', meenaPitch);
+    const label = document.getElementById('pitch-val-label');
+    if (label) label.innerText = meenaPitch.toFixed(2);
+}
+
+function setMeenaRate(val) {
+    meenaRate = parseFloat(val) || 1.05;
+    localStorage.setItem('lcars_meena_rate', meenaRate);
+    const label = document.getElementById('rate-val-label');
+    if (label) label.innerText = meenaRate.toFixed(2);
+}
+
 if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = loadMeenaVoice;
     loadMeenaVoice();
@@ -133,8 +150,8 @@ function speakComputerVoice(text) {
         if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.12;   // Crisp, energetic, dramatic anime director cadence
-        utterance.pitch = 1.30;  // Bright, expressive, cheerful heroine pitch
+        utterance.rate = meenaRate;   // Natural teenage girl conversational tempo
+        utterance.pitch = meenaPitch; // Lower, natural teenage girl pitch (1.10)
         utterance.volume = 1.0;
 
         if (meenaVoice) {
@@ -666,3 +683,5 @@ window.speakVerbalWeatherReport = speakVerbalWeatherReport;
 window.setMeenaVoiceByName = setMeenaVoiceByName;
 window.testMeenaVoice = testMeenaVoice;
 window.populateVoiceSelector = populateVoiceSelector;
+window.setMeenaPitch = setMeenaPitch;
+window.setMeenaRate = setMeenaRate;
