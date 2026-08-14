@@ -137,18 +137,18 @@ function getMeenaTimeGreeting() {
     }
 }
 
-let meenaPitch = parseFloat(localStorage.getItem('lcars_meena_pitch') || '1.10');
-let meenaRate = parseFloat(localStorage.getItem('lcars_meena_rate') || '1.05');
+let meenaPitch = parseFloat(localStorage.getItem('lcars_meena_pitch') || '1.24');
+let meenaRate = parseFloat(localStorage.getItem('lcars_meena_rate') || '1.08');
 
 function setMeenaPitch(val) {
-    meenaPitch = parseFloat(val) || 1.10;
+    meenaPitch = parseFloat(val) || 1.24;
     localStorage.setItem('lcars_meena_pitch', meenaPitch);
     const label = document.getElementById('pitch-val-label');
     if (label) label.innerText = meenaPitch.toFixed(2);
 }
 
 function setMeenaRate(val) {
-    meenaRate = parseFloat(val) || 1.05;
+    meenaRate = parseFloat(val) || 1.08;
     localStorage.setItem('lcars_meena_rate', meenaRate);
     const label = document.getElementById('rate-val-label');
     if (label) label.innerText = meenaRate.toFixed(2);
