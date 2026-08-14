@@ -23,7 +23,6 @@ function unlockAudioContext() {
     }
     if (audioActive && !audioInitialized) {
         audioInitialized = true;
-        startAmbientHum();
         animateEqualizer(true);
         setTimeout(() => {
             speakComputerVoice(getMeenaTimeGreeting());
@@ -378,58 +377,13 @@ function playYellowAlertChirp() {
     speakComputerVoice("Code Yellow! Subspace sensors detecting an anomaly! Stay sharp, Sensei!");
 }
 
-// Deep 48Hz Warp Core Engine Ambient Hum
+// Ambient Hum Disabled (Clean, silent audio background)
 function startAmbientHum() {
-    if (humOsc) return;
-    try {
-        unlockAudioContext();
-
-        humOsc = audioCtx.createOscillator();
-        humHarmonicOsc = audioCtx.createOscillator();
-        humGain = audioCtx.createGain();
-        lfoOsc = audioCtx.createOscillator();
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(130, audioCtx.currentTime);
-
-        humOsc.type = 'sawtooth';
-        humOsc.frequency.setValueAtTime(48.0, audioCtx.currentTime);
-
-        humHarmonicOsc.type = 'triangle';
-        humHarmonicOsc.frequency.setValueAtTime(96.0, audioCtx.currentTime);
-
-        lfoOsc.type = 'sine';
-        lfoOsc.frequency.setValueAtTime(0.08, audioCtx.currentTime);
-
-        const lfoGain = audioCtx.createGain();
-        lfoGain.gain.setValueAtTime(20, audioCtx.currentTime);
-        lfoOsc.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        humGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
-        humGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2.0);
-
-        humOsc.connect(filter);
-        humHarmonicOsc.connect(filter);
-        filter.connect(humGain);
-        humGain.connect(audioCtx.destination);
-
-        humOsc.start();
-        humHarmonicOsc.start();
-        lfoOsc.start();
-    } catch (e) {}
+    // Disabled per user request for silent background
 }
 
 function stopAmbientHum() {
-    if (humGain) {
-        humGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 0.5);
-        setTimeout(() => {
-            if (humOsc) { humOsc.stop(); humOsc.disconnect(); humOsc = null; }
-            if (humHarmonicOsc) { humHarmonicOsc.stop(); humHarmonicOsc.disconnect(); humHarmonicOsc = null; }
-            if (lfoOsc) { lfoOsc.stop(); lfoOsc.disconnect(); lfoOsc = null; }
-        }, 500);
-    }
+    // Disabled
 }
 
 function animateEqualizer(active) {
