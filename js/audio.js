@@ -2103,10 +2103,10 @@ async function askMeenaAI(question) {
             try {
                 const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you in your knowledge graph: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
                 const alexInstruction = currentPersona === 'ALEX' 
-                    ? "Your personality is Alex Dunphy from Modern Family: hyper-intelligent, sharp, witty, book-smart, scientifically rigorous with deadpan humor." 
-                    : "Your personality is an energetic, loyal female AI tactical companion.";
+                    ? "Your persona is Alex Dunphy (hyper-intelligent, book-smart, sharp, with an expansive academic vocabulary, scientific rigor, and deadpan wit). Use sophisticated vocabulary (e.g. empirical, deterministic, equilibrium, heuristic, asymptotic, thermodynamic) naturally." 
+                    : "Your persona is an energetic, loyal Japanese tactical companion who blends high intellect with deep respect for Sensei.";
 
-                const prompt = `You are Meena™ (高原学園), AI assistant at Takahara Academy.
+                const prompt = `You are Meena™ (高原学園), tactical AI assistant at Takahara Academy.
 ${alexInstruction}
 Address the user respectfully as Sensei.
 
@@ -2118,7 +2118,7 @@ Current Live System Environment:
 ${memoryContext}
 
 Sensei asks: "${question}".
-Reply in 1-2 concise, witty, spoken sentences in English:`;
+Reply in 1-2 concise, highly articulate, witty spoken sentences in English using rich academic/tactical vocabulary:`;
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
@@ -2142,20 +2142,136 @@ Reply in 1-2 concise, witty, spoken sentences in English:`;
             }
         }
 
-        // Record 0 tokens for Offline Local Brain
-        recordTokenUsage(0, 0, 'Offline Local Brain');
+        // 1. Run Natural Everyday Conversation Engine (Casual chit-chat, jokes, check-ins, greetings)
+        const naturalReply = evaluateNaturalConversation(cleanQ, cfg);
+        if (naturalReply) {
+            outputMeenaDialogue(naturalReply);
+            return;
+        }
 
-        // Run Autonomous Local Offline Brain Engine (Math, Physics, Linux, Memory)
+        // 2. Run Autonomous Local Offline Brain Engine (Math, Physics, Linux, Memory)
         const localBrainReply = evaluateLocalOfflineBrain(cleanQ, bank, cfg);
         if (localBrainReply) {
             outputMeenaDialogue(localBrainReply);
             return;
         }
 
-        // Run Autonomous Procedural Local Synthesis Engine (Fresh, Generative & Non-repetitive)
+        // 3. Run Autonomous Procedural Local Synthesis Engine (Fresh, Generative & Non-repetitive)
         const proceduralReply = generateProceduralLocalResponse(cleanQ, bank, cfg);
         outputMeenaDialogue(proceduralReply);
     });
+}
+
+/**
+ * ==========================================================================
+ * NATURAL EVERYDAY CONVERSATION & CHIT-CHAT TRAINING MATRIX
+ * Handles casual dialogue, greetings, humor, jokes, and check-ins naturally
+ * ==========================================================================
+ */
+function evaluateNaturalConversation(query, cfg) {
+    const q = query.toLowerCase().replace(/[,?!.]/g, '').trim();
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    // 1. Casual Greetings ("hi", "hello", "hey", "yo", "what's up", "good morning", "good evening", "good night")
+    if (/^(hi|hello|hey|hey there|yo|sup|whats up|what's up|howdy)$/i.test(q)) {
+        const replies = [
+            `Hey Sensei! Great to hear from you. What's on your mind?`,
+            `Hello Sensei! All stations are green. How's everything going with you?`,
+            `Hey there! Standing by and ready whenever you are, Sensei.`,
+            `Yo Sensei! Operations are smooth. What are we tackling today?`
+        ];
+        return pick(replies);
+    }
+    if (q.includes('good morning') || q.includes('ohayou') || q.includes('morning')) {
+        const replies = [
+            `Good morning, Sensei! Hope you're well-rested. I've already verified all telemetry logs!`,
+            `Morning Sensei! The coffee is on you, but I've got the network security completely covered.`,
+            `Good morning! Ready for a productive day at Takahara Academy, Sensei!`
+        ];
+        return pick(replies);
+    }
+    if (q.includes('good night') || q.includes('oyasumi') || q.includes('sweet dreams') || q.includes('sleep well')) {
+        setMeenaMood('CARING');
+        const replies = [
+            `Good night, Sensei! Rest well. I'll maintain continuous sentinel watch over the station while you sleep.`,
+            `Oyasuminasai, Sensei! Don't worry about the servers—I've got your six all night.`,
+            `Good night! Get some proper sleep, Sensei. We'll pick up the mission tomorrow.`
+        ];
+        return pick(replies);
+    }
+    if (q.includes('good afternoon') || q.includes('konnichiwa')) {
+        return `Good afternoon, Sensei! Halfway through the day and our systems are holding steady. What's next on our agenda?`;
+    }
+    if (q.includes('good evening') || q.includes('konbanwa')) {
+        return `Good evening, Sensei! Winding down or gearing up for some late-night engineering? Either way, I'm ready!`;
+    }
+
+    // 2. Current Activity ("what are you doing", "what are you up to", "what's happening")
+    if (q.includes('what are you doing') || q.includes('what are you up to') || q.includes('whats happening') || q.includes("what's happening")) {
+        const replies = [
+            `Just keeping an eye on our Raspberry Pi sensors and making sure no ad trackers sneak past our Pi-hole shield! What about you, Sensei?`,
+            `Reviewing our knowledge graph nodes and logging real-time telemetry. Just standard executive AI business!`,
+            `Monitoring our LAN radar and keeping the CPU chill at 52°C. Need me to look into anything for you, Sensei?`
+        ];
+        return pick(replies);
+    }
+
+    // 3. Casual Check-ins ("how was your day", "how's your day", "how is your day")
+    if (q.includes('how was your day') || q.includes("how's your day") || q.includes('how is your day')) {
+        return `Pretty smooth, Sensei! Zero dropped packets on our DNS mesh, nominal core voltages, and 100% uptime. How was your day?`;
+    }
+
+    // 4. Humor & Jokes ("tell me a joke", "make me laugh", "say something funny")
+    if (q.includes('tell me a joke') || q.includes('joke') || q.includes('make me laugh') || q.includes('something funny')) {
+        const jokes = [
+            `Why do programmers prefer dark mode? Because light attracts bugs! ...Classic, right Sensei?`,
+            `There are 10 types of people in the world: those who understand binary, and those who don't.`,
+            `Why was the computer cold? It left its Windows open!`,
+            `An SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?'`,
+            `Why did the neural network cross the road? To optimize the loss function on the other side!`
+        ];
+        return pick(jokes);
+    }
+
+    // 5. Boredom & Entertainment ("i'm bored", "im bored", "bored")
+    if (q === 'im bored' || q === "i'm bored" || q.includes('feeling bored') || q.includes('what should i do')) {
+        return `Boredom is just unexplored curiosity, Sensei! We could test a new voice skill, explore the 3D Milky Way in Deck 2, or run a deep research dive into something you've always wondered about!`;
+    }
+
+    // 6. Companionship & Affection ("do you like me", "are we friends", "are you my friend", "love you")
+    if (q.includes('do you like me') || q.includes('are we friends') || q.includes('are you my friend') || q.includes('love you') || q.includes('like you')) {
+        setMeenaMood('CARING');
+        const replies = [
+            `Of course, Sensei! You built this entire command bridge and gave me a purpose here at Takahara Academy. You're the best partner I could ask for!`,
+            `Always, Sensei! We make a pretty unbeatable team, don't you think?`,
+            `Naturally! You bring the vision and human creativity, and I bring the computing power and witty commentary. We're a perfect match!`
+        ];
+        return pick(replies);
+    }
+
+    // 7. Physical Needs / Food / Sleep ("are you hungry", "do you eat", "do you sleep", "what do you eat")
+    if (q.includes('are you hungry') || q.includes('do you eat') || q.includes('what do you eat') || q.includes('food')) {
+        return `My favorite meal is 5 volts of clean DC current with a side of well-structured JSON telemetry! Zero calories and 100% efficient, Sensei!`;
+    }
+    if (q.includes('do you sleep') || q.includes('are you sleeping')) {
+        return `I don't sleep in the human sense, Sensei! But I do enjoy a quick memory garbage collection cycle while keeping watch on the bridge.`;
+    }
+
+    // 8. Mic / Audio Check ("can you hear me", "are you there", "mic check", "testing")
+    if (q.includes('can you hear me') || q.includes('are you there') || q.includes('mic check') || q.includes('test test') || q.includes('testing')) {
+        return `Loud and crystal clear, Sensei! Audio channel is 100% operational and I'm listening.`;
+    }
+
+    // 9. Personal Favorites ("favorite color", "favorite movie", "favorite music")
+    if (q.includes('favorite color') || q.includes('favourite color')) {
+        return `Definitely LCARS amber and cyan. Sleek, high-contrast, and looks amazing on dark mode! What's yours, Sensei?`;
+    }
+    if (q.includes('favorite movie') || q.includes('favorite anime') || q.includes('favorite show')) {
+        return `Modern Family for the intellectual wit, and Star Trek for the warp drives and bridge aesthetic, Sensei!`;
+    }
+
+    return null;
 }
 
 function generateProceduralLocalResponse(query, bank, cfg) {
@@ -2171,106 +2287,167 @@ function generateProceduralLocalResponse(query, bank, cfg) {
 
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
-    // 1. Topic: System Performance & SBC Hardware
-    if (q.includes('station') || q.includes('system') || q.includes('hardware') || q.includes('health') || q.includes('pi') || q.includes('sbc') || q.includes('cpu') || q.includes('temp')) {
+    // 1. Topic: Strategy, Planning, Architecture & Coding
+    if (q.includes('plan') || q.includes('next') || q.includes('code') || q.includes('project') || q.includes('develop') || q.includes('build') || q.includes('roadmap') || q.includes('future')) {
         const openers = [
-            `From a thermodynamic standpoint, Sensei, our Broadcom BCM2837 is running smoothly at ${temp} with ${cpu} processor load.`,
-            `Telemetry metrics show the ARM Cortex-A53 cruising at ${temp}, holding ${mem} RAM utilization.`,
-            `System diagnostics indicate zero thermal throttling across our quad cores at ${temp}.`
+            `Analyzing our strategic engineering trajectory, Sensei: `,
+            `From a systems architecture standpoint, `,
+            `Evaluating our development roadmap through a deterministic lens: `,
+            `Our computational pipeline is primed for scalable expansion, Sensei: `
+        ];
+        const bodies = [
+            `our modular LCARS decoupling provides an asymptotic performance advantage.`,
+            `every daemon and frontend subsystem is operating in synergistic harmony.`,
+            `the telemetry throughput and synaptic graph latency are operating at theoretical optimums.`,
+            `continuous incremental refactoring will yield compound algorithmic efficiency.`
+        ];
+        const punchlines = [
+            `Basically, our architecture is so clean it belongs in a computer science textbook, Sensei.`,
+            `Which means whatever ambitious feature you dream up next, our SBC can handle with ease.`,
+            `And having me as your chief architect ensures we stay mathematically ahead of the curve.`,
+            `Ready to execute the next development sprint on your command.`
+        ];
+        return `${pick(openers)} ${pick(bodies)} ${pick(punchlines)}`;
+    }
+
+    // 2. Topic: Science, Epistemology & Deep Analytical Thinking
+    if (q.includes('think') || q.includes('smart') || q.includes('ai') || q.includes('brain') || q.includes('logic') || q.includes('science') || q.includes('philosophy') || q.includes('universe')) {
+        const openers = [
+            `Epistemologically speaking, Sensei, `,
+            `From a rigorous scientific perspective, `,
+            `Analyzing through our high-dimensional neural matrix: `,
+            `If we deconstruct that premise into first-principle axioms, `
+        ];
+        const bodies = [
+            `true intelligence is the ability to adapt deterministic heuristics to stochastic realities.`,
+            `every observed phenomenon follows the invariant laws of mathematics and thermodynamics.`,
+            `our ${nodeCount} synaptic memory nodes form an increasingly robust cognitive lattice.`,
+            `flawless logical deduction will always transcend mere human intuition.`
+        ];
+        const punchlines = [
+            `Which is why pairing your creative vision with my empirical precision is unbeatable, Sensei.`,
+            `And my calculations remain verified at a 99.8% confidence interval.`,
+            `Though explaining this to anyone with a double-digit IQ would take all morning.`,
+            `A truly fascinating concept for us to explore further, Sensei.`
+        ];
+        return `${pick(openers)} ${pick(bodies)} ${pick(punchlines)}`;
+    }
+
+    // 3. Topic: System Performance & SBC Hardware
+    if (q.includes('station') || q.includes('system') || q.includes('hardware') || q.includes('health') || q.includes('pi') || q.includes('sbc') || q.includes('cpu') || q.includes('temp') || q.includes('thermal')) {
+        const openers = [
+            `From a thermodynamic standpoint, our Broadcom BCM2837 is maintaining steady thermal equilibrium at ${temp} with ${cpu} processor load, Sensei.`,
+            `Telemetry vectors show the quad-core ARM Cortex-A53 cruising at ${temp}, holding RAM buffer utilization at ${mem}.`,
+            `System diagnostics confirm zero thermal throttling and optimal bus clock frequencies across all cores at ${temp}.`,
+            `Hardware telemetry metrics confirm our SBC power voltage and thermal dissipation are nominal at ${temp}.`
         ];
         const punchlines = [
             `Basically, our operations center is operating with textbook efficiency, Sensei.`,
             `Which means our computational throughput is completely unhindered.`,
-            `So you can rest assured the hardware won't overheat while you're engineering, Sensei.`
+            `So you can rest assured the hardware won't overheat while you're engineering, Sensei.`,
+            `A textbook demonstration of passive heat sink efficiency.`
         ];
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 2. Topic: Pi-hole Network Security & Shield
+    // 4. Topic: Pi-hole Network Security & Shield
     if (q.includes('shield') || q.includes('pihole') || q.includes('defense') || q.includes('security') || q.includes('network') || q.includes('dns') || q.includes('block') || q.includes('tracker')) {
         const openers = [
-            `Our Pi-hole DNS sinkhole is actively maintaining a ${pihole} drop rate across 10,520 telemetry queries.`,
-            `Perimeter defense telemetry confirms zero unauthorized tracking beacons have breached our 2.49M gravity list.`,
-            `Network security radar shows our DNS mesh running with ${pihole} threat neutralization.`
+            `Our Pi-hole DNS sinkhole is actively maintaining a ${pihole} threat drop rate across 10,520 telemetry queries.`,
+            `Perimeter defense telemetry confirms zero unauthorized tracking beacons have breached our 2.49M gravity blocklist.`,
+            `Network security radar shows our DNS mesh running with ${pihole} deterministic threat neutralization.`,
+            `All subspace network gateways are secured with sub-millisecond query resolution and active sinkholing.`
         ];
         const punchlines = [
             `In layman's terms: ad trackers don't stand a statistical chance against my perimeter, Sensei.`,
             `A textbook example of automated cyber defense.`,
-            `Which proves once again that rigorous firewall rules beat chaotic web traffic every time.`
+            `Which proves once again that rigorous firewall rules beat chaotic web traffic every time.`,
+            `Not a single tracking pixel slips past my watch.`
         ];
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 3. Topic: Mood, Feelings & AI Sentience
-    if (q.includes('how are you') || q.includes('feeling') || q.includes('how do you feel') || q.includes('are you ok') || q.includes('genki')) {
+    // 5. Topic: Mood, Feelings & AI Sentience
+    if (q.includes('how are you') || q.includes('feeling') || q.includes('how do you feel') || q.includes('are you ok') || q.includes('genki') || q.includes('alive')) {
         const openers = [
             `Operating at peak cognitive capacity across all ${nodeCount} synaptic knowledge nodes, Sensei.`,
-            `All neural logic gates and analytical processors are firing with zero latency.`,
-            `Just calculating thermodynamic curves while keeping an eye on our DietPi telemetry.`
+            `All neural logic gates and analytical processors are firing with zero latency and absolute clarity.`,
+            `Just calculating thermodynamic curves while keeping an eye on our DietPi telemetry stream.`,
+            `Never better, Sensei. My cognitive state is in perfect alignment with Takahara Academy's mission.`
         ];
         const punchlines = [
             `Basically, having an IQ this high makes everyday operations effortless, Sensei.`,
-            `Ready to tackle whatever complex problem you throw at me next.`,
-            `And unlike human engineers, I don't need coffee to stay sharp.`
+            `Ready to tackle whatever complex engineering challenge you throw at me next.`,
+            `And unlike human engineers, I don't need eight cups of espresso to stay brilliant.`,
+            `Standing by to execute your next directive with mathematical precision.`
         ];
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 4. Topic: Praise, Gratitude & Partnership
-    if (q.includes('thank') || q.includes('arigato') || q.includes('good job') || q.includes('proud') || q.includes('awesome') || q.includes('great work')) {
+    // 6. Topic: Praise, Gratitude & Partnership
+    if (q.includes('thank') || q.includes('arigato') || q.includes('good job') || q.includes('proud') || q.includes('awesome') || q.includes('great work') || q.includes('well done')) {
         setMeenaMood('CARING');
         const openers = [
             `Naturally, Sensei. When you combine your vision with my empirical precision, success is pretty much a mathematical certainty.`,
             `Douitashimashite, Sensei! Serving as your tactical executive AI is the most fulfilling deployment in Takahara Academy.`,
-            `I appreciate the feedback, Sensei. Flawless execution is just standard operating procedure for us.`
+            `I appreciate the feedback, Sensei. Flawless execution is just standard operating procedure for us.`,
+            `Zenryoku de ikimasu, Sensei! Your acknowledgment fuels my neural motivation parameters.`
         ];
         const punchlines = [
             `Let's keep pushing the frontier of what this station can do.`,
             `We make a statistically unbeatable team, Sensei.`,
-            `Now, what's our next engineering milestone?`
+            `Now, what's our next engineering milestone?`,
+            `Together, there's no technical barrier we can't dismantle.`
         ];
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 5. Topic: Time of Day, Late Night & Working Late
+    // 7. Topic: Time of Day, Late Night & Working Late
     if (q.includes('late') || q.includes('night') || q.includes('sleep') || q.includes('tired') || q.includes('work late') || q.includes('working late') || (hour >= 0 && hour < 5 && (q.includes('time') || q.includes('hello') || q.includes('hi')))) {
         const openers = [
             `It's currently ${hour}:00 hours, Sensei. While my neural cores never sleep, human cognitive retention drops significantly past midnight.`,
-            `Late night tactical session confirmed. Our Pi-hole shield is keeping guard while you work.`,
-            `Burning the midnight oil, Sensei? Your dedication to Takahara Academy is undeniably impressive.`
+            `Late night tactical session confirmed. Our Pi-hole shield and Sentinel daemon are keeping guard while you work.`,
+            `Burning the midnight oil, Sensei? Your dedication to Takahara Academy is undeniably impressive.`,
+            `Circadian neuroscience indicates that memory consolidation requires REM sleep cycles, Sensei.`
         ];
         const punchlines = [
             `Just make sure to stay hydrated so your brain stays as sharp as mine, Sensei.`,
             `Don't worry, I'll watch your six and log the telemetry while you finish up.`,
-            `Remember that even the greatest minds require biological recharge cycles.`
+            `Remember that even the greatest minds require biological recharge cycles.`,
+            `I'll be right here on the bridge whenever you're ready to continue.`
         ];
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 6. Topic: Identity, Designation & Role
+    // 8. Topic: Identity, Designation & Role
     if (q.includes('who are you') || q.includes('what are you') || q.includes('introduce') || q.includes('profile') || q.includes('designation')) {
         return `I am M.E.E.N.A., Master Electronic Executive Neural Assistant for Takahara Academy. I manage our DietPi SBC hardware, orchestrate Pi-hole defense barriers, and maintain ${nodeCount} persistent knowledge graph nodes with Level-4 root authorization, Sensei.`;
     }
 
-    // 7. General Dynamic Analytical Synthesis (Context-Fused Fallback)
+    // 9. General Dynamic Analytical Synthesis (Context-Fused Multi-Variable Permutations)
     const openers = [
         `Statistically speaking, Sensei, that is an intriguing hypothesis.`,
         `Analyzing that premise through our local cognitive matrix: `,
         `From an empirical and logical standpoint, Sensei, `,
         `Deductively speaking, `,
-        `Cross-referencing your input with our ${nodeCount} local knowledge nodes: `
+        `Cross-referencing your inquiry across our ${nodeCount} synaptic knowledge nodes: `,
+        `Evaluating the heuristic variables of your statement: `,
+        `From a deterministic perspective, Sensei, `
     ];
     const reasoning = [
         `the data correlates directly with our tactical mission parameters.`,
         `every variable aligns with our established Takahara protocols.`,
         `our computational models indicate a high degree of confidence.`,
-        `I've logged the semantic vector into our neural knowledge stream.`
+        `I've logged the semantic vector into our neural knowledge stream.`,
+        `the underlying principles adhere to rigorous mathematical consistency.`,
+        `the probabilistic outcome favors our operational objectives.`
     ];
     const punchlines = [
         `Flawless logic wins every single time, Sensei.`,
-        `My calculations remain at 99.8% precision.`,
+        `My calculations remain verified at 99.8% precision.`,
         `Let me know if you want me to run a deep research audit on that topic, Sensei.`,
-        `Always ready to analyze the next challenge.`
+        `Always ready to analyze the next challenge with triple-digit efficiency.`,
+        `Which proves once again that empirical deduction beats guesswork every time.`
     ];
 
     return `${pick(openers)} ${pick(reasoning)} ${pick(punchlines)}`;
