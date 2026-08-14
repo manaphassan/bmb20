@@ -727,7 +727,10 @@ function handleVoiceCommand(rawCmd) {
         } else {
             speakComputerVoice("All systems nominal, Sensei.");
         }
-    } else if (cmd.includes('hardware') || cmd.includes('clock') || cmd.includes('undervoltage') || cmd.includes('voltage') || cmd.includes('throttle')) {
+    } else if (cmd.includes('time') || cmd.includes('date') || cmd.includes('today') || cmd.includes('day is it') || cmd.includes('what time') || cmd.includes('stardate') || cmd.includes('current time')) {
+        addMeenaEXP(10, 'Time & Chrono check');
+        speakVerbalTimeReport();
+    } else if (cmd.includes('hardware') || cmd.includes('cpu clock') || cmd.includes('undervoltage') || cmd.includes('voltage') || cmd.includes('throttle')) {
         addMeenaEXP(20, 'Hardware diagnostics');
         speakVerbalHardwareReport();
     } else if (cmd.includes('briefing') || cmd.includes('morning report') || cmd.includes('daily briefing')) {
@@ -1962,6 +1965,23 @@ function speakVerbalWeatherReport() {
     speakComputerVoice(`Atmospheric report for Terra base, Sensei! Current temperature is ${temp} degrees Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Perfect weather for our mission!`);
 }
 
+function speakVerbalTimeReport() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    let reply = "";
+    if (currentPersona === 'ALEX') {
+        reply = `According to our NTP-synchronized atomic chronometer, the exact local time is ${timeStr} on ${dateStr}. Time is relative, Sensei, but your deadlines probably aren't.`;
+    } else if (currentPersona === 'TACTICAL') {
+        reply = `Chronometer sync verified. Current tactical time is ${timeStr} hours, date ${dateStr}.`;
+    } else {
+        reply = `The current time is ${timeStr} on ${dateStr}, Sensei!`;
+    }
+
+    speakComputerVoice(reply);
+}
+
 async function speakVerbalHardwareReport() {
     try {
         const res = await fetch('api.php?action=hardware_diag');
@@ -2060,6 +2080,7 @@ window.playTransporterChime = playTransporterChime;
 window.speakComputerVoice = speakComputerVoice;
 window.speakVerbalStatusReport = speakVerbalStatusReport;
 window.speakVerbalWeatherReport = speakVerbalWeatherReport;
+window.speakVerbalTimeReport = speakVerbalTimeReport;
 window.speakVerbalHardwareReport = speakVerbalHardwareReport;
 window.setMeenaVoiceByName = setMeenaVoiceByName;
 window.testMeenaVoice = testMeenaVoice;
