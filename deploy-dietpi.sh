@@ -16,11 +16,17 @@ echo "[+] Target Web Directory: ${TARGET_DIR}"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# 1. Deploy Frontend Assets
+# 1. Deploy Frontend Assets & API Backend
 if [ -f "${SCRIPT_DIR}/index.html" ]; then
     echo "[+] Deploying index.html..."
     cp -fv "${SCRIPT_DIR}/index.html" "${TARGET_DIR}/index.html"
     cp -fv "${SCRIPT_DIR}/index.html" "/var/www/index.html" 2>/dev/null || true
+fi
+
+if [ -f "${SCRIPT_DIR}/api.php" ]; then
+    echo "[+] Deploying api.php backend..."
+    cp -fv "${SCRIPT_DIR}/api.php" "${TARGET_DIR}/api.php"
+    cp -fv "${SCRIPT_DIR}/api.php" "/var/www/api.php" 2>/dev/null || true
 fi
 
 if [ -d "${SCRIPT_DIR}/css" ]; then
@@ -35,6 +41,12 @@ if [ -d "${SCRIPT_DIR}/js" ]; then
     mkdir -p "${TARGET_DIR}/js" "/var/www/js"
     cp -rfv "${SCRIPT_DIR}/js/"* "${TARGET_DIR}/js/"
     cp -rfv "${SCRIPT_DIR}/js/"* "/var/www/js/" 2>/dev/null || true
+fi
+
+# Configure sudoers for www-data to manage Pi-hole and daemon actions without password
+if [ -d "/etc/sudoers.d" ]; then
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee" > /etc/sudoers.d/dietpi-bmb20
+    chmod 0440 /etc/sudoers.d/dietpi-bmb20
 fi
 
 # 2. Deploy Background Telemetry Daemon

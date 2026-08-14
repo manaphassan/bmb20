@@ -55,6 +55,7 @@ Invoke-SSH "mkdir -p ${RemoteStaging}/css ${RemoteStaging}/js ${RemoteStaging}/d
 # 2. Upload files to /tmp staging directory
 Write-Host "[2/4] Uploading core files, CSS, JS, and daemon modules..." -ForegroundColor Yellow
 Send-SSHFile "$LocalDir\index.html" "${RemoteStaging}/index.html"
+Send-SSHFile "$LocalDir\api.php" "${RemoteStaging}/api.php"
 Send-SSHFile "$LocalDir\deploy-dietpi.sh" "${RemoteStaging}/deploy-dietpi.sh"
 Send-SSHFile "$LocalDir\css\style.css" "${RemoteStaging}/css/style.css"
 Send-SSHFile "$LocalDir\js\config.js" "${RemoteStaging}/js/config.js"

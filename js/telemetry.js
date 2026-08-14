@@ -512,15 +512,107 @@ async function executeSubsystemAction(action) {
         if (res.ok) {
             const data = await res.json();
             if (out) out.innerText = `> STATUS: SUCCESS\n> RESULT: ${data.result || 'OPERATION COMPLETED'}`;
-            if (window.speakComputerVoice) window.speakComputerVoice("Subsystem operation confirmed, sir.");
+            if (window.speakComputerVoice) window.speakComputerVoice("Subsystem operation confirmed, Sensei!");
         }
     } catch (e) {
         if (out) out.innerText = `> STATUS: OK\n> COMMAND EXECUTED LOCALLY`;
     }
 }
 
+/**
+ * ==========================================================================
+ * PI-HOLE DEFENSE SHIELD TACTICAL ACTION ENGINE
+ * ==========================================================================
+ */
+let piholeDisabledUntil = 0;
+let piholeTimerInterval = null;
+
+function openPiholeModal() {
+    const modal = document.getElementById('pihole-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if (window.playSound) window.playSound('beep2');
+}
+
+function closePiholeModal() {
+    const modal = document.getElementById('pihole-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    if (window.playSound) window.playSound('beep1');
+}
+
+async function executePiholeAction(action, duration = 300) {
+    const out = document.getElementById('pihole-modal-out');
+    if (out) out.innerText = `> DISPATCHING ${action.toUpperCase()} TO PI-HOLE CORE...`;
+    if (window.playSound) window.playSound('beep2');
+
+    try {
+        const url = `api.php?action=${encodeURIComponent(action)}` + (duration ? `&duration=${duration}` : '');
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            if (out) out.innerText = `> STATUS: SUCCESS\n> RESULT: ${data.result || 'CONFIRMED'}`;
+            
+            if (action === 'pihole_disable') {
+                piholeDisabledUntil = Date.now() + (duration * 1000);
+                startPiholeCountdownTimer();
+                if (window.speakComputerVoice) window.speakComputerVoice(`Pi-hole defense shield disabled for ${Math.round(duration/60)} minutes, Sensei!`);
+            } else if (action === 'pihole_enable') {
+                piholeDisabledUntil = 0;
+                stopPiholeCountdownTimer();
+                if (window.speakComputerVoice) window.speakComputerVoice("Pi-hole defense shield re-enabled and fully active, Sensei!");
+            } else if (action === 'pihole_update_gravity') {
+                if (window.speakComputerVoice) window.speakComputerVoice("Updating Pi-hole gravity blocklists now, Sensei!");
+            }
+        }
+    } catch (e) {
+        if (out) out.innerText = `> ACTION DISPATCHED TO HOST`;
+    }
+}
+
+function startPiholeCountdownTimer() {
+    if (piholeTimerInterval) clearInterval(piholeTimerInterval);
+    const led = document.getElementById('header-pihole-led');
+    const badge = document.getElementById('header-pihole-pct');
+
+    if (led) {
+        led.className = 'w-2 h-2 rounded-full bg-error animate-ping shadow-[0_0_6px_#ff5449]';
+    }
+
+    piholeTimerInterval = setInterval(() => {
+        const rem = Math.max(0, Math.floor((piholeDisabledUntil - Date.now()) / 1000));
+        if (rem <= 0) {
+            stopPiholeCountdownTimer();
+            if (badge) badge.innerText = 'ACTIVE';
+            if (led) led.className = 'w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_#66ccff]';
+            if (window.speakComputerVoice) window.speakComputerVoice("Pi-hole defense shield auto-rearmed, Sensei!");
+        } else {
+            const m = String(Math.floor(rem / 60)).padStart(2, '0');
+            const s = String(rem % 60).padStart(2, '0');
+            if (badge) badge.innerText = `PAUSED (${m}:${s})`;
+        }
+    }, 1000);
+}
+
+function stopPiholeCountdownTimer() {
+    if (piholeTimerInterval) {
+        clearInterval(piholeTimerInterval);
+        piholeTimerInterval = null;
+    }
+    const led = document.getElementById('header-pihole-led');
+    const badge = document.getElementById('header-pihole-pct');
+    if (badge) badge.innerText = 'ACTIVE';
+    if (led) led.className = 'w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_#66ccff]';
+}
+
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeNodeModal();
+    if (e.key === 'Escape') {
+        closeNodeModal();
+        closePiholeModal();
+    }
 });
 
 function setTelemetryActive(active) {
@@ -537,3 +629,6 @@ window.openNodeModal = openNodeModal;
 window.closeNodeModal = closeNodeModal;
 window.executePing = executePing;
 window.executeSubsystemAction = executeSubsystemAction;
+window.openPiholeModal = openPiholeModal;
+window.closePiholeModal = closePiholeModal;
+window.executePiholeAction = executePiholeAction;

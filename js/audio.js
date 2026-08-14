@@ -644,6 +644,12 @@ function handleVoiceCommand(rawCmd) {
         if (window.switchHologramView) window.switchHologramView('solar');
     } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
         if (window.switchHologramView) window.switchHologramView('galaxy');
+    } else if (cmd.includes('disable pi') || cmd.includes('pause pi') || cmd.includes('disable shield') || cmd.includes('pause shield') || cmd.includes('stop pihole')) {
+        if (window.executePiholeAction) window.executePiholeAction('pihole_disable', 300);
+    } else if (cmd.includes('enable pi') || cmd.includes('resume pi') || cmd.includes('enable shield') || cmd.includes('shield on') || cmd.includes('start pihole')) {
+        if (window.executePiholeAction) window.executePiholeAction('pihole_enable');
+    } else if (cmd.includes('update gravity') || cmd.includes('update blocklist') || cmd.includes('reload gravity')) {
+        if (window.executePiholeAction) window.executePiholeAction('pihole_update_gravity');
     } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
         speakVerbalWeatherReport();
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {

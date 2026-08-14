@@ -161,6 +161,19 @@ if ($action) {
             $resp['status'] = 'error';
             $resp['result'] = 'INVALID IP FORMAT';
         }
+    } elseif ($action === 'pihole_disable') {
+        $dur = intval($_REQUEST['duration'] ?? 300);
+        if ($dur <= 0) $dur = 300;
+        $mins = round($dur / 60);
+        @shell_exec("sudo pihole disable {$dur}s 2>/dev/null || true");
+        $resp['duration'] = $dur;
+        $resp['result'] = "PI-HOLE DEFENSE SHIELD DISABLED FOR {$mins} MIN ({$dur}s)";
+    } elseif ($action === 'pihole_enable') {
+        @shell_exec("sudo pihole enable 2>/dev/null || true");
+        $resp['result'] = "PI-HOLE DEFENSE SHIELD RE-ENABLED [ACTIVE]";
+    } elseif ($action === 'pihole_update_gravity') {
+        @shell_exec("sudo pihole -g >/dev/null 2>&1 &");
+        $resp['result'] = "PI-HOLE GRAVITY BLOCKLIST UPDATE INITIATED";
     } elseif ($action === 'flush_dns') {
         @shell_exec('sudo pihole restartdns 2>/dev/null || true');
         $resp['result'] = 'DNS RESOLVER CACHE FLUSHED';
