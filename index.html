@@ -1932,6 +1932,33 @@ function initEarth() {
     createDotMatrixPlanet('Uranus',  0x26c6da, 0.20, 9.0, 0.0028, 19.201,6.81,  'ICE GIANT',   '+5.7', '♅');
     createDotMatrixPlanet('Neptune', 0x42a5f5, 0.19, 10.6, 0.002, 30.047,5.43,  'ICE GIANT',   '+7.8', '♆');
 
+    // 🌌 Solar System Scope-Style 3D Particle Asteroid Belt (Between Mars & Jupiter)
+    const asteroidDots = 1600;
+    const astGeo = new THREE.BufferGeometry();
+    const astPos = new Float32Array(asteroidDots * 3);
+    const astCols = new Float32Array(asteroidDots * 3);
+
+    for (let i = 0; i < asteroidDots; i++) {
+        const r = 4.8 + (Math.random() - 0.5) * 0.7; // Belt radius between Mars (4.4) and Jupiter (5.8)
+        const a = Math.random() * Math.PI * 2;
+        astPos[i * 3] = r * Math.cos(a);
+        astPos[i * 3 + 1] = (Math.random() - 0.5) * 0.15; // Vertical scatter
+        astPos[i * 3 + 2] = r * Math.sin(a);
+
+        // Rocky grey/amber dot-matrix color
+        const c = 0.45 + Math.random() * 0.4;
+        astCols[i * 3] = c * 0.9;
+        astCols[i * 3 + 1] = c * 0.8;
+        astCols[i * 3 + 2] = c * 0.7;
+    }
+
+    astGeo.setAttribute('position', new THREE.BufferAttribute(astPos, 3));
+    astGeo.setAttribute('color', new THREE.BufferAttribute(astCols, 3));
+    const astMat = new THREE.PointsMaterial({ size: 0.024, vertexColors: true, transparent: true, opacity: 0.8 });
+    const asteroidBeltPoints = new THREE.Points(astGeo, astMat);
+    solarSystemGroup.add(asteroidBeltPoints);
+    window.asteroidBeltPoints = asteroidBeltPoints;
+
     // Orbiting Dot-Matrix Moon around Earth
     const moonDots = 250;
     const mGeo = new THREE.BufferGeometry();
@@ -2415,6 +2442,11 @@ function initEarth() {
             });
         }
 
+        // Rotate Solar System Scope 3D Particle Asteroid Belt
+        if (window.asteroidBeltPoints) {
+            window.asteroidBeltPoints.rotation.y += 0.0008;
+        }
+
         // Orbit Moon around Earth
         if (window.moonMesh) {
             window.moonAngle += 0.03;
@@ -2467,13 +2499,13 @@ function openGlobeModal() {
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
 
-    // DEFAULT TOP VIEW: Position camera high enough (Y = 26.0) to frame ALL 8 planets from Mercury (1.4 AU) to Neptune (10.6 AU)
+    // SOLAR SYSTEM SCOPE 3D PERSPECTIVE MODE: Tilted 3D Orbit View looking over ecliptic plane
     if (camera) {
-        camera.position.set(0, 26.0, 0.01);
+        camera.position.set(0, 18.0, 20.0);
         camera.lookAt(0, 0, 0);
     }
-    window.targetCamY = 26.0;
-    window.targetCamZ = 0.01;
+    window.targetCamY = 18.0;
+    window.targetCamZ = 20.0;
 
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
