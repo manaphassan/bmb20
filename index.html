@@ -513,21 +513,36 @@ body {
             </div>
         </div>
 
-        <!-- Row 2: Tailscale Mesh Status (1 Col) -->
-        <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-l-4 border-primary rounded-sm h-full">
-            <div class="font-label-caps text-label-caps text-primary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs">Tailscale Mesh Status</div>
-            <div class="bg-surface p-3 border border-secondary flex-1 flex flex-col justify-around shadow-sm rounded-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-on-surface text-sm font-bold">BMB20-DIETPI-NODE</span>
-                    <div class="flex items-center gap-1.5">
-                        <span class="font-data-mono text-xs text-primary font-bold">CONNECTED</span>
-                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#c2c1ff]"></div>
-                    </div>
+        <!-- Row 2: Morse Code Subspace Transmitter (1 Col) -->
+        <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-l-4 border-tertiary rounded-sm h-full">
+            <div class="font-label-caps text-tertiary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs flex justify-between items-center">
+                <span>Morse Transmitter</span>
+                <span class="text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm" id="morse-status">READY</span>
+            </div>
+            <div class="bg-surface p-2 border border-secondary/60 flex-1 flex flex-col justify-between shadow-sm rounded-sm gap-1.5">
+                <div class="flex items-center gap-1.5">
+                    <input type="text" id="morse-input" placeholder="Type message (e.g. SOS / BMB20)..." 
+                           class="flex-1 bg-surface-container-lowest text-primary font-data-mono text-xs px-2 py-1 border border-outline-variant focus:outline-none focus:border-tertiary rounded-sm uppercase tracking-wider"
+                           onkeydown="if(e.key==='Enter') transmitMorseMessage()">
+                    <button onclick="transmitMorseMessage()" 
+                            class="bg-tertiary text-on-tertiary font-label-caps text-[10px] px-2.5 py-1 font-bold rounded-sm hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">send</span>
+                        <span>SEND</span>
+                    </button>
                 </div>
-                <div class="flex flex-col font-data-mono text-data-mono mt-1 gap-0.5">
-                    <span class="text-tertiary text-xs font-bold">IP: 100.85.42.12</span>
-                    <span class="text-on-surface-variant text-[10px]">INTERFACE: tailscale0 [ACTIVE]</span>
-                    <span class="text-secondary text-[10px]">ENCRYPTION: WireGuard AES</span>
+                <div class="bg-surface-container-lowest p-1.5 border border-outline-variant/30 rounded-sm font-data-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
+                    <div class="flex justify-between text-on-surface-variant text-[9px]">
+                        <span>SIGNAL ENCODING:</span>
+                        <span class="text-tertiary font-bold" id="morse-code-output">...---...</span>
+                    </div>
+                    <div class="text-primary font-bold truncate text-xs" id="morse-live-text">&gt; ENTER SIGNAL MESSAGE ABOVE</div>
+                </div>
+                <div class="flex items-center justify-between text-[9px] font-data-mono text-secondary pt-0.5 border-t border-outline-variant/20">
+                    <span>AUDIO KEYER: CW 750Hz</span>
+                    <div class="flex items-center gap-1">
+                        <span>TX PULSE</span>
+                        <div class="w-2.5 h-2.5 rounded-full bg-surface-variant" id="morse-tx-led"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1294,13 +1309,128 @@ function stopAmbientHum() {
     }
 }
 
+// Morse Code Dictionary & Transmission Engine
+const MORSE_MAP = {
+    'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',   'E': '.',     'F': '..-.',
+    'G': '--.',   'H': '....',  'I': '..',    'J': '.---',  'K': '-.-',   'L': '.-..',
+    'M': '--',    'N': '-.',    'O': '---',   'P': '.--.',  'Q': '--.-',  'R': '.-.',
+    'S': '...',   'T': '-',     'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',
+    'Y': '-.--',  'Z': '--..',  '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+    '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+    ' ': ' '
+};
+
+let isMorseTransmitting = false;
+
+function textToMorse(text) {
+    return text.toUpperCase().split('').map(char => MORSE_MAP[char] || '').join(' ');
+}
+
+function playMorseBeep(durationMs) {
+    return new Promise((resolve) => {
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(750, audioCtx.currentTime); // 750Hz Standard CW Tone
+
+            gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.005);
+            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000) - 0.005);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            // Light up TX LED
+            const led = document.getElementById('morse-tx-led');
+            if (led) led.className = 'w-2.5 h-2.5 rounded-full bg-tertiary shadow-[0_0_8px_#ffe253] animate-pulse';
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + (durationMs / 1000));
+
+            setTimeout(() => {
+                if (led) led.className = 'w-2.5 h-2.5 rounded-full bg-surface-variant';
+                resolve();
+            }, durationMs);
+        } catch (e) {
+            resolve();
+        }
+    });
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function transmitMorseMessage() {
+    if (isMorseTransmitting) return;
+    const inputElem = document.getElementById('morse-input');
+    const statusElem = document.getElementById('morse-status');
+    const codeElem = document.getElementById('morse-code-output');
+    const liveElem = document.getElementById('morse-live-text');
+
+    let text = inputElem ? inputElem.value.trim() : '';
+    if (!text) text = 'BMB20 DIETPI';
+
+    const morse = textToMorse(text);
+    isMorseTransmitting = true;
+
+    if (statusElem) { statusElem.innerText = 'TRANSMITTING'; statusElem.className = 'text-[9px] text-tertiary bg-surface-container px-1.5 py-0.5 border border-tertiary/40 rounded-sm font-bold animate-pulse'; }
+    if (codeElem) codeElem.innerText = morse;
+    if (liveElem) liveElem.innerText = `> ${text.toUpperCase()}`;
+
+    const unit = 70; // 70ms Dot Unit
+
+    for (let char of morse) {
+        if (!isMorseTransmitting) break;
+        if (char === '.') {
+            await playMorseBeep(unit);
+            await sleep(unit);
+        } else if (char === '-') {
+            await playMorseBeep(unit * 3);
+            await sleep(unit);
+        } else if (char === ' ') {
+            await sleep(unit * 3);
+        }
+    }
+
+    isMorseTransmitting = false;
+    if (statusElem) { statusElem.innerText = 'SENT [OK]'; statusElem.className = 'text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm font-bold'; }
+    setTimeout(() => {
+        if (statusElem && !isMorseTransmitting) { statusElem.innerText = 'READY'; }
+    }, 3000);
+}
+
 function startAmbientPings() {
     if (ambientPingInterval) clearInterval(ambientPingInterval);
     ambientPingInterval = setInterval(() => {
-        if (audioActive && isTabVisible && !ecoMode) {
-            playSound('bridge_chirp');
+        if (audioActive && isTabVisible && !ecoMode && !isMorseTransmitting) {
+            // Play background telemetry Morse code pulse ("DIETPI")
+            const morseSignals = [
+                "-.. .. . - .--. ..", // DIETPI
+                "... --- ...",          // SOS
+                "-... -- -... ...-- ......", // BMB20
+                "-.-. --- -- -- .- -. -.." // COMMAND
+            ];
+            const chosenStr = morseSignals[Math.floor(Math.random() * morseSignals.length)];
+            const unit = 60;
+            let timeOffset = 0;
+
+            for (let symbol of chosenStr) {
+                if (symbol === '.') {
+                    setTimeout(() => playMorseBeep(unit), timeOffset);
+                    timeOffset += unit + unit;
+                } else if (symbol === '-') {
+                    setTimeout(() => playMorseBeep(unit * 3), timeOffset);
+                    timeOffset += (unit * 3) + unit;
+                } else if (symbol === ' ') {
+                    timeOffset += unit * 2;
+                }
+            }
         }
-    }, 5500);
+    }, 9000);
 }
 
 function stopAmbientPings() {
