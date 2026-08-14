@@ -63,6 +63,44 @@ function get_uptime_formatted() {
     return "ONLINE";
 }
 
+function get_geoip_info() {
+    $cache_file = '/tmp/geoip_cache.json';
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 3600) {
+        $cached = @file_get_contents($cache_file);
+        if ($cached) {
+            $data = @json_decode($cached, true);
+            if ($data && isset($data['latitude'])) return $data;
+        }
+    }
+
+    // Server-Side GeoIP Lookup via ipwho.is (Bypasses HTTP/CORS/AdBlocker restrictions)
+    $ctx = stream_context_create(['http' => ['timeout' => 3, 'header' => "User-Agent: DietPi-BMB20/1.0\r\n"]]);
+    $raw = @file_get_contents('https://ipwho.is/', false, $ctx);
+    if ($raw) {
+        $json = @json_decode($raw, true);
+        if ($json && !empty($json['success']) && isset($json['latitude'])) {
+            $geo = [
+                'city' => strtoupper($json['city'] ?? 'KUALA LUMPUR'),
+                'country' => strtoupper($json['country_code'] ?? $json['country'] ?? 'MY'),
+                'latitude' => floatval($json['latitude']),
+                'longitude' => floatval($json['longitude']),
+                'ip' => $json['ip'] ?? $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
+            ];
+            @file_put_contents($cache_file, json_encode($geo));
+            return $geo;
+        }
+    }
+
+    // Robust Fallback GeoIP Coordinates
+    return [
+        'city' => 'KUALA LUMPUR',
+        'country' => 'MY',
+        'latitude' => 3.1390,
+        'longitude' => 101.6869,
+        'ip' => $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
+    ];
+}
+
 $data = [
     'timestamp' => date('c'),
     'hostname' => gethostname() ?: 'dietpi.local',
@@ -70,7 +108,8 @@ $data = [
     'memory' => get_memory_info(),
     'temp' => get_cpu_temp(),
     'disk' => get_disk_info(),
-    'uptime' => get_uptime_formatted()
+    'uptime' => get_uptime_formatted(),
+    'geoip' => get_geoip_info()
 ];
 
 echo json_encode($data, JSON_PRETTY_PRINT);

@@ -837,36 +837,26 @@ async function fetchRealtimeGeoIP() {
     const geoBadge = document.getElementById('geo-city-country');
     if (geoBadge) geoBadge.innerText = "LOCKING POSITION...";
 
-    // 1. Try High-Accuracy Browser HTML5 Geolocation first
-    if ("geolocation" in navigator) {
+    // 1. Try High-Accuracy Browser HTML5 Geolocation first if on secure HTTPS
+    if (window.location.protocol === 'https:' && "geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
                 userGeoLocation.lat = lat;
                 userGeoLocation.lon = lon;
-
-                // Reverse Geocode coordinates to City & Country via ipwho.is
-                try {
-                    const res = await fetch(`https://ipwho.is/`, { cache: 'no-store' });
-                    if (res.ok) {
-                        const data = await res.json();
-                        userGeoLocation.city = (data.city || "LOCAL").toUpperCase();
-                        userGeoLocation.country = (data.country_code || "GPS").toUpperCase();
-                        userGeoLocation.ip = data.ip || "GPS LOCK";
-                    }
-                } catch(e) {}
-
                 updateGeoIPDisplay();
                 updateGlobeBeacon();
             },
             (err) => {
-                // If HTML5 Geolocation is denied or unavailable, cascade to GeoIP APIs
+                fetchTelemetry();
                 fetchGeoIPCascade();
             },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 }
+            { enableHighAccuracy: true, timeout: 4000, maximumAge: 10000 }
         );
     } else {
+        // Query server-side GeoIP directly from DietPi PHP backend
+        fetchTelemetry();
         fetchGeoIPCascade();
     }
 }
@@ -948,6 +938,17 @@ async function fetchTelemetry() {
         if (res.ok) {
             const data = await res.json();
             updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
+            if (data.geoip && data.geoip.latitude) {
+                userGeoLocation = {
+                    lat: parseFloat(data.geoip.latitude),
+                    lon: parseFloat(data.geoip.longitude),
+                    city: data.geoip.city || "KUALA LUMPUR",
+                    country: data.geoip.country || "MY",
+                    ip: data.geoip.ip || "LOCKED"
+                };
+                updateGeoIPDisplay();
+                updateGlobeBeacon();
+            }
             return;
         }
     } catch (e) {
