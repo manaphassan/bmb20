@@ -22,6 +22,16 @@ let calendarState = {
  */
 async function loadCalendarFeed(forceRefresh = false) {
     try {
+        // First load configured feeds
+        const cfgRes = await fetch('api.php?action=get_calendar_config');
+        if (cfgRes.ok) {
+            const cfg = await cfgRes.json();
+            if (cfg.calendars && Array.isArray(cfg.calendars)) {
+                calendarState.calendars = cfg.calendars;
+                renderCalendarFeedsList();
+            }
+        }
+
         const res = await fetch('api.php?action=get_calendar_events');
         if (!res.ok) throw new Error('API network error');
         
@@ -29,7 +39,7 @@ async function loadCalendarFeed(forceRefresh = false) {
         if (data.status === 'success') {
             calendarState.eventsToday = data.events_today || [];
             calendarState.eventsUpcoming = data.events_upcoming || [];
-            calendarState.calendars = data.calendars || [];
+            if (data.calendars) calendarState.calendars = data.calendars;
             calendarState.isSynced = true;
             calendarState.lastSyncTime = data.last_sync || new Date().toLocaleTimeString();
             calendarState.allEvents = [...calendarState.eventsToday, ...calendarState.eventsUpcoming];
@@ -37,7 +47,6 @@ async function loadCalendarFeed(forceRefresh = false) {
             calendarState.isSynced = false;
             calendarState.eventsToday = [];
             calendarState.eventsUpcoming = [];
-            calendarState.calendars = [];
         }
         
         renderCalendarUI();

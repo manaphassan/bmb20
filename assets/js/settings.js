@@ -23,6 +23,10 @@ function switchTab(tabId) {
         btn.classList.add('active', 'bg-primary/20', 'text-primary', 'border-l-4', 'border-primary');
         btn.classList.remove('text-secondary', 'hover:bg-surface-container-high');
     }
+
+    if (tabId === 'calendar-sync') {
+        loadSettingsCalendars();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

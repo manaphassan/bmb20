@@ -33,11 +33,19 @@ if (isset($_GET['action'])) {
         exit;
     }
 
-    $calConfigFile = file_exists('/var/www/html/calendar_config.json') ? '/var/www/html/calendar_config.json' : (file_exists('/var/www/calendar_config.json') ? '/var/www/calendar_config.json' : '/var/www/html/calendar_config.json');
+    $calConfigFile = __DIR__ . '/calendar_config.json';
+    if (!file_exists($calConfigFile)) {
+        if (file_exists('/var/www/html/calendar_config.json')) {
+            $calConfigFile = '/var/www/html/calendar_config.json';
+        } elseif (file_exists('/var/www/calendar_config.json')) {
+            $calConfigFile = '/var/www/calendar_config.json';
+        }
+    }
 
     if ($action === 'get_calendar_config') {
         if (file_exists($calConfigFile)) {
-            $cfg = json_decode(file_get_contents($calConfigFile), true) ?: [];
+            $raw = file_get_contents($calConfigFile);
+            $cfg = json_decode($raw, true) ?: [];
             $primaryUrl = $cfg['ical_url'] ?? '';
             if (empty($primaryUrl) && !empty($cfg['calendars'][0]['url'])) {
                 $primaryUrl = $cfg['calendars'][0]['url'];
@@ -71,7 +79,10 @@ if (isset($_GET['action'])) {
                     }
                     $decoded['calendars'] = $existingCals;
                 }
-                file_put_contents($calConfigFile, json_encode($decoded, JSON_PRETTY_PRINT));
+                $jsonOut = json_encode($decoded, JSON_PRETTY_PRINT);
+                @file_put_contents($calConfigFile, $jsonOut);
+                @file_put_contents('/var/www/html/calendar_config.json', $jsonOut);
+                @file_put_contents('/var/www/calendar_config.json', $jsonOut);
                 @chmod($calConfigFile, 0664);
                 echo json_encode(['status' => 'success', 'calendars_count' => count($decoded['calendars'] ?? [])]);
                 exit;
