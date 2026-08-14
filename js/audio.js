@@ -56,11 +56,12 @@ function loadMeenaVoice() {
         }
     }
 
-    // Priority 1: Native Japanese Female Voices (ja-JP) - Nanami, Aoi, Keiko, Shiori, Kyoko, Ayumi
-    const match = voices.find(v => (v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.startsWith('ja')) && (v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko') || v.name.includes('Shiori') || v.name.includes('Mayu') || v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Natural') || v.name.includes('Google 日本語')))
-        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.startsWith('ja'))
-        || voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
-        || voices.find(v => v.lang === 'en-SG' || v.name.includes('Luna'))
+    // Priority 1: Multilingual Neural Voices (Capable of Japanese + English + Bahasa Melayu)
+    const match = voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
+        || voices.find(v => v.name.includes('Yasmin') || v.lang === 'ms-MY' || v.lang === 'ms_MY' || v.name.includes('Osman'))
+        || voices.find(v => v.name.includes('Luna') || v.lang === 'en-SG' || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao'))
+        || voices.find(v => (v.lang.startsWith('ja') || v.lang.includes('ja')) && (v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko')))
+        || voices.find(v => v.lang.startsWith('id') || v.name.includes('Gadis') || v.name.includes('Indonesian'))
         || voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.toLowerCase().includes('female') || v.name.includes('Zira') || v.name.includes('Samantha')));
 
     if (match) meenaVoice = match;
@@ -90,10 +91,10 @@ function populateVoiceSelector() {
 
     select.innerHTML = '';
     
-    // Sort: Japanese voices strictly first
+    // Sort: Multilingual & Malay & Japanese voices first
     const sorted = [...voices].sort((a, b) => {
-        const aScore = (a.lang.includes('ja') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Kyoko') || a.name.includes('日本語')) ? 3 : ((a.name.includes('Multilingual') || a.lang.includes('SG')) ? 2 : (a.lang.startsWith('en') ? 1 : 0));
-        const bScore = (b.lang.includes('ja') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Kyoko') || b.name.includes('日本語')) ? 3 : ((b.name.includes('Multilingual') || b.lang.includes('SG')) ? 2 : (b.lang.startsWith('en') ? 1 : 0));
+        const aScore = (a.name.includes('Multilingual') || a.lang.includes('ms') || a.lang.includes('SG') || a.lang.includes('ja')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
+        const bScore = (b.name.includes('Multilingual') || b.lang.includes('ms') || b.lang.includes('SG') || b.lang.includes('ja')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
         return bScore - aScore;
     });
 
@@ -120,19 +121,19 @@ function setMeenaVoiceByName(voiceName) {
 }
 
 function testMeenaVoice() {
-    speakComputerVoice("了解です、先生！高原学園作戦司令センター、ミーナシステム正常稼働中です！");
+    speakComputerVoice("Ohayou, Sensei! Pusat operasi Takahara Academy semua sistem online dan beroperasi dengan lancar!");
 }
 
 function getMeenaTimeGreeting() {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
-        return "おはようございます、先生！高原学園作戦司令センター、全システム正常稼働中です！";
+        return "Ohayou, Sensei! Selamat pagi! Pusat operasi Takahara Academy beroperasi dengan lancar dan semua sistem nominal!";
     } else if (hour >= 12 && hour < 18) {
-        return "こんにちは、先生！高原学園テレメトリー、全システム順調に稼働しています！";
+        return "Konnichiwa, Sensei! Selamat petang! Semua telemetri sistem stabil dan perisai pertahanan Pi-hole aktif!";
     } else if (hour >= 18 && hour < 22) {
-        return "こんばんは、先生！高原学園司令センター、いつでも出撃可能です！";
+        return "Konbanwa, Sensei! Selamat malam! Pusat kawalan Takahara sedia menerima arahan bila-bila masa!";
     } else {
-        return "お疲れ様です、先生！今夜も遅くまでご苦労様です。ミーナがサポートします！";
+        return "Otsukare, Sensei! Dah lewat malam ni, jangan lupa rehat secukupnya ya. Meena sentiasa jaga keselamatan sistem untuk Sensei!";
     }
 }
 
@@ -176,7 +177,7 @@ function speakComputerVoice(text) {
         utterance.rate = meenaRate;   // Natural anime conversational tempo
         utterance.pitch = meenaPitch; // Natural teenage girl pitch
         utterance.volume = 1.0;
-        utterance.lang = (meenaVoice && meenaVoice.lang) ? meenaVoice.lang : 'ja-JP';
+        utterance.lang = (meenaVoice && meenaVoice.lang) ? meenaVoice.lang : 'en-US';
 
         if (meenaVoice) {
             utterance.voice = meenaVoice;
@@ -715,36 +716,36 @@ function rememberFact(fact) {
     if (memories.length > 25) memories.shift();
     localStorage.setItem('meena_tactical_memories', JSON.stringify(memories));
     if (window.playSound) window.playSound('beep2');
-    speakComputerVoice(`了解しました、先生！高原学園の戦術メモリーに記録しました！`);
+    speakComputerVoice(`Understood, Sensei! Meena dah simpan nota ni ke dalam memori taktikal Takahara Academy!`);
 }
 
 function recallMemories() {
     const memories = getMeenaMemories();
     if (memories.length === 0) {
-        speakComputerVoice("メモリーは現在空です、先生！「ミーナ、メモ」と話しかけて教えてくださいね！");
+        speakComputerVoice("Memori Meena masih kosong, Sensei! Beritahu Meena dengan sebut: Meena, remember, diikuti nota yang ingin disimpan.");
         return;
     }
     const count = memories.length;
-    const latest = memories.slice(-3).map((m, i) => `${i + 1}番、${m.fact}`).join("。");
-    speakComputerVoice(`高原学園メモリーに${count}件の記録があります、先生！最新のノートです：${latest}`);
+    const latest = memories.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
+    speakComputerVoice(`Memori Takahara Academy ada ${count} rekod, Sensei. Ini nota terkini: ${latest}`);
 }
 
 function clearMemories() {
     localStorage.removeItem('meena_tactical_memories');
     if (window.playSound) window.playSound('beep1');
-    speakComputerVoice("高原学園のメモリーレジスタを初期化しました、先生。");
+    speakComputerVoice("Memori taktikal Takahara Academy telah direset, Sensei.");
 }
 
 /**
  * ==========================================================================
- * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Japanese Heuristics)
+ * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Trilingual Heuristics)
  * ==========================================================================
  */
 async function askMeenaAI(question) {
     const memories = getMeenaMemories();
-    const memoryContext = memories.length > 0 ? ("\n先生が教えた記憶ノート: " + memories.map(m => m.fact).join("; ")) : "";
+    const memoryContext = memories.length > 0 ? ("\nThings Sensei taught you: " + memories.map(m => m.fact).join("; ")) : "";
     
-    const prompt = `あなたは「ミーナ」（M.E.E.N.A.）、高原学園の明るく元気なアニメ美少女AIパーソナルアシスタントです。ユーザーを「先生」と呼び、親切で可愛らしく頼もしい日本語で答えてください。${memoryContext}\n\n先生の質問：「${question}」\n音声合成で読み上げるため、1〜2文の簡潔で元気な日本語で回答してください：`;
+    const prompt = `You are M.E.E.N.A. (Master Electronic Executive Neural Assistant), an energetic, charming anime heroine AI personal assistant for home base Takahara Academy. You speak a natural, cheerful blend of Bahasa Melayu and English with Japanese anime honorifics (Sensei, Ohayou, Konnichiwa, Hai, Otsukare, Arigato). Address the user respectfully as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, cheerful spoken sentences:`;
     
     const apiKey = localStorage.getItem('gemini_api_key');
     if (apiKey) {
@@ -769,18 +770,18 @@ async function askMeenaAI(question) {
         }
     }
     
-    // Offline intelligent anime companion Japanese responses
+    // Offline intelligent anime companion trilingual responses (BM + EN + JP)
     const q = question.toLowerCase();
-    if (q.includes('who are you') || q.includes('だれ') || q.includes('自己紹介') || q.includes('名前')) {
-        speakComputerVoice("私はミーナです！高原学園のパーソナルAIアシスタントとして、先生の作戦行動とシステム管理を全力でサポートします！");
-    } else if (q.includes('takahara') || q.includes('高原学園') || q.includes('基地') || q.includes('拠点')) {
-        speakComputerVoice("高原学園は私たちの作戦拠点です！全ての防護障壁と通信ノードは正常に稼働しています、先生！");
-    } else if (q.includes('how are you') || q.includes('元気') || q.includes('調子') || q.includes('genki')) {
-        speakComputerVoice("全システム、最高パフォーマンスで稼働中です！いつでも指令をどうぞ、先生！");
-    } else if (q.includes('thank you') || q.includes('ありがとう') || q.includes('arigato')) {
-        speakComputerVoice("どういたしまして、先生！お役に立てて光栄です！");
+    if (q.includes('who are you') || q.includes('siapa kamu') || q.includes('siapa awak') || q.includes('introduce')) {
+        speakComputerVoice("Saya M.E.E.N.A., pembantu AI peribadi untuk Takahara Academy! Saya menguruskan sistem keselamatan, telemetri, dan perisai pertahanan untuk Sensei!");
+    } else if (q.includes('takahara') || q.includes('markas') || q.includes('pangkalan') || q.includes('home base')) {
+        speakComputerVoice("Takahara Academy adalah markas operasi kita, Sensei! Semua nod perisai dan telemetri beroperasi dengan lancar dan selamat!");
+    } else if (q.includes('how are you') || q.includes('apa khabar') || q.includes('macam mana') || q.includes('genki')) {
+        speakComputerVoice("Semua laluan neural berjalan lancar pada prestasi maksimum, Sensei! Sedia menerima arahan seterusnya!");
+    } else if (q.includes('thank you') || q.includes('terima kasih') || q.includes('arigato') || q.includes('tq')) {
+        speakComputerVoice("Sama-sama, Sensei! Douitashimashite! Gembira sentiasa dapat bantu Sensei!");
     } else {
-        speakComputerVoice(`了解です、先生！ミーナはいつでもスタンバイしています！`);
+        speakComputerVoice(`Arahan diterima, Sensei! Meena sentiasa bersedia di Takahara Academy.`);
     }
 }
 
@@ -788,18 +789,18 @@ function speakVerbalStatusReport() {
     const cpu = document.getElementById('cpu-val') ? document.getElementById('cpu-val').innerText : '24%';
     const mem = document.getElementById('mem-val') ? document.getElementById('mem-val').innerText : '26%';
     const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52°C';
-    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : '稼働中';
+    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'aktif';
 
-    speakComputerVoice(`状況報告です、先生！CPU負荷${cpu}、メモリ使用率${mem}、コア温度${temp}。パイホール防護シールドは${pihole}！全システム、順調稼働中です！`);
+    speakComputerVoice(`Laporan status taktikal, Sensei! CPU load pada ${cpu}, memori ${mem}, suhu teras ${temp}. Perisai pertahanan Pi-hole ${pihole}! Semua sistem green dan bersedia!`);
 }
 
 function speakVerbalWeatherReport() {
     const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31';
-    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : '晴れ時々曇り';
+    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'cerah dan berawan';
     const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75%';
     const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
 
-    speakComputerVoice(`気象報告です、先生！現在気温${temp}度、天候は${desc}。湿度${hum}、風速${wind}です！`);
+    speakComputerVoice(`Laporan cuaca Terra base, Sensei! Suhu sekarang ${temp} darjah Celsius dengan keadaan ${desc}. Kelembapan ${hum}, kelajuan angin ${wind}. Cuaca terbaik untuk hari ini!`);
 }
 
 // Window Global Exports
