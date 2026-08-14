@@ -125,7 +125,7 @@ function populateVoiceSelector() {
     sorted.forEach(v => {
         const opt = document.createElement('option');
         opt.value = v.name;
-        opt.innerText = `🌸 ${v.name} (${v.lang})`;
+        opt.innerText = `${v.name} (${v.lang})`;
         if (meenaVoice && v.name === meenaVoice.name) {
             opt.selected = true;
         }
@@ -804,16 +804,16 @@ function setMeenaMood(mood) {
 
     if (mood === 'CHEERFUL') {
         badge.className = 'text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40';
-        badge.innerText = '🌸 CHEERFUL';
+        badge.innerText = 'CHEERFUL';
     } else if (mood === 'TACTICAL') {
         badge.className = 'text-[9px] bg-error/20 text-error px-1.5 py-0.5 rounded font-bold border border-error/40 animate-pulse';
-        badge.innerText = '🚨 TACTICAL DEFENSE';
+        badge.innerText = 'TACTICAL DEFENSE';
     } else if (mood === 'CARING') {
         badge.className = 'text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40';
-        badge.innerText = '💖 CARING';
+        badge.innerText = 'CARING';
     } else if (mood === 'PROUD') {
         badge.className = 'text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40';
-        badge.innerText = '✨ PROUD';
+        badge.innerText = 'PROUD';
     }
 }
 
@@ -904,10 +904,10 @@ function renderKnowledgeBank(category = 'all') {
     }
 
     const catIcons = {
-        facility: '🏡 FACILITY',
-        profile: '👤 SENSEI',
-        routines: '📅 ROUTINES',
-        missions: '🎯 MISSIONS'
+        facility: 'FACILITY',
+        profile: 'SENSEI',
+        routines: 'ROUTINES',
+        missions: 'MISSIONS'
     };
 
     filtered.forEach(item => {
@@ -916,7 +916,7 @@ function renderKnowledgeBank(category = 'all') {
         card.innerHTML = `
             <div class="flex justify-between items-center text-tertiary font-bold">
                 <span>${catIcons[item.category] || item.category.toUpperCase()}</span>
-                <button onclick="deleteKnowledgeItem('${item.id}')" class="text-on-surface-variant hover:text-error text-[10px] font-bold px-1" title="Delete note">✕</button>
+                <button onclick="deleteKnowledgeItem('${item.id}')" class="text-on-surface-variant hover:text-error text-[10px] font-bold px-1" title="Delete note">X</button>
             </div>
             <div class="text-on-surface my-1 font-mono break-words">${item.fact}</div>
             <div class="text-[8px] text-secondary font-mono">${item.desc}</div>

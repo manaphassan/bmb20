@@ -221,7 +221,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-headline-sm text-sm text-primary uppercase font-bold tracking-wider">M.E.E.N.A. AI BRIDGE</span>
                                 <span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40" id="meena-rank-badge">RANK C: OPERATOR</span>
-                                <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-mood-badge">🌸 CHEERFUL</span>
+                                <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-mood-badge">CHEERFUL</span>
                             </div>
                             <!-- Neural Sync EXP Progress Bar -->
                             <div class="flex items-center gap-2 mt-0.5">
@@ -254,11 +254,11 @@
 
                 <!-- Quick Action Voice Chips -->
                 <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold mb-1.5">
-                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors">📊 STATUS</button>
-                    <button onclick="handleVoiceCommand('weather forecast')" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors">🌤️ WEATHER</button>
-                    <button onclick="handleVoiceCommand('code red')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors">🚨 CODE RED</button>
-                    <button onclick="handleVoiceCommand('warp speed')" class="bg-surface-bright hover:bg-secondary hover:text-black py-1 px-1 rounded text-center transition-colors">⚡ WARP</button>
-                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors">🛡️ PI-HOLE</button>
+                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors">STATUS</button>
+                    <button onclick="handleVoiceCommand('weather forecast')" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors">WEATHER</button>
+                    <button onclick="handleVoiceCommand('code red')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors">CODE RED</button>
+                    <button onclick="handleVoiceCommand('warp speed')" class="bg-surface-bright hover:bg-secondary hover:text-black py-1 px-1 rounded text-center transition-colors">WARP</button>
+                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors">PI-HOLE</button>
                 </div>
 
                 <!-- Direct Message & Prompt Input Form -->
@@ -339,10 +339,10 @@
                     <!-- Category Filter Tabs -->
                     <div class="flex items-center gap-1 text-[9px]">
                         <button onclick="filterKnowledgeCategory('all')" id="kb-filter-all" class="px-2 py-0.5 rounded bg-primary text-black font-bold">ALL</button>
-                        <button onclick="filterKnowledgeCategory('facility')" id="kb-filter-facility" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">🏡 FACILITY</button>
-                        <button onclick="filterKnowledgeCategory('profile')" id="kb-filter-profile" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">👤 SENSEI</button>
-                        <button onclick="filterKnowledgeCategory('routines')" id="kb-filter-routines" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">📅 ROUTINES</button>
-                        <button onclick="filterKnowledgeCategory('missions')" id="kb-filter-missions" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">🎯 MISSIONS</button>
+                        <button onclick="filterKnowledgeCategory('facility')" id="kb-filter-facility" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">FACILITY</button>
+                        <button onclick="filterKnowledgeCategory('profile')" id="kb-filter-profile" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">SENSEI</button>
+                        <button onclick="filterKnowledgeCategory('routines')" id="kb-filter-routines" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">ROUTINES</button>
+                        <button onclick="filterKnowledgeCategory('missions')" id="kb-filter-missions" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">MISSIONS</button>
                         <button onclick="clearMemories()" class="px-2 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-2">RESET MEMORY</button>
                     </div>
                 </div>
@@ -352,7 +352,7 @@
                     <!-- Dynamically populated by audio.js renderKnowledgeBank() -->
                     <div class="bg-surface-container-lowest p-2 rounded border border-outline-variant/30 flex flex-col justify-between text-[9px]">
                         <div class="flex justify-between items-center text-tertiary font-bold">
-                            <span>🏡 FACILITY</span>
+                            <span>FACILITY</span>
                             <span class="text-[8px] text-secondary">ACTIVE</span>
                         </div>
                         <div class="text-on-surface my-1">Workstation IP: 192.168.0.105</div>
@@ -363,10 +363,10 @@
                 <!-- Quick Teach Note Bar -->
                 <div class="flex gap-1.5 pt-1 border-t border-outline-variant/20">
                     <select id="teach-category" class="bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[10px] text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
-                        <option value="facility">🏡 Facility / Device</option>
-                        <option value="profile">👤 Sensei Preference</option>
-                        <option value="routines">📅 Tactical Routine</option>
-                        <option value="missions">🎯 Mission Task</option>
+                        <option value="facility">Facility / Device</option>
+                        <option value="profile">Sensei Preference</option>
+                        <option value="routines">Tactical Routine</option>
+                        <option value="missions">Mission Task</option>
                     </select>
                     <input type="text" id="teach-note-input" placeholder="Type a fact to teach Meena (e.g. 'Living room light is on Smart Switch 01')..."
                            class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1 rounded text-[10px] text-on-surface focus:outline-none focus:border-primary font-mono"

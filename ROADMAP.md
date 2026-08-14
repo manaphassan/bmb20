@@ -1,11 +1,11 @@
-# 🌸 Meena™ - Takahara Academy (高原学園)
+# Meena™ - Takahara Academy (高原学園)
 ## Next-Generation Home Personal Assistant & SBC Telemetry Architecture
 
 This document serves as the master engineering guide, technical specification, and multi-phase execution roadmap for developing, deploying, and maintaining **Meena™** (*Master Electronic Executive Neural Assistant*) as a privacy-first **Home Personal Assistant & Smart Operations Hub** for home base **Takahara Academy (高原学園)** on **DietPi (Raspberry Pi 3)** (`192.168.0.100` / `dietpi.local`).
 
 ---
 
-# 📑 Table of Contents
+# Table of Contents
 1. [Executive Summary & Core Philosophy](#1-executive-summary--core-philosophy)
 2. [Dual-Deck Architecture Specification](#2-dual-deck-architecture-specification)
 3. [Meena Neural Growth & EXP Engine](#3-meena-neural-growth--exp-engine)
@@ -89,20 +89,20 @@ Meena evolves over time as Sensei interacts with her:
 
 # 5. Phased Implementation Roadmap
 
-### ✅ Milestone 1: Pi-hole Tactical Action Controls & Countdown (Completed)
+### Milestone 1: Pi-hole Tactical Action Controls & Countdown (Completed)
 - Clickable header Pi-hole badge with interactive action modal (`Disable 5 min`, `Disable 10 min`, `Enable`, `Update Gravity`).
 - Real-time countdown timer in header badge with sudoers execution permissions.
 
-### ✅ Milestone 2: Rebrand to Takahara Academy (高原学園) (Completed)
+### Milestone 2: Rebrand to Takahara Academy (高原学園) (Completed)
 - Standardized facility brand to **Meena™ - Takahara Academy (高原学園)** with Kanji logo mark.
 - Added dynamic time-of-day greeting engine and Sensei honorific.
 
-### ✅ Milestone 3: Dual-Deck Operations & Neural Growth System (v2.0.0)
+### Milestone 3: Dual-Deck Operations & Neural Growth System (v2.0.0)
 - **Deck 1**: Holographic Avatar HUD, Neural Sync Level Lv. 1-99, 4-Category Knowledge Bank, Live Chat Feed.
 - **Deck 2**: Full-screen 3D wireframe observatory stage, camera presets, LAN radar, and bandwidth charts.
 - **Strict Female Voice Engine**: English replies with Japanese intonation by default.
 
-### 🔮 Milestone 4: Smart Home & IoT Switch Control (Planned)
+### Milestone 4: Smart Home & IoT Switch Control (Planned)
 - Direct Home Assistant / Tasmota / Tuya smart plug & light control (*"Meena, living room lights on"*).
 
 ---
@@ -117,7 +117,7 @@ Meena evolves over time as Sensei interacts with her:
 | **`[10-52]`** | **Tailscale VPN** | `https://login.tailscale.com/admin/machines` | Secure Mesh Network Console |
 | **`[52-52]`** | **Cockpit** | `http://dietpi.local:5252` | Linux Server Web Administration |
 
-### ⌨️ Master Keyboard Hotkey Guide:
+### Master Keyboard Hotkey Guide:
 * **`1`**: Deck 1 (Meena™ AI Assistant)
 * **`2`**: Deck 2 (3D Observatory & NOC)
 * **`3`**: Code Red Alert Klaxon

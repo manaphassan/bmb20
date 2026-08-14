@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌸 Meena™ - Takahara Academy (高原学園)
+# Meena™ - Takahara Academy (高原学園)
 ### *Next-Generation Intelligent AI Voice Assistant & Dual-Deck Operations Hub for Single-Board Computers*
 
 [![Version](https://img.shields.io/badge/version-2.0.0--takahara--meena-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
@@ -22,39 +22,39 @@
 ```
 
 <p align="center">
-  <a href="#-key-features"><b>Key Features</b></a> •
-  <a href="#-dual-deck-architecture"><b>Dual-Deck Modes</b></a> •
-  <a href="#-neural-growth-engine"><b>Meena Growth System</b></a> •
-  <a href="#-quick-start--installation"><b>Quick Start</b></a> •
-  <a href="#-hotkeys--voice-commands"><b>Voice Commands</b></a> •
-  <a href="#-roadmap"><b>Roadmap</b></a>
+  <a href="#key-features"><b>Key Features</b></a> •
+  <a href="#dual-deck-architecture"><b>Dual-Deck Modes</b></a> •
+  <a href="#neural-growth-engine"><b>Meena Growth System</b></a> •
+  <a href="#quick-start--installation"><b>Quick Start</b></a> •
+  <a href="#hotkeys--voice-commands"><b>Voice Commands</b></a> •
+  <a href="#roadmap"><b>Roadmap</b></a>
 </p>
 
 ---
 
 </div>
 
-## 📖 Overview & Core Philosophy
+## Overview & Core Philosophy
 
 **Meena™** (*Master Electronic Executive Neural Assistant*) is a high-performance, single-pane-of-glass **Home Personal Assistant & Infrastructure Command Center** designed for single-board computers (SBCs) such as **Raspberry Pi 3/4/5 running DietPi or Debian**.
 
 The system establishes **Takahara Academy (高原学園)** as your secure, self-hosted smart operations center.
 
-### 💎 Core Tenets
-* 🚀 **Zero Cloud Token Cost**: 100% client-accelerated Web Speech API and procedural Web Audio synthesis. Runs locally in any modern browser with **0% CPU load** on your SBC.
-* 🌸 **Intelligent Vocal Personality**: Cheerful, charismatic female voice assistant speaking fluent English with natural Japanese intonation and respectful honorifics (*Sensei*, *Ohayou*, *Konnichiwa*, *Otsukare*).
-* 📈 **Neural Growth & Sync EXP Engine**: Meena actively learns what you teach her, gaining Synapse EXP from every interaction to rank up from Cadet to Soulbound Guardian.
-* 🖥️ **Dual-Deck Operations**: Seamless instant tab switching between **Deck 1 (AI Assistant Bridge)** and **Deck 2 (3D Observatory & System NOC)** without reloading or interrupting audio.
-* ⚡ **Ultra-Lightweight Linux Footprint**: Near-zero RAM consumption with static memory caching and an atomic background Bash telemetry daemon (`bmb20-stats.sh`).
+### Core Tenets
+* **Zero Cloud Token Cost**: 100% client-accelerated Web Speech API and procedural Web Audio synthesis. Runs locally in any modern browser with **0% CPU load** on your SBC.
+* **Intelligent Vocal Personality**: Cheerful, charismatic female voice assistant speaking fluent English with natural Japanese intonation and respectful honorifics (*Sensei*, *Ohayou*, *Konnichiwa*, *Otsukare*).
+* **Neural Growth & Sync EXP Engine**: Meena actively learns what you teach her, gaining Synapse EXP from every interaction to rank up from Cadet to Soulbound Guardian.
+* **Dual-Deck Operations**: Seamless instant tab switching between **Deck 1 (AI Assistant Bridge)** and **Deck 2 (3D Observatory & System NOC)** without reloading or interrupting audio.
+* **Ultra-Lightweight Linux Footprint**: Near-zero RAM consumption with static memory caching and an atomic background Bash telemetry daemon (`bmb20-stats.sh`).
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 <table>
   <tr>
     <td width="50%">
-      <h3>🌸 Deck 1: Meena™ AI Assistant Bridge</h3>
+      <h3>Deck 1: Meena™ AI Assistant Bridge</h3>
       <ul>
         <li><b>Holographic Avatar Core</b>: Rotating orbital rings with real-time reactive audio waveform EQ arcs.</li>
         <li><b>Neural Sync EXP System</b>: Real-time Level 1 to 99 progression with custom rank badges and voice fanfares.</li>
@@ -65,7 +65,7 @@ The system establishes **Takahara Academy (高原学園)** as your secure, self-
       </ul>
     </td>
     <td width="50%">
-      <h3>🛰️ Deck 2: Observatory & Infrastructure NOC</h3>
+      <h3>Deck 2: Observatory & Infrastructure NOC</h3>
       <ul>
         <li><b>Full-Screen 3D WebGL Hologram</b>: Point-cloud Earth, Solar System, and Milky Way Galaxy map.</li>
         <li><b>Live ISS Subspace Tracker</b>: Real-time orbital coordinates, altitude (~420 km), and speed (~27,600 km/h).</li>
@@ -80,7 +80,7 @@ The system establishes **Takahara Academy (高原学園)** as your secure, self-
 
 ---
 
-## 🏗️ Architecture & Data Flow
+## Architecture & Data Flow
 
 ```mermaid
 graph TD
@@ -93,8 +93,8 @@ graph TD
 
     subgraph Client Browser / Touchscreen Dashboard
         WEB --> UI[Dual-Deck Interface]
-        UI --> DECK1[🌸 Deck 1: Meena™ AI Assistant Bridge]
-        UI --> DECK2[🛰️ Deck 2: Takahara Observatory NOC]
+        UI --> DECK1[Deck 1: Meena™ AI Assistant Bridge]
+        UI --> DECK2[Deck 2: Takahara Observatory NOC]
         JSON -->|1000ms Polling| TELEMETRY[telemetry.js Gauges & Radar]
         DECK1 --> AUDIO[audio.js Web Speech + Waveform Synth]
         DECK2 --> GLOBE[globe.js Three.js 3D WebGL Engine]
@@ -103,7 +103,7 @@ graph TD
 
 ---
 
-## 🚀 Quick Start & Installation
+## Quick Start & Installation
 
 ### Prerequisites
 * Raspberry Pi 3 Model B, 4, 5, or any Linux SBC running **DietPi / Debian**.
@@ -136,28 +136,28 @@ sudo chown -R www-data:www-data /var/www/html/
 sudo chmod -R 755 /var/www/html/
 ```
 
-Access the dashboard instantly in your browser at:  
-👉 **`http://dietpi.local`** or **`http://<YOUR_PI_IP>`**
+Access the dashboard in your browser at:  
+`http://dietpi.local` or `http://<YOUR_PI_IP>`
 
 ---
 
-## 🎙️ Voice Commands & Hotkeys Guide
+## Voice Commands & Hotkeys Guide
 
-### 🌸 Spoken Voice Dialogues (Default: English with Japanese Intonation)
+### Spoken Voice Dialogues (Default: English with Japanese Intonation)
 
 | Trigger Command | Meena Spoken Response / Action |
 | :--- | :--- |
 | **`"Meena"`** / **`"Hey Meena"`** | *"Konnichiwa, Sensei! Standing by and ready for orders!"* |
 | **`"Status Report"`** | Reads verbal CPU load, RAM utilization, SOC temperature, and Pi-hole shield state. |
 | **`"Weather Forecast"`** | Speaks current temperature, sky condition, humidity, and wind for home base. |
-| **`"Remember [note]"`** | Learns and indexes fact into the 4-category tactical knowledge bank (`+25 EXP`). |
+| **`"Remember [note]"`** | Learns and indexes fact into the 4-category tactical knowledge bank (+25 EXP). |
 | **`"Recall Memory"`** | Reads back recent learned notes and records. |
 | **`"Code Red"`** | Triggers red alert klaxon and raises absolute defense barrier. |
 | **`"Warp Speed"`** | Plays main thrusters acceleration warp sound sequence. |
 
 ---
 
-### ⌨️ Master Keyboard Shortcuts
+### Master Keyboard Shortcuts
 
 | Hotkey | Action | Hotkey | Action |
 | :---: | :--- | :---: | :--- |
@@ -170,7 +170,7 @@ Access the dashboard instantly in your browser at:
 
 ---
 
-## 🌐 Connected Services Roster
+## Connected Services Roster
 
 | Identifier | Service | Port / Endpoint | Description |
 | :---: | :--- | :--- | :--- |
@@ -182,7 +182,7 @@ Access the dashboard instantly in your browser at:
 
 ---
 
-## 🗺️ Project Roadmap
+## Project Roadmap
 
 - [x] **v1.0.0**: LCARS Telemetry & 3D Earth Globe (`Three.js`).
 - [x] **v1.5.0**: Interactive Pi-hole v6 Action Modal & Automated Sudoers Controls.
@@ -192,7 +192,7 @@ Access the dashboard instantly in your browser at:
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
