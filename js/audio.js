@@ -57,8 +57,8 @@ function speakComputerVoice(text) {
         if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.08;   // Cheerful, youthful, energetic tempo
-        utterance.pitch = 1.25;  // Bright, friendly young female pitch
+        utterance.rate = 1.02;   // Serene, polite, composed Academy AI tempo
+        utterance.pitch = 1.18;  // Gentle, melodic young Japanese female pitch
         utterance.volume = 1.0;
 
         if (meenaVoice) {
@@ -241,7 +241,7 @@ function playWarpSequence() {
         osc.stop(now + 1.45);
         subOsc.stop(now + 1.45);
 
-        speakComputerVoice("Warp speed! Ikimashou! Accelerating warp drive now, Commander!");
+        speakComputerVoice("Warp sequence initiated. Dimensional space translation underway, Commander.");
     } catch (e) {}
 }
 
@@ -276,7 +276,7 @@ function startRedAlertKlaxon() {
     
     // Play immediately & speak announcement
     playSound('alert');
-    speakComputerVoice("Code Red! Hai! Tactical shields energized at maximum! Battle stations ready, Commander!");
+    speakComputerVoice("Code Red. Emergency defense barriers and tactical shields initialized. Please prepare for battle, Commander.");
 
     // Loop every 1200ms
     redAlertInterval = setInterval(() => {
@@ -298,7 +298,7 @@ function stopRedAlertKlaxon() {
 function playYellowAlertChirp() {
     stopRedAlertKlaxon();
     playSound('caution');
-    speakComputerVoice("Code Yellow! Subspace sensors are scanning for anomalies, Commander!");
+    speakComputerVoice("Code Yellow. Environmental sensors detecting subspace anomalies. Monitoring facility status, Commander.");
 }
 
 // Deep 48Hz Warp Core Engine Ambient Hum
@@ -388,7 +388,7 @@ function toggleAudio() {
         animateEqualizer(true);
         playSound('chime');
         setTimeout(() => {
-            speakComputerVoice("Konnichiwa, Commander! M.E.E.N.A. online and ready to assist you!");
+            speakComputerVoice("Konnichiwa, Commander. Meena system is online. Takahara neural protocols nominal.");
         }, 400);
     } else {
         if (icon) icon.innerText = 'volume_off';
@@ -472,14 +472,14 @@ function toggleVoiceRecognition() {
         recognition.stop();
         updateVoiceHUD("MIC OFF", false);
         if (playSound) playSound('beep1');
-        if (speakComputerVoice) speakComputerVoice("M.E.E.N.A. voice listening deactivated, Commander.");
+        if (speakComputerVoice) speakComputerVoice("Voice listening deactivated. Meena standing by.");
     } else {
         isListening = true;
         try {
             recognition.start();
             updateVoiceHUD("LISTENING...", true);
             if (playSound) playSound('beep2');
-            if (speakComputerVoice) speakComputerVoice("Hai, Commander! M.E.E.N.A. is listening!");
+            if (speakComputerVoice) speakComputerVoice("Hai, Commander. Meena is listening.");
         } catch (e) {
             console.warn("Voice recognition start error:", e);
             openVoiceModal();
@@ -571,7 +571,7 @@ function speakVerbalStatusReport() {
     const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52 degrees';
     const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'active';
 
-    speakComputerVoice(`Status report, Commander! CPU is at ${cpu}, memory utilization is ${mem}. Processor temperature is ${temp}. Pi-hole shield is ${pihole}. Terra base is running smoothly!`);
+    speakComputerVoice(`Diagnostic status report, Commander. Core processing load is ${cpu}, memory utilization is ${mem}. Thermal regulation is ${temp}. Facility defense shield is ${pihole}. All parameters optimal.`);
 }
 
 function speakVerbalWeatherReport() {
@@ -580,7 +580,7 @@ function speakVerbalWeatherReport() {
     const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75 percent';
     const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
 
-    speakComputerVoice(`Atmospheric forecast for Terra base, Commander! Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Have a wonderful day!`);
+    speakComputerVoice(`Atmospheric observation from Terra station, Commander. Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. The outside environment is pleasant today.`);
 }
 
 // Window Global Exports
