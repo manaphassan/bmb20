@@ -118,46 +118,30 @@ if (isset($_GET['action'])) {
             $cfg = json_decode(file_get_contents($calConfigFile), true);
             if (!empty($cfg['calendars']) && is_array($cfg['calendars'])) {
                 $calendarList = $cfg['calendars'];
-            } elseif (!empty($cfg['ical_url'])) {
-                $calendarList[] = [
-                    'id' => 'default',
-                    'name' => 'Main Calendar',
-                    'url' => $cfg['ical_url'],
-                    'color' => '#c2c1ff',
-                    'enabled' => true
-                ];
             }
         }
-        if (isset($_GET['ical_url']) && !empty($_GET['ical_url'])) {
-            $calendarList[] = [
-                'id' => 'adhoc',
-                'name' => 'Direct Feed',
-                'url' => trim($_GET['ical_url']),
-                'color' => '#78e4a5',
-                'enabled' => true
-            ];
-        }
-
         if (empty($calendarList)) {
-            echo json_encode([
-                'status' => 'unconfigured',
-                'calendars' => [],
-                'events_today' => [],
-                'events_upcoming' => [],
-                'message' => 'No Google Calendar feeds configured yet.'
-            ]);
-            exit;
+            $calendarList = $defaultCalendars;
         }
 
         $allEvents = [];
         $opts = [
             'http' => [
                 'method' => 'GET',
-                'header' => "User-Agent: Meena-DietPi-Command-Center/2.5\r\n",
-                'timeout' => 5
+                'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n",
+                'timeout' => 8
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
             ]
         ];
         $context = stream_context_create($opts);
+
+        $now = time();
+        $todayStart = strtotime('today midnight');
+        $todayEnd = strtotime('tomorrow midnight') - 1;
+        $horizonEnd = strtotime('+30 days midnight');
 
         foreach ($calendarList as $cal) {
             $url = trim($cal['url'] ?? '');
@@ -168,8 +152,24 @@ if (isset($_GET['action'])) {
             if (empty($url) || !$enabled) continue;
 
             $icsData = @file_get_contents($url, false, $context);
+            if (!$icsData) {
+                // Try curl fallback if file_get_contents fails
+                if (function_exists('curl_init')) {
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0");
+                    $icsData = curl_exec($ch);
+                    curl_close($ch);
+                }
+            }
+
             if (!$icsData) continue;
 
+            // Unfold folded lines in iCalendar RFC 5545
+            $icsData = preg_replace("/\r\n[ \t]|\n[ \t]|\r[ \t]/", "", $icsData);
             $lines = preg_split("/\r\n|\n|\r/", $icsData);
             $inEvent = false;
             $currEvent = [];
@@ -180,14 +180,63 @@ if (isset($_GET['action'])) {
                     $inEvent = true;
                     $currEvent = [
                         'calendar_name' => $calName,
-                        'calendar_color' => $calColor
+                        'calendar_color' => $calColor,
+                        'is_all_day' => false,
+                        'rrule' => ''
                     ];
                     continue;
                 }
                 if ($line === 'END:VEVENT') {
                     $inEvent = false;
-                    if (!empty($currEvent['summary'])) {
-                        $allEvents[] = $currEvent;
+                    if (!empty($currEvent['summary']) && !empty($currEvent['start_ts'])) {
+                        // Expand event into occurrences (standard + recurring)
+                        $startTs = $currEvent['start_ts'];
+                        $duration = (!empty($currEvent['end_ts']) && $currEvent['end_ts'] > $startTs) ? ($currEvent['end_ts'] - $startTs) : 3600;
+
+                        if (empty($currEvent['rrule'])) {
+                            // Single one-off event
+                            if ($startTs >= ($todayStart - 86400) && $startTs <= $horizonEnd) {
+                                $allEvents[] = $currEvent;
+                            }
+                        } else {
+                            // Parse RRULE
+                            $rrule = $currEvent['rrule'];
+                            $freq = '';
+                            if (preg_match('/FREQ=([A-Z]+)/i', $rrule, $mFreq)) {
+                                $freq = strtoupper($mFreq[1]);
+                            }
+                            
+                            $untilTs = $horizonEnd;
+                            if (preg_match('/UNTIL=(\d{8}(?:T\d{6}Z?)?)/i', $rrule, $mUntil)) {
+                                $u = strtotime($mUntil[1]);
+                                if ($u && $u < $horizonEnd) $untilTs = $u;
+                            }
+
+                            // Generate recurring occurrences in range
+                            $occTs = $startTs;
+                            $count = 0;
+                            while ($occTs <= $untilTs && $count < 200) {
+                                $count++;
+                                if ($occTs >= $todayStart && $occTs <= $horizonEnd) {
+                                    $inst = $currEvent;
+                                    $inst['start_ts'] = $occTs;
+                                    $inst['end_ts'] = $occTs + $duration;
+                                    $allEvents[] = $inst;
+                                }
+                                
+                                if ($freq === 'DAILY') {
+                                    $occTs = strtotime('+1 day', $occTs);
+                                } elseif ($freq === 'WEEKLY') {
+                                    $occTs = strtotime('+1 week', $occTs);
+                                } elseif ($freq === 'MONTHLY') {
+                                    $occTs = strtotime('+1 month', $occTs);
+                                } elseif ($freq === 'YEARLY') {
+                                    $occTs = strtotime('+1 year', $occTs);
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
                     }
                     continue;
                 }
@@ -198,11 +247,17 @@ if (isset($_GET['action'])) {
                         $currEvent['description'] = trim($m[1]);
                     } elseif (preg_match('/^LOCATION:(.+)$/i', $line, $m)) {
                         $currEvent['location'] = trim($m[1]);
-                    } elseif (preg_match('/^DTSTART(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
-                        $currEvent['start_raw'] = $m[1];
+                    } elseif (preg_match('/^RRULE:(.+)$/i', $line, $m)) {
+                        $currEvent['rrule'] = trim($m[1]);
+                    } elseif (preg_match('/^DTSTART(?:;VALUE=DATE)?:(\d{8})$/i', $line, $m)) {
                         $currEvent['start_ts'] = strtotime($m[1]);
-                    } elseif (preg_match('/^DTEND(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
-                        $currEvent['end_raw'] = $m[1];
+                        $currEvent['is_all_day'] = true;
+                    } elseif (preg_match('/^DTSTART(?:;[^:]+)?:(\d{8}T\d{6}Z?)/i', $line, $m)) {
+                        $currEvent['start_ts'] = strtotime($m[1]);
+                        $currEvent['is_all_day'] = false;
+                    } elseif (preg_match('/^DTEND(?:;VALUE=DATE)?:(\d{8})$/i', $line, $m)) {
+                        $currEvent['end_ts'] = strtotime($m[1]);
+                    } elseif (preg_match('/^DTEND(?:;[^:]+)?:(\d{8}T\d{6}Z?)/i', $line, $m)) {
                         $currEvent['end_ts'] = strtotime($m[1]);
                     }
                 }
@@ -214,31 +269,30 @@ if (isset($_GET['action'])) {
             return ($a['start_ts'] ?? 0) - ($b['start_ts'] ?? 0);
         });
 
-        $now = time();
-        $todayStart = strtotime('today midnight');
-        $todayEnd = strtotime('tomorrow midnight') - 1;
-        $weekEnd = strtotime('+7 days midnight');
-
         $eventsToday = [];
         $eventsUpcoming = [];
 
         foreach ($allEvents as $ev) {
             $ts = $ev['start_ts'] ?? 0;
+            $timeLabel = !empty($ev['is_all_day']) ? 'ALL DAY' : date('g:i A', $ts);
+
             if ($ts >= $todayStart && $ts <= $todayEnd) {
                 $eventsToday[] = [
                     'summary' => $ev['summary'] ?? 'Event',
-                    'time' => date('g:i A', $ts),
+                    'time' => $timeLabel,
                     'timestamp' => $ts,
+                    'is_all_day' => $ev['is_all_day'] ?? false,
                     'location' => $ev['location'] ?? '',
                     'calendar' => $ev['calendar_name'] ?? 'Main',
                     'color' => $ev['calendar_color'] ?? '#c2c1ff'
                 ];
-            } elseif ($ts > $todayEnd && $ts <= $weekEnd) {
+            } elseif ($ts > $todayEnd) {
                 $eventsUpcoming[] = [
                     'summary' => $ev['summary'] ?? 'Event',
-                    'date' => date('l, M j', $ts),
-                    'time' => date('g:i A', $ts),
+                    'date' => date('D, M j', $ts),
+                    'time' => $timeLabel,
                     'timestamp' => $ts,
+                    'is_all_day' => $ev['is_all_day'] ?? false,
                     'location' => $ev['location'] ?? '',
                     'calendar' => $ev['calendar_name'] ?? 'Main',
                     'color' => $ev['calendar_color'] ?? '#c2c1ff'
@@ -251,8 +305,9 @@ if (isset($_GET['action'])) {
             'active_calendars' => count($calendarList),
             'calendars' => $calendarList,
             'count_today' => count($eventsToday),
+            'count_upcoming' => count($eventsUpcoming),
             'events_today' => $eventsToday,
-            'events_upcoming' => array_slice($eventsUpcoming, 0, 10),
+            'events_upcoming' => array_slice($eventsUpcoming, 0, 15),
             'last_sync' => date('H:i:s')
         ]);
         exit;

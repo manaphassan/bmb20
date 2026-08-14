@@ -223,10 +223,19 @@ function renderMonthGrid(year, month) {
             <div class="day-events-container flex flex-col gap-0.5 mt-0.5"></div>
         `;
 
-        if (calendarState.eventsToday.length > 0 && isToday) {
+        // Find events on this specific day from all parsed feeds
+        const dayEvents = calendarState.allEvents.filter(ev => {
+            if (!ev.timestamp) return false;
+            const d = new Date(ev.timestamp * 1000);
+            return (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day);
+        });
+
+        if (dayEvents.length > 0) {
             const evBox = cell.querySelector('.day-events-container');
             if (evBox) {
-                evBox.innerHTML = `<span class="text-[7.5px] bg-primary/20 text-primary px-1 rounded truncate block">📅 ${calendarState.eventsToday.length} event(s)</span>`;
+                evBox.innerHTML = dayEvents.slice(0, 2).map(ev => `
+                    <span class="text-[7px] px-1 rounded truncate block font-bold text-black leading-tight" style="background-color: ${ev.color || '#c2c1ff'};" title="${ev.summary} (${ev.time})">${ev.summary}</span>
+                `).join('') + (dayEvents.length > 2 ? `<span class="text-[6.5px] text-tertiary font-bold">+${dayEvents.length - 2} more</span>` : '');
             }
         }
 
