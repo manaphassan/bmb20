@@ -50,23 +50,17 @@ function Send-SSHFile ($localPath, $remotePath) {
 
 # 1. Create remote staging directory
 Write-Host "[1/4] Creating staging directories on $TargetHost..." -ForegroundColor Yellow
-Invoke-SSH "mkdir -p ${RemoteStaging}/css ${RemoteStaging}/js ${RemoteStaging}/daemon ${RemoteStaging}/assets/images ${RemoteStaging}/assets/audio ${RemoteStaging}/assets/textures ${RemoteStaging}/assets/docs"
+Invoke-SSH "mkdir -p ${RemoteStaging}/daemon ${RemoteStaging}/assets"
 
 # 2. Upload files to /tmp staging directory
-Write-Host "[2/4] Uploading core files, CSS, JS, assets, and daemon modules..." -ForegroundColor Yellow
+Write-Host "[2/4] Uploading core files, assets, and daemon modules..." -ForegroundColor Yellow
 Send-SSHFile "$LocalDir\index.html" "${RemoteStaging}/index.html"
 Send-SSHFile "$LocalDir\calendar.html" "${RemoteStaging}/calendar.html"
 Send-SSHFile "$LocalDir\settings.html" "${RemoteStaging}/settings.html"
 Send-SSHFile "$LocalDir\api.php" "${RemoteStaging}/api.php"
 Send-SSHFile "$LocalDir\deploy-dietpi.sh" "${RemoteStaging}/deploy-dietpi.sh"
-Send-SSHFile "$LocalDir\css\style.css" "${RemoteStaging}/css/style.css"
 
-# Upload all JS modules
-Get-ChildItem "$LocalDir\js\*.js" | ForEach-Object {
-    Send-SSHFile $_.FullName "${RemoteStaging}/js/$($_.Name)"
-}
-
-# Upload Assets
+# Upload Assets recursively
 if (Test-Path "$LocalDir\assets") {
     Get-ChildItem -Path "$LocalDir\assets" -Recurse -File | ForEach-Object {
         $rel = $_.FullName.Substring("$LocalDir\assets\".Length).Replace('\', '/')

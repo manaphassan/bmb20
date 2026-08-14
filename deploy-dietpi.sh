@@ -41,22 +41,8 @@ if [ -f "${SCRIPT_DIR}/api.php" ]; then
     cp -fv "${SCRIPT_DIR}/api.php" "/var/www/api.php" 2>/dev/null || true
 fi
 
-if [ -d "${SCRIPT_DIR}/css" ]; then
-    echo "[+] Deploying CSS modules..."
-    mkdir -p "${TARGET_DIR}/css" "/var/www/css"
-    cp -rfv "${SCRIPT_DIR}/css/"* "${TARGET_DIR}/css/"
-    cp -rfv "${SCRIPT_DIR}/css/"* "/var/www/css/" 2>/dev/null || true
-fi
-
-if [ -d "${SCRIPT_DIR}/js" ]; then
-    echo "[+] Deploying JS modules..."
-    mkdir -p "${TARGET_DIR}/js" "/var/www/js"
-    cp -rfv "${SCRIPT_DIR}/js/"* "${TARGET_DIR}/js/"
-    cp -rfv "${SCRIPT_DIR}/js/"* "/var/www/js/" 2>/dev/null || true
-fi
-
 if [ -d "${SCRIPT_DIR}/assets" ]; then
-    echo "[+] Deploying assets directory..."
+    echo "[+] Deploying unified assets directory..."
     mkdir -p "${TARGET_DIR}/assets" "/var/www/assets"
     cp -rfv "${SCRIPT_DIR}/assets/"* "${TARGET_DIR}/assets/"
     cp -rfv "${SCRIPT_DIR}/assets/"* "/var/www/assets/" 2>/dev/null || true
