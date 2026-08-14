@@ -39,21 +39,24 @@ let calendarState = {
  */
 async function loadCalendarFeed(forceRefresh = false) {
     try {
-        // First load configured feeds
-        const cfgRes = await fetch('api.php?action=get_calendar_config');
-        if (cfgRes.ok) {
-            const cfg = await cfgRes.json();
-            if (cfg.calendars && Array.isArray(cfg.calendars)) {
-                calendarState.calendars = cfg.calendars;
-                renderCalendarFeedsList();
+        // First try static pre-rendered events file for instantaneous 1ms load
+        let data = null;
+        try {
+            const staticRes = await fetch('calendar_events.json?t=' + Date.now());
+            if (staticRes.ok) {
+                data = await staticRes.json();
+            }
+        } catch(e) {}
+
+        // Fallback to dynamic endpoint if needed
+        if (!data || !data.events_upcoming) {
+            const res = await fetch('cal.php?action=get_calendar_events').catch(() => fetch('api.php?action=get_calendar_events'));
+            if (res && res.ok) {
+                data = await res.json();
             }
         }
 
-        const res = await fetch('api.php?action=get_calendar_events');
-        if (!res.ok) throw new Error('API network error');
-        
-        const data = await res.json();
-        if (data.status === 'success') {
+        if (data && data.status === 'success') {
             calendarState.eventsToday = data.events_today || [];
             calendarState.eventsUpcoming = data.events_upcoming || [];
             calendarState.allEvents = data.all_events || [...calendarState.eventsToday, ...calendarState.eventsUpcoming];
@@ -123,11 +126,15 @@ async function saveAllCalendarConfigs() {
             calendars: calendarState.calendars,
             updated_at: new Date().toISOString()
         };
-        const res = await fetch('api.php?action=save_calendar_config', {
+        const res = await fetch('cal.php?action=save_calendar_config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        });
+        }).catch(() => fetch('api.php?action=save_calendar_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }));
         if (res.ok) {
             await loadCalendarFeed(true);
         }
@@ -142,6 +149,7 @@ async function saveAllCalendarConfigs() {
 function renderCalendarUI() {
     renderMonthGrid(calendarState.currentYear, calendarState.currentMonth);
     renderAgendaTimeline();
+    renderCalendarFeedsList();
     updateSyncStatusBadge();
 }
 
@@ -208,16 +216,19 @@ function renderMonthGrid(year, month) {
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement('div');
         const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day);
+        const isSelected = (calendarState.selectedDate && calendarState.selectedDate.getFullYear() === year && calendarState.selectedDate.getMonth() === month && calendarState.selectedDate.getDate() === day);
         
         cell.className = `p-1 min-h-[44px] rounded border transition-all cursor-pointer flex flex-col justify-between ${
-            isToday 
-                ? 'bg-primary/15 border-primary shadow-[0_0_8px_rgba(194,193,255,0.3)]' 
-                : 'bg-surface-container-high border-outline-variant/20 hover:border-tertiary/50'
+            isSelected
+                ? 'bg-secondary/20 border-secondary shadow-[0_0_8px_rgba(120,228,165,0.4)]'
+                : (isToday 
+                    ? 'bg-primary/15 border-primary shadow-[0_0_8px_rgba(194,193,255,0.3)]' 
+                    : 'bg-surface-container-high border-outline-variant/20 hover:border-tertiary/50')
         }`;
 
         cell.innerHTML = `
             <div class="flex justify-between items-center">
-                <span class="text-xs font-mono font-bold ${isToday ? 'text-primary' : 'text-on-surface'}">${day}</span>
+                <span class="text-xs font-mono font-bold ${isToday ? 'text-primary' : (isSelected ? 'text-secondary' : 'text-on-surface')}">${day}</span>
                 ${isToday ? '<span class="text-[7px] bg-primary text-black font-bold px-1 rounded">TODAY</span>' : ''}
             </div>
             <div class="day-events-container flex flex-col gap-0.5 mt-0.5"></div>
@@ -242,6 +253,7 @@ function renderMonthGrid(year, month) {
         cell.onclick = () => {
             calendarState.selectedDate = new Date(year, month, day);
             if (window.playSound) window.playSound('beep2');
+            renderCalendarUI();
         };
 
         gridElem.appendChild(cell);
@@ -256,8 +268,18 @@ function renderAgendaTimeline() {
     const upcomingList = document.getElementById('chrono-upcoming-events');
     const todayCount = document.getElementById('chrono-today-count');
 
+    // Selected date events
+    const selDate = calendarState.selectedDate || new Date();
+    const isTodaySelected = (selDate.toDateString() === new Date().toDateString());
+
+    const activeListEvents = calendarState.allEvents.filter(ev => {
+        if (!ev.timestamp) return false;
+        const d = new Date(ev.timestamp * 1000);
+        return (d.getFullYear() === selDate.getFullYear() && d.getMonth() === selDate.getMonth() && d.getDate() === selDate.getDate());
+    });
+
     if (todayCount) {
-        todayCount.innerText = `${calendarState.eventsToday.length} EVENTS`;
+        todayCount.innerText = `${activeListEvents.length} EVENTS`;
     }
 
     if (todayList) {
@@ -268,15 +290,24 @@ function renderAgendaTimeline() {
                     <span class="text-[10px]">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
                 </div>
             `;
-        } else if (calendarState.eventsToday.length === 0) {
+        } else if (activeListEvents.length === 0) {
+            const nextEvent = calendarState.eventsUpcoming[0];
             todayList.innerHTML = `
-                <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs italic flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-base">event_available</span>
-                    <span>Your schedule is completely clear today across all calendars!</span>
+                <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs flex flex-col gap-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">event_available</span>
+                        <span>No scheduled events for <strong>${selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</strong>.</span>
+                    </div>
+                    ${nextEvent ? `
+                        <div class="mt-1 pt-1.5 border-t border-outline-variant/20 flex items-center justify-between text-[10px]">
+                            <span class="text-tertiary font-bold">NEXT OPERATION:</span>
+                            <span class="font-semibold text-on-surface truncate max-w-[200px]">${nextEvent.date} @ ${nextEvent.summary}</span>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         } else {
-            todayList.innerHTML = calendarState.eventsToday.map(ev => `
+            todayList.innerHTML = activeListEvents.map(ev => `
                 <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
                     <div class="flex flex-col gap-0.5">
                         <div class="flex items-center gap-1.5">
@@ -293,7 +324,7 @@ function renderAgendaTimeline() {
 
     if (upcomingList) {
         if (calendarState.eventsUpcoming.length === 0) {
-            upcomingList.innerHTML = `<div class="text-secondary text-xs italic p-3">No upcoming events this week.</div>`;
+            upcomingList.innerHTML = `<div class="text-secondary text-xs italic p-3">No upcoming events found in active horizon.</div>`;
         } else {
             upcomingList.innerHTML = calendarState.eventsUpcoming.map(ev => `
                 <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high border-l-2 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
@@ -302,9 +333,9 @@ function renderAgendaTimeline() {
                             <span class="text-[7.5px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
                             <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
                         </div>
-                        ${ev.location ? `<span class="text-[8px] text-tertiary">${ev.location}</span>` : ''}
+                        ${ev.location ? `<span class="text-[8px] text-tertiary truncate max-w-[280px]">${ev.location}</span>` : ''}
                     </div>
-                    <span class="text-secondary font-mono text-[9.5px]">${ev.date} @ ${ev.time}</span>
+                    <span class="text-secondary font-mono text-[9.5px] flex-shrink-0">${ev.date} @ ${ev.time}</span>
                 </div>
             `).join('');
         }

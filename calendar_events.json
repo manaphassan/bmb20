@@ -1,0 +1,191 @@
+﻿{
+    "active_calendars":  2,
+    "total_events":  8,
+    "count_upcoming":  8,
+    "events_today":  [
+
+                     ],
+    "calendars":  [
+                      {
+                          "color":  "#ffe253",
+                          "url":  "https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics",
+                          "name":  "School",
+                          "id":  "cal_school",
+                          "enabled":  true
+                      },
+                      {
+                          "color":  "#c2c1ff",
+                          "url":  "https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics",
+                          "name":  "Manaphassan",
+                          "id":  "cal_manaphassan",
+                          "enabled":  true
+                      }
+                  ],
+    "count_today":  0,
+    "events_upcoming":  [
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1787241600,
+                                "color":  "#c2c1ff",
+                                "location":  "Raia Beach Resort Port Dickson, Jalan Pantai, Batu 7 Teluk Keman",
+                                "calendar":  "Manaphassan",
+                                "summary":  "RAIA Beach Resort Port Dickson",
+                                "date":  "Fri, Aug 21"
+                            },
+                            {
+                                "is_all_day":  false,
+                                "time":  "7:10 AM",
+                                "timestamp":  1787267400,
+                                "color":  "#ffe253",
+                                "location":  "Sekolah Kebangsaan Olak Lempit, Kampung Olak Lempit, 42700 Banti",
+                                "calendar":  "School",
+                                "summary":  "SKOL: Hari Dialog Akademik Bersama Ibu Bapa 2026",
+                                "date":  "Fri, Aug 21"
+                            },
+                            {
+                                "is_all_day":  false,
+                                "time":  "7:10 AM",
+                                "timestamp":  1787267400,
+                                "color":  "#c2c1ff",
+                                "location":  "Sekolah Kebangsaan Olak Lempit, Kampung Olak Lempit, 42700 Banti",
+                                "calendar":  "Manaphassan",
+                                "summary":  "SKOL: Hari Dialog Akademik Bersama Ibu Bapa 2026",
+                                "date":  "Fri, Aug 21"
+                            },
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1787846400,
+                                "color":  "#c2c1ff",
+                                "location":  "Jalan Suria, Bandar Baru Mahkota, 42700 Banting, Selangor, Mal",
+                                "calendar":  "Manaphassan",
+                                "summary":  "Mini Sukaneka Tadika Taska Ar Raudah 2026",
+                                "date":  "Fri, Aug 28"
+                            },
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1787932800,
+                                "color":  "#ffe253",
+                                "location":  "",
+                                "calendar":  "School",
+                                "summary":  "Cuti Penggal 2",
+                                "date":  "Sat, Aug 29"
+                            },
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1794153600,
+                                "color":  "#ffe253",
+                                "location":  "",
+                                "calendar":  "School",
+                                "summary":  "Deepavali",
+                                "date":  "Mon, Nov 9"
+                            },
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1796313600,
+                                "color":  "#ffe253",
+                                "location":  "",
+                                "calendar":  "School",
+                                "summary":  "Tamat Persekolahan SESI 2026",
+                                "date":  "Fri, Dec 4"
+                            },
+                            {
+                                "is_all_day":  true,
+                                "time":  "ALL DAY",
+                                "timestamp":  1796400000,
+                                "color":  "#ffe253",
+                                "location":  "",
+                                "calendar":  "School",
+                                "summary":  "Cuti Akhir Persekolahan",
+                                "date":  "Sat, Dec 5"
+                            }
+                        ],
+    "all_events":  [
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1787241600,
+                           "color":  "#c2c1ff",
+                           "location":  "Raia Beach Resort Port Dickson, Jalan Pantai, Batu 7 Teluk Keman",
+                           "calendar":  "Manaphassan",
+                           "summary":  "RAIA Beach Resort Port Dickson",
+                           "date":  "Fri, Aug 21"
+                       },
+                       {
+                           "is_all_day":  false,
+                           "time":  "7:10 AM",
+                           "timestamp":  1787267400,
+                           "color":  "#ffe253",
+                           "location":  "Sekolah Kebangsaan Olak Lempit, Kampung Olak Lempit, 42700 Banti",
+                           "calendar":  "School",
+                           "summary":  "SKOL: Hari Dialog Akademik Bersama Ibu Bapa 2026",
+                           "date":  "Fri, Aug 21"
+                       },
+                       {
+                           "is_all_day":  false,
+                           "time":  "7:10 AM",
+                           "timestamp":  1787267400,
+                           "color":  "#c2c1ff",
+                           "location":  "Sekolah Kebangsaan Olak Lempit, Kampung Olak Lempit, 42700 Banti",
+                           "calendar":  "Manaphassan",
+                           "summary":  "SKOL: Hari Dialog Akademik Bersama Ibu Bapa 2026",
+                           "date":  "Fri, Aug 21"
+                       },
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1787846400,
+                           "color":  "#c2c1ff",
+                           "location":  "Jalan Suria, Bandar Baru Mahkota, 42700 Banting, Selangor, Mal",
+                           "calendar":  "Manaphassan",
+                           "summary":  "Mini Sukaneka Tadika Taska Ar Raudah 2026",
+                           "date":  "Fri, Aug 28"
+                       },
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1787932800,
+                           "color":  "#ffe253",
+                           "location":  "",
+                           "calendar":  "School",
+                           "summary":  "Cuti Penggal 2",
+                           "date":  "Sat, Aug 29"
+                       },
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1794153600,
+                           "color":  "#ffe253",
+                           "location":  "",
+                           "calendar":  "School",
+                           "summary":  "Deepavali",
+                           "date":  "Mon, Nov 9"
+                       },
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1796313600,
+                           "color":  "#ffe253",
+                           "location":  "",
+                           "calendar":  "School",
+                           "summary":  "Tamat Persekolahan SESI 2026",
+                           "date":  "Fri, Dec 4"
+                       },
+                       {
+                           "is_all_day":  true,
+                           "time":  "ALL DAY",
+                           "timestamp":  1796400000,
+                           "color":  "#ffe253",
+                           "location":  "",
+                           "calendar":  "School",
+                           "summary":  "Cuti Akhir Persekolahan",
+                           "date":  "Sat, Dec 5"
+                       }
+                   ],
+    "status":  "success",
+    "last_sync":  "03:52:23"
+}

@@ -229,7 +229,7 @@ function resetTokenQuota() {
 
 async function loadSettingsCalendars() {
     try {
-        const res = await fetch('api.php?action=get_calendar_config');
+        const res = await fetch('cal.php?action=get_calendar_config').catch(() => fetch('api.php?action=get_calendar_config'));
         if (!res.ok) throw new Error('Network error');
         const data = await res.json();
         
@@ -334,12 +334,16 @@ async function saveSettingsCalendarState() {
             ical_url: settingsCalendarState.calendars[0]?.url || '',
             updated_at: new Date().toISOString()
         };
-        const res = await fetch('api.php?action=save_calendar_config', {
+        const res = await fetch('cal.php?action=save_calendar_config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        });
-        if (res.ok) {
+        }).catch(() => fetch('api.php?action=save_calendar_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }));
+        if (res && res.ok) {
             renderSettingsCalendarsList();
         }
     } catch(e) {
@@ -355,7 +359,7 @@ async function testAllCalendarFeeds() {
     }
 
     try {
-        const res = await fetch('api.php?action=get_calendar_events');
+        const res = await fetch('cal.php?action=get_calendar_events').catch(() => fetch('api.php?action=get_calendar_events'));
         const data = await res.json();
         if (data.status === 'success') {
             const todayCount = (data.events_today || []).length;

@@ -57,8 +57,12 @@ Write-Host "[2/4] Uploading core files, assets, and daemon modules..." -Foregrou
 Send-SSHFile "$LocalDir\index.html" "${RemoteStaging}/index.html"
 Send-SSHFile "$LocalDir\settings.html" "${RemoteStaging}/settings.html"
 Send-SSHFile "$LocalDir\api.php" "${RemoteStaging}/api.php"
+Send-SSHFile "$LocalDir\cal.php" "${RemoteStaging}/cal.php"
 if (Test-Path "$LocalDir\calendar_config.json") {
     Send-SSHFile "$LocalDir\calendar_config.json" "${RemoteStaging}/calendar_config.json"
+}
+if (Test-Path "$LocalDir\calendar_events.json") {
+    Send-SSHFile "$LocalDir\calendar_events.json" "${RemoteStaging}/calendar_events.json"
 }
 Send-SSHFile "$LocalDir\deploy-dietpi.sh" "${RemoteStaging}/deploy-dietpi.sh"
 

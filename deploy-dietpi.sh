@@ -35,11 +35,24 @@ if [ -f "${SCRIPT_DIR}/api.php" ]; then
     cp -fv "${SCRIPT_DIR}/api.php" "/var/www/api.php" 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/cal.php" ]; then
+    echo "[+] Deploying cal.php calendar backend..."
+    cp -fv "${SCRIPT_DIR}/cal.php" "${TARGET_DIR}/cal.php"
+    cp -fv "${SCRIPT_DIR}/cal.php" "/var/www/cal.php" 2>/dev/null || true
+fi
+
 if [ -f "${SCRIPT_DIR}/calendar_config.json" ]; then
     echo "[+] Deploying calendar_config.json..."
     cp -fv "${SCRIPT_DIR}/calendar_config.json" "${TARGET_DIR}/calendar_config.json"
     cp -fv "${SCRIPT_DIR}/calendar_config.json" "/var/www/calendar_config.json" 2>/dev/null || true
     chmod 0664 "${TARGET_DIR}/calendar_config.json" 2>/dev/null || true
+fi
+
+if [ -f "${SCRIPT_DIR}/calendar_events.json" ]; then
+    echo "[+] Deploying pre-rendered calendar_events.json..."
+    cp -fv "${SCRIPT_DIR}/calendar_events.json" "${TARGET_DIR}/calendar_events.json"
+    cp -fv "${SCRIPT_DIR}/calendar_events.json" "/var/www/calendar_events.json" 2>/dev/null || true
+    chmod 0664 "${TARGET_DIR}/calendar_events.json" 2>/dev/null || true
 fi
 
 if [ -d "${SCRIPT_DIR}/assets" ]; then

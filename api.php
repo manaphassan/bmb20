@@ -3,9 +3,14 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
-// Action Router
-if (isset($_GET['action'])) {
-    $action = trim($_GET['action']);
+$action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? '';
+if (empty($action) && !empty($_SERVER['QUERY_STRING'])) {
+    parse_str($_SERVER['QUERY_STRING'], $qs);
+    $action = $qs['action'] ?? '';
+}
+$action = trim($action);
+
+if (!empty($action)) {
     $memFile = file_exists('/var/www/html/knowledge_bank.json') ? '/var/www/html/knowledge_bank.json' : (file_exists('/var/www/knowledge_bank.json') ? '/var/www/knowledge_bank.json' : '/var/www/html/knowledge_bank.json');
 
     if ($action === 'get_memories') {
