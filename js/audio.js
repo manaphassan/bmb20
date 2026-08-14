@@ -34,35 +34,56 @@ window.addEventListener('keydown', unlockAudioContext, { once: true });
 window.addEventListener('touchstart', unlockAudioContext, { once: true });
 
 /**
- * M.E.E.N.A. AI Voice Synthesizer (Native Japanese Voice Engine)
+ * M.E.E.N.A. AI Voice Synthesizer (Strict Female Voice Engine)
  * Master Electronic Executive Neural Assistant
- * Calibrated for a Japanese anime assistant (Nanami / Aoi / Kyoko / Ayumi)
+ * Strictly filters to female anime / young woman voices
  */
 let meenaVoice = null;
+
+const MALE_VOICE_IDENTIFIERS = [
+    'david', 'george', 'mark', 'richard', 'guy', 'keita', 'ichiro', 'osman',
+    'james', 'ryan', 'steffan', 'stefan', 'claude', 'paul', 'thomas', 'otoya',
+    'takumi', 'naoki', ' male', '(male)', 'cosimo', 'florian', 'alain', 'kurt', 'stefano'
+];
+
+function isFemaleVoice(v) {
+    if (!v || !v.name) return false;
+    const name = v.name.toLowerCase();
+    for (const m of MALE_VOICE_IDENTIFIERS) {
+        if (name.includes(m)) return false;
+    }
+    return true;
+}
 
 function loadMeenaVoice() {
     if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
     if (!voices || voices.length === 0) return;
 
-    // Check if user has saved a preference
+    // Filter strictly to female voices
+    const femaleVoices = voices.filter(isFemaleVoice);
+    const candidateList = femaleVoices.length > 0 ? femaleVoices : voices;
+
+    // Check if user has saved a preference AND verify it is strictly female
     const savedVoiceName = localStorage.getItem('lcars_meena_voice');
     if (savedVoiceName) {
-        const saved = voices.find(v => v.name === savedVoiceName);
+        const saved = candidateList.find(v => v.name === savedVoiceName && isFemaleVoice(v));
         if (saved) {
             meenaVoice = saved;
             populateVoiceSelector();
             return;
+        } else {
+            localStorage.removeItem('lcars_meena_voice'); // Purge any previously saved male voice
         }
     }
 
-    // Priority 1: Multilingual Neural Voices (Capable of Japanese + English + Bahasa Melayu)
-    const match = voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
-        || voices.find(v => v.name.includes('Yasmin') || v.lang === 'ms-MY' || v.lang === 'ms_MY' || v.name.includes('Osman'))
-        || voices.find(v => v.name.includes('Luna') || v.lang === 'en-SG' || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao'))
-        || voices.find(v => (v.lang.startsWith('ja') || v.lang.includes('ja')) && (v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko')))
-        || voices.find(v => v.lang.startsWith('id') || v.name.includes('Gadis') || v.name.includes('Indonesian'))
-        || voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.toLowerCase().includes('female') || v.name.includes('Zira') || v.name.includes('Samantha')));
+    // Priority 1: Verified Female Multilingual & Japanese / Asian English Voices
+    const match = candidateList.find(v => v.name.includes('Jenny') || v.name.includes('Aria') || v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko'))
+        || candidateList.find(v => v.name.includes('Yasmin') || v.name.includes('Luna') || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao') || v.name.includes('Shiori') || v.name.includes('Mayu'))
+        || candidateList.find(v => v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Google 日本語'))
+        || candidateList.find(v => v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Google US English'))
+        || candidateList.find(v => isFemaleVoice(v) && (v.lang.startsWith('en') || v.lang.startsWith('ja') || v.lang.startsWith('ms')))
+        || candidateList[0];
 
     if (match) meenaVoice = match;
     populateVoiceSelector();
@@ -91,17 +112,20 @@ function populateVoiceSelector() {
 
     select.innerHTML = '';
     
-    // Sort: Multilingual & Malay & Japanese voices first
-    const sorted = [...voices].sort((a, b) => {
-        const aScore = (a.name.includes('Multilingual') || a.lang.includes('ms') || a.lang.includes('SG') || a.lang.includes('ja')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
-        const bScore = (b.name.includes('Multilingual') || b.lang.includes('ms') || b.lang.includes('SG') || b.lang.includes('ja')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
+    // Filter to female voices and sort best anime/multilingual voices first
+    const femaleOnly = voices.filter(isFemaleVoice);
+    const displayList = femaleOnly.length > 0 ? femaleOnly : voices;
+
+    const sorted = [...displayList].sort((a, b) => {
+        const aScore = (a.name.includes('Jenny') || a.name.includes('Aria') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Yasmin') || a.name.includes('Luna')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
+        const bScore = (b.name.includes('Jenny') || b.name.includes('Aria') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Yasmin') || b.name.includes('Luna')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
         return bScore - aScore;
     });
 
     sorted.forEach(v => {
         const opt = document.createElement('option');
         opt.value = v.name;
-        opt.innerText = `${v.name} (${v.lang})`;
+        opt.innerText = `🌸 ${v.name} (${v.lang})`;
         if (meenaVoice && v.name === meenaVoice.name) {
             opt.selected = true;
         }
@@ -112,7 +136,7 @@ function populateVoiceSelector() {
 function setMeenaVoiceByName(voiceName) {
     if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
-    const found = voices.find(v => v.name === voiceName);
+    const found = voices.find(v => v.name === voiceName && isFemaleVoice(v));
     if (found) {
         meenaVoice = found;
         localStorage.setItem('lcars_meena_voice', voiceName);
