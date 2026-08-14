@@ -1846,6 +1846,93 @@ function updateGeminiStatusUI() {
             pill.className = "text-[8px] px-1.5 py-0.5 rounded font-bold bg-surface-dim text-secondary border border-outline-variant/30";
         }
     }
+    updateTokenMeterUI();
+}
+
+/**
+ * ==========================================================================
+ * AI TOKEN CONSUMPTION TELEMETRY METER
+ * Real-time Token Tracking for Gemini 1.5 Flash vs Offline Local Brain
+ * ==========================================================================
+ */
+function getTokenUsage() {
+    try {
+        const raw = localStorage.getItem('meena_token_usage');
+        if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return {
+        totalPrompt: 0,
+        totalCandidates: 0,
+        totalTokens: 0,
+        queryCount: 0,
+        lastPrompt: 0,
+        lastCandidate: 0,
+        lastTotal: 0,
+        lastMode: 'Offline Local Brain'
+    };
+}
+
+function recordTokenUsage(promptTokens, candidateTokens, mode = 'Gemini 1.5 Flash') {
+    const stats = getTokenUsage();
+    stats.totalPrompt += promptTokens;
+    stats.totalCandidates += candidateTokens;
+    stats.totalTokens += (promptTokens + candidateTokens);
+    stats.queryCount += 1;
+    stats.lastPrompt = promptTokens;
+    stats.lastCandidate = candidateTokens;
+    stats.lastTotal = promptTokens + candidateTokens;
+    stats.lastMode = mode;
+
+    localStorage.setItem('meena_token_usage', JSON.stringify(stats));
+    updateTokenMeterUI();
+}
+
+function resetTokenUsage() {
+    const resetStats = {
+        totalPrompt: 0,
+        totalCandidates: 0,
+        totalTokens: 0,
+        queryCount: 0,
+        lastPrompt: 0,
+        lastCandidate: 0,
+        lastTotal: 0,
+        lastMode: 'Reset'
+    };
+    localStorage.setItem('meena_token_usage', JSON.stringify(resetStats));
+    updateTokenMeterUI();
+    if (window.playSound) window.playSound('beep1');
+}
+
+function updateTokenMeterUI() {
+    const stats = getTokenUsage();
+    
+    // Header Badge
+    const badge = document.getElementById('token-meter-badge');
+    if (badge) {
+        badge.innerText = `TOKENS: ${stats.totalTokens.toLocaleString()}`;
+        if (stats.totalTokens > 0) {
+            badge.className = "text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40 font-mono shadow-sm";
+        } else {
+            badge.className = "text-[9px] bg-surface-dim text-secondary px-1.5 py-0.5 rounded font-bold border border-outline-variant/30 font-mono";
+        }
+    }
+
+    // Modal Details
+    const totalVal = document.getElementById('token-total-val');
+    const promptVal = document.getElementById('token-prompt-val');
+    const replyVal = document.getElementById('token-reply-val');
+    const lastTxt = document.getElementById('token-last-query-txt');
+
+    if (totalVal) totalVal.innerText = stats.totalTokens.toLocaleString();
+    if (promptVal) promptVal.innerText = stats.totalPrompt.toLocaleString();
+    if (replyVal) replyVal.innerText = stats.totalCandidates.toLocaleString();
+    if (lastTxt) {
+        if (stats.lastTotal > 0) {
+            lastTxt.innerText = `Last Query: ${stats.lastTotal} tokens (${stats.lastPrompt} in / ${stats.lastCandidate} out // ${stats.lastMode})`;
+        } else {
+            lastTxt.innerText = `Last Query: 0 tokens (Offline Local Brain)`;
+        }
+    }
 }
 
 /**
@@ -2017,6 +2104,10 @@ Reply in 1-2 concise, witty, spoken sentences in English:`;
                 if (res.ok) {
                     const data = await res.json();
                     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    const promptTok = data.usageMetadata?.promptTokenCount || 0;
+                    const candTok = data.usageMetadata?.candidatesTokenCount || 0;
+                    recordTokenUsage(promptTok, candTok, 'Gemini 1.5 Flash');
+
                     if (reply) {
                         outputMeenaDialogue(reply.replace(/[*_#]/g, ''));
                         return;
@@ -2026,6 +2117,9 @@ Reply in 1-2 concise, witty, spoken sentences in English:`;
                 console.warn("Gemini fetch failed, using local brain:", e);
             }
         }
+
+        // Record 0 tokens for Offline Local Brain
+        recordTokenUsage(0, 0, 'Offline Local Brain');
 
         // Run Autonomous Local Offline Brain Engine (Math, Physics, Linux, Memory)
         const localBrainReply = evaluateLocalOfflineBrain(cleanQ, bank, cfg);
@@ -2591,5 +2685,15 @@ window.executeSkillReportAnalysis = executeSkillReportAnalysis;
 window.executeSkillMoraleBoost = executeSkillMoraleBoost;
 window.executeSkillFactVerify = executeSkillFactVerify;
 window.executeSkillFactVerifyPrompt = executeSkillFactVerifyPrompt;
+window.resetTokenUsage = resetTokenUsage;
+window.updateTokenMeterUI = updateTokenMeterUI;
+window.getTokenUsage = getTokenUsage;
 window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;
+
+// Initial call to populate UI tokens
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTokenMeterUI();
+    });
+}
 

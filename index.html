@@ -254,6 +254,7 @@
                                 <span class="text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40" id="meena-persona-badge">ALEX (GENIUS)</span>
                                 <span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40" id="meena-rank-badge">RANK C: OPERATOR</span>
                                 <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-mood-badge">CHEERFUL</span>
+                                <span class="text-[9px] bg-surface-dim text-secondary px-1.5 py-0.5 rounded font-bold border border-outline-variant/30 font-mono" id="token-meter-badge" title="Live AI Tokens Consumed">TOKENS: 0</span>
                             </div>
                             <!-- Neural Sync EXP Progress Bar -->
                             <div class="flex items-center gap-2 mt-1">
@@ -816,6 +817,40 @@
                     <span>Get Free Key at aistudio.google.com</span>
                     <span class="material-symbols-outlined text-[10px]">open_in_new</span>
                 </a>
+            </div>
+        </div>
+
+        <!-- AI Token Consumption Telemetry Card -->
+        <div class="bg-surface-container-high p-2.5 rounded border border-outline-variant/30 flex flex-col gap-2 font-mono">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-tertiary">
+                    <span class="material-symbols-outlined text-sm">toll</span>
+                    <span>AI TOKEN CONSUMPTION & QUOTA AUDIT</span>
+                </div>
+                <button onclick="resetTokenUsage()" class="text-[8px] bg-surface-dim hover:bg-error hover:text-white text-secondary px-1.5 py-0.5 rounded font-bold border border-outline-variant/30 transition-colors">RESET COUNTER</button>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <div class="bg-surface-dim p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                    <span class="text-[8px] text-secondary">TOTAL TOKENS</span>
+                    <strong class="text-primary text-sm font-bold" id="token-total-val">0</strong>
+                </div>
+                <div class="bg-surface-dim p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                    <span class="text-[8px] text-secondary">PROMPT (IN)</span>
+                    <strong class="text-tertiary text-sm font-bold" id="token-prompt-val">0</strong>
+                </div>
+                <div class="bg-surface-dim p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                    <span class="text-[8px] text-secondary">REPLY (OUT)</span>
+                    <strong class="text-secondary text-sm font-bold" id="token-reply-val">0</strong>
+                </div>
+                <div class="bg-surface-dim p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                    <span class="text-[8px] text-secondary">ESTIMATED COST</span>
+                    <strong class="text-lcars-gold text-sm font-bold">$0.00</strong>
+                    <span class="text-[7px] text-primary">FREE TIER</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center text-[8.5px] text-secondary">
+                <span>Free Limit: 1,000,000 TPM / 1,500 RPD</span>
+                <span class="text-primary font-bold" id="token-last-query-txt">Last Query: 0 tokens (Offline Local Brain)</span>
             </div>
         </div>
 
