@@ -1753,13 +1753,13 @@ function initEarth() {
     milkyWayGroup.position.z = -4.0;
     scene.add(milkyWayGroup);
     window.milkyWayGroup = milkyWayGroup;
-    window.milkyWayGroup.visible = false; // Hide in minimized view
+    window.milkyWayGroup.visible = true; // Show Sun-centered galaxy disc in all views
 
     // 2. Solar System Planetary Orbits Engine (LCARS Dot-Matrix Particle Style)
     const solarSystemGroup = new THREE.Group();
     scene.add(solarSystemGroup);
     window.solarSystemGroup = solarSystemGroup;
-    window.solarSystemGroup.visible = false; // Hide in minimized view
+    window.solarSystemGroup.visible = true; // Show Sun-centered system in all views
 
     // ☀️ 3D Glowing Central Sun Anchor for Maximized Solar System View
     const sunGroup = new THREE.Group();
@@ -1940,11 +1940,14 @@ function initEarth() {
     createSatellite('Starlink-01', 0xadc6ff, 1.30, -Math.PI / 3, 0.018);
     createSatellite('SBC-Sat 09', 0xffe253, 1.38, Math.PI / 6, 0.012);
 
+    // Hide standalone Earth globe (Sun is central anchor in all views)
+    globeGroup.visible = false;
+
     // Camera View Presets
-    window.targetCamZ = 2.4;
+    window.targetCamZ = 6.5; // Default Sun-centered Solar System view
     window.setCameraView = function(view) {
         if (typeof playSound === 'function') playSound('beep1');
-        if (view === 'earth') window.targetCamZ = 2.4;
+        if (view === 'earth') window.targetCamZ = 4.2;
         else if (view === 'solar') window.targetCamZ = 6.5;
         else if (view === 'galaxy') window.targetCamZ = 12.0;
     };
@@ -2303,11 +2306,11 @@ function openGlobeModal() {
     modal.classList.remove('hidden');
     playSound('beep2');
 
-    // Hide standalone Earth globe, reveal central Sun & 8 Orbiting Planets + Milky Way Galaxy
+    // Sun is central anchor in all views
     if (window.globeGroup) window.globeGroup.visible = false;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
-    window.targetCamZ = 8.5; // Zoom out to show full Sun-centered Solar System
+    window.targetCamZ = 8.5; // Zoom out to show full Sun-centered Solar System in modal
 
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
@@ -2334,11 +2337,11 @@ function closeGlobeModal() {
     modal.classList.add('hidden');
     playSound('beep1');
 
-    // Restore standalone Earth globe for Minimized View, hide Sun & outer Solar System
-    if (window.globeGroup) window.globeGroup.visible = true;
-    if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
-    if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
-    window.targetCamZ = 2.4; // Focus closely on Earth world map globe
+    // Keep Sun-centered Solar System view in Minimized Dashboard Monitor
+    if (window.globeGroup) window.globeGroup.visible = false;
+    if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
+    if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
+    window.targetCamZ = 6.5; // Return to Sun-centered minimized monitor view
 
     // Move 3D Globe Canvas back to Main Hero Container
     earthContainer.appendChild(globalRenderer.domElement);
