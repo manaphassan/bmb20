@@ -1754,20 +1754,6 @@ async function searchLiveWebInfo(rawQuery) {
     });
 }
 
-async function askMeenaAI(question) {
-    lastUserInteractionTime = Date.now();
-    const bank = getKnowledgeBank();
-    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
-    
-    let cleanQ = question.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)/i, '').trim();
-    const q = cleanQ.toLowerCase();
-
-    // If query asks for factual search, route to live web search
-    if (q.includes('who is') || q.includes('who was') || q.includes('what is') || q.includes('what was') || q.includes('search') || q.includes('lookup') || q.includes('look up') || q.includes('tell me about') || q.includes('google') || q.includes('explain')) {
-        searchLiveWebInfo(cleanQ);
-        return;
-    }
-
 function saveGeminiApiKey() {
     const input = document.getElementById('gemini-key-input');
     if (!input) return;
