@@ -819,10 +819,26 @@ function setMeenaMood(mood) {
 
 /**
  * ==========================================================================
- * STRUCTURED 4-CATEGORY TACTICAL KNOWLEDGE BANK
+ * OBSIDIAN-STYLE FORCE-DIRECTED NEURAL KNOWLEDGE GRAPH
+ * Interactive Physics-Driven Graph View with Nodes, Links & Synaptic Flow
  * ==========================================================================
  */
-let currentKnowledgeFilter = 'all';
+let graphCanvas = null;
+let graphCtx = null;
+let graphNodes = [];
+let graphLinks = [];
+let graphParticles = [];
+let draggedNode = null;
+let hoveredNode = null;
+let isGraphRunning = false;
+
+const CATEGORY_COLORS = {
+    core: '#66ccff',
+    facility: '#ffe253',
+    profile: '#c2c1ff',
+    routines: '#78e4a5',
+    missions: '#ff7b72'
+};
 
 function getKnowledgeBank() {
     try {
@@ -842,6 +858,420 @@ function getKnowledgeBank() {
     return defaults;
 }
 
+function buildGraphData() {
+    const bank = getKnowledgeBank();
+    const w = graphCanvas ? graphCanvas.width : 340;
+    const h = graphCanvas ? graphCanvas.height : 220;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    const existingPositions = {};
+    graphNodes.forEach(n => {
+        existingPositions[n.id] = { x: n.x, y: n.y, vx: n.vx, vy: n.vy };
+    });
+
+    graphNodes = [];
+    graphLinks = [];
+    graphParticles = [];
+
+    // 1. Root Core Node (Takahara Academy)
+    const rootPos = existingPositions['root'] || { x: cx, y: cy, vx: 0, vy: 0 };
+    const rootNode = {
+        id: 'root',
+        label: 'TAKAHARA',
+        type: 'core',
+        category: 'core',
+        color: CATEGORY_COLORS.core,
+        radius: 10,
+        x: rootPos.x,
+        y: rootPos.y,
+        vx: rootPos.vx || 0,
+        vy: rootPos.vy || 0,
+        mass: 4.0,
+        isFixed: false
+    };
+    graphNodes.push(rootNode);
+
+    // 2. Category Cluster Hubs
+    const categories = [
+        { id: 'cat_facility', name: 'FACILITY', key: 'facility', angle: 0 },
+        { id: 'cat_profile', name: 'SENSEI', key: 'profile', angle: Math.PI * 0.5 },
+        { id: 'cat_routines', name: 'ROUTINES', key: 'routines', angle: Math.PI },
+        { id: 'cat_missions', name: 'MISSIONS', key: 'missions', angle: Math.PI * 1.5 }
+    ];
+
+    const categoryMap = {};
+    categories.forEach(cat => {
+        const catPos = existingPositions[cat.id] || {
+            x: cx + Math.cos(cat.angle) * 55,
+            y: cy + Math.sin(cat.angle) * 45,
+            vx: 0, vy: 0
+        };
+        const node = {
+            id: cat.id,
+            label: cat.name,
+            type: 'hub',
+            category: cat.key,
+            color: CATEGORY_COLORS[cat.key] || '#ffe253',
+            radius: 7,
+            x: catPos.x,
+            y: catPos.y,
+            vx: catPos.vx || 0,
+            vy: catPos.vy || 0,
+            mass: 2.5
+        };
+        graphNodes.push(node);
+        categoryMap[cat.key] = node;
+
+        // Connect Hub to Root Core
+        graphLinks.push({
+            source: rootNode,
+            target: node,
+            targetDist: 50,
+            color: node.color,
+            isCore: true
+        });
+    });
+
+    // 3. Leaf Memory Fact Nodes
+    bank.forEach((item, idx) => {
+        const hub = categoryMap[item.category] || categoryMap['facility'];
+        const existing = existingPositions[item.id];
+        const offsetAngle = (idx / Math.max(1, bank.length)) * Math.PI * 2 + Math.random() * 0.4;
+        const leafPos = existing || {
+            x: hub.x + Math.cos(offsetAngle) * (30 + Math.random() * 20),
+            y: hub.y + Math.sin(offsetAngle) * (30 + Math.random() * 20),
+            vx: 0, vy: 0
+        };
+
+        const leafNode = {
+            id: item.id,
+            label: item.fact.length > 18 ? item.fact.substring(0, 16) + '..' : item.fact,
+            fullText: item.fact,
+            desc: item.desc || 'Knowledge item',
+            type: 'leaf',
+            category: item.category,
+            color: CATEGORY_COLORS[item.category] || '#ffe253',
+            radius: 4.5,
+            x: leafPos.x,
+            y: leafPos.y,
+            vx: leafPos.vx || 0,
+            vy: leafPos.vy || 0,
+            mass: 1.0
+        };
+        graphNodes.push(leafNode);
+
+        // Connect Leaf to Category Hub
+        graphLinks.push({
+            source: hub,
+            target: leafNode,
+            targetDist: 35,
+            color: leafNode.color,
+            isCore: false
+        });
+    });
+
+    // 4. Initialize Traveling Pulse Particles
+    for (let p = 0; p < 8; p++) {
+        if (graphLinks.length > 0) {
+            graphParticles.push({
+                linkIdx: Math.floor(Math.random() * graphLinks.length),
+                progress: Math.random(),
+                speed: Math.random() * 0.02 + 0.008
+            });
+        }
+    }
+
+    // Update Header HUD Counters
+    const nodeCountElem = document.getElementById('kb-node-count');
+    const edgeCountElem = document.getElementById('kb-edge-count');
+    if (nodeCountElem) nodeCountElem.innerText = graphNodes.length.toString();
+    if (edgeCountElem) edgeCountElem.innerText = graphLinks.length.toString();
+}
+
+function initKnowledgeGraph() {
+    graphCanvas = document.getElementById('knowledge-graph-canvas');
+    if (!graphCanvas) return;
+    graphCtx = graphCanvas.getContext('2d');
+
+    // Handle canvas DPI & resizing
+    resizeKnowledgeGraphCanvas();
+    window.addEventListener('resize', resizeKnowledgeGraphCanvas);
+
+    buildGraphData();
+    setupGraphInteractions();
+
+    if (!isGraphRunning) {
+        isGraphRunning = true;
+        animateKnowledgeGraph();
+    }
+}
+
+function resizeKnowledgeGraphCanvas() {
+    if (!graphCanvas) return;
+    const rect = graphCanvas.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+        graphCanvas.width = rect.width;
+        graphCanvas.height = rect.height;
+    }
+}
+
+function setupGraphInteractions() {
+    if (!graphCanvas) return;
+
+    function getCanvasCoords(e) {
+        const rect = graphCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top,
+            globalX: clientX,
+            globalY: clientY
+        };
+    }
+
+    function findNodeAt(x, y) {
+        for (let i = graphNodes.length - 1; i >= 0; i--) {
+            const n = graphNodes[i];
+            const dx = x - n.x;
+            const dy = y - n.y;
+            if (Math.sqrt(dx * dx + dy * dy) <= n.radius + 6) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    const tip = document.getElementById('knowledge-graph-tooltip');
+    const tipHeader = document.getElementById('kg-tip-header');
+    const tipBody = document.getElementById('kg-tip-body');
+
+    graphCanvas.addEventListener('mousedown', (e) => {
+        const pos = getCanvasCoords(e);
+        const node = findNodeAt(pos.x, pos.y);
+        if (node) {
+            draggedNode = node;
+            node.vx = 0;
+            node.vy = 0;
+            if (window.playSound) window.playSound('beep2');
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!graphCanvas) return;
+        const rect = graphCanvas.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+            if (hoveredNode && !draggedNode) {
+                hoveredNode = null;
+                if (tip) tip.classList.add('hidden');
+            }
+            return;
+        }
+
+        const pos = getCanvasCoords(e);
+
+        if (draggedNode) {
+            draggedNode.x = Math.max(15, Math.min(graphCanvas.width - 15, pos.x));
+            draggedNode.y = Math.max(15, Math.min(graphCanvas.height - 15, pos.y));
+            draggedNode.vx = 0;
+            draggedNode.vy = 0;
+        } else {
+            const node = findNodeAt(pos.x, pos.y);
+            hoveredNode = node;
+
+            if (node && tip && tipHeader && tipBody) {
+                tipHeader.innerText = `${node.type.toUpperCase()}: ${node.category.toUpperCase()}`;
+                tipHeader.style.color = node.color;
+                tipBody.innerHTML = node.fullText ? `<strong>${node.fullText}</strong><br><span class="text-[7.5px] text-secondary">Double-click node to delete</span>` : `<span>Hub: ${node.label}</span>`;
+                tip.classList.remove('hidden');
+
+                // Position tooltip near cursor
+                const relX = Math.min(graphCanvas.width - 210, Math.max(10, pos.x + 12));
+                const relY = Math.min(graphCanvas.height - 70, Math.max(10, pos.y - 30));
+                tip.style.left = `${relX}px`;
+                tip.style.top = `${relY}px`;
+            } else if (tip) {
+                tip.classList.add('hidden');
+            }
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        draggedNode = null;
+    });
+
+    // Double-click to delete memory leaf
+    graphCanvas.addEventListener('dblclick', (e) => {
+        const pos = getCanvasCoords(e);
+        const node = findNodeAt(pos.x, pos.y);
+        if (node && node.type === 'leaf') {
+            deleteKnowledgeItem(node.id);
+            if (tip) tip.classList.add('hidden');
+        }
+    });
+}
+
+function animateKnowledgeGraph() {
+    if (!graphCtx || !graphCanvas) return;
+    const ctx = graphCtx;
+    const w = graphCanvas.width;
+    const h = graphCanvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 1. Force-Directed Physics Integration
+    const kRepulsion = 450;
+    const kSpring = 0.045;
+    const damping = 0.88;
+    const centerGravity = 0.0035;
+
+    // Node-to-Node Repulsion
+    for (let i = 0; i < graphNodes.length; i++) {
+        const n1 = graphNodes[i];
+        for (let j = i + 1; j < graphNodes.length; j++) {
+            const n2 = graphNodes[j];
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const dist = Math.max(10, Math.sqrt(dx * dx + dy * dy));
+            const force = (kRepulsion * (n1.mass * n2.mass)) / (dist * dist);
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+
+            if (n1 !== draggedNode) {
+                n1.vx -= fx / n1.mass;
+                n1.vy -= fy / n1.mass;
+            }
+            if (n2 !== draggedNode) {
+                n2.vx += fx / n2.mass;
+                n2.vy += fy / n2.mass;
+            }
+        }
+    }
+
+    // Spring Attraction along Links
+    graphLinks.forEach(link => {
+        const n1 = link.source;
+        const n2 = link.target;
+        const dx = n2.x - n1.x;
+        const dy = n2.y - n1.y;
+        const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+        const displacement = dist - link.targetDist;
+        const force = kSpring * displacement;
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        if (n1 !== draggedNode) {
+            n1.vx += fx / n1.mass;
+            n1.vy += fy / n1.mass;
+        }
+        if (n2 !== draggedNode) {
+            n2.vx -= fx / n2.mass;
+            n2.vy -= fy / n2.mass;
+        }
+    });
+
+    // Center Gravitational Pull & Movement Update
+    graphNodes.forEach(n => {
+        if (n === draggedNode) return;
+
+        n.vx += (cx - n.x) * centerGravity;
+        n.vy += (cy - n.y) * centerGravity;
+
+        n.vx *= damping;
+        n.vy *= damping;
+
+        n.x += n.vx;
+        n.y += n.vy;
+
+        // Boundary containment
+        n.x = Math.max(n.radius + 6, Math.min(w - n.radius - 6, n.x));
+        n.y = Math.max(n.radius + 6, Math.min(h - n.radius - 6, n.y));
+    });
+
+    // 2. Render Obsidian Links
+    graphLinks.forEach(link => {
+        const isHighlighted = (hoveredNode && (hoveredNode === link.source || hoveredNode === link.target));
+        ctx.strokeStyle = link.color;
+        ctx.lineWidth = isHighlighted ? 1.8 : (link.isCore ? 1.2 : 0.75);
+        ctx.globalAlpha = isHighlighted ? 0.9 : (link.isCore ? 0.45 : 0.25);
+
+        ctx.beginPath();
+        ctx.moveTo(link.source.x, link.source.y);
+        ctx.lineTo(link.target.x, link.target.y);
+        ctx.stroke();
+    });
+
+    // 3. Render Traveling Synaptic Light Particles
+    graphParticles.forEach(p => {
+        p.progress += p.speed;
+        if (p.progress > 1.0) {
+            p.progress = 0;
+            p.linkIdx = Math.floor(Math.random() * graphLinks.length);
+        }
+        const link = graphLinks[p.linkIdx];
+        if (!link) return;
+
+        const px = link.source.x + (link.target.x - link.source.x) * p.progress;
+        const py = link.source.y + (link.target.y - link.source.y) * p.progress;
+
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = link.color;
+        ctx.shadowColor = link.color;
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.arc(px, py, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+
+    // 4. Render Obsidian Nodes
+    graphNodes.forEach(n => {
+        const isHovered = (n === hoveredNode);
+        const isDragged = (n === draggedNode);
+
+        // Halo aura on hover/drag
+        if (isHovered || isDragged) {
+            ctx.fillStyle = n.color;
+            ctx.globalAlpha = 0.25;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.radius + 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Main Node Circle
+        ctx.fillStyle = n.color;
+        ctx.globalAlpha = isHovered ? 1.0 : (n.type === 'core' ? 0.95 : 0.85);
+        ctx.shadowColor = n.color;
+        ctx.shadowBlur = isHovered ? 10 : (n.type === 'core' ? 8 : 3);
+
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Inner Core Ring
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius * 0.45, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Node Label
+        ctx.globalAlpha = isHovered ? 1.0 : (n.type === 'leaf' ? 0.75 : 0.9);
+        ctx.fillStyle = isHovered ? '#ffffff' : (n.type === 'core' ? '#66ccff' : '#d1d5db');
+        ctx.font = n.type === 'core' ? 'bold 9px monospace' : (n.type === 'hub' ? 'bold 8px monospace' : '7.5px monospace');
+        ctx.textAlign = 'center';
+        ctx.fillText(n.label, n.x, n.y + n.radius + 9);
+    });
+
+    ctx.globalAlpha = 1.0;
+    requestAnimationFrame(animateKnowledgeGraph);
+}
+
 function rememberCategorizedFact(category, fact) {
     if (!fact || !fact.trim()) return;
     const bank = getKnowledgeBank();
@@ -856,73 +1286,20 @@ function rememberCategorizedFact(category, fact) {
     if (bank.length > 50) bank.shift();
     localStorage.setItem('meena_knowledge_bank', JSON.stringify(bank));
 
-    addMeenaEXP(25, 'Taught new fact');
+    addMeenaEXP(25, 'Taught new memory node');
     setMeenaMood('CHEERFUL');
-    renderKnowledgeBank(currentKnowledgeFilter);
+    buildGraphData();
 
     if (window.playSound) window.playSound('beep2');
-    speakComputerVoice(`Understood, Sensei! I have memorized that under ${category.toUpperCase()} category!`);
+    speakComputerVoice(`Memorized and mapped into the Takahara Neural Graph, Sensei!`);
 }
 
 function deleteKnowledgeItem(id) {
     let bank = getKnowledgeBank();
     bank = bank.filter(item => item.id !== id);
     localStorage.setItem('meena_knowledge_bank', JSON.stringify(bank));
-    renderKnowledgeBank(currentKnowledgeFilter);
+    buildGraphData();
     if (window.playSound) window.playSound('beep1');
-}
-
-function filterKnowledgeCategory(category) {
-    currentKnowledgeFilter = category;
-    
-    // Update Filter Pill Styles
-    ['all', 'facility', 'profile', 'routines', 'missions'].forEach(cat => {
-        const btn = document.getElementById(`kb-filter-${cat}`);
-        if (btn) {
-            if (cat === category) {
-                btn.className = 'px-2 py-0.5 rounded bg-primary text-black font-bold';
-            } else {
-                btn.className = 'px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold';
-            }
-        }
-    });
-
-    renderKnowledgeBank(category);
-}
-
-function renderKnowledgeBank(category = 'all') {
-    const container = document.getElementById('knowledge-cards-container');
-    if (!container) return;
-
-    const bank = getKnowledgeBank();
-    const filtered = (category === 'all') ? bank : bank.filter(item => item.category === category);
-
-    container.innerHTML = '';
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-2 bg-surface-container-lowest p-2 rounded border border-outline-variant/30 text-center text-secondary text-[9px]">No knowledge entries recorded. Type below to teach Meena!</div>`;
-        return;
-    }
-
-    const catIcons = {
-        facility: 'FACILITY',
-        profile: 'SENSEI',
-        routines: 'ROUTINES',
-        missions: 'MISSIONS'
-    };
-
-    filtered.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'bg-surface-container-lowest p-2 rounded border border-outline-variant/30 flex flex-col justify-between text-[9px] hover:border-primary/50 transition-all';
-        card.innerHTML = `
-            <div class="flex justify-between items-center text-tertiary font-bold">
-                <span>${catIcons[item.category] || item.category.toUpperCase()}</span>
-                <button onclick="deleteKnowledgeItem('${item.id}')" class="text-on-surface-variant hover:text-error text-[10px] font-bold px-1" title="Delete note">X</button>
-            </div>
-            <div class="text-on-surface my-1 font-mono break-words">${item.fact}</div>
-            <div class="text-[8px] text-secondary font-mono">${item.desc}</div>
-        `;
-        container.appendChild(card);
-    });
 }
 
 function executeTeachNote() {
@@ -938,19 +1315,19 @@ function executeTeachNote() {
 function recallMemories() {
     const bank = getKnowledgeBank();
     if (bank.length === 0) {
-        speakComputerVoice("My tactical knowledge bank is currently clear, Sensei! You can teach me with the Teach Meena bar below.");
+        speakComputerVoice("My tactical knowledge graph is currently clear, Sensei! You can teach me with the Teach Meena bar below.");
         return;
     }
     const count = bank.length;
     const latest = bank.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
-    speakComputerVoice(`Takahara knowledge bank has ${count} records, Sensei. Here are the latest notes: ${latest}`);
+    speakComputerVoice(`Takahara knowledge graph contains ${count} synaptic memory nodes, Sensei. Here are the latest entries: ${latest}`);
 }
 
 function clearMemories() {
     localStorage.removeItem('meena_knowledge_bank');
     if (window.playSound) window.playSound('beep1');
-    renderKnowledgeBank('all');
-    speakComputerVoice("Takahara tactical memory registers have been reset, Sensei.");
+    buildGraphData();
+    speakComputerVoice("Takahara neural knowledge graph registers have been reset, Sensei.");
 }
 
 /**
@@ -1271,8 +1648,8 @@ window.addMeenaEXP = addMeenaEXP;
 window.getMeenaGrowthStatus = getMeenaGrowthStatus;
 window.updateGrowthUI = updateGrowthUI;
 window.setMeenaMood = setMeenaMood;
-window.filterKnowledgeCategory = filterKnowledgeCategory;
-window.renderKnowledgeBank = renderKnowledgeBank;
+window.initKnowledgeGraph = initKnowledgeGraph;
+window.buildGraphData = buildGraphData;
 window.deleteKnowledgeItem = deleteKnowledgeItem;
 window.executeTeachNote = executeTeachNote;
 window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;

@@ -34,14 +34,10 @@ function setAlertCondition(condition, isManual = true) {
         body.appendChild(overlay);
     }
 
-    // Update Button Highlight States
-    const btnGreen = document.getElementById('btn-cond-green');
-    const btnYellow = document.getElementById('btn-cond-yellow');
-    const btnRed = document.getElementById('btn-cond-red');
-
-    if (btnGreen) btnGreen.className = "condition-btn px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer transition-all " + (condition === 'green' ? "bg-primary text-black active-condition font-bold shadow-[0_0_8px_#66ccff]" : "bg-surface-bright text-on-surface-variant hover:text-primary");
-    if (btnYellow) btnYellow.className = "condition-btn px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer transition-all " + (condition === 'yellow' ? "bg-tertiary text-black active-condition font-bold shadow-[0_0_8px_#ffe253]" : "bg-surface-bright text-on-surface-variant hover:text-tertiary");
-    if (btnRed) btnRed.className = "condition-btn px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer transition-all " + (condition === 'red' ? "bg-error text-white active-condition font-bold shadow-[0_0_12px_#cc3333] animate-pulse" : "bg-surface-bright text-on-surface-variant hover:text-error");
+    // Dynamic Single Status Pill Button Updates
+    const cycleBtn = document.getElementById('status-cycle-btn');
+    const cycleText = document.getElementById('status-cycle-text');
+    const cycleDot = document.getElementById('status-cycle-dot');
 
     if (condition === 'red') {
         body.classList.add('alert-red');
@@ -50,6 +46,12 @@ function setAlertCondition(condition, isManual = true) {
             badge.innerText = "RED ALERT: BATTLE STATIONS";
             badge.className = "text-error font-bold tracking-wider animate-pulse";
         }
+        if (cycleBtn) {
+            cycleBtn.className = "flex items-center gap-1.5 bg-error/20 hover:bg-error/30 text-error border border-error/60 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_12px_rgba(255,84,73,0.4)] animate-pulse";
+        }
+        if (cycleText) cycleText.innerText = "CONDITION: RED // BATTLE STATIONS";
+        if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-error animate-ping";
+
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('red');
         if (window.startRedAlertKlaxon) window.startRedAlertKlaxon();
     } else if (condition === 'yellow') {
@@ -59,6 +61,12 @@ function setAlertCondition(condition, isManual = true) {
             badge.innerText = "YELLOW ALERT: CAUTION ADVISED";
             badge.className = "text-tertiary font-bold tracking-wider";
         }
+        if (cycleBtn) {
+            cycleBtn.className = "flex items-center gap-1.5 bg-tertiary/20 hover:bg-tertiary/30 text-tertiary border border-tertiary/60 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(255,226,83,0.3)]";
+        }
+        if (cycleText) cycleText.innerText = "CONDITION: YELLOW // CAUTION";
+        if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-tertiary animate-pulse";
+
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('yellow');
         if (window.playYellowAlertChirp) window.playYellowAlertChirp();
     } else {
@@ -67,11 +75,28 @@ function setAlertCondition(condition, isManual = true) {
             badge.innerText = "CONDITION GREEN [NOMINAL]";
             badge.className = "text-primary font-bold tracking-wider";
         }
+        if (cycleBtn) {
+            cycleBtn.className = "flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)]";
+        }
+        if (cycleText) cycleText.innerText = "CONDITION: GREEN // NOMINAL";
+        if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-primary animate-pulse";
+
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('green');
         if (window.stopRedAlertKlaxon) window.stopRedAlertKlaxon();
         if (isManual && window.speakComputerVoice) {
             window.speakComputerVoice("All systems operating within nominal parameters, sir.");
         }
+    }
+}
+
+// Single-Button Dynamic Alert State Cycler (GREEN -> YELLOW -> RED -> GREEN)
+function cycleAlertCondition() {
+    if (activeAlertCondition === 'green') {
+        setAlertCondition('yellow', true);
+    } else if (activeAlertCondition === 'yellow') {
+        setAlertCondition('red', true);
+    } else {
+        setAlertCondition('green', true);
     }
 }
 
@@ -191,7 +216,7 @@ function switchDeck(deckNumber) {
         if (deck2) deck2.classList.add('hidden');
         if (tab1) tab1.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#66ccff]";
         if (tab2) tab2.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
-        if (window.renderKnowledgeBank) window.renderKnowledgeBank();
+        if (window.initKnowledgeGraph) window.initKnowledgeGraph();
         if (window.updateGrowthUI) window.updateGrowthUI();
     } else {
         if (deck1) deck1.classList.add('hidden');
@@ -252,8 +277,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if (window.updateGrowthUI) {
         window.updateGrowthUI();
     }
-    if (window.renderKnowledgeBank) {
-        window.renderKnowledgeBank('all');
+    if (window.initKnowledgeGraph) {
+        window.initKnowledgeGraph();
     }
 
     // 4. Initialize 3D Earth Hologram
@@ -280,5 +305,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 window.toggleScanlines = toggleScanlines;
 window.setAlertCondition = setAlertCondition;
+window.cycleAlertCondition = cycleAlertCondition;
 window.switchDeck = switchDeck;
 

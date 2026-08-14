@@ -214,12 +214,15 @@
             </div>
         </div>
 
-        <!-- Tactical Alert Condition Switcher -->
-        <div class="flex items-center gap-1 bg-surface-dim px-2 py-1 rounded-full border border-outline-variant/30 font-data-mono">
-            <span class="text-[9px] text-on-surface-variant font-bold mr-1">STATUS:</span>
-            <button id="btn-cond-green" onclick="setAlertCondition('green')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-primary text-black active-condition">CODE GREEN</button>
-            <button id="btn-cond-yellow" onclick="setAlertCondition('yellow')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-tertiary">CODE YELLOW</button>
-            <button id="btn-cond-red" onclick="setAlertCondition('red')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-error">CODE RED</button>
+        <!-- Tactical Alert Condition Dynamic Single-Button Cycler -->
+        <div class="flex items-center font-data-mono">
+            <button id="status-cycle-btn" onclick="cycleAlertCondition()" 
+                    class="flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)]"
+                    title="Click to cycle Tactical Alert Condition (GREEN -> YELLOW -> RED)">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse" id="status-cycle-dot"></span>
+                <span id="status-cycle-text">CONDITION: GREEN // NOMINAL</span>
+                <span class="material-symbols-outlined text-xs">sync</span>
+            </button>
         </div>
 
         <div class="flex items-center gap-5 font-data-mono text-xs text-tertiary">
@@ -310,13 +313,13 @@
                 </div>
             </div>
 
-            <!-- Right Column: Pi-hole Network Defense Shield & Full-Height Knowledge Bank -->
+            <!-- Right Column: Pi-hole Network Defense Shield & Obsidian Force-Directed Graph -->
             <div class="flex flex-col gap-2 h-full min-h-0 overflow-hidden font-data-mono">
 
                 <!-- Module 1: Pi-hole Network Defense Shield Status & Quick Controls -->
-                <div class="bg-surface-container p-2.5 flex items-center justify-between border-t-4 border-lcars-orange rounded-sm flex-shrink-0">
+                <div class="bg-surface-container p-2 flex items-center justify-between border-t-4 border-lcars-orange rounded-sm flex-shrink-0">
                     <div class="flex items-center gap-2.5">
-                        <div class="p-1.5 bg-lcars-orange/20 rounded border border-lcars-orange/40 text-lcars-orange">
+                        <div class="p-1 bg-lcars-orange/20 rounded border border-lcars-orange/40 text-lcars-orange">
                             <span class="material-symbols-outlined text-base">security</span>
                         </div>
                         <div class="flex flex-col">
@@ -324,44 +327,56 @@
                             <span class="text-[9px] text-secondary" id="shield-summary-text">DNS AD-BLOCKING & SECURE MESH OPERATIONAL</span>
                         </div>
                     </div>
-                    <button onclick="openPiholeModal()" class="text-[9px] bg-primary text-black font-bold px-3 py-1.5 rounded hover:bg-primary/80 transition-all shadow-sm flex items-center gap-1">
+                    <button onclick="openPiholeModal()" class="text-[9px] bg-primary text-black font-bold px-2.5 py-1 rounded hover:bg-primary/80 transition-all shadow-sm flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs">tune</span>
                         <span>MANAGE SHIELD</span>
                     </button>
                 </div>
 
-                <!-- Module 2: Structured 4-Category Tactical Knowledge Bank (Full Remaining Height) -->
-                <div class="bg-surface-container p-2.5 flex flex-col justify-between border-t-4 border-lcars-gold rounded-sm flex-1 min-h-0 overflow-hidden">
-                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
+                <!-- Module 2: Obsidian-Style Force-Directed Neural Knowledge Graph -->
+                <div class="bg-surface-container p-2.5 flex flex-col justify-between border-t-4 border-lcars-gold rounded-sm flex-1 min-h-0 overflow-hidden relative">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1 flex-shrink-0">
                         <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-sm text-lcars-gold">psychology</span>
-                            <span class="font-headline-sm text-xs text-lcars-gold uppercase font-bold tracking-wider">TAKAHARA KNOWLEDGE BANK</span>
+                            <span class="material-symbols-outlined text-sm text-lcars-gold">hub</span>
+                            <span class="font-headline-sm text-xs text-lcars-gold uppercase font-bold tracking-wider">NEURAL KNOWLEDGE GRAPH</span>
                         </div>
-                        <!-- Category Filter Tabs -->
-                        <div class="flex items-center gap-1 text-[8px] flex-wrap">
-                            <button onclick="filterKnowledgeCategory('all')" id="kb-filter-all" class="px-2 py-0.5 rounded bg-primary text-black font-bold">ALL</button>
-                            <button onclick="filterKnowledgeCategory('facility')" id="kb-filter-facility" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">FACILITY</button>
-                            <button onclick="filterKnowledgeCategory('profile')" id="kb-filter-profile" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">SENSEI</button>
-                            <button onclick="filterKnowledgeCategory('routines')" id="kb-filter-routines" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">ROUTINES</button>
-                            <button onclick="filterKnowledgeCategory('missions')" id="kb-filter-missions" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">MISSIONS</button>
-                            <button onclick="clearMemories()" class="px-2 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1">RESET</button>
+                        <!-- Graph HUD Controls & Stats -->
+                        <div class="flex items-center gap-2 text-[8px] font-mono">
+                            <span class="text-secondary">NODES: <strong class="text-primary" id="kb-node-count">0</strong></span>
+                            <div class="h-3 w-px bg-outline-variant/40"></div>
+                            <span class="text-secondary">SYNAPSES: <strong class="text-tertiary" id="kb-edge-count">0</strong></span>
+                            <button onclick="clearMemories()" class="px-1.5 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1 transition-colors" title="Reset Neural Memory">RESET</button>
                         </div>
                     </div>
 
-                    <!-- Structured Knowledge Cards Stream (Scrollable) -->
-                    <div class="flex-1 grid grid-cols-2 gap-2 overflow-y-auto my-1 pr-1 min-h-0" id="knowledge-cards-container">
-                        <!-- Dynamically populated by audio.js renderKnowledgeBank() -->
+                    <!-- Obsidian Graph Interactive Canvas Viewport -->
+                    <div class="relative w-full flex-1 min-h-0 bg-surface-container-lowest/90 rounded border border-outline-variant/30 overflow-hidden my-1" id="knowledge-graph-viewport">
+                        <canvas id="knowledge-graph-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                        
+                        <!-- Floating Node Inspector Tooltip -->
+                        <div id="knowledge-graph-tooltip" class="absolute hidden pointer-events-none bg-surface-container-highest/95 border border-primary/60 text-[9px] p-2 rounded shadow-2xl font-mono max-w-[200px] z-30 backdrop-blur-sm transition-opacity duration-150">
+                            <div class="flex justify-between items-center text-primary font-bold border-b border-outline-variant/30 pb-0.5 mb-1" id="kg-tip-header">NODE</div>
+                            <div class="text-on-surface leading-tight text-[8.5px]" id="kg-tip-body">Fact text</div>
+                        </div>
+
+                        <!-- Graph Legend Overlay (Bottom-Right) -->
+                        <div class="absolute bottom-1 right-1.5 flex items-center gap-2 text-[7.5px] font-mono text-secondary bg-surface-dim/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-outline-variant/20 pointer-events-none">
+                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#ffe253]"></span>FACILITY</span>
+                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#c2c1ff]"></span>SENSEI</span>
+                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#78e4a5]"></span>ROUTINE</span>
+                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#ff7b72]"></span>MISSION</span>
+                        </div>
                     </div>
 
                     <!-- Quick Teach Note Bar -->
-                    <div class="flex gap-1.5 pt-1.5 border-t border-outline-variant/20 flex-shrink-0">
+                    <div class="flex gap-1.5 pt-1 border-t border-outline-variant/20 flex-shrink-0">
                         <select id="teach-category" class="bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
                             <option value="facility">Facility</option>
                             <option value="profile">Sensei</option>
                             <option value="routines">Routine</option>
                             <option value="missions">Mission</option>
                         </select>
-                        <input type="text" id="teach-note-input" placeholder="Teach fact (e.g. 'Living room switch is 01')..."
+                        <input type="text" id="teach-note-input" placeholder="Teach memory node (e.g. 'Living room switch is 01')..."
                                class="flex-1 bg-surface-dim border border-outline-variant px-2.5 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono"
                                onkeydown="if (event.key === 'Enter') executeTeachNote();"/>
                         <button onclick="executeTeachNote()" class="bg-tertiary text-black font-bold px-2.5 py-1 rounded text-[9px] hover:bg-tertiary/80 transition-colors flex items-center gap-0.5 shadow-sm">
@@ -395,9 +410,9 @@
 
                 <!-- 3D Stage Multi-View Mode Switcher -->
                 <div class="absolute top-2 right-2 z-30 flex items-center gap-1 bg-surface-dim/80 backdrop-blur-sm px-1.5 py-1 rounded border border-outline-variant/40 font-data-mono text-[9px]">
-                    <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all shadow-sm">TERRA</button>
-                    <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">SYSTEM</button>
-                    <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">GALAXY</button>
+                    <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all shadow-sm">TERRA / ISS</button>
+                    <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">SOLAR ORBIT</button>
+                    <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">MILKY WAY</button>
                 </div>
 
                 <!-- 3D Tactical Line Callouts Overlay Layer -->
@@ -417,7 +432,10 @@
             <!-- Subspace Network Radar (LAN Nodes) -->
             <div class="col-span-1 row-span-1 bg-surface-container p-2.5 border-t-4 border-lcars-gold rounded-sm flex flex-col justify-between overflow-hidden font-data-mono">
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
-                    <div class="font-headline-sm text-xs text-lcars-gold uppercase tracking-wider font-bold">Subspace Radar</div>
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-lcars-gold">radar</span>
+                        <span class="font-headline-sm text-xs text-lcars-gold uppercase tracking-wider font-bold">Subspace Radar</span>
+                    </div>
                     <span class="text-[9px] text-primary" id="lan-count">ACTIVE NODES</span>
                 </div>
                 <div class="grid grid-cols-1 gap-1 overflow-y-auto max-h-[145px] pr-0.5" id="lan-devices-container">
@@ -431,7 +449,10 @@
             <!-- Subspace Uplink & Downlink Bandwidth Graph -->
             <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-t-4 border-primary rounded-sm relative overflow-hidden font-data-mono">
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
-                    <span class="text-xs font-headline-sm text-primary font-bold uppercase tracking-wider">Subspace Bandwidth</span>
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-primary">ssid_chart</span>
+                        <span class="text-xs font-headline-sm text-primary font-bold uppercase tracking-wider">Subspace Bandwidth</span>
+                    </div>
                     <div class="flex gap-2 text-[10px] font-bold">
                         <span class="text-primary" id="tx-rate">TX: 0.0 KB/s</span>
                         <span class="text-tertiary" id="rx-rate">RX: 0.0 KB/s</span>
@@ -445,7 +466,10 @@
             <!-- System Kernel Log Stream -->
             <div class="col-span-1 row-span-1 bg-surface p-2.5 border-t-4 border-lcars-blue font-data-mono text-[10px] text-primary flex flex-col justify-between rounded-sm relative overflow-hidden">
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
-                    <span class="text-xs font-headline-sm text-lcars-blue font-bold uppercase tracking-wider">System Kernel Log</span>
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-lcars-blue">terminal</span>
+                        <span class="text-xs font-headline-sm text-lcars-blue font-bold uppercase tracking-wider">System Kernel Log</span>
+                    </div>
                     <span class="text-[9px] text-secondary font-mono">[LIVE DMESG]</span>
                 </div>
                 <div class="overflow-y-auto max-h-[145px] flex flex-col justify-end opacity-90 font-mono leading-tight gap-0.5 text-[9px]" id="sys-log">

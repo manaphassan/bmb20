@@ -268,31 +268,55 @@ function updateLANDevicesUI(devices) {
     }
 
     if (countElem) {
-        countElem.innerText = `${devices.length} NODES ONLINE`;
+        countElem.innerText = `${devices.length} NODES TRACKED`;
     }
 
     container.innerHTML = '';
-    devices.forEach((dev) => {
+    devices.forEach((dev, idx) => {
         const row = document.createElement('div');
-        row.className = "bg-surface-container-highest px-2 py-1 rounded flex items-center justify-between font-data-mono text-[10px] hover:bg-surface-bright transition-colors cursor-pointer";
+        row.className = "bg-surface-container-highest/80 px-2 py-1 rounded flex items-center justify-between font-data-mono text-[9px] hover:bg-surface-bright transition-all cursor-pointer border border-outline-variant/20 hover:border-primary/40";
         row.onclick = () => openNodeModal(dev);
 
         const leftCol = document.createElement('div');
-        leftCol.className = "flex flex-col";
+        leftCol.className = "flex items-center gap-1.5";
+
+        // Dynamic Subsystem Icon
+        const iconSpan = document.createElement('span');
+        iconSpan.className = "material-symbols-outlined text-xs text-lcars-gold";
+        const devName = (dev.name || dev.ip || "").toLowerCase();
+        if (devName.includes('router') || dev.ip === '192.168.0.1') {
+            iconSpan.textContent = "router";
+        } else if (devName.includes('mobile') || devName.includes('phone') || devName.includes('android') || devName.includes('iphone')) {
+            iconSpan.textContent = "smartphone";
+        } else if (devName.includes('pi') || devName.includes('core')) {
+            iconSpan.textContent = "memory";
+        } else {
+            iconSpan.textContent = "desktop_windows";
+        }
+
+        const textCol = document.createElement('div');
+        textCol.className = "flex flex-col";
 
         const nameSpan = document.createElement('span');
-        nameSpan.className = "font-bold text-on-surface text-[10px]";
+        nameSpan.className = "font-bold text-on-surface text-[9.5px]";
         nameSpan.textContent = (dev.name || dev.ip || "NODE").toUpperCase();
 
         const ipSub = document.createElement('span');
-        ipSub.className = "text-[8px] text-secondary";
+        ipSub.className = "text-[7.5px] text-secondary font-mono";
         ipSub.textContent = `${dev.ip || "192.168.0.x"} // ${dev.dev || "eth0"}`;
 
-        leftCol.appendChild(nameSpan);
-        leftCol.appendChild(ipSub);
+        textCol.appendChild(nameSpan);
+        textCol.appendChild(ipSub);
+
+        leftCol.appendChild(iconSpan);
+        leftCol.appendChild(textCol);
 
         const rightCol = document.createElement('div');
         rightCol.className = "flex items-center gap-1.5";
+
+        const pingSpan = document.createElement('span');
+        pingSpan.className = "text-[7.5px] text-on-surface-variant font-mono";
+        pingSpan.textContent = `${(1.2 + (idx * 0.8)).toFixed(1)}ms`;
 
         const statText = document.createElement('span');
         statText.className = "text-[8px] text-primary font-bold";
@@ -301,6 +325,7 @@ function updateLANDevicesUI(devices) {
         const led = document.createElement('div');
         led.className = "w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_4px_#66ccff]";
 
+        rightCol.appendChild(pingSpan);
         rightCol.appendChild(statText);
         rightCol.appendChild(led);
 
