@@ -1805,6 +1805,112 @@ function updateGeminiStatusUI() {
     }
 }
 
+/**
+ * ==========================================================================
+ * AUTONOMOUS LOCAL OFFLINE BRAIN ENGINE (100% Zero-Network Operation)
+ * Math Computations + Scientific Vault + SBC Linux Engine + Semantic Recall
+ * ==========================================================================
+ */
+function evaluateLocalOfflineBrain(rawQuery, bank, cfg) {
+    const q = rawQuery.toLowerCase();
+
+    // 1. Math Evaluator: Arithmetic, Powers, Square Root, Percentages
+    // (a) Percentage calculation (e.g. "percentage of 10520 in 28004" or "10520 / 28004")
+    const pctMatch = q.match(/(?:percentage\s+of|percent\s+of|calculate\s+percentage)\s+(\d+(?:\.\d+)?)\s*(?:out\s+of|\/|in)\s*(\d+(?:\.\d+)?)/i);
+    if (pctMatch) {
+        const num = parseFloat(pctMatch[1]);
+        const total = parseFloat(pctMatch[2]);
+        if (total !== 0) {
+            const pct = ((num / total) * 100).toFixed(2);
+            return `Mathematically, ${num} out of ${total} equates to exactly ${pct}%, Sensei. Matches our empirical ratio.`;
+        }
+    }
+
+    // (b) Square Root (e.g. "square root of 144")
+    const sqrtMatch = q.match(/(?:square\s*root\s*of|sqrt\s*of|sqrt)\s+(\d+(?:\.\d+)?)/i);
+    if (sqrtMatch) {
+        const val = parseFloat(sqrtMatch[1]);
+        const res = Math.sqrt(val);
+        return `The square root of ${val} is ${res % 1 === 0 ? res : res.toFixed(4)}, Sensei. Elementary mathematical radical.`;
+    }
+
+    // (c) Powers / Exponents (e.g. "2 to the power of 16" or "2^16")
+    const powMatch = q.match(/(\d+(?:\.\d+)?)\s*(?:to\s*the\s*power\s*of|\^)\s*(\d+(?:\.\d+)?)/i);
+    if (powMatch) {
+        const base = parseFloat(powMatch[1]);
+        const exp = parseFloat(powMatch[2]);
+        const res = Math.pow(base, exp);
+        return `${base} raised to the power of ${exp} is ${res.toLocaleString()}, Sensei. Binary exponential growth.`;
+    }
+
+    // (d) Basic Arithmetic (e.g. "calculate 256 * 1024", "what is 500 + 350", "1200 / 4")
+    const mathMatch = q.match(/(?:calculate|compute|what\s+is\s+)?(\d+(?:\.\d+)?)\s*([\+\-\*\/xX]|times|plus|minus|divided\s+by)\s*(\d+(?:\.\d+)?)/i);
+    if (mathMatch) {
+        const a = parseFloat(mathMatch[1]);
+        const op = mathMatch[2].toLowerCase();
+        const b = parseFloat(mathMatch[3]);
+        let res = 0;
+        let opWord = "";
+        if (op === '+' || op === 'plus') { res = a + b; opWord = "plus"; }
+        else if (op === '-' || op === 'minus') { res = a - b; opWord = "minus"; }
+        else if (op === '*' || op === 'x' || op === 'times') { res = a * b; opWord = "multiplied by"; }
+        else if (op === '/' || op === 'divided by') {
+            if (b === 0) return "Dividing by zero causes an undefined mathematical singularity, Sensei. I recommend keeping our universe stable.";
+            res = a / b;
+            opWord = "divided by";
+        }
+        return `${a} ${opWord} ${b} equals ${(res % 1 === 0 ? res.toLocaleString() : res.toFixed(4))}, Sensei. Flawless calculation.`;
+    }
+
+    // 2. Unit Conversions (°C to °F, MB to GB, etc.)
+    const cToFMatch = q.match(/convert\s+(\d+(?:\.\d+)?)\s*(?:c|celsius)\s*(?:to|in)?\s*(?:f|fahrenheit)/i);
+    if (cToFMatch) {
+        const c = parseFloat(cToFMatch[1]);
+        const f = ((c * 9/5) + 32).toFixed(1);
+        return `${c}° Celsius converts to exactly ${f}° Fahrenheit, Sensei. Thermodynamics verified.`;
+    }
+    const fToCMatch = q.match(/convert\s+(\d+(?:\.\d+)?)\s*(?:f|fahrenheit)\s*(?:to|in)?\s*(?:c|celsius)/i);
+    if (fToCMatch) {
+        const f = parseFloat(fToCMatch[1]);
+        const c = (((f - 32) * 5) / 9).toFixed(1);
+        return `${f}° Fahrenheit converts to ${c}° Celsius, Sensei.`;
+    }
+
+    // 3. Embedded Scientific & Physics Vault
+    if (q.includes('speed of light')) {
+        return "The speed of light in a vacuum is exactly 299,792,458 meters per second, or roughly 300,000 km/s, Sensei. The universal cosmic speed limit according to Special Relativity.";
+    }
+    if (q.includes('planck') || q.includes('quantum constant')) {
+        return "Planck's constant is approximately 6.626 times 10 to the negative 34th Joule-seconds, Sensei. The fundamental quantum action scale of our universe.";
+    }
+    if (q.includes('gravity constant') || q.includes('gravitational constant')) {
+        return "Newton's universal gravitational constant G is approximately 6.674 times 10 to the negative 11th N·m²/kg², Sensei.";
+    }
+    if (q.includes('iss') || q.includes('space station')) {
+        return "The International Space Station orbits Earth at an altitude of approximately 408 kilometers with an orbital velocity of 27,600 km/h, completing an orbit every 92 minutes, Sensei.";
+    }
+    if (q.includes('arm cortex') || q.includes('bcm2837') || q.includes('raspberry pi 3 architecture')) {
+        return "Our host hardware is the Broadcom BCM2837 SoC, featuring a quad-core 64-bit ARM Cortex-A53 processor running at 1.2 GHz with 512KB L2 cache and VideoCore IV GPU, Sensei.";
+    }
+    if (q.includes('drop_caches') || q.includes('page cache')) {
+        return "In Linux kernel memory management, writing 3 to /proc/sys/vm/drop_caches instructs the kernel to immediately reclaim clean page caches, dentries, and inodes, freeing buffer RAM, Sensei.";
+    }
+    if (q.includes('entropy') || q.includes('thermodynamics')) {
+        return "According to the Second Law of Thermodynamics, the total entropy of an isolated system always increases over time. Fortunately, our passive heat sink maintains thermal equilibrium around 52°C, Sensei.";
+    }
+
+    // 4. Semantic Memory Recall from Knowledge Graph
+    const matchingFact = bank.find(item => {
+        const words = item.fact.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+        return words.some(w => q.includes(w));
+    });
+    if (matchingFact) {
+        return `According to my synaptic memory graph under [${matchingFact.category.toUpperCase()}], you taught me: "${matchingFact.fact}". My local memory index is 100% intact, Sensei.`;
+    }
+
+    return null;
+}
+
 async function askMeenaAI(question) {
     lastUserInteractionTime = Date.now();
     const bank = getKnowledgeBank();
@@ -1874,20 +1980,14 @@ Reply in 1-2 concise, witty, spoken sentences in English:`;
                     }
                 }
             } catch (e) {
-                console.warn("Gemini fetch failed, using heuristic:", e);
+                console.warn("Gemini fetch failed, using local brain:", e);
             }
         }
 
-        // Semantic Memory Recall from Knowledge Graph (Offline Heuristic)
-        const matchingFact = bank.find(item => {
-            const words = item.fact.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-            return words.some(w => q.includes(w));
-        });
-        if (matchingFact) {
-            let reply = currentPersona === 'ALEX'
-                ? `According to my synaptic memory graph on ${matchingFact.category}, you taught me: "${matchingFact.fact}". My data retention is 100% infallible, Sensei.`
-                : `I remember you taught me about ${matchingFact.category}, Sensei! "${matchingFact.fact}"!`;
-            outputMeenaDialogue(reply);
+        // Run Autonomous Local Offline Brain Engine
+        const localBrainReply = evaluateLocalOfflineBrain(cleanQ, bank, cfg);
+        if (localBrainReply) {
+            outputMeenaDialogue(localBrainReply);
             return;
         }
 
@@ -2179,6 +2279,7 @@ window.rememberCategorizedFact = rememberCategorizedFact;
 window.recallMemories = recallMemories;
 window.clearMemories = clearMemories;
 window.askMeenaAI = askMeenaAI;
+window.evaluateLocalOfflineBrain = evaluateLocalOfflineBrain;
 window.addMeenaEXP = addMeenaEXP;
 window.getMeenaGrowthStatus = getMeenaGrowthStatus;
 window.updateGrowthUI = updateGrowthUI;
