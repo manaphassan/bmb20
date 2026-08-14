@@ -1816,10 +1816,14 @@ function initEarth() {
     milkyWayGroup.rotation.x = Math.PI / 4; // Tilted galaxy disc view
     milkyWayGroup.position.z = -4.0;
     scene.add(milkyWayGroup);
+    window.milkyWayGroup = milkyWayGroup;
+    window.milkyWayGroup.visible = false; // Hide in minimized view
 
     // 2. Solar System Planetary Orbits Engine (LCARS Dot-Matrix Particle Style)
     const solarSystemGroup = new THREE.Group();
     scene.add(solarSystemGroup);
+    window.solarSystemGroup = solarSystemGroup;
+    window.solarSystemGroup.visible = false; // Hide in minimized view
 
     window.solarPlanets = [];
 
@@ -2159,6 +2163,11 @@ function openGlobeModal() {
     modal.classList.remove('hidden');
     playSound('beep2');
 
+    // Reveal Full Solar System & Milky Way Galaxy in Maximized View
+    if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
+    if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
+    window.targetCamZ = 7.5; // Zoom out to show full orbiting system
+
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
 
@@ -2183,6 +2192,11 @@ function closeGlobeModal() {
 
     modal.classList.add('hidden');
     playSound('beep1');
+
+    // Hide Solar System & Milky Way in Minimized Dashboard View (Earth Globe Only)
+    if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
+    if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
+    window.targetCamZ = 2.4; // Focus closely on Earth world map globe
 
     // Move 3D Globe Canvas back to Main Hero Container
     earthContainer.appendChild(globalRenderer.domElement);
