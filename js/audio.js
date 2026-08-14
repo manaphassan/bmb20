@@ -1299,7 +1299,7 @@ function animateKnowledgeGraph() {
     requestAnimationFrame(animateKnowledgeGraph);
 }
 
-function rememberCategorizedFact(category, fact) {
+function rememberCategorizedFact(category, fact, silent = false) {
     if (!fact || !fact.trim()) return;
     const bank = getKnowledgeBank();
     const item = {
@@ -1317,8 +1317,10 @@ function rememberCategorizedFact(category, fact) {
     setMeenaMood('CHEERFUL');
     buildGraphData();
 
-    if (window.playSound) window.playSound('beep2');
-    speakComputerVoice(`Memorized and mapped into the Takahara Neural Graph, Sensei!`);
+    if (!silent) {
+        if (window.playSound) window.playSound('beep2');
+        speakComputerVoice(`Memorized and mapped into the Takahara Neural Graph, Sensei!`);
+    }
 }
 
 function deleteKnowledgeItem(id) {
@@ -1718,7 +1720,7 @@ async function searchLiveWebInfo(rawQuery) {
                     }
 
                     addMeenaEXP(25, `Web search: ${cleanTopic}`);
-                    rememberCategorizedFact('missions', `${data.title}: ${shortSummary}`);
+                    rememberCategorizedFact('missions', `${data.title}: ${shortSummary}`, true);
                     outputMeenaDialogue(reply);
                     return;
                 }
@@ -1841,14 +1843,6 @@ async function askMeenaAI(question) {
 }
 
 function outputMeenaDialogue(text) {
-    const feed = document.getElementById('meena-chat-feed');
-    if (feed) {
-        const row = document.createElement('div');
-        row.className = "flex items-start gap-1.5 text-primary my-1";
-        row.innerHTML = `<span class="text-tertiary font-bold">[MEENA]:</span><span>${text}</span>`;
-        feed.appendChild(row);
-        feed.scrollTop = feed.scrollHeight;
-    }
     speakComputerVoice(text);
 }
 
@@ -1856,16 +1850,6 @@ function sendChatMessage(text) {
     if (!text || !text.trim()) return;
     const clean = text.trim();
     lastUserInteractionTime = Date.now();
-
-    const feed = document.getElementById('meena-chat-feed');
-    if (feed) {
-        const row = document.createElement('div');
-        row.className = "flex items-start gap-1.5 text-on-surface my-1 font-bold";
-        row.innerHTML = `<span class="text-secondary">[SENSEI]:</span><span>${clean}</span>`;
-        feed.appendChild(row);
-        feed.scrollTop = feed.scrollHeight;
-    }
-
     handleVoiceCommand(clean);
 }
 
