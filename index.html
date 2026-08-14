@@ -205,19 +205,16 @@
             </div>
             <div class="h-4 w-px bg-outline-variant"></div>
             
-            <!-- 3-Deck Mode Switcher (Deck 1 / Deck 2 / Deck 3) -->
+            <!-- 3-Deck Mode Switcher (Numbers only: 1, 2, 3) -->
             <div class="flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-full border border-primary/40 font-data-mono">
-                <button id="deck-tab-1" onclick="switchDeck(1)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition" title="Deck 1: Meena AI Assistant & Tactical Command (Shortcut: Key 1)">
-                    <span class="material-symbols-outlined text-[11px]">smart_toy</span>
-                    <span>[1] AI BRIDGE</span>
+                <button id="deck-tab-1" onclick="switchDeck(1)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition" title="Deck 1: Meena AI Bridge (Key 1)">
+                    1
                 </button>
-                <button id="deck-tab-2" onclick="switchDeck(2)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Deck 2: 3D Observatory & System NOC (Shortcut: Key 2)">
-                    <span class="material-symbols-outlined text-[11px]">public</span>
-                    <span>[2] OBSERVATORY NOC</span>
+                <button id="deck-tab-2" onclick="switchDeck(2)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 2: 3D Observatory NOC (Key 2)">
+                    2
                 </button>
-                <button id="deck-tab-3" onclick="switchDeck(3)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Deck 3: Chrono Calendar & Operations Agenda (Shortcut: Key 3)">
-                    <span class="material-symbols-outlined text-[11px]">calendar_month</span>
-                    <span>[3] CHRONO CALENDAR</span>
+                <button id="deck-tab-3" onclick="switchDeck(3)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 3: Chrono Calendar (Key 3)">
+                    3
                 </button>
             </div>
         </div>

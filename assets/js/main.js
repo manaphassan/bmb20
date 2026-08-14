@@ -232,9 +232,9 @@ function switchDeck(deckNumber) {
     tabs.forEach((tab, idx) => {
         if (tab) {
             if (idx + 1 === deckNumber) {
-                tab.className = "px-2.5 py-1 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#c2c1ff]";
+                tab.className = "px-2.5 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition";
             } else {
-                tab.className = "px-2.5 py-1 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
+                tab.className = "px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all";
             }
         }
     });
