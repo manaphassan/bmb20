@@ -1191,35 +1191,108 @@ function initEarth() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
+    // Continent Landmass Coordinate Detector
+    function isLand(lat, lon) {
+        // North America
+        if (lat >= 15 && lat <= 72 && lon >= -168 && lon <= -52) return true;
+        // South America
+        if (lat >= -55 && lat <= 13 && lon >= -82 && lon <= -35) return true;
+        // Europe & UK
+        if (lat >= 35 && lat <= 71 && lon >= -10 && lon <= 45) return true;
+        // Africa
+        if (lat >= -35 && lat <= 37 && lon >= -18 && lon <= 51) return true;
+        // Asia / Japan / SE Asia
+        if (lat >= 1 && lat <= 75 && lon >= 45 && lon <= 150) return true;
+        // Australia & NZ
+        if (lat >= -47 && lat <= -10 && lon >= 112 && lon <= 178) return true;
+        // Antarctica
+        if (lat >= -90 && lat <= -62) return true;
+        return false;
+    }
+
     globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
+    // Deep Space Star System Background
+    const starGroup = new THREE.Group();
+    const starCount = 1200;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    const starCols = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+        const r = 8 + Math.random() * 25;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+
+        starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        starPos[i * 3 + 2] = r * Math.cos(phi);
+
+        // Sci-Fi Star Colors (Cyan, Gold, White, Blue)
+        const rand = Math.random();
+        if (rand > 0.75) {
+            starCols[i * 3] = 1.0; starCols[i * 3 + 1] = 0.88; starCols[i * 3 + 2] = 0.32; // Gold
+        } else if (rand > 0.45) {
+            starCols[i * 3] = 0.76; starCols[i * 3 + 1] = 0.75; starCols[i * 3 + 2] = 1.0; // Nemesis Blue
+        } else {
+            starCols[i * 3] = 0.9; starCols[i * 3 + 1] = 0.95; starCols[i * 3 + 2] = 1.0; // White
+        }
+    }
+
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starCols, 3));
+    const starMat = new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.85 });
+    const starField = new THREE.Points(starGeo, starMat);
+    starGroup.add(starField);
+    scene.add(starGroup);
+
+    // Tactical Orbital Satellite Ring
+    const orbitRingGeo = new THREE.RingGeometry(1.25, 1.27, 64);
+    const orbitRingMat = new THREE.MeshBasicMaterial({ color: 0xadc6ff, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+    const orbitRing = new THREE.Mesh(orbitRingGeo, orbitRingMat);
+    orbitRing.rotation.x = Math.PI / 3;
+    globeGroup.add(orbitRing);
+
+    // Earth Continent Dot Matrix
+    const count = 9500;
     const dotGeo = new THREE.BufferGeometry();
-    const count = 7500;
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
         const phi = Math.acos(-1 + (2 * i) / count);
         const theta = Math.sqrt(count * Math.PI) * phi;
+
+        const lat = 90 - (phi * (180 / Math.PI));
+        const lon = ((theta * (180 / Math.PI)) % 360) - 180;
+
         pos[i * 3] = Math.cos(theta) * Math.sin(phi);
         pos[i * 3 + 1] = Math.sin(theta) * Math.sin(phi);
         pos[i * 3 + 2] = Math.cos(phi);
 
-        // Nemesis Blue Dot Matrix Palette
-        cols[i * 3] = 0.6;
-        cols[i * 3 + 1] = 0.6;
-        cols[i * 3 + 2] = 1.0;
+        // Highlight Continent Landmasses vs Oceans
+        if (isLand(lat, lon)) {
+            // Bright Gold / Nemesis Yellow Landmass
+            cols[i * 3] = 1.0;
+            cols[i * 3 + 1] = 0.85;
+            cols[i * 3 + 2] = 0.32;
+        } else {
+            // Faint Ocean Grid
+            cols[i * 3] = 0.15;
+            cols[i * 3 + 1] = 0.28;
+            cols[i * 3 + 2] = 0.52;
+        }
     }
 
     dotGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     dotGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
     const dotMat = new THREE.PointsMaterial({
-        size: 0.018,
+        size: 0.02,
         vertexColors: true,
         transparent: true,
-        opacity: 0.75
+        opacity: 0.88
     });
 
     const earthPoints = new THREE.Points(dotGeo, dotMat);
@@ -1301,6 +1374,16 @@ function initEarth() {
         // Auto rotate smoothly if user is not actively dragging
         if (!isUserDragging) {
             globeGroup.rotation.y += 0.002;
+        }
+
+        // Slowly counter-rotate distant 3D Star System background
+        if (starGroup) {
+            starGroup.rotation.y -= 0.0003;
+            starGroup.rotation.x += 0.0001;
+        }
+
+        if (orbitRing) {
+            orbitRing.rotation.z += 0.002;
         }
 
         if (beaconPulseRing) {
