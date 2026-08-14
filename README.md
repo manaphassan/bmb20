@@ -1,28 +1,29 @@
-# 🖖 BMB20 LCARS Command Center - DietPi SBC Edition
+# 🌸 MEENA // TAKAHARA ACADEMY - Neural Facility Hub (BMB20)
 
-An authentic, high-performance Starfleet LCARS (Library Computer Access and Retrieval System) Command Dashboard and SBC Telemetry Hub, optimized for **DietPi single-board computers (Raspberry Pi 3 Model B)** at `192.168.0.100` or `dietpi.local`.
+An authentic, high-performance **Takahara Academy (高原学園)** Neural Command Center and SBC Telemetry Hub inspired by ***Tengoku Daimakyou (Heavenly Delusion)***, managed by AI supercomputer **M.E.E.N.A.** (*Master Electronic Executive Neural Administrator*) on **DietPi (Raspberry Pi 3 Model B)** at `dietpi.local` or `192.168.0.100`.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. 🪐 3D Holographic Tactical Stage (`Three.js`)
+### 1. 🪐 3D Holographic Observation Stage (`Three.js`)
 * **Multi-View Modes**:
-  * **Planetary (`[PLANET]` / `P`)**: Rotating point-cloud Earth with Malaysia sector base beacon $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$, geo-sync satellite, and live **ISS Space Station Orbit Tracking**.
+  * **Terra (`[TERRA]` / `P`)**: Rotating point-cloud Earth with Malaysia sector base beacon $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$, geo-sync satellite, and live **ISS Space Station Orbit Tracking**.
   * **Solar System (`[SYSTEM]` / `S`)**: Sol star with 8 planets orbiting in concentric orbital paths.
   * **Galaxy Map (`[GALAXY]` / `G`)**: 3,800-star rotating 2-arm logarithmic spiral galaxy disk with core glow.
 * **Vector Line Callout Notations**: Dynamic 60 FPS projected SVG leader lines and glassmorphic HUD telemetry cards tracking coordinates in real time.
 * **Interactive Orbit & Zoom Controls**: Mouse drag / touch to orbit in 3D with smooth inertial damping; scroll wheel to zoom.
 
 ### 2. 🎙️ M.E.E.N.A. AI Voice Engine & Speech Recognition
-* **Persona**: Master Electronic Executive Neural Assistant — energetic, cheerful young female Asian English voice with Japanese cadence.
+* **Persona**: Inspired by **Meena (ミーナ)** from *Tengoku Daimakyou* — calm, serene, polite young female Japanese-accented English AI voice.
+* **Wake Word Trigger**: Call *"Meena"*, *"Hey Meena"*, or *"Mina"* to activate standby mode!
 * **Web Speech Recognition API (`[VOICE: ON]` / `V`)**: Direct microphone command parsing:
-  * *"Computer, Code Red"* $\to$ *"Code Red! Hai! Tactical shields energized at maximum, Commander!"*
-  * *"Computer, Status Report"* $\to$ M.E.E.N.A. speaks live CPU, temperature, memory, and Pi-hole metrics.
-  * *"Computer, Weather Forecast"* $\to$ Speaks atmospheric telemetry for Terra base.
-  * *"Computer, Warp Speed"* $\to$ *"Warp speed! Ikimashou! Accelerating warp drive now, Commander!"*
-  * *"Computer, Terra"* $\to$ Switches 3D stage to Terra planetary hologram.
-* **Web Audio API Procedural Synthesizer**: TNG Door Chimes (`C`), Warp Drive (`W`), Transporter Beaming (`B`), 48Hz Warp Core Hum, and Emergency Klaxon.
+  * *"Meena, Code Red"* $\to$ *"Code Red. Emergency defense barriers and tactical shields initialized, Commander."*
+  * *"Meena, Status Report"* $\to$ M.E.E.N.A. speaks live CPU, temperature, memory, and Pi-hole metrics.
+  * *"Meena, Weather Forecast"* $\to$ Speaks atmospheric telemetry for Terra base.
+  * *"Meena, Warp Speed"* $\to$ *"Warp sequence initiated. Dimensional space translation underway, Commander."*
+  * *"Meena, Terra"* $\to$ Switches 3D stage to Terra planetary hologram.
+* **Live Voice Engine Selector**: Built-in voice switcher dropdown in the Meena modal (`V`) to choose your preferred Japanese/Asian voice engine.
 * **High-Clarity / CRT Scanline Toggle (`R`)**: Instant toggle between razor-sharp typography and retro phosphor CRT scanlines.
 
 ### 3. 🛰️ ISS Space Station Subspace Tracker

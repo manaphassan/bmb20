@@ -4,7 +4,7 @@
 # ==============================================================================
 
 echo "=================================================="
-echo "  Deploying BMB20 LCARS Command Center to DietPi  "
+echo "  Deploying MEENA // Takahara Academy to DietPi   "
 echo "=================================================="
 
 TARGET_DIR="/var/www/html"

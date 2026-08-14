@@ -6,7 +6,7 @@ param (
 )
 
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host " Auto-deploying LCARS Landing Page to $User@$TargetHost" -ForegroundColor Cyan
+Write-Host " Auto-deploying MEENA // Takahara Academy to $User@$TargetHost" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 $KeyPath = "$env:USERPROFILE\.ssh\id_dietpi"
