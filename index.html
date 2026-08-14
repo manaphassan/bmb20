@@ -486,11 +486,22 @@ body {
             <!-- Dynamic Vector Callout Annotation Line Overlay -->
             <svg id="callout-svg-overlay" class="absolute inset-0 w-full h-full z-35 pointer-events-none"></svg>
 
-            <!-- Maximize Globe Button -->
-            <button onclick="openGlobeModal()" class="absolute bottom-2.5 right-2.5 z-30 bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/60 px-3 py-1 text-[11px] font-data-mono flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all rounded-sm">
-                <span class="material-symbols-outlined text-sm">fullscreen</span>
-                <span class="font-bold">MAXIMIZE GLOBE</span>
-            </button>
+            <!-- 3D Globe Controls: Zoom In / Zoom Out & Maximize Cluster -->
+            <div class="absolute bottom-2.5 right-2.5 z-30 flex items-center gap-1.5">
+                <div class="flex items-center bg-surface-container-high/90 border border-tertiary/60 rounded-sm backdrop-blur-md overflow-hidden shadow-lg">
+                    <button onclick="zoomGlobe(-0.5)" title="Zoom In (+)" class="px-2 py-1 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm font-bold">add</span>
+                    </button>
+                    <div class="w-[1px] h-4 bg-tertiary/40"></div>
+                    <button onclick="zoomGlobe(0.5)" title="Zoom Out (-)" class="px-2 py-1 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm font-bold">remove</span>
+                    </button>
+                </div>
+                <button onclick="openGlobeModal()" class="bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/60 px-3 py-1 text-[11px] font-data-mono flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all rounded-sm">
+                    <span class="material-symbols-outlined text-sm">fullscreen</span>
+                    <span class="font-bold">MAXIMIZE GLOBE</span>
+                </button>
+            </div>
 
             <!-- 3D Earth Container -->
             <div class="w-full h-full absolute inset-0 z-10 earth-scanlines" id="earth-container"></div>
@@ -681,6 +692,21 @@ body {
             <button onclick="playSound('beep1')" class="hover:bg-[#4af626]/20 px-1.5 py-0.5 rounded text-[10px] font-bold">◀</button>
             <span class="font-bold tracking-widest text-sm" id="modal-astro-date">14:08:2026 AD</span>
             <button onclick="playSound('beep1')" class="hover:bg-[#4af626]/20 px-1.5 py-0.5 rounded text-[10px] font-bold">▶</button>
+        </div>
+
+        <!-- Top Right LCARS Floating Zoom In / Zoom Out Controller Bar -->
+        <div class="absolute top-4 right-16 z-30 flex items-center bg-[#070b19]/90 border border-[#4af626]/50 rounded-md backdrop-blur-md p-1 shadow-2xl font-mono text-xs gap-1">
+            <button onclick="zoomGlobe(-3.0)" title="Zoom In (+)" class="bg-[#4af626]/10 hover:bg-[#4af626] hover:text-[#070b19] text-[#4af626] px-2.5 py-1 rounded transition-all flex items-center gap-1 font-bold">
+                <span class="material-symbols-outlined text-base">zoom_in</span>
+                <span>ZOOM IN</span>
+            </button>
+            <button onclick="zoomGlobe(3.0)" title="Zoom Out (-)" class="bg-[#4af626]/10 hover:bg-[#4af626] hover:text-[#070b19] text-[#4af626] px-2.5 py-1 rounded transition-all flex items-center gap-1 font-bold">
+                <span class="material-symbols-outlined text-base">zoom_out</span>
+                <span>ZOOM OUT</span>
+            </button>
+            <button onclick="resetGlobeZoom()" title="Reset Zoom" class="bg-tertiary/20 hover:bg-tertiary hover:text-on-tertiary text-tertiary px-2 py-1 rounded transition-all font-bold text-[10px]">
+                <span>RESET</span>
+            </button>
         </div>
 
         <!-- Dynamic Vector Callout Annotation Line Overlay in Modal -->
@@ -2021,8 +2047,29 @@ function initEarth() {
     // Show standalone Earth globe in Minimized Monitor
     globeGroup.visible = true;
 
-    // Camera View Presets
+    // Camera View Presets & Dynamic Zoom Controls
     window.targetCamZ = 2.4; // Default Earth-only Minimized View
+    window.zoomGlobe = function(delta) {
+        if (typeof playSound === 'function') playSound('beep1');
+        if (window.targetCamZ !== undefined) {
+            window.targetCamZ = Math.max(1.1, Math.min(32.0, window.targetCamZ + delta));
+        }
+    };
+
+    window.resetGlobeZoom = function() {
+        if (typeof playSound === 'function') playSound('beep1');
+        const modal = document.getElementById('globe-modal');
+        if (modal && !modal.classList.contains('hidden')) {
+            window.targetCamX = 0;
+            window.targetCamY = 16.0;
+            window.targetCamZ = 18.0;
+        } else {
+            window.targetCamX = 0;
+            window.targetCamY = 0;
+            window.targetCamZ = 2.4;
+        }
+    };
+
     window.setCameraView = function(view) {
         if (typeof playSound === 'function') playSound('beep1');
         if (view === 'earth') window.targetCamZ = 2.4;
@@ -2112,6 +2159,12 @@ function initEarth() {
         prevMousePos = { x: e.clientX, y: e.clientY };
         canvasElem.style.cursor = 'grabbing';
     });
+
+    canvasElem.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.8 : -0.8;
+        window.zoomGlobe(delta);
+    }, { passive: false });
 
     // Raycaster for Interactive Planet & Sun Hover Tooltips
     const raycaster = new THREE.Raycaster();
