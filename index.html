@@ -483,30 +483,8 @@ body {
                 <div class="text-[9px] text-on-surface-variant font-mono" id="geo-ip">PUBLIC IP: FETCHING...</div>
             </div>
 
-            <!-- Tactical Legend HUD Bar Overlay -->
-            <div class="absolute bottom-2.5 right-2.5 z-30 bg-surface-container/90 backdrop-blur-md px-2.5 py-1.5 border border-tertiary/50 font-data-mono text-[10px] text-on-surface-variant flex items-center gap-3 rounded-sm shadow-xl">
-                <div class="font-bold text-tertiary uppercase tracking-wider text-[9px]">LEGEND:</div>
-                <div class="flex items-center gap-1 cursor-help" title="Central Solar Anchor Core & Corona Aura">
-                    <div class="w-2 h-2 rounded-full bg-[#ffe253] shadow-[0_0_6px_#ffe253]"></div>
-                    <span class="text-primary font-bold">SUN</span>
-                </div>
-                <div class="flex items-center gap-1 cursor-help" title="Keplerian Orbit Dot-Matrix Planets">
-                    <div class="w-2 h-2 rounded-full bg-[#42a5f5] shadow-[0_0_6px_#42a5f5]"></div>
-                    <span class="text-secondary font-bold">PLANETS</span>
-                </div>
-                <div class="flex items-center gap-1 cursor-help" title="Orbital Satellites & Space Stations (ISS, Starlink)">
-                    <div class="w-2 h-2 rounded-full bg-[#ff5252] animate-pulse"></div>
-                    <span class="text-error font-bold">SATS</span>
-                </div>
-                <div class="flex items-center gap-1 cursor-help" title="Realtime GeoIP Location Beacon Signal">
-                    <div class="w-2 h-2 rounded-full bg-[#26c6da] animate-ping"></div>
-                    <span class="text-tertiary font-bold">BEACON</span>
-                </div>
-                <div class="flex items-center gap-1 cursor-help" title="Logarithmic Spiral Milky Way Disc">
-                    <div class="w-2 h-2 rounded-full bg-[#adc6ff]"></div>
-                    <span class="text-secondary">GALAXY</span>
-                </div>
-            </div>
+            <!-- Dynamic Vector Callout Annotation Line Overlay -->
+            <svg id="callout-svg-overlay" class="absolute inset-0 w-full h-full z-25 pointer-events-none"></svg>
 
             <!-- Maximize Globe Button -->
             <button onclick="openGlobeModal()" class="absolute bottom-2.5 right-2.5 z-30 bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/60 px-3 py-1 text-[11px] font-data-mono flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all rounded-sm">
@@ -698,30 +676,8 @@ body {
             <div class="text-primary text-[10px] mt-2 border-t border-secondary/40 pt-1">CONTROLS: LEFT-CLICK DRAG TO ROTATE | MOUSE WHEEL TO ZOOM</div>
         </div>
 
-        <!-- Tactical Legend HUD Bar Overlay in Modal -->
-        <div class="absolute bottom-4 right-4 z-30 bg-surface-container/95 backdrop-blur-md px-3 py-2 border border-tertiary/60 font-data-mono text-xs text-on-surface-variant flex items-center gap-4 rounded-sm shadow-2xl">
-            <div class="font-bold text-tertiary uppercase tracking-wider text-xs">LEGEND:</div>
-            <div class="flex items-center gap-1.5 cursor-help" title="Central Solar Anchor Core & Corona Aura">
-                <div class="w-3 h-3 rounded-full bg-[#ffe253] shadow-[0_0_8px_#ffe253]"></div>
-                <span class="text-primary font-bold">☀️ SUN</span>
-            </div>
-            <div class="flex items-center gap-1.5 cursor-help" title="Keplerian Orbit Dot-Matrix Planets">
-                <div class="w-3 h-3 rounded-full bg-[#42a5f5] shadow-[0_0_8px_#42a5f5]"></div>
-                <span class="text-secondary font-bold">🪐 PLANETS</span>
-            </div>
-            <div class="flex items-center gap-1.5 cursor-help" title="Orbital Satellites & Space Stations (ISS, Starlink)">
-                <div class="w-3 h-3 rounded-full bg-[#ff5252] animate-pulse"></div>
-                <span class="text-error font-bold">🛰️ SATS</span>
-            </div>
-            <div class="flex items-center gap-1.5 cursor-help" title="Realtime GeoIP Location Beacon Signal">
-                <div class="w-3 h-3 rounded-full bg-[#26c6da] animate-ping"></div>
-                <span class="text-tertiary font-bold">📍 BEACON</span>
-            </div>
-            <div class="flex items-center gap-1.5 cursor-help" title="Logarithmic Spiral Milky Way Disc">
-                <div class="w-3 h-3 rounded-full bg-[#adc6ff]"></div>
-                <span class="text-secondary">🌌 GALAXY</span>
-            </div>
-        </div>
+        <!-- Dynamic Vector Callout Annotation Line Overlay in Modal -->
+        <svg id="modal-callout-svg-overlay" class="absolute inset-0 w-full h-full z-25 pointer-events-none"></svg>
 
         <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-30 mix-blend-screen" id="modal-tactical-shader"></canvas>
     </div>
@@ -2150,10 +2106,110 @@ function initEarth() {
         isUserDragging = false;
     });
 
+    // Dynamic 3D-to-2D Vector Callout / Annotation Leader Line Generator
+    function updateCalloutAnnotations() {
+        if (!camera || !globalRenderer) return;
+
+        const isModalOpen = document.getElementById('globe-modal') && !document.getElementById('globe-modal').classList.contains('hidden');
+        const svgElem = isModalOpen ? document.getElementById('modal-callout-svg-overlay') : document.getElementById('callout-svg-overlay');
+        const activeContainer = isModalOpen ? document.getElementById('modal-earth-container') : document.getElementById('earth-container');
+
+        if (!svgElem || !activeContainer) return;
+
+        const w = activeContainer.clientWidth || 400;
+        const h = activeContainer.clientHeight || 300;
+
+        let svgHTML = '';
+
+        // Project 3D vector to 2D Callout Leader Line
+        function drawCalloutPin(pos3D, labelTitle, labelDetail, strokeColor, offsetX = 45, offsetY = -30) {
+            const tempVec = pos3D.clone();
+            tempVec.project(camera);
+
+            if (tempVec.z > 1.0) return; // Behind camera
+
+            const x1 = (tempVec.x * 0.5 + 0.5) * w;
+            const y1 = (-tempVec.y * 0.5 + 0.5) * h;
+
+            if (x1 < -50 || x1 > w + 50 || y1 < -50 || y1 > h + 50) return;
+
+            const x2 = x1 + offsetX;
+            const y2 = y1 + offsetY;
+            const x3 = x2 + (offsetX > 0 ? 30 : -30);
+            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - 104;
+
+            svgHTML += `
+                <polyline points="${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y2.toFixed(1)}" 
+                          fill="none" stroke="${strokeColor}" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.9" />
+                <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="3" fill="${strokeColor}" opacity="0.95" />
+                <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="6" fill="none" stroke="${strokeColor}" stroke-width="1" opacity="0.5" />
+                
+                <g transform="translate(${textAnchor.toFixed(1)}, ${(y2 - 11).toFixed(1)})">
+                    <rect x="0" y="0" width="100" height="22" fill="#0b0d17" fill-opacity="0.88" stroke="${strokeColor}" stroke-width="1" rx="2" />
+                    <text x="5" y="10" fill="${strokeColor}" font-family="monospace" font-size="8.5" font-weight="bold">${labelTitle}</text>
+                    <text x="5" y="18" fill="#a0a5b5" font-family="monospace" font-size="7.5">${labelDetail}</text>
+                </g>
+            `;
+        }
+
+        // 1. Maximized Solar System View: Draw Sun & 8 Orbiting Planets Callout Pins
+        if (window.solarSystemGroup && window.solarSystemGroup.visible) {
+            if (window.sunGroup) {
+                const sunWorld = new THREE.Vector3();
+                window.sunGroup.getWorldPosition(sunWorld);
+                drawCalloutPin(sunWorld, "☀️ SUN CORE", "SOLAR ANCHOR 0.0 AU", "#ffe253", -50, -45);
+            }
+
+            if (window.solarPlanets) {
+                const colors = {
+                    'Mercury': '#d1d5db', 'Venus': '#ffca28', 'Earth': '#42a5f5',
+                    'Mars': '#ff5252', 'Jupiter': '#ffa726', 'Saturn': '#ffe082',
+                    'Uranus': '#26c6da', 'Neptune': '#42a5f5'
+                };
+                const offsets = [
+                    [45, -25], [-50, 30], [55, 20], [-60, -35],
+                    [65, -45], [-70, 40], [75, -20], [-75, 35]
+                ];
+
+                window.solarPlanets.forEach((p, idx) => {
+                    const pWorld = new THREE.Vector3();
+                    p.mesh.getWorldPosition(pWorld);
+                    const col = colors[p.name] || '#c2c1ff';
+                    const off = offsets[idx % offsets.length];
+                    drawCalloutPin(pWorld, `🪐 ${p.name.toUpperCase()}`, `ORBIT: ${p.orbitDist.toFixed(1)} AU`, col, off[0], off[1]);
+                });
+            }
+        }
+
+        // 2. Minimized Earth View: Draw Target Beacon & Satellites Callout Pins
+        if (window.globeGroup && window.globeGroup.visible) {
+            if (beaconMesh) {
+                const bWorld = new THREE.Vector3();
+                beaconMesh.getWorldPosition(bWorld);
+                drawCalloutPin(bWorld, "📍 TARGET BEACON", `${userGeoLocation.city}`, "#26c6da", 60, -35);
+            }
+
+            if (window.satellites) {
+                const sOffs = [[-50, -30], [55, 35], [-60, 40]];
+                window.satellites.forEach((s, idx) => {
+                    const sWorld = new THREE.Vector3();
+                    s.mesh.getWorldPosition(sWorld);
+                    const off = sOffs[idx % 3];
+                    drawCalloutPin(sWorld, `🛰️ ${s.name.toUpperCase()}`, `ALT: ${(s.orbitR * 300).toFixed(0)} KM`, "#ff5252", off[0], off[1]);
+                });
+            }
+        }
+
+        svgElem.innerHTML = svgHTML;
+    }
+
     let ringScale = 1.0;
     function animate(t) {
         requestAnimationFrame(animate);
         if (!isTabVisible || ecoMode) return;
+        
+        // Render 3D-to-2D Vector Callout Leader Lines
+        updateCalloutAnnotations();
         
         // Smooth Camera Z Interpolation for Presets
         if (camera && window.targetCamZ) {
