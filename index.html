@@ -302,10 +302,10 @@
                     <button onclick="toggleVoiceRecognition()" id="btn-voice-mic-dash" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface font-bold px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-center gap-1 shadow-sm border border-outline-variant/30" title="Toggle Hands-Free Voice Mic">
                         <span class="material-symbols-outlined text-xs">mic</span>
                     </button>
-                    <input type="text" id="meena-dash-input" placeholder="Chat with Sensei's AI or issue orders (e.g. 'How is the Pi?', 'Purge RAM', 'Who are you?')..."
+                    <input type="text" id="meena-dash-input" placeholder="Ask, search the web, or give orders (e.g. 'Who is Albert Einstein?', 'Purge RAM')..."
                            class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
-                           onkeydown="if (event.key === 'Enter' && this.value.trim()) { sendChatMessage(this.value.trim()); this.value = ''; }"/>
-                    <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { sendChatMessage(inp.value.trim()); inp.value = ''; }"
+                           onkeydown="if (event.key === 'Enter') { event.preventDefault(); const val = this.value.trim(); if (val) { this.value = ''; sendChatMessage(val); } }"/>
+                    <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { const val = inp.value.trim(); inp.value = ''; sendChatMessage(val); }"
                             class="bg-primary text-black font-bold px-4 py-1.5 rounded text-xs hover:bg-primary/80 transition-colors flex items-center gap-1 shadow-sm">
                         <span class="material-symbols-outlined text-xs">send</span>
                         <span>TRANSMIT</span>

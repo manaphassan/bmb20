@@ -742,7 +742,7 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
-    } else if (cmd.startsWith('search') || cmd.startsWith('lookup') || cmd.startsWith('look up') || cmd.startsWith('who is') || cmd.startsWith('what is') || cmd.startsWith('google') || cmd.startsWith('tell me about')) {
+    } else if (cmd.includes('who is') || cmd.includes('who was') || cmd.includes('what is') || cmd.includes('what was') || cmd.includes('search') || cmd.includes('lookup') || cmd.includes('look up') || cmd.includes('google') || cmd.includes('tell me about') || cmd.includes('explain')) {
         addMeenaEXP(25, 'Live web intelligence');
         searchLiveWebInfo(rawCmd);
     } else if (cmd.startsWith('remember ') || cmd.includes('remember that ')) {
@@ -752,8 +752,6 @@ function handleVoiceCommand(rawCmd) {
         recallMemories();
     } else if (cmd.includes('clear memory') || cmd.includes('forget all') || cmd.includes('reset memory')) {
         clearMemories();
-    } else if (cmd.includes('clarity') || cmd.includes('scanline') || cmd.includes('crt')) {
-        if (window.toggleScanlines) window.toggleScanlines();
     } else if (cmd.includes('audio off') || cmd.includes('mute') || cmd.includes('silence')) {
         if (window.toggleAudio) window.toggleAudio();
     } else {
@@ -1681,10 +1679,13 @@ async function searchLiveWebInfo(rawQuery) {
     const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
     
     // Clean search terms
-    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?(search(\s+for|\s+the\s+web\s+for)?|look\s*up|google|who\s+is|what\s+is|tell\s+me\s+about)\s+/i, '').trim();
+    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)?(search(\s+for|\s+the\s+web\s+for|\s+online\s+for)?|look\s*up|google|who\s+(is|was)|what\s+(is|was)|tell\s+me\s+about|find\s+info\s+on|explain)\s+/i, '').trim();
     cleanTopic = cleanTopic.replace(/[?.!]+$/, '').trim();
 
-    if (!cleanTopic) cleanTopic = "Raspberry Pi";
+    if (!cleanTopic) cleanTopic = "Albert Einstein";
+
+    // Title case for Wikipedia summary endpoint
+    const formattedTopic = cleanTopic.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
 
     const thoughts = [
         `🌐 Uplinking to live global internet index...`,
@@ -1695,8 +1696,10 @@ async function searchLiveWebInfo(rawQuery) {
 
     renderThinkingStream(thoughts, async () => {
         try {
-            // 1. Try Wikipedia Summary API (Instant, rich encyclopedic knowledge)
-            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanTopic)}`);
+            // 1. Try Wikipedia Summary API (with formatted topic)
+            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(formattedTopic)}`, {
+                headers: { 'Accept': 'application/json' }
+            });
             if (wikiRes.ok) {
                 const data = await wikiRes.json();
                 if (data.extract && data.type !== 'disambiguation') {
@@ -1750,11 +1753,13 @@ async function askMeenaAI(question) {
     lastUserInteractionTime = Date.now();
     const bank = getKnowledgeBank();
     const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
-    const q = question.toLowerCase();
+    
+    let cleanQ = question.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)/i, '').trim();
+    const q = cleanQ.toLowerCase();
 
     // If query asks for factual search, route to live web search
-    if (q.startsWith('search') || q.startsWith('who is') || q.startsWith('what is') || q.startsWith('look up') || q.startsWith('tell me about') || q.startsWith('google')) {
-        searchLiveWebInfo(question);
+    if (q.includes('who is') || q.includes('who was') || q.includes('what is') || q.includes('what was') || q.includes('search') || q.includes('lookup') || q.includes('look up') || q.includes('tell me about') || q.includes('google') || q.includes('explain')) {
+        searchLiveWebInfo(cleanQ);
         return;
     }
 
