@@ -2552,9 +2552,9 @@ function openGlobeModal() {
     modal.classList.remove('hidden');
     playSound('beep2');
 
-    // MAXIMIZED VIEW: Hide Earth-only globe, show central Sun anchor, planet system orbits & Milky Way
+    // MAXIMIZED VIEW: Hide central Earth globe & Sun anchor, leave only planet system orbits & Milky Way
     if (window.globeGroup) window.globeGroup.visible = false;
-    if (window.sunGroup) window.sunGroup.visible = true; // Central Glowing Sun Anchor
+    if (window.sunGroup) window.sunGroup.visible = false; // Hide central globe / sun
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
 
