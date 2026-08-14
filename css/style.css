@@ -62,9 +62,12 @@ html, body {
 
 /* CRT & Scanline Toggle Support (High Clarity Mode) */
 body.no-scanlines .scanlines,
-body.no-scanlines .earth-scanlines,
 body.no-scanlines .crt-vignette {
     display: none !important;
+}
+
+body.no-scanlines .earth-scanlines {
+    background: none !important;
 }
 
 body.no-scanlines .glitch-effect {
