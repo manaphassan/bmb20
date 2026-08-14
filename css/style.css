@@ -167,10 +167,6 @@ body.no-scanlines {
 
 /* Dual-Deck Viewports */
 .deck-view {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1.75fr 1fr;
-    gap: 6px;
     height: 100%;
     width: 100%;
     min-height: 0;
@@ -180,6 +176,55 @@ body.no-scanlines {
 
 .deck-view.hidden {
     display: none !important;
+}
+
+/* Deck 1: 2-Column AI Operations Bridge */
+#deck-1-container {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Deck 2: 3D Observatory & Tri-Panel NOC */
+#deck-2-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1.8fr 1fr;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Sleek Scrollbars for Terminal Feeds */
+#meena-chat-feed::-webkit-scrollbar,
+#knowledge-cards-container::-webkit-scrollbar,
+#lan-devices-container::-webkit-scrollbar,
+#kernel-log-container::-webkit-scrollbar {
+    width: 4px;
+}
+#meena-chat-feed::-webkit-scrollbar-track,
+#knowledge-cards-container::-webkit-scrollbar-track,
+#lan-devices-container::-webkit-scrollbar-track,
+#kernel-log-container::-webkit-scrollbar-track {
+    background: rgba(14, 14, 20, 0.6);
+}
+#meena-chat-feed::-webkit-scrollbar-thumb,
+#knowledge-cards-container::-webkit-scrollbar-thumb,
+#lan-devices-container::-webkit-scrollbar-thumb,
+#kernel-log-container::-webkit-scrollbar-thumb {
+    background: #464552;
+    border-radius: 2px;
+}
+#meena-chat-feed::-webkit-scrollbar-thumb:hover,
+#knowledge-cards-container::-webkit-scrollbar-thumb:hover {
+    background: #66ccff;
 }
 
 /* Holographic Avatar Core & Audio Waveform */

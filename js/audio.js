@@ -899,7 +899,7 @@ function renderKnowledgeBank(category = 'all') {
 
     container.innerHTML = '';
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-4 bg-surface-container-lowest p-3 rounded border border-outline-variant/30 text-center text-secondary text-[10px]">No knowledge entries recorded in this category yet. Type below to teach Meena!</div>`;
+        container.innerHTML = `<div class="col-span-2 bg-surface-container-lowest p-2 rounded border border-outline-variant/30 text-center text-secondary text-[9px]">No knowledge entries recorded. Type below to teach Meena!</div>`;
         return;
     }
 
