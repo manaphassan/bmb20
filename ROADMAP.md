@@ -1,7 +1,7 @@
-# 🚀 DietPi LCARS Command Center (BMB20)
-## Complete Architecture Guide & Engineering Roadmap
+# 🌸 MEENA // TAKAHARA ACADEMY (高原学園)
+## Next-Generation Home Personal Assistant & SBC Telemetry Architecture
 
-This document serves as the master engineering guide, technical specification, and multi-phase execution roadmap for developing, deploying, and maintaining the **LCARS Command Center** on a **Raspberry Pi 3** (`192.168.0.100` / `dietpi.local`).
+This document serves as the master engineering guide, technical specification, and multi-phase execution roadmap for developing, deploying, and maintaining **M.E.E.N.A.** (*Master Electronic Executive Neural Assistant*) as an anime-inspired, privacy-first **Home Personal Assistant & Smart Hub** for home base **Takahara Academy (高原学園)** on **DietPi (Raspberry Pi 3)** (`192.168.0.100` / `dietpi.local`).
 
 ---
 
@@ -19,12 +19,13 @@ This document serves as the master engineering guide, technical specification, a
 
 # 1. Executive Summary & Core Philosophy
 
-The **BMB20 LCARS Command Center** is a high-performance, single-pane-of-glass dashboard for monitoring self-hosted services (Pi-hole, Syncthing, Jellyfin, Tailscale) and real-time hardware telemetry on a Raspberry Pi 3.
+**Project MEENA** is an intelligent, single-pane-of-glass **Home Personal Assistant & Operations Dashboard** that manages self-hosted services (Pi-hole, File Browser, Syncthing, Tailscale, Cockpit) and real-time hardware telemetry for home base **Takahara Academy**.
 
 ### Core Tenets:
+* **Zero-Cost, Privacy-First Home Assistant**: Powered by browser-native Web Speech Recognition API and Web Audio procedural synthesis with **0 token cost** and **0% CPU load on the Pi**.
+* **Authentic Anime Personality**: High-energy, charismatic Misato Katsuragi (*Evangelion*) & Meena (*Tengoku Daimakyou*) voice synthesis addressing the user as **Sensei**.
 * **Zero-Build, Pure Web Standards**: HTML5, Vanilla ES6 JavaScript modules, Tailwind CSS, and Three.js. Zero compilation steps, zero Webpack/Vite overhead.
-* **Near-Zero Server Footprint**: Nginx serves static assets directly from memory cache (< 0.1% CPU). A lightweight background Bash telemetry daemon (`bmb20-stats.sh`) runs as a native systemd service, avoiding heavy PHP/Node.js runtimes.
-* **Authentic Star Trek LCARS Aesthetics**: High-contrast Okuda color hierarchy, CRT phosphor scanlines, 3D WebGL tactical Earth hologram, and Web Audio API synthesizer feedback.
+* **Near-Zero Server Footprint**: Lighttpd/Nginx serves static assets directly from memory cache (< 0.1% CPU). A lightweight background Bash telemetry daemon (`bmb20-stats.sh`) runs as a native systemd service.
 
 ---
 
