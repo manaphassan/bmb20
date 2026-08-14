@@ -429,6 +429,12 @@ body {
                 <div class="text-[10px] text-on-surface-variant" id="geo-ip">PUBLIC IP: FETCHING...</div>
             </div>
 
+            <!-- Maximize Globe Button -->
+            <button onclick="openGlobeModal()" class="absolute bottom-3 right-3 z-30 bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/60 px-2.5 py-1 text-[11px] font-data-mono flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all">
+                <span class="material-symbols-outlined text-sm">fullscreen</span>
+                <span>MAXIMIZE GLOBE</span>
+            </button>
+
             <!-- 3D Earth Container -->
             <div class="w-full h-full absolute inset-0 z-10 earth-scanlines" id="earth-container"></div>
             <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-40 mix-blend-screen" id="tactical-shader"></canvas>
@@ -606,6 +612,31 @@ body {
                     </div>
                 </div>
             </div>
+        </div>
+    <!-- Maximize 3D Globe Fullscreen LCARS Modal Overlay -->
+    <div id="globe-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col hidden p-4 transition-all duration-300">
+        <div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary text-on-primary font-bold px-3 py-1 text-sm font-label-caps tracking-widest rounded-sm">TACTICAL GLOBE MAXIMIZED VIEW</div>
+                <span class="font-data-mono text-xs text-secondary">[REALTIME ORBITAL TELEMETRY SCANNER]</span>
+            </div>
+            <button onclick="closeGlobeModal()" class="bg-error text-on-error hover:bg-error/80 px-4 py-1.5 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-lg rounded-sm">
+                <span class="material-symbols-outlined text-base">close</span>
+                <span>CLOSE SCAN</span>
+            </button>
+        </div>
+
+        <div class="flex-1 w-full h-full relative overflow-hidden bg-surface-container-lowest border border-outline-variant/60 rounded" id="modal-earth-container">
+            <!-- Telemetry Readout Overlay in Modal -->
+            <div class="absolute top-4 left-4 bg-surface-container/90 backdrop-blur-md p-4 border border-secondary/60 font-data-mono text-xs text-secondary z-30 shadow-2xl flex flex-col gap-1.5">
+                <div class="text-primary font-bold text-sm">NODE_HOST: dietpi.local</div>
+                <div id="modal-target-loc" class="text-tertiary font-bold">TARGET: SEARCHING...</div>
+                <div id="modal-target-coords" class="text-secondary">COORDS: LAT -- | LON --</div>
+                <div id="modal-target-ip" class="text-on-surface-variant">PUBLIC IP: FETCHING...</div>
+                <div class="text-primary text-[10px] mt-2 border-t border-secondary/40 pt-1">CONTROLS: LEFT-CLICK DRAG TO ROTATE | MOUSE WHEEL TO ZOOM</div>
+            </div>
+
+            <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-30 mix-blend-screen" id="modal-tactical-shader"></canvas>
         </div>
     </div>
 
@@ -1402,8 +1433,39 @@ function initEarth() {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
-    });
+function openGlobeModal() {
+    const modal = document.getElementById('globe-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    playSound('beep2');
+
+    // Update modal telemetry readouts
+    const locElem = document.getElementById('modal-target-loc');
+    const coordsElem = document.getElementById('modal-target-coords');
+    const ipElem = document.getElementById('modal-target-ip');
+
+    if (locElem) locElem.innerText = `TARGET: ${userGeoLocation.city.toUpperCase()}, ${userGeoLocation.country.toUpperCase()}`;
+    if (coordsElem) coordsElem.innerText = `COORDS: LAT ${userGeoLocation.lat.toFixed(2)}° | LON ${userGeoLocation.lon.toFixed(2)}°`;
+    if (ipElem) ipElem.innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
+
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 80);
 }
+
+function closeGlobeModal() {
+    const modal = document.getElementById('globe-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    playSound('beep1');
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 80);
+}
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeGlobeModal();
+});
 
 window.onload = () => {
     updateClock();
