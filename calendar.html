@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEENA™ // Chrono Calendar & Operations Agenda</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Core Application CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-surface text-on-surface font-mono min-h-screen flex flex-col p-4 md:p-6 select-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-container-high/30 via-surface to-surface-container-lowest">
+
+    <!-- Top LCARS Header -->
+    <header class="flex items-center justify-between border-b-2 border-tertiary/40 pb-3 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-tertiary/10 border-2 border-tertiary flex items-center justify-center text-tertiary shadow-[0_0_12px_rgba(77,208,225,0.3)]">
+                <span class="material-symbols-outlined text-2xl">calendar_month</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h1 class="text-lg md:text-xl font-bold tracking-wider text-tertiary font-headline">CHRONO CALENDAR & OPERATIONS AGENDA</h1>
+                    <span id="chrono-sync-status" class="text-[10px] bg-tertiary/20 text-tertiary px-2 py-0.5 rounded font-bold border border-tertiary/40">LOADING SYNC...</span>
+                </div>
+                <p class="text-xs text-secondary">Takahara Academy Unified Tactical Schedule & Google Calendar Integration</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="speakCalendarSpokenSummary()" class="bg-primary text-black hover:bg-primary/80 font-bold px-3 py-2 rounded text-xs flex items-center gap-1 shadow-sm transition-all">
+                <span class="material-symbols-outlined text-sm">volume_up</span>
+                <span>READ AGENDA</span>
+            </button>
+            <a href="settings.html" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-3 py-2 rounded font-bold text-xs flex items-center gap-1.5 border border-outline-variant/40 transition-all shadow-sm">
+                <span class="material-symbols-outlined text-sm">settings</span>
+                <span>SETTINGS</span>
+            </a>
+            <a href="index.html" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-4 py-2 rounded font-bold text-xs flex items-center gap-2 border border-outline-variant/40 transition-all shadow-sm">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>RETURN TO BRIDGE</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Chrono Grid Layout -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto w-full">
+        
+        <!-- Left: Interactive Monthly Calendar Grid (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-tertiary">date_range</span>
+                    <h2 class="text-sm font-bold text-on-surface font-headline tracking-wide" id="calendar-month-label">CALENDAR GRID</h2>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="prevCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1 rounded text-xs font-bold border border-outline-variant/30 transition-all">
+                        <span class="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                    <button onclick="nextCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1 rounded text-xs font-bold border border-outline-variant/30 transition-all">
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Month Calendar Days Grid -->
+            <div class="grid grid-cols-7 gap-1.5" id="calendar-month-grid">
+                <!-- Dynamically generated by js/calendar.js -->
+            </div>
+
+            <!-- Sync Quick Settings Strip -->
+            <div class="mt-auto pt-3 border-t border-outline-variant/30 flex flex-col gap-2">
+                <span class="text-[10px] text-tertiary font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">link</span>
+                    <span>GOOGLE CALENDAR PRIVATE ICAL SYNC:</span>
+                </span>
+                <div class="flex gap-2">
+                    <input type="text" id="chrono-ical-input" placeholder="Paste your secret .ics iCal address here..." class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded px-3 py-1.5 text-xs font-mono text-on-surface focus:border-tertiary focus:outline-none">
+                    <button onclick="saveChronoSync()" class="bg-tertiary hover:bg-tertiary/80 text-black font-bold px-4 py-1.5 rounded text-xs font-mono transition-all">SAVE SYNC</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Daily & Weekly Agenda Feed (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Today's Schedule Card -->
+            <div class="bg-surface-container-low p-4 rounded-xl border border-primary/40 shadow-sm flex flex-col gap-3">
+                <div class="flex items-center justify-between border-b border-primary/30 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">today</span>
+                        <h3 class="text-xs font-bold text-primary tracking-wider uppercase">TODAY'S OPERATIONS</h3>
+                    </div>
+                    <span id="chrono-today-count" class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold font-mono">0 EVENTS</span>
+                </div>
+
+                <div class="flex flex-col gap-2 min-h-[140px] max-h-60 overflow-y-auto" id="chrono-today-events">
+                    <div class="text-secondary text-xs italic p-4">Loading today's agenda...</div>
+                </div>
+            </div>
+
+            <!-- Upcoming 7-Day Agenda Card -->
+            <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col gap-3 flex-1">
+                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-base">upcoming</span>
+                        <h3 class="text-xs font-bold text-secondary tracking-wider uppercase">UPCOMING THIS WEEK</h3>
+                    </div>
+                    <button onclick="loadCalendarFeed(true)" class="text-[9px] text-tertiary hover:underline flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-[10px]">sync</span>
+                        <span>REFRESH</span>
+                    </button>
+                </div>
+
+                <div class="flex flex-col gap-2 max-h-72 overflow-y-auto" id="chrono-upcoming-events">
+                    <div class="text-secondary text-xs italic p-4">No upcoming events.</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/calendar.js"></script>
+    <script>
+        async function saveChronoSync() {
+            const input = document.getElementById('chrono-ical-input');
+            const url = input ? input.value.trim() : '';
+            if (!url) {
+                alert('Please enter a valid Google Calendar Secret iCal URL (.ics)');
+                return;
+            }
+
+            const res = await saveGoogleCalendarUrl(url);
+            if (res.status === 'success') {
+                alert('Google Calendar synchronized successfully!');
+            } else {
+                alert(`Sync failed: ${res.message}`);
+            }
+        }
+
+        // Preload iCal config input
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('api.php?action=get_calendar_config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ical_url) {
+                        const input = document.getElementById('chrono-ical-input');
+                        if (input) input.value = data.ical_url;
+                    }
+                }
+            } catch(e) {}
+        });
+    </script>
+</body>
+</html>
