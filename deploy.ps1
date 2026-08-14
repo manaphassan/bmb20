@@ -9,7 +9,10 @@ Write-Host "==================================================" -ForegroundColor
 Write-Host " Auto-deploying LCARS Landing Page to $User@$TargetHost" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
-$KeyPath = "$env:USERPROFILE\.ssh\id_ed25519"
+$KeyPath = "$env:USERPROFILE\.ssh\id_dietpi"
+if (-not (Test-Path $KeyPath)) {
+    $KeyPath = "$env:USERPROFILE\.ssh\id_ed25519"
+}
 $LocalDir = $PSScriptRoot
 
 if (-not (Test-Path "$LocalDir\index.html")) {
