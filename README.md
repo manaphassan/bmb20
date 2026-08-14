@@ -44,9 +44,9 @@ An authentic, high-performance Starfleet LCARS (Library Computer Access and Retr
 | :--- | :--- | :--- | :--- |
 | **`[01-89]`** | **Pi-hole v6** | `http://dietpi.local:8089/admin/login` | DNS Ad-blocking & Network Shield |
 | **`[80-84]`** | **File Browser** | `http://dietpi.local:8084/` | Web-based Local File Manager |
-| **`[33-84]`** | **Syncthing** | `http://192.168.0.100:8384` | Continuous File Synchronization |
+| **`[33-84]`** | **Syncthing** | `http://dietpi.local:8384` | Continuous File Synchronization |
 | **`[10-52]`** | **Tailscale VPN** | `https://login.tailscale.com/admin/machines` | Secure Mesh Network Console |
-| **`[52-52]`** | **Cockpit** | `http://192.168.0.100:5252` | Linux Server Web Administration |
+| **`[52-52]`** | **Cockpit** | `http://dietpi.local:5252` | Linux Server Web Administration |
 
 ---
 
@@ -96,8 +96,8 @@ d:\HaNa_Innovation\bmb20\
 
 ### Automated Push to DietPi Host
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\deploy.ps1 -TargetHost "192.168.0.100"
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1 -TargetHost "dietpi.local"
 ```
 
 Once deployed, access the dashboard at:
-👉 **`http://192.168.0.100`** or **`http://dietpi.local`**
+👉 **`http://dietpi.local`** (or `http://192.168.0.100`)

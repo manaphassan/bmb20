@@ -63,16 +63,16 @@ tailwind.config = {
 
 // Global App Configuration
 window.BMB20_CONFIG = {
-    host: "192.168.0.100",
+    host: "dietpi.local",
     hostname: "dietpi.local",
     telemetryEndpoint: "api.json",
     pollIntervalMs: 1000,
     services: {
         pihole: "http://dietpi.local:8089/admin/login",
-        syncthing: "http://192.168.0.100:8384",
-        filebrowser: "http://192.168.0.100:8084",
+        syncthing: "http://dietpi.local:8384",
+        filebrowser: "http://dietpi.local:8084",
         tailscale: "https://login.tailscale.com/admin/machines",
-        cockpit: "http://192.168.0.100:5252"
+        cockpit: "http://dietpi.local:5252"
     },
     defaultLocation: {
         lat: 2.8125,

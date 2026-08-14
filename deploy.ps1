@@ -1,6 +1,6 @@
 # Automated PowerShell Deployer for DietPi Landing Page
 param (
-    [string]$TargetHost = "192.168.0.100",
+    [string]$TargetHost = "dietpi.local",
     [string]$User = "dietpi",
     [string]$RemoteStaging = "/tmp/bmb20_deploy"
 )

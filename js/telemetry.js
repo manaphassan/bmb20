@@ -146,7 +146,7 @@ function updateFooterTicker(data) {
 
     ticker.innerHTML = `
         <span>[SYS STATUS] ALL SUBSYSTEMS NOMINAL</span>
-        <span>HOST: ${hn} (192.168.0.100)</span>
+        <span>HOST: ${hn} (dietpi.local)</span>
         <span>GATEWAY: 192.168.0.1</span>
         <span>UPTIME: ${uptime.toUpperCase()}</span>
         <span>CORE TEMP: ${temp}°C</span>
@@ -154,7 +154,7 @@ function updateFooterTicker(data) {
         <span>SECURE BOOT: ACTIVE</span>
         <span>FIREWALL: OPERATIONAL</span>
         <span>[SYS STATUS] ALL SUBSYSTEMS NOMINAL</span>
-        <span>HOST: ${hn} (192.168.0.100)</span>
+        <span>HOST: ${hn} (dietpi.local)</span>
         <span>GATEWAY: 192.168.0.1</span>
         <span>UPTIME: ${uptime.toUpperCase()}</span>
         <span>CORE TEMP: ${temp}°C</span>
@@ -434,7 +434,7 @@ fetchClientWeather();
 let selectedNode = null;
 
 function openNodeModal(dev) {
-    selectedNode = dev || { name: "LOCAL-NODE", ip: "192.168.0.100", dev: "eth0", status: "ACTIVE" };
+    selectedNode = dev || { name: "LOCAL-NODE", ip: "dietpi.local", dev: "eth0", status: "ACTIVE" };
     const modal = document.getElementById('tactical-modal');
     if (!modal) return;
 
