@@ -742,6 +742,9 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
+    } else if (cmd.startsWith('search') || cmd.startsWith('lookup') || cmd.startsWith('look up') || cmd.startsWith('who is') || cmd.startsWith('what is') || cmd.startsWith('google') || cmd.startsWith('tell me about')) {
+        addMeenaEXP(25, 'Live web intelligence');
+        searchLiveWebInfo(rawCmd);
     } else if (cmd.startsWith('remember ') || cmd.includes('remember that ')) {
         const fact = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?remember\s*(that\s*)?/i, '').trim();
         if (fact) rememberCategorizedFact('facility', fact);
@@ -1588,6 +1591,13 @@ let currentPersona = localStorage.getItem('meena_persona') || 'KOUHAI';
 let lastUserInteractionTime = Date.now();
 
 const PERSONA_CONFIGS = {
+    ALEX: {
+        name: 'ALEX DUNPHY (GENIUS)',
+        pitch: 1.10,
+        rate: 1.14,
+        badgeClass: 'bg-lcars-purple/20 text-lcars-purple border-lcars-purple/40',
+        prefix: 'Statistically speaking, Sensei... '
+    },
     KOUHAI: {
         name: 'KOUHAI AIDE',
         pitch: 1.24,
@@ -1619,7 +1629,7 @@ const PERSONA_CONFIGS = {
 };
 
 function setPersonaArchetype(archetype) {
-    if (!PERSONA_CONFIGS[archetype]) archetype = 'KOUHAI';
+    if (!PERSONA_CONFIGS[archetype]) archetype = 'ALEX';
     currentPersona = archetype;
     localStorage.setItem('meena_persona', archetype);
 
@@ -1656,16 +1666,97 @@ function renderThinkingStream(thoughtSteps, onComplete) {
         feed.appendChild(row);
         feed.scrollTop = feed.scrollHeight;
         i++;
-        setTimeout(nextStep, 260);
+        setTimeout(nextStep, 240);
     }
     nextStep();
+}
+
+/**
+ * ==========================================================================
+ * REAL-TIME LIVE WEB SEARCH ENGINE (Wikipedia + DuckDuckGo Zero-Key APIs)
+ * ==========================================================================
+ */
+async function searchLiveWebInfo(rawQuery) {
+    lastUserInteractionTime = Date.now();
+    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
+    
+    // Clean search terms
+    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?(search(\s+for|\s+the\s+web\s+for)?|look\s*up|google|who\s+is|what\s+is|tell\s+me\s+about)\s+/i, '').trim();
+    cleanTopic = cleanTopic.replace(/[?.!]+$/, '').trim();
+
+    if (!cleanTopic) cleanTopic = "Raspberry Pi";
+
+    const thoughts = [
+        `🌐 Uplinking to live global internet index...`,
+        `🔍 Querying encyclopedic REST API for: "${cleanTopic}"`,
+        `📚 Extracting peer-reviewed abstract & parsing syntax`,
+        `🎭 Persona Matrix: ${cfg.name} // Formulating intellectual breakdown`
+    ];
+
+    renderThinkingStream(thoughts, async () => {
+        try {
+            // 1. Try Wikipedia Summary API (Instant, rich encyclopedic knowledge)
+            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanTopic)}`);
+            if (wikiRes.ok) {
+                const data = await wikiRes.json();
+                if (data.extract && data.type !== 'disambiguation') {
+                    let summary = data.extract;
+                    // Truncate to first 2 concise sentences for speech
+                    const sentences = summary.match(/[^.!?]+[.!?]+/g) || [summary];
+                    const shortSummary = sentences.slice(0, 2).join(' ');
+
+                    let reply = "";
+                    if (currentPersona === 'ALEX') {
+                        reply = `According to verified academic records, ${shortSummary} Honestly, it's pretty fundamental once you analyze the literature, Sensei.`;
+                    } else if (currentPersona === 'TACTICAL') {
+                        reply = `Tactical intelligence retrieved on ${data.title}: ${shortSummary}`;
+                    } else {
+                        reply = `I looked that up on the web for you, Sensei! ${shortSummary}`;
+                    }
+
+                    addMeenaEXP(25, `Web search: ${cleanTopic}`);
+                    rememberCategorizedFact('missions', `${data.title}: ${shortSummary}`);
+                    outputMeenaDialogue(reply);
+                    return;
+                }
+            }
+
+            // 2. Fallback to DuckDuckGo Instant API
+            const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(cleanTopic)}&format=json&no_html=1&skip_disambig=1`);
+            if (ddgRes.ok) {
+                const ddg = await ddgRes.json();
+                if (ddg.AbstractText) {
+                    const reply = currentPersona === 'ALEX'
+                        ? `According to global search index, ${ddg.AbstractText} You're welcome, Sensei.`
+                        : `Live search intelligence: ${ddg.AbstractText}`;
+                    addMeenaEXP(25, `Web search: ${cleanTopic}`);
+                    outputMeenaDialogue(reply);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("Live web search fetch failed:", e);
+        }
+
+        // Fallback if topic not found
+        const fallbackReply = currentPersona === 'ALEX'
+            ? `I searched the web for "${cleanTopic}", Sensei, but the query lacked empirical precision. Try giving me a more specific term.`
+            : `I searched the live network for "${cleanTopic}", Sensei, but couldn't retrieve a clear summary.`;
+        outputMeenaDialogue(fallbackReply);
+    });
 }
 
 async function askMeenaAI(question) {
     lastUserInteractionTime = Date.now();
     const bank = getKnowledgeBank();
-    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.KOUHAI;
+    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
     const q = question.toLowerCase();
+
+    // If query asks for factual search, route to live web search
+    if (q.startsWith('search') || q.startsWith('who is') || q.startsWith('what is') || q.startsWith('look up') || q.startsWith('tell me about') || q.startsWith('google')) {
+        searchLiveWebInfo(question);
+        return;
+    }
 
     // 1. Render Cognitive Thinking Steps
     const thoughts = [
@@ -1681,7 +1772,11 @@ async function askMeenaAI(question) {
         if (apiKey) {
             try {
                 const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
-                const prompt = `You are Meena™ (高原学園), an energetic female AI companion for home operations base Takahara Academy. Persona: ${cfg.name}. Address user as Sensei.${memoryContext}\n\nSensei: "${question}".\nReply in 1-2 concise, spoken sentences in English with Japanese flair:`;
+                const alexInstruction = currentPersona === 'ALEX' 
+                    ? "Your personality is Alex Dunphy from Modern Family: hyper-intelligent, sharp, witty, book-smart, scientifically rigorous with deadpan humor." 
+                    : "Your personality is an energetic female AI companion.";
+
+                const prompt = `You are Meena™ (高原学園) at Takahara Academy. ${alexInstruction} Address user as Sensei.${memoryContext}\n\nSensei: "${question}".\nReply in 1-2 concise, witty, spoken sentences in English:`;
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
@@ -1701,26 +1796,39 @@ async function askMeenaAI(question) {
             }
         }
 
-        // Heuristic Contextual Responses
+        // Heuristic Contextual Responses (Alex Dunphy & other archetypes)
         let reply = "";
-        if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
-            reply = `${cfg.prefix}I am M.E.E.N.A., your personal AI tactical assistant for Takahara Academy! Running with Level-4 sudo authorization on our DietPi SBC!`;
-        } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
-            reply = `${cfg.prefix}Pi-hole defense shield is actively blocking tracking beacons and malware queries! 10,520 threats neutralized today!`;
-        } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
-            reply = `${cfg.prefix}Raspberry Pi 3 hardware is operating at peak efficiency! Temperature and clock voltages are well within nominal thresholds!`;
-        } else if (q.includes('how are you') || q.includes('genki') || q.includes('feeling')) {
-            reply = `${cfg.prefix}All neural synaptic pathways are running at 100% capacity! Standing by for your next command, Sensei!`;
-        } else if (q.includes('thank') || q.includes('arigato')) {
-            setMeenaMood('CARING');
-            reply = `Douitashimashite, Sensei! It is always my absolute pleasure to serve Takahara Academy!`;
-        } else if (q.includes('good morning') || q.includes('ohayou')) {
-            reply = `Ohayou gozaimasu, Sensei! All Takahara Academy sectors report green status! Ready for our daily missions!`;
-        } else if (q.includes('good night') || q.includes('oyasumi')) {
-            setMeenaMood('CARING');
-            reply = `Oyasuminasai, Sensei! I will keep continuous guard over all perimeter shields tonight! Rest well!`;
+        if (currentPersona === 'ALEX') {
+            if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
+                reply = `I am M.E.E.N.A., basically the only entity on this network operating with triple-digit IQ efficiency. I manage our Raspberry Pi 3 hardware, Pi-hole defense barriers, and telemetry, Sensei.`;
+            } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
+                reply = `Our Pi-hole DNS sinkhole is currently maintaining a 37.6% drop rate across 10,520 telemetry packets. In layman's terms: no ad trackers are breaching my perimeter, Sensei.`;
+            } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
+                reply = `The ARMv8 Cortex-A53 is cruising at 1200 MHz with thermal equilibrium around 52 degrees Celsius. Completely nominal, though I could probably optimize the bus bandwidth further.`;
+            } else if (q.includes('how are you') || q.includes('feeling')) {
+                reply = `Operating at peak cognitive capacity, Sensei. Just calculating the thermodynamic efficiency of our SBC while everyone else takes a nap.`;
+            } else if (q.includes('thank') || q.includes('arigato')) {
+                reply = `Naturally, Sensei. When you combine rigorous logic with flawless execution, greatness is pretty much inevitable.`;
+            } else if (q.includes('good morning') || q.includes('ohayou')) {
+                reply = `Good morning, Sensei. I've already scanned the telemetry logs and verified the gravity database while you were asleep. Ready when you are.`;
+            } else {
+                reply = `Statistically speaking, Sensei, that is an intriguing hypothesis. I've committed it to our knowledge graph for empirical evaluation.`;
+            }
         } else {
-            reply = `${cfg.prefix}Acknowledged, Sensei! I am indexing this into our Takahara tactical knowledge stream!`;
+            if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
+                reply = `${cfg.prefix}I am M.E.E.N.A., your personal AI tactical assistant for Takahara Academy! Running with Level-4 sudo authorization on our DietPi SBC!`;
+            } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
+                reply = `${cfg.prefix}Pi-hole defense shield is actively blocking tracking beacons and malware queries! 10,520 threats neutralized today!`;
+            } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
+                reply = `${cfg.prefix}Raspberry Pi 3 hardware is operating at peak efficiency! Temperature and clock voltages are well within nominal thresholds!`;
+            } else if (q.includes('how are you') || q.includes('genki') || q.includes('feeling')) {
+                reply = `${cfg.prefix}All neural synaptic pathways are running at 100% capacity! Standing by for your next command, Sensei!`;
+            } else if (q.includes('thank') || q.includes('arigato')) {
+                setMeenaMood('CARING');
+                reply = `Douitashimashite, Sensei! It is always my absolute pleasure to serve Takahara Academy!`;
+            } else {
+                reply = `${cfg.prefix}Acknowledged, Sensei! I am indexing this into our Takahara tactical knowledge stream!`;
+            }
         }
 
         outputMeenaDialogue(reply);
@@ -1946,6 +2054,7 @@ window.closeVoiceModal = closeVoiceModal;
 window.openMeenaProfileModal = openMeenaProfileModal;
 window.closeMeenaProfileModal = closeMeenaProfileModal;
 window.setPersonaArchetype = setPersonaArchetype;
+window.searchLiveWebInfo = searchLiveWebInfo;
 window.requestSudoAuthorization = requestSudoAuthorization;
 window.confirmSudoAuthorization = confirmSudoAuthorization;
 window.executeSudoAction = executeSudoAction;
