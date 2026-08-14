@@ -69,7 +69,13 @@ tailwind.config = {
         "on-tertiary-fixed-variant": "#524600",
         "background": "#131319",
         "on-background": "#e4e1ea",
-        "surface-variant": "#35343b"
+        "surface-variant": "#35343b",
+        "lcars-orange": "#ff9900",
+        "lcars-gold": "#ffcc66",
+        "lcars-blue": "#66ccff",
+        "lcars-purple": "#cc6699",
+        "lcars-red": "#cc3333",
+        "lcars-tan": "#ffddaa"
       },
       "borderRadius": {
         "DEFAULT": "0.25rem",
@@ -405,24 +411,25 @@ body {
         </div>
     </div>
 
-    <!-- Header (L-Frame Top) -->
-    <div class="header-area bg-surface flex justify-between items-center border-b-4 border-secondary rounded-tr-hop-radius px-4 relative">
-        <div class="flex items-center gap-4">
-            <span class="font-headline-sm text-headline-sm text-primary font-bold">DIETPI COMMAND CENTER</span>
-            <div class="h-5 w-px bg-secondary opacity-50"></div>
-            <div class="font-data-mono text-data-mono text-secondary flex items-center gap-2 text-xs">
-                <span class="material-symbols-outlined text-sm text-primary animate-pulse">dns</span>
+    <!-- Header (L-Frame Top - Starfleet LCARS Style) -->
+    <div class="header-area bg-surface flex justify-between items-center border-b-4 border-[#ff9900] rounded-tr-hop-radius px-4 relative">
+        <div class="flex items-center gap-3">
+            <span class="bg-[#ff9900] text-black font-headline-sm text-headline-sm px-3 py-0.5 rounded-l-full font-bold tracking-widest uppercase">STARFLEET COMMAND</span>
+            <span class="text-[#ffcc66] font-bold text-sm tracking-widest hidden md:inline">LCARS-2309 // BMB20 CORE</span>
+            <div class="h-5 w-px bg-[#ff9900] opacity-50"></div>
+            <div class="font-data-mono text-data-mono text-[#66ccff] flex items-center gap-1.5 text-xs">
+                <span class="material-symbols-outlined text-sm text-[#ffcc66] animate-pulse">dns</span>
                 <span id="host-name">dietpi.local</span>
             </div>
         </div>
-        <div class="flex items-center gap-4 font-data-mono text-data-mono text-tertiary text-xs">
-            <div class="flex gap-3 items-center bg-surface-container-low px-3 py-1 rounded-full border border-secondary/30">
-                <span class="text-xs text-secondary font-label-caps">PI-HOLE:</span>
-                <span class="text-primary font-bold" id="dns-queries">ACTIVE</span>
-                <div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+        <div class="flex items-center gap-3 font-data-mono text-data-mono text-xs">
+            <div class="flex gap-2 items-center bg-[#131319] px-3 py-0.5 rounded-full border border-[#ff9900]/50 text-[#ffcc66]">
+                <span class="text-xs font-label-caps">PI-HOLE:</span>
+                <span class="text-[#66ccff] font-bold" id="dns-queries">ACTIVE</span>
+                <div class="w-2 h-2 rounded-full bg-[#ff9900] animate-pulse shadow-[0_0_8px_#ff9900]"></div>
             </div>
-            <div class="tracking-widest" id="stardate">STARDATE 47634.4</div>
-            <div class="font-bold text-primary" id="clock">00:00:00 UTC</div>
+            <div class="tracking-widest font-bold text-[#ff9900] bg-[#ff9900]/10 border border-[#ff9900]/40 px-2.5 py-0.5 rounded-sm" id="stardate">STARDATE 104184.25</div>
+            <div class="font-bold text-[#ffcc66]" id="clock">00:00:00 UTC</div>
         </div>
     </div>
 
@@ -431,9 +438,9 @@ body {
 
         <!-- Row 1 & 2: Central Hologram Planet Monitor (Spans 2 Cols x 2 Rows) -->
         <div class="col-span-2 row-span-2 bg-surface-container-lowest border border-outline-variant relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm h-full" id="global-monitor-card">
-            <div class="absolute top-0 left-0 bg-primary text-on-primary font-label-caps text-label-caps px-2.5 py-1 z-30 font-bold tracking-widest flex items-center gap-2">
-                <span>SBC GLOBAL MONITOR</span>
-                <span class="w-2 h-2 rounded-full bg-on-primary animate-ping"></span>
+            <div class="absolute top-0 left-0 bg-[#ff9900] text-black font-headline-sm text-xs px-3 py-1 z-30 font-bold tracking-widest flex items-center gap-2 rounded-r-full shadow-lg">
+                <span>LCARS-2309 // SBC GLOBAL MONITOR</span>
+                <span class="w-2 h-2 rounded-full bg-black animate-ping"></span>
             </div>
 
             <!-- Camera View Controls -->
@@ -814,14 +821,15 @@ function toggleEcoMode() {
 
 function updateClock() {
     const now = new Date();
-    document.getElementById('clock').innerText = now.toISOString().substr(11, 8) + ' UTC';
-    const startYear = 2323;
-    const currentYear = now.getUTCFullYear();
-    const startOfYear = new Date(currentYear, 0, 0);
-    const diff = now - startOfYear;
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const stardate = (currentYear - startYear) * 1000 + (dayOfYear * (1000/365));
-    document.getElementById('stardate').innerText = `STARDATE ${stardate.toFixed(1)}`;
+    const clockElem = document.getElementById('clock');
+    if (clockElem) clockElem.innerText = now.toISOString().substr(11, 8) + ' UTC';
+
+    const stardateElem = document.getElementById('stardate');
+    if (stardateElem) {
+        // TNG / Voyager Authentic Stardate Formula
+        const stardateVal = ((Date.now() - 1577836800000) / 3155760000 * 1000 + 75000).toFixed(2);
+        stardateElem.innerText = `STARDATE ${stardateVal}`;
+    }
 }
 
 // High-Precision Realtime Geolocation & GeoIP Cascade Engine
