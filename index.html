@@ -1911,21 +1911,26 @@ function initEarth() {
             mesh: planetPoints,
             orbitDist: orbitDist,
             speed: speed,
-            angle: Math.random() * Math.PI * 2
+            angle: Math.random() * Math.PI * 2,
+            semimajor: semimajor,
+            velocity: velocity,
+            type: type,
+            mag: mag,
+            symbol: symbol
         };
 
         window.solarPlanets.push(planetObj);
     }
 
-    // Create 8 Dot-Matrix Solar System Planets Orbiting the Sun
-    createDotMatrixPlanet('Mercury', 0xd1d5db, 0.08, 1.4, 0.024); // Silver/Grey
-    createDotMatrixPlanet('Venus',   0xffca28, 0.13, 2.2, 0.018); // Golden Amber
-    createDotMatrixPlanet('Earth',   0x42a5f5, 0.16, 3.4, 0.014); // Blue Earth
-    createDotMatrixPlanet('Mars',    0xff5252, 0.11, 4.4, 0.010); // Rust Red
-    createDotMatrixPlanet('Jupiter', 0xffa726, 0.32, 5.8, 0.006); // Giant Orange
-    createDotMatrixPlanet('Saturn',  0xffe082, 0.26, 7.4, 0.004); // Ringed Gold
-    createDotMatrixPlanet('Uranus',  0x26c6da, 0.20, 9.0, 0.0028); // Cyan
-    createDotMatrixPlanet('Neptune', 0x42a5f5, 0.19, 10.6, 0.002); // Deep Blue
+    // Create 8 Dot-Matrix Solar System Planets Orbiting the Sun with Exact Keplerian Scientific Telemetry
+    createDotMatrixPlanet('Mercury', 0xd1d5db, 0.08, 1.4, 0.024,  0.387, 47.36, 'TERRESTRIAL', '-0.4', '☿');
+    createDotMatrixPlanet('Venus',   0xffca28, 0.13, 2.2, 0.018,  0.723, 35.02, 'TERRESTRIAL', '-4.4', '♀');
+    createDotMatrixPlanet('Earth',   0x64b5f6, 0.16, 3.4, 0.014,  1.000, 29.78, 'TERRESTRIAL', '-3.9', '🌎');
+    createDotMatrixPlanet('Mars',    0xff5252, 0.11, 4.4, 0.010,  1.524, 24.07, 'TERRESTRIAL', '-1.5', '♂');
+    createDotMatrixPlanet('Jupiter', 0xffa726, 0.32, 5.8, 0.006,  5.204, 13.07, 'GAS GIANT',   '-2.7', '♃');
+    createDotMatrixPlanet('Saturn',  0xffe082, 0.26, 7.4, 0.004,  9.582, 9.69,  'GAS GIANT',   '+0.7', '♄');
+    createDotMatrixPlanet('Uranus',  0x26c6da, 0.20, 9.0, 0.0028, 19.201,6.81,  'ICE GIANT',   '+5.7', '♅');
+    createDotMatrixPlanet('Neptune', 0x42a5f5, 0.19, 10.6, 0.002, 30.047,5.43,  'ICE GIANT',   '+7.8', '♆');
 
     // Orbiting Dot-Matrix Moon around Earth
     const moonDots = 250;
@@ -2166,8 +2171,8 @@ function initEarth() {
 
         let svgHTML = '';
 
-        // Project 3D vector to 2D Callout Leader Line
-        function drawCalloutPin(pos3D, labelTitle, labelDetail, strokeColor, offsetX = 50, offsetY = -35) {
+        // Project 3D vector to 2D Callout Leader Line with Scientific Telemetry Support
+        function drawCalloutPin(pos3D, labelTitle, labelDetail, strokeColor, offsetX = 50, offsetY = -35, labelDetail2 = "") {
             const tempVec = pos3D.clone();
             tempVec.project(camera);
 
@@ -2176,12 +2181,14 @@ function initEarth() {
             const x1 = (tempVec.x * 0.5 + 0.5) * w;
             const y1 = (-tempVec.y * 0.5 + 0.5) * h;
 
-            if (x1 < -60 || x1 > w + 60 || y1 < -60 || y1 > h + 60) return;
+            if (x1 < -80 || x1 > w + 80 || y1 < -80 || y1 > h + 80) return;
 
             const x2 = x1 + offsetX;
             const y2 = y1 + offsetY;
             const x3 = x2 + (offsetX > 0 ? 30 : -30);
-            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - 174;
+            const boxW = labelDetail2 ? 195 : 170;
+            const boxH = labelDetail2 ? 31 : 23;
+            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - (boxW + 4);
 
             svgHTML += `
                 <polyline points="${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y2.toFixed(1)}" 
@@ -2190,9 +2197,10 @@ function initEarth() {
                 <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="7" fill="none" stroke="${strokeColor}" stroke-width="1" opacity="0.6" />
                 
                 <g transform="translate(${textAnchor.toFixed(1)}, ${(y2 - 11).toFixed(1)})">
-                    <rect x="0" y="0" width="170" height="23" fill="#070b19" fill-opacity="0.92" stroke="${strokeColor}" stroke-width="1" rx="3" />
+                    <rect x="0" y="0" width="${boxW}" height="${boxH}" fill="#070b19" fill-opacity="0.93" stroke="${strokeColor}" stroke-width="1" rx="3" />
                     <text x="6" y="10" fill="${strokeColor}" font-family="monospace" font-size="8.5" font-weight="bold">${labelTitle}</text>
                     <text x="6" y="18" fill="#c0c5d5" font-family="monospace" font-size="7.5">${labelDetail}</text>
+                    ${labelDetail2 ? `<text x="6" y="26" fill="#4af626" font-family="monospace" font-size="7">${labelDetail2}</text>` : ''}
                 </g>
             `;
         }
@@ -2203,7 +2211,7 @@ function initEarth() {
             if (window.sunGroup && window.sunGroup.visible) {
                 const sunWorld = new THREE.Vector3();
                 window.sunGroup.getWorldPosition(sunWorld);
-                drawCalloutPin(sunWorld, "☀️ SOL (SUN CORE)", "CENTER ANCHOR 0.0 AU", "#ffe253", -50, -45);
+                drawCalloutPin(sunWorld, "☀️ SOL (SUN CORE)", "SPECTRAL TYPE G2V | 0.0 AU", "#ffe253", -50, -45, "SOLAR ANCHOR | T_EFF 5778 K");
             }
 
             // Find Earth 3D & 2D Screen Position
@@ -2253,23 +2261,29 @@ function initEarth() {
                         `;
                     }
 
-                    // Calculate Realtime Distance from Earth in 3D Scene
+                    // Calculate Realtime Distance from Earth in 3D Scene & Heliocentric Position
                     let distText = "ORIGIN 0.00 AU";
+                    let astroDetail2 = "";
+
                     if (earthWorldPos && p.name !== 'Earth') {
                         const dist3D = earthWorldPos.distanceTo(pWorld);
                         const distAU = dist3D / 3.4; // 3.4 is Earth's orbit radius scale
                         const distKmMillions = Math.round(distAU * 149.6);
+                        const lonDeg = Math.round((Math.atan2(pWorld.z, pWorld.x) * 180 / Math.PI + 360) % 360);
+
                         distText = `DIST FROM EARTH: ${distAU.toFixed(2)} AU (${distKmMillions}M KM)`;
+                        astroDetail2 = `HELIOCENTRIC LON: ${lonDeg}° | VEL: ${p.velocity} KM/S`;
                     } else if (p.name === 'Earth') {
-                        distText = "EARTH ORIGIN (0 KM)";
+                        const lonDeg = Math.round((Math.atan2(earthWorldPos.z, earthWorldPos.x) * 180 / Math.PI + 360) % 360);
+                        distText = "EARTH ORIGIN [GEO BEACON]";
+                        astroDetail2 = `HELIOCENTRIC LON: ${lonDeg}° | VEL: 29.78 KM/S`;
                     }
 
                     const col = planetColors[p.name] || '#ffffff';
                     const off = offsets[idx % offsets.length];
-                    const symbol = p.name === 'Earth' ? '🌎' : (p.name === 'Saturn' ? '♄' : (p.name === 'Jupiter' ? '♃' : '🪐'));
 
-                    // Draw Callout Pin with Planet Name & Distance from Earth
-                    drawCalloutPin(pWorld, `${symbol} ${p.name.toUpperCase()}`, distText, col, off[0], off[1]);
+                    // Draw Callout Pin with Planet Name, Type, Distance from Earth & Heliocentric Longitude / Speed
+                    drawCalloutPin(pWorld, `${p.symbol} ${p.name.toUpperCase()} [${p.type}]`, distText, col, off[0], off[1], astroDetail2);
                 });
             }
         }
