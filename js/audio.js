@@ -25,28 +25,48 @@ window.addEventListener('click', unlockAudioContext, { once: true });
 window.addEventListener('keydown', unlockAudioContext, { once: true });
 
 /**
- * LCARS Computer Voice Synthesizer (Web Speech API)
- * Modeled after Starfleet Computer Voice cadence
+ * J.A.R.V.I.S. AI Voice Synthesizer (Web Speech API)
+ * Calibrated for sophisticated, deep British AI assistant cadence
  */
+let jarvisVoice = null;
+
+function loadJarvisVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return;
+
+    // Prioritize British Male / Sophisticated AI Voices
+    const match = voices.find(v => (v.name.includes('Google UK English Male') || v.name.includes('George') || v.name.includes('Oliver') || v.name.includes('Daniel') || v.name.includes('Arthur') || v.name.includes('Ryan') || (v.lang === 'en-GB' && v.name.toLowerCase().includes('male'))))
+        || voices.find(v => v.lang === 'en-GB' || v.lang === 'en_GB')
+        || voices.find(v => v.name.includes('Natural') || v.name.includes('Guy') || v.name.includes('David'))
+        || voices.find(v => v.lang.startsWith('en'));
+
+    if (match) jarvisVoice = match;
+}
+
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = loadJarvisVoice;
+    loadJarvisVoice();
+}
+
 function speakComputerVoice(text) {
     if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) return;
     try {
         window.speechSynthesis.cancel(); // Stop overlapping speech
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.92;
-        utterance.pitch = 1.08;
-        utterance.volume = 0.95;
+        if (!jarvisVoice) loadJarvisVoice();
 
-        // Attempt to find smooth English female voice
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Zira') || v.name.includes('Samantha') || v.lang.startsWith('en')));
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.96;   // Composed, dignified British cadence
+        utterance.pitch = 0.88;  // Deeper, smooth resonance
+        utterance.volume = 1.0;
+
+        if (jarvisVoice) {
+            utterance.voice = jarvisVoice;
         }
 
         window.speechSynthesis.speak(utterance);
     } catch (e) {
-        console.warn("Computer speech synthesis skipped:", e);
+        console.warn("JARVIS speech synthesis skipped:", e);
     }
 }
 
@@ -220,7 +240,7 @@ function playWarpSequence() {
         osc.stop(now + 1.45);
         subOsc.stop(now + 1.45);
 
-        speakComputerVoice("Warp engines engaged.");
+        speakComputerVoice("Warp drive engaged. Heading locked, sir.");
     } catch (e) {}
 }
 
@@ -255,7 +275,7 @@ function startRedAlertKlaxon() {
     
     // Play immediately & speak announcement
     playSound('alert');
-    speakComputerVoice("Red alert. Shields up. Tactical battle stations.");
+    speakComputerVoice("Red alert, sir. Shields at maximum. All tactical stations armed.");
 
     // Loop every 1200ms
     redAlertInterval = setInterval(() => {
@@ -277,7 +297,7 @@ function stopRedAlertKlaxon() {
 function playYellowAlertChirp() {
     stopRedAlertKlaxon();
     playSound('caution');
-    speakComputerVoice("Condition yellow. Stand by.");
+    speakComputerVoice("Condition yellow, sir. Monitoring power grid.");
 }
 
 // Deep 48Hz Warp Core Engine Ambient Hum
@@ -367,7 +387,7 @@ function toggleAudio() {
         animateEqualizer(true);
         playSound('chime');
         setTimeout(() => {
-            speakComputerVoice("Computer audio interface online.");
+            speakComputerVoice("JARVIS interface online. At your service, sir.");
         }, 400);
     } else {
         if (icon) icon.innerText = 'volume_off';

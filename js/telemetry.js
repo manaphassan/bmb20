@@ -454,7 +454,7 @@ function openNodeModal(dev) {
     modal.classList.add('flex');
 
     if (window.playSound) window.playSound('beep2');
-    if (window.speakComputerVoice) window.speakComputerVoice(`Node ${selectedNode.name || 'target'} selected.`);
+    if (window.speakComputerVoice) window.speakComputerVoice(`Node ${selectedNode.name || 'target'} selected, sir.`);
 }
 
 function closeNodeModal() {
@@ -477,7 +477,7 @@ async function executePing() {
         if (res.ok) {
             const data = await res.json();
             if (out) out.innerText = `> PING RESPONSE: ${data.result || 'OK'}\n> ROUND-TRIP LATENCY: ${data.latency || 4} ms [NOMINAL]`;
-            if (window.speakComputerVoice) window.speakComputerVoice(`Ping confirmed. Latency ${Math.round(data.latency || 4)} milliseconds.`);
+            if (window.speakComputerVoice) window.speakComputerVoice(`Ping acknowledged. Round trip latency ${Math.round(data.latency || 4)} milliseconds, sir.`);
         }
     } catch (e) {
         if (out) out.innerText = `> PING RESPONSE: SUCCESS 3.8 ms\n> SUBSPACE LINK ACTIVE`;
@@ -494,7 +494,7 @@ async function executeSubsystemAction(action) {
         if (res.ok) {
             const data = await res.json();
             if (out) out.innerText = `> STATUS: SUCCESS\n> RESULT: ${data.result || 'OPERATION COMPLETED'}`;
-            if (window.speakComputerVoice) window.speakComputerVoice("Subsystem operation confirmed.");
+            if (window.speakComputerVoice) window.speakComputerVoice("Subsystem operation confirmed, sir.");
         }
     } catch (e) {
         if (out) out.innerText = `> STATUS: OK\n> COMMAND EXECUTED LOCALLY`;

@@ -355,7 +355,7 @@ function switchHologramView(mode) {
         }
         if (subtitle) subtitle.innerText = "TARGET: SECTOR 001 [MALAYSIA]";
         if (coords) coords.innerText = "GEO-COORD: 02° 48' N, 101° 30' E // INCL: 23.4°";
-        if (window.speakComputerVoice) window.speakComputerVoice("Sector 001 Earth telemetry active.");
+        if (window.speakComputerVoice) window.speakComputerVoice("Displaying terrestrial sector telemetry, sir.");
     } else if (mode === 'solar') {
         if (btnSystem) {
             btnSystem.classList.add('bg-primary', 'text-black', 'active-condition');
@@ -363,7 +363,7 @@ function switchHologramView(mode) {
         }
         if (subtitle) subtitle.innerText = "TARGET: SOL SYSTEM [8 PLANETS]";
         if (coords) coords.innerText = "HELIOCENTRIC: 0.00 AU // SOLAR FLUX: 1361 W/M²";
-        if (window.speakComputerVoice) window.speakComputerVoice("Sol system orbital chart active.");
+        if (window.speakComputerVoice) window.speakComputerVoice("Sol system orbital trajectories online, sir.");
     } else if (mode === 'galaxy') {
         if (btnGalaxy) {
             btnGalaxy.classList.add('bg-primary', 'text-black', 'active-condition');
@@ -371,7 +371,7 @@ function switchHologramView(mode) {
         }
         if (subtitle) subtitle.innerText = "TARGET: MILKY WAY [ALPHA / BETA QUADRANTS]";
         if (coords) coords.innerText = "GALACTIC: RA 17h 45m / DEC -29° 00' // QUAD: ALPHA";
-        if (window.speakComputerVoice) window.speakComputerVoice("Milky Way galactic chart active.");
+        if (window.speakComputerVoice) window.speakComputerVoice("Milky Way galactic chart rendered, sir.");
     }
 
     if (window.playSound) window.playSound('beep2');

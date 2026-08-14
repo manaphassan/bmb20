@@ -70,7 +70,7 @@ function setAlertCondition(condition, isManual = true) {
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('green');
         if (window.stopRedAlertKlaxon) window.stopRedAlertKlaxon();
         if (isManual && window.speakComputerVoice) {
-            window.speakComputerVoice("Tactical condition normal. All systems nominal.");
+            window.speakComputerVoice("All systems operating within nominal parameters, sir.");
         }
     }
 }
@@ -161,7 +161,7 @@ function toggleScanlines() {
     applyScanlinesUI();
     if (window.playSound) window.playSound('beep2');
     if (window.speakComputerVoice) {
-        window.speakComputerVoice(scanlinesActive ? "Retro scan lines enabled." : "High clarity mode active.");
+        window.speakComputerVoice(scanlinesActive ? "Retro scan lines enabled, sir." : "Display clarity optimized, sir.");
     }
 }
 
