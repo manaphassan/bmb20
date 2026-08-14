@@ -34,14 +34,16 @@ if (Test-Path $KeyPath) {
 }
 
 # 2. Upload files to /tmp staging directory with Unix LF line endings (UTF-8 preserved)
-Write-Host "[2/4] Uploading index.html, api.php, deploy-dietpi.sh with Unix LF line endings..." -ForegroundColor Yellow
+Write-Host "[2/4] Uploading index.html, api.php, api.json, deploy-dietpi.sh with Unix LF line endings..." -ForegroundColor Yellow
 if (Test-Path $KeyPath) {
     Get-UnixContent "$LocalDir\index.html" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/index.html"
     Get-UnixContent "$LocalDir\api.php" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.php"
+    Get-UnixContent "$LocalDir\api.json" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.json"
     Get-UnixContent "$LocalDir\deploy-dietpi.sh" | ssh -i $KeyPath -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/deploy-dietpi.sh"
 } else {
     Get-UnixContent "$LocalDir\index.html" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/index.html"
     Get-UnixContent "$LocalDir\api.php" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.php"
+    Get-UnixContent "$LocalDir\api.json" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/api.json"
     Get-UnixContent "$LocalDir\deploy-dietpi.sh" | ssh -o StrictHostKeyChecking=no "${User}@${TargetHost}" "cat > ${RemoteStaging}/deploy-dietpi.sh"
 }
 

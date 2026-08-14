@@ -65,24 +65,16 @@ function get_uptime_formatted() {
 
 function get_geoip_info() {
     $cache_file = '/tmp/geoip_cache.json';
-    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 1800) {
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 3600) {
         $cached = @file_get_contents($cache_file);
         if ($cached) {
             $data = @json_decode($cached, true);
-            if ($data && !empty($data['latitude']) && !empty($data['ip']) && $data['ip'] !== '192.168.0.100') {
-                return $data;
-            }
+            if ($data && !empty($data['latitude'])) return $data;
         }
     }
 
-    $ctx = stream_context_create(['http' => ['timeout' => 4, 'header' => "User-Agent: DietPi-BMB20/1.0\r\n"]]);
-    
-    // 1. Query ipify for server's real Public IP
-    $public_ip = trim(@file_get_contents('https://api.ipify.org', false, $ctx));
-    
-    // 2. Resolve GeoIP coordinates via ipwho.is
-    $url = $public_ip ? "https://ipwho.is/{$public_ip}" : "https://ipwho.is/";
-    $raw = @file_get_contents($url, false, $ctx);
+    $ctx = stream_context_create(['http' => ['timeout' => 1, 'header' => "User-Agent: DietPi-BMB20/1.0\r\n"]]);
+    $raw = @file_get_contents('https://ipwho.is/', false, $ctx);
     if ($raw) {
         $json = @json_decode($raw, true);
         if ($json && !empty($json['success']) && isset($json['latitude'])) {
@@ -91,20 +83,19 @@ function get_geoip_info() {
                 'country' => strtoupper($json['country_code'] ?? $json['country'] ?? 'MY'),
                 'latitude' => floatval($json['latitude']),
                 'longitude' => floatval($json['longitude']),
-                'ip' => $json['ip'] ?? $public_ip ?? 'LOCKED'
+                'ip' => $json['ip'] ?? $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
             ];
             @file_put_contents($cache_file, json_encode($geo));
             return $geo;
         }
     }
 
-    // Default Fallback
     return [
         'city' => 'KUALA LUMPUR',
         'country' => 'MY',
         'latitude' => 3.1390,
         'longitude' => 101.6869,
-        'ip' => $public_ip ?: '202.186.1.1'
+        'ip' => $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
     ];
 }
 
@@ -122,14 +113,11 @@ function get_real_lan_devices() {
                     $flags = $parts[2];
 
                     if ($mac !== '00:00:00:00:00:00' && $flags !== '0x0') {
-                        $host = @gethostbyaddr($ip);
-                        if (!$host || $host === $ip) {
-                            $host = "NODE-" . substr(str_replace(':', '', $mac), -4);
-                        } else {
-                            $host = explode('.', $host)[0];
-                        }
+                        $octets = explode('.', $ip);
+                        $lastOctet = end($octets);
+                        $host = "NODE-" . ($lastOctet ?: substr(str_replace(':', '', $mac), -4));
                         $devices[] = [
-                            'name' => strtoupper(substr($host, 0, 14)),
+                            'name' => strtoupper($host),
                             'ip' => $ip,
                             'mac' => $mac,
                             'signal' => (85 + (abs(crc32($ip)) % 15)) . "%",

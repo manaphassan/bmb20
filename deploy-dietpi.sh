@@ -34,6 +34,14 @@ if [ -f "${SCRIPT_DIR}/api.php" ]; then
     fi
 fi
 
+if [ -f "${SCRIPT_DIR}/api.json" ]; then
+    echo "[+] Deploying api.json..."
+    cp -fv "${SCRIPT_DIR}/api.json" "${TARGET_DIR}/api.json"
+    if [ "${TARGET_DIR}" = "/var/www/html" ]; then
+        cp -fv "${SCRIPT_DIR}/api.json" "/var/www/api.json" 2>/dev/null || true
+    fi
+fi
+
 # Create Background Realtime Telemetry Daemon (api.json) to bypass PHP 502 errors
 echo "[+] Creating live telemetry daemon (bmb20-stats.sh)..."
 cat << 'STATSEOF' > /usr/local/bin/bmb20-stats.sh

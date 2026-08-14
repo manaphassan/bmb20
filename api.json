@@ -1,0 +1,21 @@
+{
+  "hostname": "dietpi.local",
+  "cpu": 22,
+  "memory": 38,
+  "temp": 44.5,
+  "disk": 32,
+  "uptime": "12d 4h 15m",
+  "geoip": {
+    "city": "KUALA LUMPUR",
+    "country": "MY",
+    "latitude": 3.1390,
+    "longitude": 101.6869,
+    "ip": "202.186.1.1"
+  },
+  "lan_devices": [
+    { "name": "DIETPI-GATEWAY", "ip": "192.168.0.1", "mac": "C4:41:1E:82:11:01", "signal": "100%", "status": "OK" },
+    { "name": "LOCAL-HOST", "ip": "192.168.0.100", "mac": "DC:A6:32:01:99:A4", "signal": "98%", "status": "OK" },
+    { "name": "DESKTOP-CLIENT", "ip": "192.168.0.105", "mac": "00:1E:67:8B:44:90", "signal": "88%", "status": "OK" },
+    { "name": "MOBILE-NODE", "ip": "192.168.0.42", "mac": "F4:D4:88:22:91:AC", "signal": "94%", "status": "OK" }
+  ]
+}
