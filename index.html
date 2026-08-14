@@ -1826,7 +1826,7 @@ function initEarth() {
     window.solarPlanets = [];
 
     // Helper to generate an HD LCARS Dot-Matrix Particle Sphere planet matching Earth's dot-matrix style
-    function createDotMatrixPlanet(name, colorHex, radius, orbitDist, speed) {
+    function createDotMatrixPlanet(name, colorHex, radius, orbitDist, speed, semimajor, velocity, type, mag, symbol) {
         // Concentric Orbit Ring Lines (Vivid Electric Blue)
         const ringGeo = new THREE.RingGeometry(orbitDist - 0.015, orbitDist + 0.015, 128);
         const ringMat = new THREE.MeshBasicMaterial({ color: 0x1976d2, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
