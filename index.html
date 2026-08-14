@@ -796,6 +796,30 @@
                     SENTRY
                 </button>
             </div>
+        <!-- Neural LLM Uplink (Gemini 1.5 Flash Integration) -->
+        <div class="bg-surface-container-high p-2.5 rounded border border-outline-variant/30 flex flex-col gap-2 font-mono">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-primary">
+                    <span class="material-symbols-outlined text-sm">psychology</span>
+                    <span>NEURAL LLM UPLINK (GEMINI 1.5 FLASH)</span>
+                </div>
+                <span class="text-[8px] px-1.5 py-0.5 rounded font-bold bg-surface-dim text-secondary border border-outline-variant/30" id="gemini-status-pill">OFFLINE (HEURISTIC)</span>
+            </div>
+            <div class="flex gap-1.5 items-center">
+                <input type="password" id="gemini-key-input" placeholder="Paste free Google AI Studio API Key (AIzaSy...)..."
+                       class="flex-1 bg-surface-dim border border-outline-variant px-2.5 py-1 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono"/>
+                <button onclick="saveGeminiApiKey()" class="bg-primary text-black font-bold px-3 py-1 rounded text-xs hover:bg-primary/80 transition-all flex items-center gap-1 shadow-sm">
+                    <span class="material-symbols-outlined text-xs">save</span>
+                    <span>SAVE KEY</span>
+                </button>
+            </div>
+            <div class="flex justify-between items-center text-[8.5px] text-secondary">
+                <span>Free tier: 15 requests/min (Zero Cost)</span>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-tertiary underline hover:text-primary flex items-center gap-0.5 font-bold">
+                    <span>Get Free Key at aistudio.google.com</span>
+                    <span class="material-symbols-outlined text-[10px]">open_in_new</span>
+                </a>
+            </div>
         </div>
 
         <!-- Direct Sudo Tactical Action Panel (Protected by Authorization Protocol) -->

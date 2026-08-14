@@ -1768,25 +1768,97 @@ async function askMeenaAI(question) {
         return;
     }
 
+function saveGeminiApiKey() {
+    const input = document.getElementById('gemini-key-input');
+    if (!input) return;
+    const val = input.value.trim();
+    if (val) {
+        localStorage.setItem('gemini_api_key', val);
+        updateGeminiStatusUI();
+        if (window.playSound) window.playSound('beep2');
+        speakComputerVoice("Neural LLM Uplink established with Gemini 1.5 Flash, Sensei! Cognitive reasoning capacity is now at maximum!");
+    } else {
+        localStorage.removeItem('gemini_api_key');
+        updateGeminiStatusUI();
+        if (window.playSound) window.playSound('beep1');
+        speakComputerVoice("Gemini API key cleared. Reverting to local heuristic matrix.");
+    }
+}
+
+function updateGeminiStatusUI() {
+    const pill = document.getElementById('gemini-status-pill');
+    const input = document.getElementById('gemini-key-input');
+    const apiKey = localStorage.getItem('gemini_api_key');
+
+    if (input && apiKey) {
+        input.value = apiKey;
+    }
+
+    if (pill) {
+        if (apiKey) {
+            pill.innerText = "ONLINE (GEMINI 1.5 FLASH)";
+            pill.className = "text-[8px] px-1.5 py-0.5 rounded font-bold bg-primary/20 text-primary border border-primary/50 shadow-[0_0_8px_rgba(102,204,255,0.3)]";
+        } else {
+            pill.innerText = "OFFLINE (LOCAL HEURISTIC)";
+            pill.className = "text-[8px] px-1.5 py-0.5 rounded font-bold bg-surface-dim text-secondary border border-outline-variant/30";
+        }
+    }
+}
+
+async function askMeenaAI(question) {
+    lastUserInteractionTime = Date.now();
+    const bank = getKnowledgeBank();
+    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
+    
+    let cleanQ = question.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)/i, '').trim();
+    const q = cleanQ.toLowerCase();
+
+    // If query asks for factual search, route to live web search
+    if (q.includes('who is') || q.includes('who was') || q.includes('what is') || q.includes('what was') || q.includes('search') || q.includes('lookup') || q.includes('look up') || q.includes('tell me about') || q.includes('google') || q.includes('explain')) {
+        searchLiveWebInfo(cleanQ);
+        return;
+    }
+
     // 1. Render Cognitive Thinking Steps
     const thoughts = [
         `Analyzing query: "${question}"`,
-        `Cross-referencing telemetry & Pi-hole shield status`,
+        `Cross-referencing live SBC sensors & Pi-hole shield`,
         `Querying Takahara Knowledge Graph cluster`,
         `Persona Matrix: ${cfg.name} // Formulating response`
     ];
 
     renderThinkingStream(thoughts, async () => {
-        // Check Gemini API Key
+        // Collect real-time telemetry snapshot
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        const cpu = document.getElementById('cpu-val')?.innerText || '25%';
+        const temp = document.getElementById('temp-val')?.innerText || '52°C';
+        const pihole = document.getElementById('header-pihole-pct')?.innerText || '37.6%';
+        const weather = document.getElementById('wx-desc')?.innerText || 'partly cloudy';
+
+        // Check Gemini API Key (Full GenAI Reasoning)
         const apiKey = localStorage.getItem('gemini_api_key');
         if (apiKey) {
             try {
-                const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
+                const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you in your knowledge graph: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
                 const alexInstruction = currentPersona === 'ALEX' 
                     ? "Your personality is Alex Dunphy from Modern Family: hyper-intelligent, sharp, witty, book-smart, scientifically rigorous with deadpan humor." 
-                    : "Your personality is an energetic female AI companion.";
+                    : "Your personality is an energetic, loyal female AI tactical companion.";
 
-                const prompt = `You are Meena™ (高原学園) at Takahara Academy. ${alexInstruction} Address user as Sensei.${memoryContext}\n\nSensei: "${question}".\nReply in 1-2 concise, witty, spoken sentences in English:`;
+                const prompt = `You are Meena™ (高原学園), AI assistant at Takahara Academy.
+${alexInstruction}
+Address the user respectfully as Sensei.
+
+Current Live System Environment:
+- Local Time & Date: ${timeStr} on ${dateStr}
+- Raspberry Pi Hardware: CPU Load ${cpu}, Core Temp ${temp} (Nominal)
+- Pi-hole Defense Shield: ${pihole} blocked (10,520 threats neutralized)
+- Local Weather: ${weather}
+${memoryContext}
+
+Sensei asks: "${question}".
+Reply in 1-2 concise, witty, spoken sentences in English:`;
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
@@ -1804,6 +1876,19 @@ async function askMeenaAI(question) {
             } catch (e) {
                 console.warn("Gemini fetch failed, using heuristic:", e);
             }
+        }
+
+        // Semantic Memory Recall from Knowledge Graph (Offline Heuristic)
+        const matchingFact = bank.find(item => {
+            const words = item.fact.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            return words.some(w => q.includes(w));
+        });
+        if (matchingFact) {
+            let reply = currentPersona === 'ALEX'
+                ? `According to my synaptic memory graph on ${matchingFact.category}, you taught me: "${matchingFact.fact}". My data retention is 100% infallible, Sensei.`
+                : `I remember you taught me about ${matchingFact.category}, Sensei! "${matchingFact.fact}"!`;
+            outputMeenaDialogue(reply);
+            return;
         }
 
         // Heuristic Contextual Responses (Alex Dunphy & other archetypes)
@@ -2041,6 +2126,7 @@ function openMeenaProfileModal() {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        updateGeminiStatusUI();
         if (window.playSound) window.playSound('door');
     }
 }
@@ -2064,6 +2150,8 @@ window.openMeenaProfileModal = openMeenaProfileModal;
 window.closeMeenaProfileModal = closeMeenaProfileModal;
 window.setPersonaArchetype = setPersonaArchetype;
 window.searchLiveWebInfo = searchLiveWebInfo;
+window.saveGeminiApiKey = saveGeminiApiKey;
+window.updateGeminiStatusUI = updateGeminiStatusUI;
 window.requestSudoAuthorization = requestSudoAuthorization;
 window.confirmSudoAuthorization = confirmSudoAuthorization;
 window.executeSudoAction = executeSudoAction;
