@@ -39,7 +39,7 @@ if (isset($_GET['action'])) {
         if (file_exists($calConfigFile)) {
             echo file_get_contents($calConfigFile);
         } else {
-            echo json_encode(['ical_url' => '', 'enabled' => false]);
+            echo json_encode(['calendars' => [], 'ical_url' => '', 'enabled' => false]);
         }
         exit;
     }
@@ -60,82 +60,104 @@ if (isset($_GET['action'])) {
     }
 
     if ($action === 'get_calendar_events') {
-        $icalUrl = '';
+        $calendarList = [];
         if (file_exists($calConfigFile)) {
             $cfg = json_decode(file_get_contents($calConfigFile), true);
-            $icalUrl = $cfg['ical_url'] ?? '';
+            if (!empty($cfg['calendars']) && is_array($cfg['calendars'])) {
+                $calendarList = $cfg['calendars'];
+            } elseif (!empty($cfg['ical_url'])) {
+                $calendarList[] = [
+                    'id' => 'default',
+                    'name' => 'Main Calendar',
+                    'url' => $cfg['ical_url'],
+                    'color' => '#c2c1ff',
+                    'enabled' => true
+                ];
+            }
         }
         if (isset($_GET['ical_url']) && !empty($_GET['ical_url'])) {
-            $icalUrl = trim($_GET['ical_url']);
+            $calendarList[] = [
+                'id' => 'adhoc',
+                'name' => 'Direct Feed',
+                'url' => trim($_GET['ical_url']),
+                'color' => '#78e4a5',
+                'enabled' => true
+            ];
         }
 
-        if (empty($icalUrl)) {
+        if (empty($calendarList)) {
             echo json_encode([
                 'status' => 'unconfigured',
+                'calendars' => [],
                 'events_today' => [],
                 'events_upcoming' => [],
-                'message' => 'No Google Calendar iCal link configured yet.'
+                'message' => 'No Google Calendar feeds configured yet.'
             ]);
             exit;
         }
 
+        $allEvents = [];
         $opts = [
             'http' => [
                 'method' => 'GET',
                 'header' => "User-Agent: Meena-DietPi-Command-Center/2.5\r\n",
-                'timeout' => 6
+                'timeout' => 5
             ]
         ];
         $context = stream_context_create($opts);
-        $icsData = @file_get_contents($icalUrl, false, $context);
 
-        if (!$icsData) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unable to fetch iCal feed from Google Calendar. Check URL.'
-            ]);
-            exit;
+        foreach ($calendarList as $cal) {
+            $url = trim($cal['url'] ?? '');
+            $calName = $cal['name'] ?? 'Calendar';
+            $calColor = $cal['color'] ?? '#c2c1ff';
+            $enabled = isset($cal['enabled']) ? $cal['enabled'] : true;
+
+            if (empty($url) || !$enabled) continue;
+
+            $icsData = @file_get_contents($url, false, $context);
+            if (!$icsData) continue;
+
+            $lines = preg_split("/\r\n|\n|\r/", $icsData);
+            $inEvent = false;
+            $currEvent = [];
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === 'BEGIN:VEVENT') {
+                    $inEvent = true;
+                    $currEvent = [
+                        'calendar_name' => $calName,
+                        'calendar_color' => $calColor
+                    ];
+                    continue;
+                }
+                if ($line === 'END:VEVENT') {
+                    $inEvent = false;
+                    if (!empty($currEvent['summary'])) {
+                        $allEvents[] = $currEvent;
+                    }
+                    continue;
+                }
+                if ($inEvent) {
+                    if (preg_match('/^SUMMARY:(.+)$/i', $line, $m)) {
+                        $currEvent['summary'] = trim($m[1]);
+                    } elseif (preg_match('/^DESCRIPTION:(.+)$/i', $line, $m)) {
+                        $currEvent['description'] = trim($m[1]);
+                    } elseif (preg_match('/^LOCATION:(.+)$/i', $line, $m)) {
+                        $currEvent['location'] = trim($m[1]);
+                    } elseif (preg_match('/^DTSTART(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
+                        $currEvent['start_raw'] = $m[1];
+                        $currEvent['start_ts'] = strtotime($m[1]);
+                    } elseif (preg_match('/^DTEND(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
+                        $currEvent['end_raw'] = $m[1];
+                        $currEvent['end_ts'] = strtotime($m[1]);
+                    }
+                }
+            }
         }
 
-        // Parse VEVENT items
-        $events = [];
-        $lines = preg_split("/\r\n|\n|\r/", $icsData);
-        $inEvent = false;
-        $currEvent = [];
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === 'BEGIN:VEVENT') {
-                $inEvent = true;
-                $currEvent = [];
-                continue;
-            }
-            if ($line === 'END:VEVENT') {
-                $inEvent = false;
-                if (!empty($currEvent['summary'])) {
-                    $events[] = $currEvent;
-                }
-                continue;
-            }
-            if ($inEvent) {
-                if (preg_match('/^SUMMARY:(.+)$/i', $line, $m)) {
-                    $currEvent['summary'] = trim($m[1]);
-                } elseif (preg_match('/^DESCRIPTION:(.+)$/i', $line, $m)) {
-                    $currEvent['description'] = trim($m[1]);
-                } elseif (preg_match('/^LOCATION:(.+)$/i', $line, $m)) {
-                    $currEvent['location'] = trim($m[1]);
-                } elseif (preg_match('/^DTSTART(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
-                    $currEvent['start_raw'] = $m[1];
-                    $currEvent['start_ts'] = strtotime($m[1]);
-                } elseif (preg_match('/^DTEND(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
-                    $currEvent['end_raw'] = $m[1];
-                    $currEvent['end_ts'] = strtotime($m[1]);
-                }
-            }
-        }
-
-        // Sort by start timestamp
-        usort($events, function($a, $b) {
+        // Sort all parsed events chronologically
+        usort($allEvents, function($a, $b) {
             return ($a['start_ts'] ?? 0) - ($b['start_ts'] ?? 0);
         });
 
@@ -147,14 +169,16 @@ if (isset($_GET['action'])) {
         $eventsToday = [];
         $eventsUpcoming = [];
 
-        foreach ($events as $ev) {
+        foreach ($allEvents as $ev) {
             $ts = $ev['start_ts'] ?? 0;
             if ($ts >= $todayStart && $ts <= $todayEnd) {
                 $eventsToday[] = [
                     'summary' => $ev['summary'] ?? 'Event',
                     'time' => date('g:i A', $ts),
                     'timestamp' => $ts,
-                    'location' => $ev['location'] ?? ''
+                    'location' => $ev['location'] ?? '',
+                    'calendar' => $ev['calendar_name'] ?? 'Main',
+                    'color' => $ev['calendar_color'] ?? '#c2c1ff'
                 ];
             } elseif ($ts > $todayEnd && $ts <= $weekEnd) {
                 $eventsUpcoming[] = [
@@ -162,16 +186,20 @@ if (isset($_GET['action'])) {
                     'date' => date('l, M j', $ts),
                     'time' => date('g:i A', $ts),
                     'timestamp' => $ts,
-                    'location' => $ev['location'] ?? ''
+                    'location' => $ev['location'] ?? '',
+                    'calendar' => $ev['calendar_name'] ?? 'Main',
+                    'color' => $ev['calendar_color'] ?? '#c2c1ff'
                 ];
             }
         }
 
         echo json_encode([
             'status' => 'success',
+            'active_calendars' => count($calendarList),
+            'calendars' => $calendarList,
             'count_today' => count($eventsToday),
             'events_today' => $eventsToday,
-            'events_upcoming' => array_slice($eventsUpcoming, 0, 8),
+            'events_upcoming' => array_slice($eventsUpcoming, 0, 10),
             'last_sync' => date('H:i:s')
         ]);
         exit;

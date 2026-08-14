@@ -1,7 +1,7 @@
 /**
  * ==========================================================================
- * MEENA™ CHRONO CALENDAR & AGENDA ENGINE (js/calendar.js)
- * Standalone modular Google Calendar / iCal parser and timeline renderer
+ * MEENA™ MULTI-CALENDAR & CHRONO AGENDA ENGINE (assets/js/calendar.js)
+ * Supports multiple Google Calendar iCal feeds with custom color tags & names
  * ==========================================================================
  */
 
@@ -12,12 +12,13 @@ let calendarState = {
     eventsToday: [],
     eventsUpcoming: [],
     allEvents: [],
+    calendars: [],
     isSynced: false,
     lastSyncTime: null
 };
 
 /**
- * Fetch calendar events from backend api.php
+ * Fetch calendar events and configured feeds from backend api.php
  */
 async function loadCalendarFeed(forceRefresh = false) {
     try {
@@ -28,18 +29,19 @@ async function loadCalendarFeed(forceRefresh = false) {
         if (data.status === 'success') {
             calendarState.eventsToday = data.events_today || [];
             calendarState.eventsUpcoming = data.events_upcoming || [];
+            calendarState.calendars = data.calendars || [];
             calendarState.isSynced = true;
             calendarState.lastSyncTime = data.last_sync || new Date().toLocaleTimeString();
-            
-            // Combine all events for date lookups
             calendarState.allEvents = [...calendarState.eventsToday, ...calendarState.eventsUpcoming];
         } else if (data.status === 'unconfigured') {
             calendarState.isSynced = false;
             calendarState.eventsToday = [];
             calendarState.eventsUpcoming = [];
+            calendarState.calendars = [];
         }
         
         renderCalendarUI();
+        renderCalendarFeedsList();
         return data;
     } catch (e) {
         console.warn('[Calendar] Failed to load calendar feed:', e);
@@ -48,24 +50,63 @@ async function loadCalendarFeed(forceRefresh = false) {
 }
 
 /**
- * Save Google Calendar iCal configuration
+ * Add a new Google Calendar Feed
  */
-async function saveGoogleCalendarUrl(url) {
-    if (!url) return { status: 'error', message: 'URL cannot be empty' };
-    
+async function addGoogleCalendarFeed(name, url, color = '#c2c1ff') {
+    if (!url) return alert('Please enter a valid Google Calendar Secret iCal URL (.ics)');
+    if (!name) name = 'Calendar ' + (calendarState.calendars.length + 1);
+
+    const newCal = {
+        id: 'cal_' + Date.now(),
+        name: name.trim(),
+        url: url.trim(),
+        color: color,
+        enabled: true
+    };
+
+    calendarState.calendars.push(newCal);
+    await saveAllCalendarConfigs();
+}
+
+/**
+ * Remove a Google Calendar Feed
+ */
+async function removeGoogleCalendarFeed(calId) {
+    if (!confirm('Are you sure you want to remove this calendar feed?')) return;
+    calendarState.calendars = calendarState.calendars.filter(c => c.id !== calId);
+    await saveAllCalendarConfigs();
+}
+
+/**
+ * Toggle a Calendar Feed Enabled / Disabled
+ */
+async function toggleGoogleCalendarFeed(calId) {
+    const cal = calendarState.calendars.find(c => c.id === calId);
+    if (cal) {
+        cal.enabled = !cal.enabled;
+        await saveAllCalendarConfigs();
+    }
+}
+
+/**
+ * Save all configured calendars to backend api.php
+ */
+async function saveAllCalendarConfigs() {
     try {
+        const payload = {
+            calendars: calendarState.calendars,
+            updated_at: new Date().toISOString()
+        };
         const res = await fetch('api.php?action=save_calendar_config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ical_url: url, enabled: true, updated_at: new Date().toISOString() })
+            body: JSON.stringify(payload)
         });
         if (res.ok) {
             await loadCalendarFeed(true);
-            return { status: 'success' };
         }
-        return { status: 'error', message: 'Server failed to save calendar configuration' };
     } catch (e) {
-        return { status: 'error', message: e.message };
+        alert('Failed to save calendar configuration: ' + e.message);
     }
 }
 
@@ -76,6 +117,32 @@ function renderCalendarUI() {
     renderMonthGrid(calendarState.currentYear, calendarState.currentMonth);
     renderAgendaTimeline();
     updateSyncStatusBadge();
+}
+
+/**
+ * Render Active Calendar Feeds Strip (Multi-Calendar Tags)
+ */
+function renderCalendarFeedsList() {
+    const listElem = document.getElementById('chrono-feeds-list');
+    if (!listElem) return;
+
+    if (calendarState.calendars.length === 0) {
+        listElem.innerHTML = `<span class="text-secondary text-[9px] italic">No active Google Calendar feeds. Add your first private iCal link below.</span>`;
+        return;
+    }
+
+    listElem.innerHTML = calendarState.calendars.map(cal => `
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-high border text-[9px] font-bold font-mono transition-all ${cal.enabled ? 'border-outline-variant/40 text-on-surface' : 'opacity-40 border-outline-variant/20 line-through'}">
+            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${cal.color}; box-shadow: 0 0 6px ${cal.color};"></span>
+            <span class="truncate max-w-[120px]">${cal.name}</span>
+            <button onclick="toggleGoogleCalendarFeed('${cal.id}')" class="text-secondary hover:text-primary ml-1" title="Toggle On/Off">
+                <span class="material-symbols-outlined text-[11px]">${cal.enabled ? 'check_circle' : 'cancel'}</span>
+            </button>
+            <button onclick="removeGoogleCalendarFeed('${cal.id}')" class="text-secondary hover:text-error ml-0.5" title="Remove Feed">
+                <span class="material-symbols-outlined text-[11px]">delete</span>
+            </button>
+        </div>
+    `).join('');
 }
 
 /**
@@ -99,7 +166,7 @@ function renderMonthGrid(year, month) {
     const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     daysOfWeek.forEach(d => {
         const h = document.createElement('div');
-        h.className = "text-[9px] text-secondary font-bold text-center py-1 border-b border-outline-variant/30";
+        h.className = "text-[9px] text-secondary font-bold text-center py-0.5 border-b border-outline-variant/30";
         h.innerText = d;
         gridElem.appendChild(h);
     });
@@ -107,7 +174,7 @@ function renderMonthGrid(year, month) {
     // Blank cells before month start
     for (let i = 0; i < firstDay; i++) {
         const blank = document.createElement('div');
-        blank.className = "p-2 opacity-20 min-h-[48px]";
+        blank.className = "p-1.5 opacity-20 min-h-[44px]";
         gridElem.appendChild(blank);
     }
 
@@ -116,7 +183,7 @@ function renderMonthGrid(year, month) {
         const cell = document.createElement('div');
         const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day);
         
-        cell.className = `p-1.5 min-h-[48px] rounded border transition-all cursor-pointer flex flex-col justify-between ${
+        cell.className = `p-1 min-h-[44px] rounded border transition-all cursor-pointer flex flex-col justify-between ${
             isToday 
                 ? 'bg-primary/15 border-primary shadow-[0_0_8px_rgba(194,193,255,0.3)]' 
                 : 'bg-surface-container-high border-outline-variant/20 hover:border-tertiary/50'
@@ -127,14 +194,13 @@ function renderMonthGrid(year, month) {
                 <span class="text-xs font-mono font-bold ${isToday ? 'text-primary' : 'text-on-surface'}">${day}</span>
                 ${isToday ? '<span class="text-[7px] bg-primary text-black font-bold px-1 rounded">TODAY</span>' : ''}
             </div>
-            <div class="day-events-container flex flex-col gap-0.5 mt-1"></div>
+            <div class="day-events-container flex flex-col gap-0.5 mt-0.5"></div>
         `;
 
-        // Check if any events fall on this day
         if (calendarState.eventsToday.length > 0 && isToday) {
             const evBox = cell.querySelector('.day-events-container');
             if (evBox) {
-                evBox.innerHTML = `<span class="text-[8px] bg-primary/20 text-primary px-1 rounded truncate block">📅 ${calendarState.eventsToday.length} event(s)</span>`;
+                evBox.innerHTML = `<span class="text-[7.5px] bg-primary/20 text-primary px-1 rounded truncate block">📅 ${calendarState.eventsToday.length} event(s)</span>`;
             }
         }
 
@@ -162,26 +228,29 @@ function renderAgendaTimeline() {
     if (todayList) {
         if (!calendarState.isSynced) {
             todayList.innerHTML = `
-                <div class="p-4 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-xs leading-relaxed flex flex-col gap-2">
-                    <span class="font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-base">info</span><span>GOOGLE CALENDAR NOT SYNCED</span></span>
-                    <span>To view your live schedule, paste your Google Calendar private iCal address (.ics) in the sync panel below.</span>
+                <div class="p-3 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-xs leading-relaxed flex flex-col gap-1.5">
+                    <span class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">info</span><span>NO GOOGLE CALENDARS SYNCED</span></span>
+                    <span class="text-[10px]">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
                 </div>
             `;
         } else if (calendarState.eventsToday.length === 0) {
             todayList.innerHTML = `
-                <div class="p-4 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs italic flex items-center gap-2">
+                <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs italic flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-base">event_available</span>
-                    <span>Your schedule is completely clear today! No scheduled appointments.</span>
+                    <span>Your schedule is completely clear today across all calendars!</span>
                 </div>
             `;
         } else {
             todayList.innerHTML = calendarState.eventsToday.map(ev => `
-                <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-high border-l-4 border-primary hover:bg-surface-bright transition-all">
+                <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs font-bold text-on-surface">${ev.summary}</span>
-                        ${ev.location ? `<span class="text-[9px] text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">location_on</span><span>${ev.location}</span></span>` : ''}
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[8px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#c2c1ff'};">${ev.calendar || 'Main'}</span>
+                            <span class="text-xs font-bold text-on-surface">${ev.summary}</span>
+                        </div>
+                        ${ev.location ? `<span class="text-[8.5px] text-tertiary flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">location_on</span><span>${ev.location}</span></span>` : ''}
                     </div>
-                    <span class="text-primary font-mono text-xs font-bold bg-primary/10 px-2.5 py-1 rounded border border-primary/30">${ev.time}</span>
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded border" style="color: ${ev.color || '#c2c1ff'}; border-color: ${ev.color || '#c2c1ff'}40; background-color: ${ev.color || '#c2c1ff'}15;">${ev.time}</span>
                 </div>
             `).join('');
         }
@@ -192,12 +261,15 @@ function renderAgendaTimeline() {
             upcomingList.innerHTML = `<div class="text-secondary text-xs italic p-3">No upcoming events this week.</div>`;
         } else {
             upcomingList.innerHTML = calendarState.eventsUpcoming.map(ev => `
-                <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-2 border-secondary/60 text-xs hover:border-tertiary transition-all">
+                <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high border-l-2 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
                     <div class="flex flex-col">
-                        <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[7.5px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
+                            <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
+                        </div>
                         ${ev.location ? `<span class="text-[8px] text-tertiary">${ev.location}</span>` : ''}
                     </div>
-                    <span class="text-secondary font-mono text-[10px]">${ev.date} @ ${ev.time}</span>
+                    <span class="text-secondary font-mono text-[9.5px]">${ev.date} @ ${ev.time}</span>
                 </div>
             `).join('');
         }
@@ -207,12 +279,13 @@ function renderAgendaTimeline() {
 function updateSyncStatusBadge() {
     const badge = document.getElementById('chrono-sync-status');
     if (badge) {
+        const count = calendarState.calendars.length;
         if (calendarState.isSynced) {
-            badge.innerText = `SYNCED (${calendarState.lastSyncTime})`;
-            badge.className = "text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold border border-primary/40";
+            badge.innerText = `${count} CALENDAR${count === 1 ? '' : 'S'} SYNCED (${calendarState.lastSyncTime})`;
+            badge.className = "text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40";
         } else {
             badge.innerText = `OFFLINE / UNCONFIGURED`;
-            badge.className = "text-[10px] bg-lcars-gold/20 text-lcars-gold px-2 py-0.5 rounded font-bold border border-lcars-gold/40";
+            badge.className = "text-[9px] bg-lcars-gold/20 text-lcars-gold px-1.5 py-0.5 rounded font-bold border border-lcars-gold/40";
         }
     }
 }
@@ -238,10 +311,10 @@ function nextCalendarMonth() {
 function speakCalendarSpokenSummary() {
     let msg = "";
     if (!calendarState.isSynced || calendarState.eventsToday.length === 0) {
-        msg = "Sensei, your calendar schedule is completely clear for today. All operational pathways are ready.";
+        msg = "Sensei, your calendar schedule is completely clear for today across all calendars. All operational pathways are ready.";
     } else {
         const count = calendarState.eventsToday.length;
-        const summaries = calendarState.eventsToday.map(e => `${e.summary} at ${e.time}`).join(", and ");
+        const summaries = calendarState.eventsToday.map(e => `${e.summary} from ${e.calendar} at ${e.time}`).join(", and ");
         msg = `Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${summaries}.`;
     }
 
@@ -258,7 +331,9 @@ function speakCalendarSpokenSummary() {
 
 // Window Exports
 window.loadCalendarFeed = loadCalendarFeed;
-window.saveGoogleCalendarUrl = saveGoogleCalendarUrl;
+window.addGoogleCalendarFeed = addGoogleCalendarFeed;
+window.removeGoogleCalendarFeed = removeGoogleCalendarFeed;
+window.toggleGoogleCalendarFeed = toggleGoogleCalendarFeed;
 window.renderCalendarUI = renderCalendarUI;
 window.prevCalendarMonth = prevCalendarMonth;
 window.nextCalendarMonth = nextCalendarMonth;
