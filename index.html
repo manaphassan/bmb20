@@ -259,6 +259,7 @@
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="font-headline-sm text-sm text-primary uppercase font-bold tracking-wider">M.E.E.N.A. AI BRIDGE</span>
+                                <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-persona-badge">KOUHAI AIDE</span>
                                 <span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40" id="meena-rank-badge">RANK C: OPERATOR</span>
                                 <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-mood-badge">CHEERFUL</span>
                             </div>
@@ -295,21 +296,24 @@
                     </div>
                 </div>
 
-                <!-- Quick Action Voice Chips -->
+                <!-- Quick Action Suggestion Chips -->
                 <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
-                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">STATUS</button>
-                    <button onclick="handleVoiceCommand('weather forecast')" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">WEATHER</button>
-                    <button onclick="handleVoiceCommand('code red')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm">CODE RED</button>
-                    <button onclick="handleVoiceCommand('warp speed')" class="bg-surface-bright hover:bg-secondary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">WARP</button>
-                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">PI-HOLE</button>
+                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">💡 STATUS</button>
+                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🛡️ PI-HOLE</button>
+                    <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">⚡ HARDWARE</button>
+                    <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm">🧹 PURGE RAM</button>
+                    <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🌅 BRIEFING</button>
                 </div>
 
-                <!-- Direct Message & Prompt Input Form -->
+                <!-- Unified Chat & Voice Command Input Form -->
                 <div class="flex gap-1.5 flex-shrink-0 pt-0.5">
-                    <input type="text" id="meena-dash-input" placeholder="Ask or teach Meena (e.g. 'Meena, status report' or 'Remember IP is 192.168.0.105')..."
+                    <button onclick="toggleVoiceRecognition()" id="btn-voice-mic-dash" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface font-bold px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-center gap-1 shadow-sm border border-outline-variant/30" title="Toggle Hands-Free Voice Mic">
+                        <span class="material-symbols-outlined text-xs">mic</span>
+                    </button>
+                    <input type="text" id="meena-dash-input" placeholder="Chat with Sensei's AI or issue orders (e.g. 'How is the Pi?', 'Purge RAM', 'Who are you?')..."
                            class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
-                           onkeydown="if (event.key === 'Enter' && this.value.trim()) { handleVoiceCommand(this.value.trim()); this.value = ''; }"/>
-                    <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { handleVoiceCommand(inp.value.trim()); inp.value = ''; }"
+                           onkeydown="if (event.key === 'Enter' && this.value.trim()) { sendChatMessage(this.value.trim()); this.value = ''; }"/>
+                    <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { sendChatMessage(inp.value.trim()); inp.value = ''; }"
                             class="bg-primary text-black font-bold px-4 py-1.5 rounded text-xs hover:bg-primary/80 transition-colors flex items-center gap-1 shadow-sm">
                         <span class="material-symbols-outlined text-xs">send</span>
                         <span>TRANSMIT</span>
@@ -780,23 +784,42 @@
             </div>
         </div>
 
-        <!-- Direct Sudo Tactical Action Panel -->
+        <!-- Persona Archetype Selector -->
+        <div class="flex flex-col gap-1">
+            <span class="text-[10px] text-tertiary font-bold">SELECT ACTIVE OPERATIONAL PERSONA ARCHETYPE:</span>
+            <div class="grid grid-cols-4 gap-1.5 text-[9px] font-bold">
+                <button onclick="setPersonaArchetype('KOUHAI')" class="bg-tertiary/20 hover:bg-tertiary hover:text-black text-tertiary py-1 px-1 rounded border border-tertiary/40 transition-all text-center">
+                    KOUHAI AIDE
+                </button>
+                <button onclick="setPersonaArchetype('TACTICAL')" class="bg-primary/20 hover:bg-primary hover:text-black text-primary py-1 px-1 rounded border border-primary/40 transition-all text-center">
+                    TACTICAL
+                </button>
+                <button onclick="setPersonaArchetype('ENGINEER')" class="bg-lcars-gold/20 hover:bg-lcars-gold hover:text-black text-lcars-gold py-1 px-1 rounded border border-lcars-gold/40 transition-all text-center">
+                    ENGINEER
+                </button>
+                <button onclick="setPersonaArchetype('SENTRY')" class="bg-secondary/20 hover:bg-secondary hover:text-black text-secondary py-1 px-1 rounded border border-secondary/40 transition-all text-center">
+                    SENTRY
+                </button>
+            </div>
+        </div>
+
+        <!-- Direct Sudo Tactical Action Panel (Protected by Authorization Protocol) -->
         <div class="flex flex-col gap-1.5">
-            <span class="text-[10px] text-lcars-gold font-bold">DIRECT SUDO COMMAND DISPATCHER:</span>
+            <span class="text-[10px] text-lcars-gold font-bold">DIRECT SUDO COMMAND DISPATCHER (REQUIRES AUTH):</span>
             <div class="grid grid-cols-2 gap-2 text-xs">
-                <button onclick="executeSudoAction('purge_ram', 'Purging memory page caches now, Sensei!');" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
                     <span>1. PURGE RAM CACHE</span>
                     <span class="text-[8px] text-tertiary font-mono">drop_caches</span>
                 </button>
-                <button onclick="executeSudoAction('flush_dns', 'Flushing Pi-hole resolver caches now, Sensei!');" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <button onclick="requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
                     <span>2. FLUSH DNS RESOLVER</span>
                     <span class="text-[8px] text-tertiary font-mono">restartdns</span>
                 </button>
-                <button onclick="speakVerbalHardwareReport();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <button onclick="speakVerbalHardwareReport(); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
                     <span>3. HARDWARE HEALTH</span>
                     <span class="text-[8px] text-primary font-mono">vcgencmd</span>
                 </button>
-                <button onclick="executeSudoAction('reload_daemon', 'Restarting telemetry daemon service now, Sensei!');" class="bg-surface-container-high hover:bg-secondary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <button onclick="requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-secondary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
                     <span>4. RELOAD TELEMETRY</span>
                     <span class="text-[8px] text-secondary font-mono">systemctl</span>
                 </button>

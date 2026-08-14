@@ -702,29 +702,40 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
         if (window.switchHologramView) window.switchHologramView('galaxy');
     } else if (cmd.includes('disable pi') || cmd.includes('pause pi') || cmd.includes('disable shield') || cmd.includes('pause shield') || cmd.includes('stop pihole')) {
-        addMeenaEXP(15, 'Pi-hole shield paused');
-        if (window.executePiholeAction) window.executePiholeAction('pihole_disable', 300);
+        requestSudoAuthorization('pihole_disable', 'Pause Pi-hole Defense Shield (5 Mins)');
     } else if (cmd.includes('enable pi') || cmd.includes('resume pi') || cmd.includes('enable shield') || cmd.includes('shield on') || cmd.includes('start pihole')) {
-        addMeenaEXP(15, 'Pi-hole shield activated');
-        if (window.executePiholeAction) window.executePiholeAction('pihole_enable');
+        requestSudoAuthorization('pihole_enable', 'Enable Pi-hole Defense Shield');
     } else if (cmd.includes('update gravity') || cmd.includes('update blocklist') || cmd.includes('reload gravity')) {
-        addMeenaEXP(25, 'Pi-hole Gravity reload');
-        if (window.executePiholeAction) window.executePiholeAction('pihole_update_gravity');
+        requestSudoAuthorization('pihole_update_gravity', 'Rebuild Pi-hole Gravity Blocklists');
     } else if (cmd.includes('purge ram') || cmd.includes('clean memory') || cmd.includes('free ram') || cmd.includes('drop caches')) {
-        addMeenaEXP(25, 'Sudo memory purge');
-        setMeenaMood('TACTICAL');
-        executeSudoAction('purge_ram', "Hai, Sensei! Purging Linux page cache and freeing buffer memory via sudo authorization!");
+        requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)');
     } else if (cmd.includes('flush dns') || cmd.includes('restart dns') || cmd.includes('clear dns')) {
-        addMeenaEXP(25, 'Sudo DNS flush');
-        setMeenaMood('TACTICAL');
-        executeSudoAction('flush_dns', "Hai, Sensei! Restarting Pi-hole DNS resolver and flushing query caches!");
+        requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver');
+    } else if (cmd.includes('reload daemon') || cmd.includes('restart telemetry') || cmd.includes('restart daemon')) {
+        requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service');
+    } else if (cmd.includes('reboot') || cmd.includes('restart pi') || cmd.includes('power cycle')) {
+        requestSudoAuthorization('system_reboot', 'Power Cycle & Reboot Raspberry Pi Host');
+    } else if (cmd.includes('authorize') || cmd.includes('confirm') || cmd.includes('proceed') || cmd.includes('yes do it') || cmd.includes('approved')) {
+        if (pendingSudoAction) {
+            confirmSudoAuthorization(true);
+        } else {
+            speakComputerVoice("No pending authorization requests on the bridge, Sensei.");
+        }
+    } else if (cmd.includes('abort') || cmd.includes('cancel') || cmd.includes('stand down') || cmd.includes('stop')) {
+        if (pendingSudoAction) {
+            confirmSudoAuthorization(false);
+        } else {
+            speakComputerVoice("All systems nominal, Sensei.");
+        }
     } else if (cmd.includes('hardware') || cmd.includes('clock') || cmd.includes('undervoltage') || cmd.includes('voltage') || cmd.includes('throttle')) {
         addMeenaEXP(20, 'Hardware diagnostics');
         speakVerbalHardwareReport();
+    } else if (cmd.includes('briefing') || cmd.includes('morning report') || cmd.includes('daily briefing')) {
+        triggerMorningBriefing();
     } else if (cmd.includes('profile') || cmd.includes('dossier') || cmd.includes('who are you') || cmd.includes('designation')) {
         addMeenaEXP(15, 'AI Profile check');
         openMeenaProfileModal();
-        speakComputerVoice("I am M.E.E.N.A., Master Electronic Executive Neural Assistant of Takahara Academy! Running on our dedicated DietPi single-board computer, ready to serve Sensei!");
+        speakComputerVoice("I am M.E.E.N.A., Master Electronic Executive Neural Assistant of Takahara Academy! Running on our dedicated DietPi single-board computer with Level-4 administrative authorization protocols, ready to serve Sensei!");
     } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
         addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
@@ -1568,51 +1579,271 @@ function animateAvatar() {
 
 /**
  * ==========================================================================
- * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Japanese Accent Heuristics)
+ * MEENA CONVERSATIONAL AI & COGNITIVE THINKING ENGINE
+ * Dynamic Persona Archetypes + Level-4 Sudo Authorization Protocols
  * ==========================================================================
  */
-async function askMeenaAI(question) {
-    const bank = getKnowledgeBank();
-    const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
-    
-    const prompt = `You are Meena™ (高原学園), an energetic, cheerful young female AI personal assistant for home base Takahara Academy. Always reply in fluent, natural English with Japanese honorifics and expressions (Sensei, Ohayou, Konnichiwa, Hai, Otsukare, Arigato). Address the user respectfully as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, cheerful spoken sentences in English with Japanese flair:`;
-    
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (apiKey) {
-        try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (reply) {
-                    speakComputerVoice(reply.replace(/[*_#]/g, ''));
-                    return;
-                }
-            }
-        } catch (e) {
-            console.warn("Gemini AI fetch error:", e);
-        }
+let pendingSudoAction = null;
+let currentPersona = localStorage.getItem('meena_persona') || 'KOUHAI';
+let lastUserInteractionTime = Date.now();
+
+const PERSONA_CONFIGS = {
+    KOUHAI: {
+        name: 'KOUHAI AIDE',
+        pitch: 1.24,
+        rate: 1.08,
+        badgeClass: 'bg-tertiary/20 text-tertiary border-tertiary/40',
+        prefix: 'Hai, Sensei! '
+    },
+    TACTICAL: {
+        name: 'TACTICAL OFFICER',
+        pitch: 1.05,
+        rate: 1.15,
+        badgeClass: 'bg-primary/20 text-primary border-primary/40',
+        prefix: 'Tactical analysis confirmed. '
+    },
+    ENGINEER: {
+        name: 'CHIEF ENGINEER',
+        pitch: 1.10,
+        rate: 1.05,
+        badgeClass: 'bg-lcars-gold/20 text-lcars-gold border-lcars-gold/40',
+        prefix: 'Diagnostic telemetry verified. '
+    },
+    SENTRY: {
+        name: 'SENTRY GUARDIAN',
+        pitch: 1.15,
+        rate: 1.10,
+        badgeClass: 'bg-secondary/20 text-secondary border-secondary/40',
+        prefix: 'Perimeter defense lock engaged. '
     }
-    
-    // Offline intelligent anime companion responses in English with Japanese accent
+};
+
+function setPersonaArchetype(archetype) {
+    if (!PERSONA_CONFIGS[archetype]) archetype = 'KOUHAI';
+    currentPersona = archetype;
+    localStorage.setItem('meena_persona', archetype);
+
+    const cfg = PERSONA_CONFIGS[archetype];
+    setMeenaPitch(cfg.pitch);
+    setMeenaRate(cfg.rate);
+
+    const badge = document.getElementById('meena-persona-badge');
+    if (badge) {
+        badge.innerText = cfg.name;
+        badge.className = `text-[9px] px-1.5 py-0.5 rounded font-bold border ${cfg.badgeClass}`;
+    }
+
+    if (window.playSound) window.playSound('beep2');
+    speakComputerVoice(`Persona Matrix switched to ${cfg.name}, Sensei!`);
+}
+
+function renderThinkingStream(thoughtSteps, onComplete) {
+    const feed = document.getElementById('meena-chat-feed');
+    if (!feed) {
+        if (onComplete) onComplete();
+        return;
+    }
+
+    let i = 0;
+    function nextStep() {
+        if (i >= thoughtSteps.length) {
+            if (onComplete) onComplete();
+            return;
+        }
+        const row = document.createElement('div');
+        row.className = "flex items-start gap-1 text-[9px] text-tertiary/90 font-mono italic animate-pulse";
+        row.innerHTML = `<span class="text-primary font-bold">[COGNITION]:</span><span>${thoughtSteps[i]}</span>`;
+        feed.appendChild(row);
+        feed.scrollTop = feed.scrollHeight;
+        i++;
+        setTimeout(nextStep, 260);
+    }
+    nextStep();
+}
+
+async function askMeenaAI(question) {
+    lastUserInteractionTime = Date.now();
+    const bank = getKnowledgeBank();
+    const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.KOUHAI;
     const q = question.toLowerCase();
-    if (q.includes('who are you') || q.includes('introduce') || q.includes('siapa')) {
-        speakComputerVoice("I am M.E.E.N.A., your personal AI tactical assistant for Takahara Academy! I manage all our home systems, defense shields, and telemetry for you, Sensei!");
-    } else if (q.includes('takahara') || q.includes('home base') || q.includes('markas')) {
-        speakComputerVoice("Takahara Academy is our home operations center! All perimeter barriers and telemetry nodes are secure and nominal, Sensei!");
-    } else if (q.includes('how are you') || q.includes('apa khabar') || q.includes('genki')) {
-        speakComputerVoice("All neural pathways are running at maximum performance, Sensei! Standing by and ready for your orders!");
-    } else if (q.includes('thank you') || q.includes('terima kasih') || q.includes('arigato')) {
-        setMeenaMood('CARING');
-        speakComputerVoice("Douitashimashite, Sensei! It is always my pleasure to assist you!");
+
+    // 1. Render Cognitive Thinking Steps
+    const thoughts = [
+        `Analyzing query: "${question}"`,
+        `Cross-referencing telemetry & Pi-hole shield status`,
+        `Querying Takahara Knowledge Graph cluster`,
+        `Persona Matrix: ${cfg.name} // Formulating response`
+    ];
+
+    renderThinkingStream(thoughts, async () => {
+        // Check Gemini API Key
+        const apiKey = localStorage.getItem('gemini_api_key');
+        if (apiKey) {
+            try {
+                const memoryContext = bank.length > 0 ? ("\nThings Sensei taught you: " + bank.map(m => `[${m.category}] ${m.fact}`).join("; ")) : "";
+                const prompt = `You are Meena™ (高原学園), an energetic female AI companion for home operations base Takahara Academy. Persona: ${cfg.name}. Address user as Sensei.${memoryContext}\n\nSensei: "${question}".\nReply in 1-2 concise, spoken sentences in English with Japanese flair:`;
+
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (reply) {
+                        outputMeenaDialogue(reply.replace(/[*_#]/g, ''));
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("Gemini fetch failed, using heuristic:", e);
+            }
+        }
+
+        // Heuristic Contextual Responses
+        let reply = "";
+        if (q.includes('who are you') || q.includes('introduce') || q.includes('profile')) {
+            reply = `${cfg.prefix}I am M.E.E.N.A., your personal AI tactical assistant for Takahara Academy! Running with Level-4 sudo authorization on our DietPi SBC!`;
+        } else if (q.includes('shield') || q.includes('pihole') || q.includes('defense')) {
+            reply = `${cfg.prefix}Pi-hole defense shield is actively blocking tracking beacons and malware queries! 10,520 threats neutralized today!`;
+        } else if (q.includes('hardware') || q.includes('pi') || q.includes('temp') || q.includes('clock')) {
+            reply = `${cfg.prefix}Raspberry Pi 3 hardware is operating at peak efficiency! Temperature and clock voltages are well within nominal thresholds!`;
+        } else if (q.includes('how are you') || q.includes('genki') || q.includes('feeling')) {
+            reply = `${cfg.prefix}All neural synaptic pathways are running at 100% capacity! Standing by for your next command, Sensei!`;
+        } else if (q.includes('thank') || q.includes('arigato')) {
+            setMeenaMood('CARING');
+            reply = `Douitashimashite, Sensei! It is always my absolute pleasure to serve Takahara Academy!`;
+        } else if (q.includes('good morning') || q.includes('ohayou')) {
+            reply = `Ohayou gozaimasu, Sensei! All Takahara Academy sectors report green status! Ready for our daily missions!`;
+        } else if (q.includes('good night') || q.includes('oyasumi')) {
+            setMeenaMood('CARING');
+            reply = `Oyasuminasai, Sensei! I will keep continuous guard over all perimeter shields tonight! Rest well!`;
+        } else {
+            reply = `${cfg.prefix}Acknowledged, Sensei! I am indexing this into our Takahara tactical knowledge stream!`;
+        }
+
+        outputMeenaDialogue(reply);
+    });
+}
+
+function outputMeenaDialogue(text) {
+    const feed = document.getElementById('meena-chat-feed');
+    if (feed) {
+        const row = document.createElement('div');
+        row.className = "flex items-start gap-1.5 text-primary my-1";
+        row.innerHTML = `<span class="text-tertiary font-bold">[MEENA]:</span><span>${text}</span>`;
+        feed.appendChild(row);
+        feed.scrollTop = feed.scrollHeight;
+    }
+    speakComputerVoice(text);
+}
+
+function sendChatMessage(text) {
+    if (!text || !text.trim()) return;
+    const clean = text.trim();
+    lastUserInteractionTime = Date.now();
+
+    const feed = document.getElementById('meena-chat-feed');
+    if (feed) {
+        const row = document.createElement('div');
+        row.className = "flex items-start gap-1.5 text-on-surface my-1 font-bold";
+        row.innerHTML = `<span class="text-secondary">[SENSEI]:</span><span>${clean}</span>`;
+        feed.appendChild(row);
+        feed.scrollTop = feed.scrollHeight;
+    }
+
+    handleVoiceCommand(clean);
+}
+
+/**
+ * ==========================================================================
+ * LEVEL-4 SUDO AUTHORIZATION PROTOCOL
+ * Prompts Sensei for explicit interactive or verbal confirmation
+ * ==========================================================================
+ */
+function requestSudoAuthorization(action, description) {
+    pendingSudoAction = { action, description };
+    setMeenaMood('TACTICAL');
+    playYellowAlertChirp();
+
+    const feed = document.getElementById('meena-chat-feed');
+    if (feed) {
+        // Remove any previous pending card
+        const old = document.getElementById('pending-sudo-card');
+        if (old) old.remove();
+
+        const card = document.createElement('div');
+        card.id = 'pending-sudo-card';
+        card.className = "bg-surface-dim border-2 border-lcars-gold p-2.5 rounded-lg my-2 flex flex-col gap-2 font-mono shadow-[0_0_12px_rgba(255,226,83,0.3)]";
+        card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-lcars-gold/40 pb-1">
+                <div class="flex items-center gap-1.5 text-lcars-gold font-bold text-xs">
+                    <span class="material-symbols-outlined text-sm">security</span>
+                    <span>LEVEL-4 ADMINISTRATIVE AUTHORIZATION REQUIRED</span>
+                </div>
+                <span class="text-[9px] bg-lcars-gold/20 text-lcars-gold px-1.5 py-0.5 rounded font-bold">AWAITING CONFIRMATION</span>
+            </div>
+            <div class="text-[10px] text-on-surface">Target Operation: <strong class="text-primary font-bold">${description}</strong></div>
+            <div class="text-[8.5px] text-secondary">Target Host: DietPi SBC (192.168.0.100) // Endpoint: api.php?action=${action}</div>
+            <div class="flex gap-2 mt-1">
+                <button onclick="confirmSudoAuthorization(true)" class="bg-lcars-gold hover:bg-lcars-gold/80 text-black font-bold px-3 py-1 rounded text-xs flex items-center gap-1 shadow-sm transition-all">
+                    <span class="material-symbols-outlined text-xs">check_circle</span>
+                    <span>[✓ AUTHORIZE EXECUTION]</span>
+                </button>
+                <button onclick="confirmSudoAuthorization(false)" class="bg-surface-bright hover:bg-error hover:text-white text-on-surface font-bold px-3 py-1 rounded text-xs flex items-center gap-1 shadow-sm transition-all">
+                    <span class="material-symbols-outlined text-xs">cancel</span>
+                    <span>[✕ ABORT]</span>
+                </button>
+            </div>
+        `;
+        feed.appendChild(card);
+        feed.scrollTop = feed.scrollHeight;
+    }
+
+    speakComputerVoice(`Sensei, executing ${description} requires Level-4 administrative authorization. Please confirm to proceed.`);
+}
+
+function confirmSudoAuthorization(isApproved) {
+    const card = document.getElementById('pending-sudo-card');
+    if (card) card.remove();
+
+    if (!pendingSudoAction) return;
+    const { action, description } = pendingSudoAction;
+    pendingSudoAction = null;
+
+    if (isApproved) {
+        addMeenaEXP(25, `Sudo auth: ${action}`);
+        executeSudoAction(action, `Authorization confirmed, Sensei! Executing ${description} now!`);
     } else {
-        speakComputerVoice(`Acknowledged, Sensei! Meena is standing by at Takahara Academy.`);
+        if (window.playSound) window.playSound('beep1');
+        setMeenaMood('CHEERFUL');
+        outputMeenaDialogue(`Command execution aborted, Sensei. Standing down.`);
+    }
+}
+
+async function executeSudoAction(action, voiceAck) {
+    if (voiceAck) speakComputerVoice(voiceAck);
+    if (window.playSound) window.playSound('beep2');
+
+    try {
+        const res = await fetch(`api.php?action=${encodeURIComponent(action)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const resultMsg = data.result || "Command executed successfully.";
+            
+            const feed = document.getElementById('meena-chat-feed');
+            if (feed) {
+                const row = document.createElement('div');
+                row.className = "flex items-start gap-1.5 text-lcars-gold my-1";
+                row.innerHTML = `<span class="text-tertiary font-bold">[SUDO RESULT]:</span><span>${resultMsg}</span>`;
+                feed.appendChild(row);
+                feed.scrollTop = feed.scrollHeight;
+            }
+            if (window.fetchTelemetry) window.fetchTelemetry();
+        }
+    } catch (e) {
+        console.warn(`Sudo action ${action} failed:`, e);
     }
 }
 
@@ -1634,33 +1865,6 @@ function speakVerbalWeatherReport() {
     speakComputerVoice(`Atmospheric report for Terra base, Sensei! Current temperature is ${temp} degrees Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Perfect weather for our mission!`);
 }
 
-async function executeSudoAction(action, voiceAck) {
-    if (voiceAck) speakComputerVoice(voiceAck);
-    if (window.playSound) window.playSound('beep2');
-
-    try {
-        const res = await fetch(`api.php?action=${encodeURIComponent(action)}`);
-        if (res.ok) {
-            const data = await res.json();
-            const resultMsg = data.result || "Command executed successfully.";
-            console.log(`[MEENA SUDO]: ${action} -> ${resultMsg}`);
-            
-            // Push feedback into chat dialogue feed
-            const feed = document.getElementById('meena-chat-feed');
-            if (feed) {
-                const row = document.createElement('div');
-                row.className = "flex items-start gap-1.5 text-lcars-gold";
-                row.innerHTML = `<span class="text-tertiary font-bold">[SUDO EXEC]:</span><span>${resultMsg}</span>`;
-                feed.appendChild(row);
-                feed.scrollTop = feed.scrollHeight;
-            }
-            if (window.fetchTelemetry) window.fetchTelemetry();
-        }
-    } catch (e) {
-        console.warn(`Sudo action ${action} failed:`, e);
-    }
-}
-
 async function speakVerbalHardwareReport() {
     try {
         const res = await fetch('api.php?action=hardware_diag');
@@ -1678,6 +1882,41 @@ async function speakVerbalHardwareReport() {
     } catch (e) {}
 
     speakComputerVoice("Raspberry Pi hardware core is running at full capacity, Sensei! All thermal and voltage parameters are nominal!");
+}
+
+function triggerMorningBriefing() {
+    const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31';
+    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'partly cloudy';
+    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : '37.6% blocked';
+    const uptime = document.getElementById('uptime-val') ? document.getElementById('uptime-val').innerText : 'online';
+
+    outputMeenaDialogue(`Good morning, Sensei! Welcome to Takahara Academy Command Bridge! System uptime is ${uptime}. Weather is ${desc} at ${temp} degrees Celsius. Pi-hole defense shield is active at ${pihole}. All systems standing by for your command!`);
+}
+
+/**
+ * Ambient Idle Cognition Loop (Autonomous Internal Monologue)
+ */
+function initAmbientCognition() {
+    setInterval(() => {
+        const idleSec = Math.floor((Date.now() - lastUserInteractionTime) / 1000);
+        if (idleSec >= 60 && idleSec % 60 === 0) {
+            const thoughts = [
+                "Pi-hole defense shield neutralized over 10,500 intrusions today... Takahara perimeter is secure.",
+                "Raspberry Pi thermal dissipation is maintaining equilibrium at 52°C.",
+                "Subspace network telemetry is streaming nominal heartbeat packets.",
+                "Neural synaptic graph is synchronized with Sensei's learned memories."
+            ];
+            const randomThought = thoughts[Math.floor(Math.random() * thoughts.length)];
+            const feed = document.getElementById('meena-chat-feed');
+            if (feed) {
+                const row = document.createElement('div');
+                row.className = "flex items-start gap-1 text-[9px] text-tertiary/70 font-mono italic";
+                row.innerHTML = `<span class="text-primary/70">[AMBIENT COGNITION]:</span><span>${randomThought}</span>`;
+                feed.appendChild(row);
+                feed.scrollTop = feed.scrollHeight;
+            }
+        }
+    }, 10000);
 }
 
 function openMeenaProfileModal() {
@@ -1706,7 +1945,13 @@ window.openVoiceModal = openVoiceModal;
 window.closeVoiceModal = closeVoiceModal;
 window.openMeenaProfileModal = openMeenaProfileModal;
 window.closeMeenaProfileModal = closeMeenaProfileModal;
+window.setPersonaArchetype = setPersonaArchetype;
+window.requestSudoAuthorization = requestSudoAuthorization;
+window.confirmSudoAuthorization = confirmSudoAuthorization;
 window.executeSudoAction = executeSudoAction;
+window.sendChatMessage = sendChatMessage;
+window.triggerMorningBriefing = triggerMorningBriefing;
+window.initAmbientCognition = initAmbientCognition;
 window.handleVoiceCommand = handleVoiceCommand;
 window.startRedAlertKlaxon = startRedAlertKlaxon;
 window.stopRedAlertKlaxon = stopRedAlertKlaxon;

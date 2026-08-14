@@ -280,6 +280,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (window.initKnowledgeGraph) {
         window.initKnowledgeGraph();
     }
+    if (window.initAmbientCognition) {
+        window.initAmbientCognition();
+    }
 
     // 4. Initialize 3D Earth Hologram
     if (window.initEarth) {
