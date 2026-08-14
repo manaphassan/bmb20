@@ -288,6 +288,20 @@
                     </div>
                 </div>
 
+                <!-- AI Agent Skills Executor Tray -->
+                <div class="flex items-center justify-between bg-surface-container-high/80 px-2 py-1 rounded border border-outline-variant/30 text-[9px] font-mono flex-shrink-0">
+                    <span class="text-lcars-gold font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">smart_toy</span>
+                        <span>AGENT SKILLS:</span>
+                    </span>
+                    <div class="flex gap-1 flex-wrap">
+                        <button onclick="executeSkillDeepResearchPrompt()" class="bg-primary/20 hover:bg-primary hover:text-black text-primary px-1.5 py-0.5 rounded border border-primary/40 transition-all font-bold">🔬 DEEP RESEARCH</button>
+                        <button onclick="executeSkillReportAnalysis()" class="bg-tertiary/20 hover:bg-tertiary hover:text-black text-tertiary px-1.5 py-0.5 rounded border border-tertiary/40 transition-all font-bold">📊 REPORT AUDIT</button>
+                        <button onclick="executeSkillMoraleBoost()" class="bg-secondary/20 hover:bg-secondary hover:text-black text-secondary px-1.5 py-0.5 rounded border border-secondary/40 transition-all font-bold">💖 MORALE BOOST</button>
+                        <button onclick="executeSkillFactVerifyPrompt()" class="bg-lcars-purple/20 hover:bg-lcars-purple hover:text-white text-lcars-purple px-1.5 py-0.5 rounded border border-lcars-purple/40 transition-all font-bold">🔍 FACT CHECK</button>
+                    </div>
+                </div>
+
                 <!-- Quick Action Suggestion Chips -->
                 <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
                     <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">💡 STATUS</button>
