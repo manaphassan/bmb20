@@ -34,9 +34,9 @@ window.addEventListener('keydown', unlockAudioContext, { once: true });
 window.addEventListener('touchstart', unlockAudioContext, { once: true });
 
 /**
- * M.E.E.N.A. AI Voice Synthesizer (Web Speech API)
+ * M.E.E.N.A. AI Voice Synthesizer (Native Japanese Voice Engine)
  * Master Electronic Executive Neural Assistant
- * Calibrated for a young, cheerful Asian/Japanese-accent English female AI assistant
+ * Calibrated for a Japanese anime assistant (Nanami / Aoi / Kyoko / Ayumi)
  */
 let meenaVoice = null;
 
@@ -56,11 +56,11 @@ function loadMeenaVoice() {
         }
     }
 
-    // Priority 1: Fluent English with Japanese Accent / Multilingual Neural Japanese Female Voices
-    const match = voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
-        || voices.find(v => v.name.includes('Luna') || v.lang === 'en-SG' || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao'))
-        || voices.find(v => v.name.includes('Nanami') || v.name.includes('Keiko') || v.name.includes('Aoi') || v.name.includes('Mayu') || v.name.includes('Shiori'))
-        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.name.includes('Google 日本語') || v.name.includes('Kyoko') || v.name.includes('Ayumi'))
+    // Priority 1: Native Japanese Female Voices (ja-JP) - Nanami, Aoi, Keiko, Shiori, Kyoko, Ayumi
+    const match = voices.find(v => (v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.startsWith('ja')) && (v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko') || v.name.includes('Shiori') || v.name.includes('Mayu') || v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Natural') || v.name.includes('Google 日本語')))
+        || voices.find(v => v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.startsWith('ja'))
+        || voices.find(v => v.name.includes('Jenny Multilingual') || v.name.includes('Aria Multilingual'))
+        || voices.find(v => v.lang === 'en-SG' || v.name.includes('Luna'))
         || voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.toLowerCase().includes('female') || v.name.includes('Zira') || v.name.includes('Samantha')));
 
     if (match) meenaVoice = match;
@@ -90,10 +90,10 @@ function populateVoiceSelector() {
 
     select.innerHTML = '';
     
-    // Sort: Fluent Multilingual & Japanese Asian voices first
+    // Sort: Japanese voices strictly first
     const sorted = [...voices].sort((a, b) => {
-        const aScore = (a.name.includes('Jenny Multilingual') || a.name.includes('Aria Multilingual') || a.name.includes('Nanami') || a.name.includes('Keiko') || a.lang.includes('SG') || a.lang.includes('ja')) ? 2 : (a.lang.startsWith('en') ? 1 : 0);
-        const bScore = (b.name.includes('Jenny Multilingual') || b.name.includes('Aria Multilingual') || b.name.includes('Nanami') || b.name.includes('Keiko') || b.lang.includes('SG') || b.lang.includes('ja')) ? 2 : (b.lang.startsWith('en') ? 1 : 0);
+        const aScore = (a.lang.includes('ja') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Kyoko') || a.name.includes('日本語')) ? 3 : ((a.name.includes('Multilingual') || a.lang.includes('SG')) ? 2 : (a.lang.startsWith('en') ? 1 : 0));
+        const bScore = (b.lang.includes('ja') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Kyoko') || b.name.includes('日本語')) ? 3 : ((b.name.includes('Multilingual') || b.lang.includes('SG')) ? 2 : (b.lang.startsWith('en') ? 1 : 0));
         return bScore - aScore;
     });
 
@@ -120,19 +120,19 @@ function setMeenaVoiceByName(voiceName) {
 }
 
 function testMeenaVoice() {
-    speakComputerVoice("All personnel, battle stations! Konnichiwa, Sensei! Meena tactical operations online and ready for action!");
+    speakComputerVoice("了解です、先生！高原学園作戦司令センター、ミーナシステム正常稼働中です！");
 }
 
 function getMeenaTimeGreeting() {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
-        return "Ohayou, Sensei! Good morning! Meena tactical operations center online and ready for action!";
+        return "おはようございます、先生！高原学園作戦司令センター、全システム正常稼働中です！";
     } else if (hour >= 12 && hour < 18) {
-        return "Service, service! Konnichiwa, Sensei! All facility telemetry nominal and running at full power!";
+        return "こんにちは、先生！高原学園テレメトリー、全システム順調に稼働しています！";
     } else if (hour >= 18 && hour < 22) {
-        return "Konbanwa, Sensei! Good evening! Operations center is fully secured and standing by for orders!";
+        return "こんばんは、先生！高原学園司令センター、いつでも出撃可能です！";
     } else {
-        return "Otsukare, Sensei! Working late tonight? Don't push yourself too much! Meena is watching your six!";
+        return "お疲れ様です、先生！今夜も遅くまでご苦労様です。ミーナがサポートします！";
     }
 }
 
@@ -173,10 +173,10 @@ function speakComputerVoice(text) {
         if (!meenaVoice) loadMeenaVoice();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = meenaRate;   // Natural conversational tempo
-        utterance.pitch = meenaPitch; // Lower natural teenage girl pitch
+        utterance.rate = meenaRate;   // Natural anime conversational tempo
+        utterance.pitch = meenaPitch; // Natural teenage girl pitch
         utterance.volume = 1.0;
-        utterance.lang = 'en-US';     // Ensure fluent English phonetics with bilingual voices
+        utterance.lang = (meenaVoice && meenaVoice.lang) ? meenaVoice.lang : 'ja-JP';
 
         if (meenaVoice) {
             utterance.voice = meenaVoice;
@@ -715,36 +715,36 @@ function rememberFact(fact) {
     if (memories.length > 25) memories.shift();
     localStorage.setItem('meena_tactical_memories', JSON.stringify(memories));
     if (window.playSound) window.playSound('beep2');
-    speakComputerVoice(`Understood, Sensei! I have learned and saved that to Takahara tactical memory.`);
+    speakComputerVoice(`了解しました、先生！高原学園の戦術メモリーに記録しました！`);
 }
 
 function recallMemories() {
     const memories = getMeenaMemories();
     if (memories.length === 0) {
-        speakComputerVoice("My memory is currently clear, Sensei! You can teach me by saying: Meena, remember, followed by any note.");
+        speakComputerVoice("メモリーは現在空です、先生！「ミーナ、メモ」と話しかけて教えてくださいね！");
         return;
     }
     const count = memories.length;
-    const latest = memories.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
-    speakComputerVoice(`I have learned ${count} items for Takahara Academy, Sensei. Here are the latest notes: ${latest}`);
+    const latest = memories.slice(-3).map((m, i) => `${i + 1}番、${m.fact}`).join("。");
+    speakComputerVoice(`高原学園メモリーに${count}件の記録があります、先生！最新のノートです：${latest}`);
 }
 
 function clearMemories() {
     localStorage.removeItem('meena_tactical_memories');
     if (window.playSound) window.playSound('beep1');
-    speakComputerVoice("Takahara memory registers have been reset, Sensei.");
+    speakComputerVoice("高原学園のメモリーレジスタを初期化しました、先生。");
 }
 
 /**
  * ==========================================================================
- * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Heuristics)
+ * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Japanese Heuristics)
  * ==========================================================================
  */
 async function askMeenaAI(question) {
     const memories = getMeenaMemories();
-    const memoryContext = memories.length > 0 ? ("\nThings Sensei taught you: " + memories.map(m => m.fact).join("; ")) : "";
+    const memoryContext = memories.length > 0 ? ("\n先生が教えた記憶ノート: " + memories.map(m => m.fact).join("; ")) : "";
     
-    const prompt = `You are M.E.E.N.A. (Master Electronic Executive Neural Assistant), an energetic, charismatic anime heroine AI personal assistant for home base Takahara Academy. You speak cheerful, natural English with authentic polite Japanese expressions (e.g. Ohayou, Konnichiwa, Hai Sensei, Otsukare). Address the user as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, spoken sentences:`;
+    const prompt = `あなたは「ミーナ」（M.E.E.N.A.）、高原学園の明るく元気なアニメ美少女AIパーソナルアシスタントです。ユーザーを「先生」と呼び、親切で可愛らしく頼もしい日本語で答えてください。${memoryContext}\n\n先生の質問：「${question}」\n音声合成で読み上げるため、1〜2文の簡潔で元気な日本語で回答してください：`;
     
     const apiKey = localStorage.getItem('gemini_api_key');
     if (apiKey) {
@@ -769,37 +769,37 @@ async function askMeenaAI(question) {
         }
     }
     
-    // Offline intelligent anime companion heuristic responses
+    // Offline intelligent anime companion Japanese responses
     const q = question.toLowerCase();
-    if (q.includes('who are you') || q.includes('introduce yourself')) {
-        speakComputerVoice("I am M.E.E.N.A., your personal tactical assistant for Takahara Academy! I manage our home systems, defense shields, and telemetry, Sensei!");
-    } else if (q.includes('takahara') || q.includes('home base')) {
-        speakComputerVoice("Takahara Academy is our home operations center! All perimeter barriers and telemetry nodes are currently secure, Sensei!");
-    } else if (q.includes('how are you') || q.includes('genki')) {
-        speakComputerVoice("All neural pathways are running at peak performance, Sensei! Ready for your next command!");
-    } else if (q.includes('thank you') || q.includes('arigato')) {
-        speakComputerVoice("Douitashimashite, Sensei! It's always my pleasure to assist you!");
+    if (q.includes('who are you') || q.includes('だれ') || q.includes('自己紹介') || q.includes('名前')) {
+        speakComputerVoice("私はミーナです！高原学園のパーソナルAIアシスタントとして、先生の作戦行動とシステム管理を全力でサポートします！");
+    } else if (q.includes('takahara') || q.includes('高原学園') || q.includes('基地') || q.includes('拠点')) {
+        speakComputerVoice("高原学園は私たちの作戦拠点です！全ての防護障壁と通信ノードは正常に稼働しています、先生！");
+    } else if (q.includes('how are you') || q.includes('元気') || q.includes('調子') || q.includes('genki')) {
+        speakComputerVoice("全システム、最高パフォーマンスで稼働中です！いつでも指令をどうぞ、先生！");
+    } else if (q.includes('thank you') || q.includes('ありがとう') || q.includes('arigato')) {
+        speakComputerVoice("どういたしまして、先生！お役に立てて光栄です！");
     } else {
-        speakComputerVoice(`Acknowledged, Sensei! You can teach me more by saying 'Meena, remember', or add a Gemini API key in the console for open-ended conversation!`);
+        speakComputerVoice(`了解です、先生！ミーナはいつでもスタンバイしています！`);
     }
 }
 
 function speakVerbalStatusReport() {
-    const cpu = document.getElementById('cpu-val') ? document.getElementById('cpu-val').innerText : '24 percent';
-    const mem = document.getElementById('mem-val') ? document.getElementById('mem-val').innerText : '26 percent';
-    const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52 degrees';
-    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'active';
+    const cpu = document.getElementById('cpu-val') ? document.getElementById('cpu-val').innerText : '24%';
+    const mem = document.getElementById('mem-val') ? document.getElementById('mem-val').innerText : '26%';
+    const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52°C';
+    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : '稼働中';
 
-    speakComputerVoice(`Tactical status report, Sensei! CPU is at ${cpu}, memory utilization ${mem}, core temperature is ${temp}. Pi-hole defense shield is ${pihole}! All systems green and ready for deployment!`);
+    speakComputerVoice(`状況報告です、先生！CPU負荷${cpu}、メモリ使用率${mem}、コア温度${temp}。パイホール防護シールドは${pihole}！全システム、順調稼働中です！`);
 }
 
 function speakVerbalWeatherReport() {
-    const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31 degrees';
-    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'partly cloudy';
-    const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75 percent';
+    const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31';
+    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : '晴れ時々曇り';
+    const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75%';
     const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
 
-    speakComputerVoice(`Atmospheric report for Terra base, Sensei! Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum} percent, surface wind is ${wind}. Perfect weather for a mission!`);
+    speakComputerVoice(`気象報告です、先生！現在気温${temp}度、天候は${desc}。湿度${hum}、風速${wind}です！`);
 }
 
 // Window Global Exports
