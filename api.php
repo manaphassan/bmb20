@@ -1,7 +1,87 @@
 <?php
-// DietPi System Telemetry Endpoint
+// DietPi System Telemetry & Meena Brain Endpoint
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
+
+// Action Router
+if (isset($_GET['action'])) {
+    $action = trim($_GET['action']);
+    $memFile = file_exists('/var/www/html/knowledge_bank.json') ? '/var/www/html/knowledge_bank.json' : (file_exists('/var/www/knowledge_bank.json') ? '/var/www/knowledge_bank.json' : '/var/www/html/knowledge_bank.json');
+
+    if ($action === 'get_memories') {
+        if (file_exists($memFile)) {
+            $content = file_get_contents($memFile);
+            echo $content ?: json_encode(['bank' => [], 'growth' => null, 'persona' => 'ALEX']);
+        } else {
+            echo json_encode(['bank' => [], 'growth' => null, 'persona' => 'ALEX']);
+        }
+        exit;
+    }
+
+    if ($action === 'save_memories') {
+        $raw = file_get_contents('php://input');
+        if ($raw) {
+            $decoded = json_decode($raw, true);
+            if ($decoded !== null) {
+                file_put_contents($memFile, json_encode($decoded, JSON_PRETTY_PRINT));
+                @chmod($memFile, 0664);
+                echo json_encode(['status' => 'success', 'saved_nodes' => count($decoded['bank'] ?? [])]);
+                exit;
+            }
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON payload']);
+        exit;
+    }
+
+    if ($action === 'purge_ram') {
+        @shell_exec('sync; sudo /sbin/sysctl -w vm.drop_caches=3 2>/dev/null');
+        echo json_encode(['status' => 'success', 'result' => 'Linux kernel page cache & buffer memory purged successfully.']);
+        exit;
+    }
+
+    if ($action === 'flush_dns') {
+        @shell_exec('sudo pihole restartdns 2>/dev/null');
+        echo json_encode(['status' => 'success', 'result' => 'Pi-hole DNS resolver flushed and restarted.']);
+        exit;
+    }
+
+    if ($action === 'reload_daemon') {
+        @shell_exec('sudo systemctl restart bmb20-stats.service 2>/dev/null');
+        echo json_encode(['status' => 'success', 'result' => 'Telemetry daemon restarted successfully.']);
+        exit;
+    }
+
+    if ($action === 'hardware_diag') {
+        $clock = @shell_exec('vcgencmd measure_clock arm 2>/dev/null');
+        $volts = @shell_exec('vcgencmd measure_volts core 2>/dev/null');
+        $throttled = @shell_exec('vcgencmd get_throttled 2>/dev/null');
+        $temp = @shell_exec('vcgencmd measure_temp 2>/dev/null');
+        
+        $mhz = 1200;
+        if ($clock && preg_match('/frequency\(\d+\)=(\d+)/', $clock, $m)) {
+            $mhz = round(intval($m[1]) / 1000000);
+        }
+        $vStr = '1.20V';
+        if ($volts && preg_match('/volt=([0-9.]+V)/', $volts, $m)) {
+            $vStr = $m[1];
+        }
+        $tStr = '52°C';
+        if ($temp && preg_match('/temp=([0-9.]+)/', $temp, $m)) {
+            $tStr = $m[1] . '°C';
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'hardware' => [
+                'clock_mhz' => $mhz,
+                'voltage' => $vStr,
+                'temp' => $tStr,
+                'throttled_desc' => ($throttled && strpos($throttled, '0x0') !== false) ? 'NOMINAL (NO THROTTLE)' : 'FLAGGED'
+            ]
+        ]);
+        exit;
+    }
+}
 
 function get_cpu_temp() {
     // 1. Try Linux thermal zone

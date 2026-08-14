@@ -1030,6 +1030,7 @@ function initKnowledgeGraph() {
 
     buildGraphData();
     setupGraphInteractions();
+    syncMemoriesWithServer();
 
     if (!isGraphRunning) {
         isGraphRunning = true;
@@ -1302,6 +1303,46 @@ function animateKnowledgeGraph() {
     requestAnimationFrame(animateKnowledgeGraph);
 }
 
+async function syncMemoriesWithServer() {
+    try {
+        const res = await fetch('api.php?action=get_memories');
+        if (res.ok) {
+            const data = await res.json();
+            const serverBank = data.bank || [];
+            let localBank = getKnowledgeBank();
+
+            if (serverBank.length > 0) {
+                const combinedMap = new Map();
+                localBank.forEach(item => combinedMap.set(item.id, item));
+                serverBank.forEach(item => combinedMap.set(item.id, item));
+                const merged = Array.from(combinedMap.values());
+                localStorage.setItem('meena_knowledge_bank', JSON.stringify(merged));
+                buildGraphData();
+            } else if (localBank.length > 0) {
+                pushMemoriesToServer();
+            }
+        }
+    } catch (e) {
+        console.warn("Memory server sync offline:", e);
+    }
+}
+
+async function pushMemoriesToServer() {
+    try {
+        const bank = getKnowledgeBank();
+        const growth = JSON.parse(localStorage.getItem('meena_growth_profile') || '{}');
+        const persona = localStorage.getItem('meena_persona') || 'ALEX';
+
+        await fetch('api.php?action=save_memories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bank, growth, persona, timestamp: new Date().toISOString() })
+        });
+    } catch (e) {
+        console.warn("Failed pushing memories to server:", e);
+    }
+}
+
 function rememberCategorizedFact(category, fact, silent = false) {
     if (!fact || !fact.trim()) return;
     const bank = getKnowledgeBank();
@@ -1319,6 +1360,7 @@ function rememberCategorizedFact(category, fact, silent = false) {
     addMeenaEXP(25, 'Taught new memory node');
     setMeenaMood('CHEERFUL');
     buildGraphData();
+    pushMemoriesToServer();
 
     if (!silent) {
         if (window.playSound) window.playSound('beep2');
@@ -1331,6 +1373,7 @@ function deleteKnowledgeItem(id) {
     bank = bank.filter(item => item.id !== id);
     localStorage.setItem('meena_knowledge_bank', JSON.stringify(bank));
     buildGraphData();
+    pushMemoriesToServer();
     if (window.playSound) window.playSound('beep1');
 }
 
@@ -2274,5 +2317,7 @@ window.initKnowledgeGraph = initKnowledgeGraph;
 window.buildGraphData = buildGraphData;
 window.deleteKnowledgeItem = deleteKnowledgeItem;
 window.executeTeachNote = executeTeachNote;
+window.syncMemoriesWithServer = syncMemoriesWithServer;
+window.pushMemoriesToServer = pushMemoriesToServer;
 window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;
 
