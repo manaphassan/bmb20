@@ -392,3 +392,22 @@ body.alert-red .callout-badge {
     border-left-color: #cc3333;
     color: #ff6666;
 }
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITIES & KANJI LOGO STACK
+   ========================================================================== */
+.font-kanji {
+    font-family: 'Noto Sans JP', 'Zen Kaku Gothic New', 'M PLUS 1p', 'Hiragino Sans', 'Meiryo', sans-serif !important;
+}
+
+.font-headline-sm, .font-headline-md, .font-display-lg {
+    font-family: 'Antonio', 'Anton', 'Impact', sans-serif;
+}
+
+.font-data-mono {
+    font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+.font-label-caps {
+    font-family: 'Space Mono', 'JetBrains Mono', monospace;
+}
