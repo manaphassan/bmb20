@@ -108,8 +108,8 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     const sideTempBar = document.getElementById('side-temp-bar');
 
     const tempPct = Math.min(100, Math.max(2, (temp / 85) * 100));
-    if (tempVal) tempVal.innerText = `${temp}°C`;
-    if (sideTempVal) sideTempVal.innerText = `${temp}°C`;
+    if (tempVal) tempVal.innerText = `${temp}\u00B0C`;
+    if (sideTempVal) sideTempVal.innerText = `${temp}\u00B0C`;
 
     if (tempBar) {
         tempBar.style.width = `${tempPct}%`;
@@ -167,7 +167,7 @@ function updateFooterTicker(data) {
         <span>HOST: ${hn} (dietpi.local)</span>
         <span>GATEWAY: 192.168.0.1</span>
         <span>UPTIME: ${uptime.toUpperCase()}</span>
-        <span>CORE TEMP: ${temp}°C</span>
+        <span>CORE TEMP: ${temp}\u00B0C</span>
         <span>SD STORAGE: ${disk}% USED</span>
         <span>SECURE BOOT: ACTIVE</span>
         <span>FIREWALL: OPERATIONAL</span>
@@ -175,7 +175,7 @@ function updateFooterTicker(data) {
         <span>HOST: ${hn} (dietpi.local)</span>
         <span>GATEWAY: 192.168.0.1</span>
         <span>UPTIME: ${uptime.toUpperCase()}</span>
-        <span>CORE TEMP: ${temp}°C</span>
+        <span>CORE TEMP: ${temp}\u00B0C</span>
         <span>SD STORAGE: ${disk}% USED</span>
         <span>SECURE BOOT: ACTIVE</span>
         <span>FIREWALL: OPERATIONAL</span>
@@ -399,7 +399,7 @@ function updateWeatherUI(weather) {
 
     const wmo = WMO_MAP[cur.weather_code] || { desc: "SCATTERED CLOUDS", icon: "partly_cloudy_day" };
 
-    if (tempElem) tempElem.innerText = `${cur.temperature_2m !== undefined ? cur.temperature_2m.toFixed(1) : '31.2'}°C`;
+    if (tempElem) tempElem.innerText = `${cur.temperature_2m !== undefined ? cur.temperature_2m.toFixed(1) : '31.2'}\u00B0C`;
     if (descElem) descElem.innerText = wmo.desc;
     if (iconElem) iconElem.innerText = wmo.icon;
     if (humElem) humElem.innerText = `${cur.relative_humidity_2m || 76}%`;
@@ -420,7 +420,7 @@ function updateWeatherUI(weather) {
                 <div class="flex flex-col items-center bg-surface-container-highest/60 px-2 py-0.5 rounded text-center">
                     <span class="text-[8px] text-secondary font-bold">${days[i]}</span>
                     <span class="material-symbols-outlined text-xs text-tertiary my-0.5">${fWmo.icon}</span>
-                    <span class="text-[8px] text-on-surface font-mono">${Math.round(daily.temperature_2m_max[i])}°/${Math.round(daily.temperature_2m_min[i])}°</span>
+                    <span class="text-[8px] text-on-surface font-mono">${Math.round(daily.temperature_2m_max[i])}\u00B0/${Math.round(daily.temperature_2m_min[i])}\u00B0</span>
                 </div>
             `;
         }

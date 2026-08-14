@@ -955,17 +955,87 @@ function clearMemories() {
 
 /**
  * ==========================================================================
- * HOLOGRAPHIC AI AVATAR CORE CANVAS ANIMATION
+ * 3D HOLOGRAPHIC DOT-MATRIX NEURAL BRAIN (AI CORE)
+ * Procedural 3D Point-Cloud Brain with Synaptic Pulses & Audio Excitation
  * ==========================================================================
  */
 let avatarCanvas = null;
 let avatarCtx = null;
 let avatarAngle = 0;
+let brainNodes = [];
+let brainEdges = [];
+let neuralSparks = [];
+
+function generateBrainModel() {
+    brainNodes = [];
+    brainEdges = [];
+    neuralSparks = [];
+
+    // Generate ~110 point-cloud nodes in left/right cerebral hemispheres & cerebellum
+    const hemisphereCount = 45;
+    
+    // 1. Left & Right Cerebral Hemispheres
+    for (let side = -1; side <= 1; side += 2) {
+        for (let i = 0; i < hemisphereCount; i++) {
+            const u = Math.random();
+            const v = Math.random();
+            const theta = u * Math.PI * 2;
+            const phi = Math.acos(2 * v - 1);
+            
+            // Brain ellipsoid proportions
+            const rx = 16 * (0.7 + Math.sin(phi * 3) * 0.15);
+            const ry = 13 * (0.8 + Math.cos(theta * 2) * 0.12);
+            const rz = 20 * (0.8 + Math.sin(theta * 2) * 0.1);
+
+            const x = (side * 8) + (rx * Math.sin(phi) * Math.cos(theta) * 0.65);
+            const y = (ry * Math.sin(phi) * Math.sin(theta) * 0.8) - 2;
+            const z = rz * Math.cos(phi) * 0.85;
+
+            brainNodes.push({ x, y, z, baseRadius: Math.random() * 1.2 + 1.0, side });
+        }
+    }
+
+    // 2. Cerebellum & Brain Stem (Bottom Rear)
+    for (let i = 0; i < 18; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const r = Math.random() * 8 + 2;
+        const x = Math.cos(theta) * r * 0.7;
+        const y = -10 - (Math.random() * 6);
+        const z = -6 - (Math.random() * 8);
+        brainNodes.push({ x, y, z, baseRadius: 1.0, side: 0 });
+    }
+
+    // 3. Generate Synaptic Connective Edges (Nearest Neighbor Mesh)
+    for (let i = 0; i < brainNodes.length; i++) {
+        for (let j = i + 1; j < brainNodes.length; j++) {
+            const dx = brainNodes[i].x - brainNodes[j].x;
+            const dy = brainNodes[i].y - brainNodes[j].y;
+            const dz = brainNodes[i].z - brainNodes[j].z;
+            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            
+            // Connect close nodes in same hemisphere or across corpus callosum bridge
+            if (dist < 8.5) {
+                brainEdges.push({ from: i, to: j, dist });
+            }
+        }
+    }
+
+    // 4. Initialize Active Synaptic Sparks
+    for (let s = 0; s < 12; s++) {
+        const edgeIdx = Math.floor(Math.random() * brainEdges.length);
+        neuralSparks.push({
+            edgeIdx,
+            progress: Math.random(),
+            speed: Math.random() * 0.03 + 0.015
+        });
+    }
+}
 
 function initMeenaAvatarCanvas() {
     avatarCanvas = document.getElementById('meena-avatar-canvas');
     if (!avatarCanvas) return;
     avatarCtx = avatarCanvas.getContext('2d');
+    generateBrainModel();
     animateAvatar();
 }
 
@@ -978,45 +1048,129 @@ function animateAvatar() {
     const cy = h / 2;
 
     ctx.clearRect(0, 0, w, h);
-    avatarAngle += 0.03;
 
     const isSpeaking = ('speechSynthesis' in window && window.speechSynthesis.speaking);
+    avatarAngle += isSpeaking ? 0.035 : 0.018;
+    const pitch = Math.sin(avatarAngle * 0.6) * 0.15 + 0.1;
 
-    // Dynamic aura color by mood
-    let auraColor = '#66ccff';
-    if (meenaCurrentMood === 'TACTICAL') auraColor = '#ff3333';
-    if (meenaCurrentMood === 'CARING') auraColor = '#ffcc00';
-    if (meenaCurrentMood === 'PROUD') auraColor = '#d946ef';
+    // Mood-specific color palette
+    let primaryColor = '#66ccff';
+    let sparkColor = '#ffe253';
+    if (meenaCurrentMood === 'TACTICAL') {
+        primaryColor = '#ff4d4d';
+        sparkColor = '#ffffff';
+    } else if (meenaCurrentMood === 'CARING') {
+        primaryColor = '#ffe253';
+        sparkColor = '#adc6ff';
+    } else if (meenaCurrentMood === 'PROUD') {
+        primaryColor = '#d946ef';
+        sparkColor = '#66ccff';
+    }
 
-    // 1. Center Breathing Core
-    const pulse = isSpeaking ? (Math.sin(avatarAngle * 4) * 3 + 7) : (Math.sin(avatarAngle) * 1.5 + 5);
-    ctx.beginPath();
-    ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
-    ctx.fillStyle = auraColor;
-    ctx.shadowColor = auraColor;
-    ctx.shadowBlur = isSpeaking ? 12 : 6;
-    ctx.fill();
+    const cosY = Math.cos(avatarAngle);
+    const sinY = Math.sin(avatarAngle);
+    const cosX = Math.cos(pitch);
+    const sinX = Math.sin(pitch);
 
-    // 2. Outer Rotating Orbital Segments
+    const fov = 110;
+    const distance = 55;
+
+    // Excitation multiplier during vocal speech
+    const pulseFactor = isSpeaking ? (1 + Math.sin(avatarAngle * 8) * 0.14) : 1.0;
+
+    // 1. Transform & Project 3D Nodes
+    const projected = brainNodes.map((n, idx) => {
+        // Yaw Rotation (Around Y)
+        const x1 = (n.x * cosY - n.z * sinY) * pulseFactor;
+        const z1 = (n.x * sinY + n.z * cosY) * pulseFactor;
+        const y1 = n.y * pulseFactor;
+
+        // Pitch Rotation (Around X)
+        const y2 = y1 * cosX - z1 * sinX;
+        const z2 = y1 * sinX + z1 * cosX;
+
+        const scale = fov / (z2 + distance);
+        const px = cx + x1 * scale;
+        const py = cy - y2 * scale; // Invert Y for canvas
+        const depthAlpha = Math.max(0.15, Math.min(1.0, (z2 + 25) / 50));
+
+        return { px, py, z: z2, scale, depthAlpha, idx };
+    });
+
+    // 2. Draw Synaptic Connective Lines
+    ctx.lineWidth = 0.7;
+    brainEdges.forEach(edge => {
+        const p1 = projected[edge.from];
+        const p2 = projected[edge.to];
+        if (!p1 || !p2) return;
+
+        const avgAlpha = (p1.depthAlpha + p2.depthAlpha) * 0.5 * 0.35;
+        ctx.strokeStyle = primaryColor;
+        ctx.globalAlpha = isSpeaking ? avgAlpha * 1.8 : avgAlpha;
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.lineTo(p2.px, p2.py);
+        ctx.stroke();
+    });
+
+    // 3. Draw Traveling Neural Synapse Sparks
+    neuralSparks.forEach(sp => {
+        sp.progress += isSpeaking ? sp.speed * 2.2 : sp.speed;
+        if (sp.progress > 1.0) {
+            sp.progress = 0;
+            sp.edgeIdx = Math.floor(Math.random() * brainEdges.length);
+        }
+        const edge = brainEdges[sp.edgeIdx];
+        if (!edge) return;
+        const p1 = projected[edge.from];
+        const p2 = projected[edge.to];
+        if (!p1 || !p2) return;
+
+        const sx = p1.px + (p2.px - p1.px) * sp.progress;
+        const sy = p1.py + (p2.py - p1.py) * sp.progress;
+
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = sparkColor;
+        ctx.shadowColor = sparkColor;
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+    });
     ctx.shadowBlur = 0;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = auraColor;
-    
-    ctx.beginPath();
-    ctx.arc(cx, cy, 12, avatarAngle, avatarAngle + Math.PI * 0.8);
-    ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, 12, avatarAngle + Math.PI, avatarAngle + Math.PI * 1.8);
-    ctx.stroke();
+    // 4. Draw Dot-Matrix Neural Nodes (Sorted Back-to-Front)
+    projected.sort((a, b) => a.z - b.z);
+    projected.forEach(p => {
+        ctx.globalAlpha = p.depthAlpha;
+        ctx.fillStyle = primaryColor;
+        const rad = Math.max(0.6, (p.scale * 0.9));
+        
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, rad, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-    // 3. Counter-Rotating Inner Ring
+    // 5. Draw Sci-Fi HUD Framing Brackets
+    ctx.globalAlpha = 0.4;
+    ctx.strokeStyle = primaryColor;
     ctx.lineWidth = 1;
-    ctx.strokeStyle = '#ffffff';
+    // Left bracket [
     ctx.beginPath();
-    ctx.arc(cx, cy, 9, -avatarAngle * 1.5, -avatarAngle * 1.5 + Math.PI * 0.5);
+    ctx.moveTo(8, 6);
+    ctx.lineTo(3, 6);
+    ctx.lineTo(3, h - 6);
+    ctx.lineTo(8, h - 6);
+    ctx.stroke();
+    // Right bracket ]
+    ctx.beginPath();
+    ctx.moveTo(w - 8, 6);
+    ctx.lineTo(w - 3, 6);
+    ctx.lineTo(w - 3, h - 6);
+    ctx.lineTo(w - 8, h - 6);
     ctx.stroke();
 
+    ctx.globalAlpha = 1.0;
     requestAnimationFrame(animateAvatar);
 }
 

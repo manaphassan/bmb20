@@ -92,8 +92,38 @@
             </a>
         </div>
 
+        <!-- Sidebar Atmospheric Sensors (Weather) -->
+        <div class="px-2.5 mb-2 font-data-mono text-[9px] flex flex-col gap-1 mt-auto bg-surface-container/70 p-2 rounded mr-2 border border-outline-variant/30 shadow-inner">
+            <div class="text-tertiary uppercase text-[9px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between items-center">
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[10px]" id="wx-icon">partly_cloudy_day</span>
+                    <span>ATMOSPHERIC</span>
+                </span>
+                <span class="text-on-surface font-bold font-mono" id="wx-temp">--&deg;C</span>
+            </div>
+            <div class="flex justify-between text-secondary text-[8px]">
+                <span id="wx-desc" class="truncate max-w-[90px]">TERRA SENSORS</span>
+                <span id="wx-wind" class="text-primary font-mono">--</span>
+            </div>
+            <!-- 3-Day Mini Forecast Strip -->
+            <div class="grid grid-cols-3 gap-1 pt-1 border-t border-outline-variant/20" id="wx-forecast">
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7px] text-secondary font-bold">TODAY</span>
+                    <span class="text-[7px] text-on-surface font-mono">33&deg;/24&deg;</span>
+                </div>
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7px] text-secondary font-bold">TMRW</span>
+                    <span class="text-[7px] text-on-surface font-mono">32&deg;/24&deg;</span>
+                </div>
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7px] text-secondary font-bold">DAY 3</span>
+                    <span class="text-[7px] text-on-surface font-mono">33&deg;/25&deg;</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar System Hardware Telemetry (Moved from Main Grid) -->
-        <div class="px-2.5 mb-2 font-data-mono text-[10px] flex flex-col gap-1 mt-auto bg-surface-container/70 p-2 rounded mr-2 border border-outline-variant/30 shadow-inner">
+        <div class="px-2.5 mb-2 font-data-mono text-[10px] flex flex-col gap-1 bg-surface-container/70 p-2 rounded mr-2 border border-outline-variant/30 shadow-inner">
             <div class="text-secondary uppercase text-[9px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between items-center">
                 <span>SYSTEM TELEMETRY</span>
                 <span class="text-primary text-[8px] font-bold" id="os-upgrades-badge">OPTIMIZED</span>
@@ -117,7 +147,7 @@
             </div>
             <!-- SOC TEMP -->
             <div class="flex flex-col gap-0.5">
-                <div class="flex justify-between text-secondary text-[9px]"><span>TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--°C</span></div>
+                <div class="flex justify-between text-secondary text-[9px]"><span>TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--&deg;C</span></div>
                 <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
                     <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
                 </div>
@@ -213,14 +243,15 @@
              ====================================================================== -->
         <div id="deck-1-container" class="deck-view">
 
-            <!-- Left Main Column: Holographic Avatar Core, Neural Sync & Conversation Bridge -->
+            <!-- Left Main Column: 3D Holographic Dot-Matrix Brain Core & Live Dialogue Console -->
             <div class="bg-surface-container-low p-3 flex flex-col justify-between border-t-4 border-primary rounded-sm overflow-hidden font-data-mono relative h-full">
                 <!-- Meena Persona Header Bar -->
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
-                    <div class="flex items-center gap-2.5">
-                        <!-- Holographic Avatar Core Canvas -->
-                        <div class="relative w-9 h-9 flex items-center justify-center flex-shrink-0">
-                            <canvas id="meena-avatar-canvas" width="36" height="36" class="w-9 h-9 rounded-full shadow-[0_0_12px_#66ccff]"></canvas>
+                    <div class="flex items-center gap-3">
+                        <!-- 3D Holographic Dot-Matrix Brain Core Canvas -->
+                        <div class="relative w-28 h-14 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)]">
+                            <canvas id="meena-avatar-canvas" width="112" height="56" class="w-full h-full"></canvas>
+                            <div class="absolute bottom-0.5 right-1 text-[7px] text-primary/70 font-mono tracking-tighter">AI NEURAL CORE</div>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
@@ -229,9 +260,9 @@
                                 <span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40" id="meena-mood-badge">CHEERFUL</span>
                             </div>
                             <!-- Neural Sync EXP Progress Bar -->
-                            <div class="flex items-center gap-2 mt-0.5">
+                            <div class="flex items-center gap-2 mt-1">
                                 <span class="text-[8px] text-secondary font-bold">SYNC: <strong class="text-on-surface" id="meena-sync-level">Lv. 14</strong></span>
-                                <div class="w-36 bg-surface-dim h-1.5 rounded-full overflow-hidden border border-outline-variant/30">
+                                <div class="w-40 bg-surface-dim h-1.5 rounded-full overflow-hidden border border-outline-variant/30">
                                     <div class="bg-primary h-full w-[65%] transition-all duration-500 shadow-[0_0_8px_#c2c1ff]" id="meena-exp-bar"></div>
                                 </div>
                                 <span class="text-[8px] text-on-surface-variant font-mono" id="meena-exp-text">840 / 1000 EXP</span>
@@ -279,104 +310,61 @@
                 </div>
             </div>
 
-            <!-- Right Column: Atmospheric Sensors, Pi-hole Defense & Structured Knowledge Bank -->
+            <!-- Right Column: Pi-hole Network Defense Shield & Full-Height Knowledge Bank -->
             <div class="flex flex-col gap-2 h-full min-h-0 overflow-hidden font-data-mono">
 
-                <!-- Module 1: Atmospheric Sensors & 3-Day Forecast -->
-                <div class="bg-surface-container p-2.5 flex flex-col justify-between border-t-4 border-tertiary rounded-sm flex-shrink-0">
-                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
-                        <span class="text-xs font-headline-sm text-tertiary font-bold uppercase tracking-wider flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs" id="wx-icon">partly_cloudy_day</span>
-                            <span>TERRA ATMOSPHERIC SENSORS</span>
-                        </span>
-                        <span class="text-xs text-on-surface font-bold font-mono" id="wx-temp">--&deg;C</span>
-                    </div>
-
-                    <!-- Weather Sensor Data -->
-                    <div class="bg-surface-container-lowest p-1.5 rounded border border-outline-variant/30 flex flex-col gap-0.5 text-[9px]">
-                        <div class="flex justify-between text-secondary">
-                            <span>CONDITION:</span>
-                            <strong class="text-tertiary" id="wx-desc">ATMOSPHERIC SENSORS</strong>
-                        </div>
-                        <div class="flex justify-between text-secondary">
-                            <span>HUMIDITY: <strong class="text-on-surface" id="wx-humidity">--%</strong></span>
-                            <span>PRESSURE: <strong class="text-on-surface" id="wx-pressure">-- hPa</strong></span>
-                        </div>
-                        <div class="flex justify-between text-secondary">
-                            <span>SURFACE WIND:</span>
-                            <strong class="text-primary" id="wx-wind">--</strong>
-                        </div>
-                    </div>
-
-                    <!-- 3-Day Forecast Strip -->
-                    <div class="grid grid-cols-3 gap-1 pt-1 mt-1 border-t border-outline-variant/20" id="wx-forecast">
-                        <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                            <span class="text-[8px] text-secondary font-bold">TODAY</span>
-                            <span class="material-symbols-outlined text-xs text-tertiary my-0.5">partly_cloudy_day</span>
-                            <span class="text-[8px] text-on-surface font-mono">33&deg;/24&deg;</span>
-                        </div>
-                        <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                            <span class="text-[8px] text-secondary font-bold">TMRW</span>
-                            <span class="material-symbols-outlined text-xs text-tertiary my-0.5">rainy</span>
-                            <span class="text-[8px] text-on-surface font-mono">32&deg;/24&deg;</span>
-                        </div>
-                        <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                            <span class="text-[8px] text-secondary font-bold">DAY 3</span>
-                            <span class="material-symbols-outlined text-xs text-tertiary my-0.5">wb_sunny</span>
-                            <span class="text-[8px] text-on-surface font-mono">33&deg;/25&deg;</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Module 2: Pi-hole Network Defense Shield -->
+                <!-- Module 1: Pi-hole Network Defense Shield Status & Quick Controls -->
                 <div class="bg-surface-container p-2.5 flex items-center justify-between border-t-4 border-lcars-orange rounded-sm flex-shrink-0">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm text-lcars-orange">security</span>
+                    <div class="flex items-center gap-2.5">
+                        <div class="p-1.5 bg-lcars-orange/20 rounded border border-lcars-orange/40 text-lcars-orange">
+                            <span class="material-symbols-outlined text-base">security</span>
+                        </div>
                         <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-on-surface">PI-HOLE DEFENSE SHIELD</span>
-                            <span class="text-[8px] text-secondary" id="shield-summary-text">DNS FILTERING ACTIVE</span>
+                            <span class="text-xs font-bold text-on-surface">PI-HOLE DEFENSE SHIELD</span>
+                            <span class="text-[9px] text-secondary" id="shield-summary-text">DNS AD-BLOCKING & SECURE MESH OPERATIONAL</span>
                         </div>
                     </div>
-                    <button onclick="openPiholeModal()" class="text-[9px] bg-primary text-black font-bold px-2.5 py-1 rounded hover:bg-primary/80 transition-all shadow-sm">
-                        MANAGE SHIELD
+                    <button onclick="openPiholeModal()" class="text-[9px] bg-primary text-black font-bold px-3 py-1.5 rounded hover:bg-primary/80 transition-all shadow-sm flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">tune</span>
+                        <span>MANAGE SHIELD</span>
                     </button>
                 </div>
 
-                <!-- Module 3: Structured 4-Category Tactical Knowledge Bank (Fills Remaining Height) -->
+                <!-- Module 2: Structured 4-Category Tactical Knowledge Bank (Full Remaining Height) -->
                 <div class="bg-surface-container p-2.5 flex flex-col justify-between border-t-4 border-lcars-gold rounded-sm flex-1 min-h-0 overflow-hidden">
-                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1 flex-shrink-0">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
                         <div class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-sm text-lcars-gold">psychology</span>
-                            <span class="font-headline-sm text-xs text-lcars-gold uppercase font-bold tracking-wider">KNOWLEDGE BANK</span>
+                            <span class="font-headline-sm text-xs text-lcars-gold uppercase font-bold tracking-wider">TAKAHARA KNOWLEDGE BANK</span>
                         </div>
                         <!-- Category Filter Tabs -->
                         <div class="flex items-center gap-1 text-[8px] flex-wrap">
-                            <button onclick="filterKnowledgeCategory('all')" id="kb-filter-all" class="px-1.5 py-0.5 rounded bg-primary text-black font-bold">ALL</button>
-                            <button onclick="filterKnowledgeCategory('facility')" id="kb-filter-facility" class="px-1.5 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">FACILITY</button>
-                            <button onclick="filterKnowledgeCategory('profile')" id="kb-filter-profile" class="px-1.5 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">SENSEI</button>
-                            <button onclick="filterKnowledgeCategory('routines')" id="kb-filter-routines" class="px-1.5 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">ROUTINES</button>
-                            <button onclick="filterKnowledgeCategory('missions')" id="kb-filter-missions" class="px-1.5 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">MISSIONS</button>
-                            <button onclick="clearMemories()" class="px-1.5 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1">RESET</button>
+                            <button onclick="filterKnowledgeCategory('all')" id="kb-filter-all" class="px-2 py-0.5 rounded bg-primary text-black font-bold">ALL</button>
+                            <button onclick="filterKnowledgeCategory('facility')" id="kb-filter-facility" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">FACILITY</button>
+                            <button onclick="filterKnowledgeCategory('profile')" id="kb-filter-profile" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">SENSEI</button>
+                            <button onclick="filterKnowledgeCategory('routines')" id="kb-filter-routines" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">ROUTINES</button>
+                            <button onclick="filterKnowledgeCategory('missions')" id="kb-filter-missions" class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant hover:text-tertiary font-bold">MISSIONS</button>
+                            <button onclick="clearMemories()" class="px-2 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1">RESET</button>
                         </div>
                     </div>
 
                     <!-- Structured Knowledge Cards Stream (Scrollable) -->
-                    <div class="flex-1 grid grid-cols-2 gap-1.5 overflow-y-auto my-1 pr-1 min-h-0" id="knowledge-cards-container">
+                    <div class="flex-1 grid grid-cols-2 gap-2 overflow-y-auto my-1 pr-1 min-h-0" id="knowledge-cards-container">
                         <!-- Dynamically populated by audio.js renderKnowledgeBank() -->
                     </div>
 
                     <!-- Quick Teach Note Bar -->
-                    <div class="flex gap-1 pt-1 border-t border-outline-variant/20 flex-shrink-0">
-                        <select id="teach-category" class="bg-surface-dim border border-outline-variant px-1.5 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
+                    <div class="flex gap-1.5 pt-1.5 border-t border-outline-variant/20 flex-shrink-0">
+                        <select id="teach-category" class="bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
                             <option value="facility">Facility</option>
                             <option value="profile">Sensei</option>
                             <option value="routines">Routine</option>
                             <option value="missions">Mission</option>
                         </select>
                         <input type="text" id="teach-note-input" placeholder="Teach fact (e.g. 'Living room switch is 01')..."
-                               class="flex-1 bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono"
+                               class="flex-1 bg-surface-dim border border-outline-variant px-2.5 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono"
                                onkeydown="if (event.key === 'Enter') executeTeachNote();"/>
-                        <button onclick="executeTeachNote()" class="bg-tertiary text-black font-bold px-2 py-1 rounded text-[9px] hover:bg-tertiary/80 transition-colors flex items-center gap-0.5 shadow-sm">
+                        <button onclick="executeTeachNote()" class="bg-tertiary text-black font-bold px-2.5 py-1 rounded text-[9px] hover:bg-tertiary/80 transition-colors flex items-center gap-0.5 shadow-sm">
                             <span class="material-symbols-outlined text-[11px]">add_circle</span>
                             <span>TEACH (+25 EXP)</span>
                         </button>

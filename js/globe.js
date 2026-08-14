@@ -192,7 +192,7 @@ function updateISSMeshPosition() {
 function updateISSHUD() {
     const badge = document.getElementById('iss-hud-badge');
     if (badge) {
-        badge.innerText = `ISS: ${issData.lat.toFixed(1)}°, ${issData.lon.toFixed(1)}° // ${issData.vel} KM/H`;
+        badge.innerText = `ISS: ${issData.lat.toFixed(1)}\u00B0, ${issData.lon.toFixed(1)}\u00B0 // ${issData.vel} KM/H`;
     }
 }
 
@@ -488,7 +488,7 @@ function switchHologramView(mode) {
             btnPlanet.classList.remove('bg-surface-bright', 'text-on-surface-variant');
         }
         if (subtitle) subtitle.innerText = "TARGET: SECTOR 001 [MALAYSIA]";
-        if (coords) coords.innerText = "GEO-COORD: 02° 48' N, 101° 30' E // INCL: 23.4°";
+        if (coords) coords.innerText = "GEO-COORD: 02\u00B0 48' N, 101\u00B0 30' E // INCL: 23.4\u00B0";
         if (window.speakComputerVoice) window.speakComputerVoice("Displaying terrestrial sector telemetry, sir.");
     } else if (mode === 'solar') {
         if (btnSystem) {
@@ -496,7 +496,7 @@ function switchHologramView(mode) {
             btnSystem.classList.remove('bg-surface-bright', 'text-on-surface-variant');
         }
         if (subtitle) subtitle.innerText = "TARGET: SOL SYSTEM [8 PLANETS]";
-        if (coords) coords.innerText = "HELIOCENTRIC: 0.00 AU // SOLAR FLUX: 1361 W/M²";
+        if (coords) coords.innerText = "HELIOCENTRIC: 0.00 AU // SOLAR FLUX: 1361 W/M\u00B2";
         if (window.speakComputerVoice) window.speakComputerVoice("Sol system orbital trajectories online, sir.");
     } else if (mode === 'galaxy') {
         if (btnGalaxy) {
@@ -504,7 +504,7 @@ function switchHologramView(mode) {
             btnGalaxy.classList.remove('bg-surface-bright', 'text-on-surface-variant');
         }
         if (subtitle) subtitle.innerText = "TARGET: MILKY WAY [ALPHA / BETA QUADRANTS]";
-        if (coords) coords.innerText = "GALACTIC: RA 17h 45m / DEC -29° 00' // QUAD: ALPHA";
+        if (coords) coords.innerText = "GALACTIC: RA 17h 45m / DEC -29\u00B0 00' // QUAD: ALPHA";
         if (window.speakComputerVoice) window.speakComputerVoice("Milky Way galactic chart rendered, sir.");
     }
 
@@ -607,7 +607,7 @@ function updateCallouts() {
 
     if (currentHologramView === 'earth') {
         if (beaconMesh) {
-            renderCallout(beaconMesh, "TERRA BASE", "SECTOR 001 [02.81°N, 101.50°E]", 30, -22, 40, 0);
+            renderCallout(beaconMesh, "TERRA BASE", "SECTOR 001 [02.81\u00B0N, 101.50\u00B0E]", 30, -22, 40, 0);
         }
         if (satelliteMesh) {
             renderCallout(satelliteMesh, "SAT-BMB20", "ALT: 420 KM // GEO-SYNC", -25, 20, -35, 0);
