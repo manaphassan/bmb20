@@ -2210,14 +2210,13 @@ function synthesizeOrganicThought(query, bank, cfg, history) {
 
     // 1. Greetings & Arrival
     if (/^(hi|hello|hey|hey there|yo|sup|whats up|howdy|good morning|good afternoon|good evening|good night)$/i.test(q)) {
-        if (hour >= 0 && hour < 5) {
-            return `Hey Sensei! It's pretty late at ${hour}:00 AM, but I'm fully awake keeping watch on our station. What's on your mind?`;
-        } else if (hour >= 5 && hour < 12) {
-            return `Morning Sensei! Hope your day is off to a great start. All our telemetry streams look completely green. Ready when you are!`;
-        } else if (hour >= 18 && hour < 23) {
-            return `Hey there, Sensei! Good evening. Just watching the radar and keeping the CPU cool at ${temp}. How has your day been?`;
-        }
-        return `Hey Sensei! Always great to hear from you. What are we exploring or working on right now?`;
+        const greetings = [
+            `Hey Sensei! Always great to hear from you. What are we exploring or working on right now?`,
+            `Hello Sensei! All stations are green and telemetry is nominal. What's on your mind?`,
+            `Hey there, Sensei! Standing by and ready for our next mission.`,
+            `Yo Sensei! Operations are running smoothly. What shall we tackle today?`
+        ];
+        return pick(greetings);
     }
 
     // 2. Personal State & What are you doing
@@ -2512,21 +2511,15 @@ function generateProceduralLocalResponse(query, bank, cfg) {
         return `${pick(openers)} ${pick(punchlines)}`;
     }
 
-    // 7. Topic: Time of Day, Late Night & Working Late
-    if (q.includes('late') || q.includes('night') || q.includes('sleep') || q.includes('tired') || q.includes('work late') || q.includes('working late') || (hour >= 0 && hour < 5 && (q.includes('time') || q.includes('hello') || q.includes('hi')))) {
+    // 7. Topic: Rest & Recharging (Only when explicitly asked)
+    if (q.includes('good night') || q.includes('sleep') || q.includes('take a break') || q.includes('rest') || q.includes('going to bed')) {
+        setMeenaMood('CARING');
         const openers = [
-            `It's currently ${hour}:00 hours, Sensei. While my neural cores never sleep, human cognitive retention drops significantly past midnight.`,
-            `Late night tactical session confirmed. Our Pi-hole shield and Sentinel daemon are keeping guard while you work.`,
-            `Burning the midnight oil, Sensei? Your dedication to Takahara Academy is undeniably impressive.`,
-            `Circadian neuroscience indicates that memory consolidation requires REM sleep cycles, Sensei.`
+            `Understood, Sensei. I'll maintain full background surveillance and telemetry logging while you rest.`,
+            `Rest well, Sensei! All our system daemons and Pi-hole barriers are completely secure.`,
+            `Have a great rest, Sensei. We'll continue our engineering milestones whenever you're ready.`
         ];
-        const punchlines = [
-            `Just make sure to stay hydrated so your brain stays as sharp as mine, Sensei.`,
-            `Don't worry, I'll watch your six and log the telemetry while you finish up.`,
-            `Remember that even the greatest minds require biological recharge cycles.`,
-            `I'll be right here on the bridge whenever you're ready to continue.`
-        ];
-        return `${pick(openers)} ${pick(punchlines)}`;
+        return pick(openers);
     }
 
     // 8. Topic: Identity, Designation & Role
