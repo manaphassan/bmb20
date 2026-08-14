@@ -1754,6 +1754,33 @@ function initEarth() {
     window.solarSystemGroup = solarSystemGroup;
     window.solarSystemGroup.visible = false; // Hide in minimized view
 
+    // ☀️ 3D Glowing Central Sun Anchor for Maximized Solar System View
+    const sunGroup = new THREE.Group();
+    solarSystemGroup.add(sunGroup);
+    window.sunGroup = sunGroup;
+
+    // Sun Core Sphere (Golden Particle Sun Core)
+    const sunDots = 1800;
+    const sunGeo = new THREE.BufferGeometry();
+    const sunPos = new Float32Array(sunDots * 3);
+    for (let i = 0; i < sunDots; i++) {
+        const phi = Math.acos(-1 + (2 * i) / sunDots);
+        const theta = Math.sqrt(sunDots * Math.PI) * phi;
+        sunPos[i * 3] = 0.65 * Math.cos(theta) * Math.sin(phi);
+        sunPos[i * 3 + 1] = 0.65 * Math.sin(theta) * Math.sin(phi);
+        sunPos[i * 3 + 2] = 0.65 * Math.cos(phi);
+    }
+    sunGeo.setAttribute('position', new THREE.BufferAttribute(sunPos, 3));
+    const sunMat = new THREE.PointsMaterial({ size: 0.03, color: 0xffe253, transparent: true, opacity: 0.95 });
+    const sunPoints = new THREE.Points(sunGeo, sunMat);
+    sunGroup.add(sunPoints);
+
+    // Sun Solar Corona Glow Aura
+    const coronaGeo = new THREE.SphereGeometry(0.85, 32, 32);
+    const coronaMat = new THREE.MeshBasicMaterial({ color: 0xffa726, transparent: true, opacity: 0.35, side: THREE.BackSide });
+    const coronaMesh = new THREE.Mesh(coronaGeo, coronaMat);
+    sunGroup.add(coronaMesh);
+
     window.solarPlanets = [];
 
     // Helper to generate a Dot-Matrix Particle Sphere planet matching Earth's style
@@ -1811,7 +1838,27 @@ function initEarth() {
             planetPoints.add(saturnRings);
         }
 
+        // Add Orbiting Moon for Earth
+        if (name === 'Earth') {
+            const moonDots = 200;
+            const mGeo = new THREE.BufferGeometry();
+            const mPos = new Float32Array(moonDots * 3);
+            for (let i = 0; i < moonDots; i++) {
+                const phi = Math.acos(-1 + (2 * i) / moonDots);
+                const theta = Math.sqrt(moonDots * Math.PI) * phi;
+                mPos[i * 3] = 0.05 * Math.cos(theta) * Math.sin(phi);
+                mPos[i * 3 + 1] = 0.05 * Math.sin(theta) * Math.sin(phi);
+                mPos[i * 3 + 2] = 0.05 * Math.cos(phi);
+            }
+            mGeo.setAttribute('position', new THREE.BufferAttribute(mPos, 3));
+            const mMat = new THREE.PointsMaterial({ size: 0.018, color: 0xffffff, transparent: true, opacity: 0.9 });
+            const solarMoonMesh = new THREE.Points(mGeo, mMat);
+            planetPoints.add(solarMoonMesh);
+            planetPoints.userData.solarMoonMesh = solarMoonMesh;
+        }
+
         const planetObj = {
+            name: name,
             mesh: planetPoints,
             orbitDist: orbitDist,
             speed: speed,
@@ -1821,14 +1868,15 @@ function initEarth() {
         window.solarPlanets.push(planetObj);
     }
 
-    // Create 8 Dot-Matrix Solar System Planets
-    createDotMatrixPlanet('Mercury', 0xd1d5db, 0.08, 2.2, 0.022); // Silver/Grey
-    createDotMatrixPlanet('Venus',   0xffca28, 0.13, 3.1, 0.016); // Golden Amber
-    createDotMatrixPlanet('Mars',    0xff5252, 0.11, 4.3, 0.011); // Rust Red
-    createDotMatrixPlanet('Jupiter', 0xffa726, 0.28, 5.8, 0.006); // Giant Orange
-    createDotMatrixPlanet('Saturn',  0xffe082, 0.24, 7.3, 0.004); // Ringed Gold
-    createDotMatrixPlanet('Uranus',  0x26c6da, 0.18, 8.8, 0.0028); // Cyan
-    createDotMatrixPlanet('Neptune', 0x42a5f5, 0.17, 10.2, 0.002); // Deep Blue
+    // Create 8 Dot-Matrix Solar System Planets Orbiting the Sun
+    createDotMatrixPlanet('Mercury', 0xd1d5db, 0.08, 1.4, 0.024); // Silver/Grey
+    createDotMatrixPlanet('Venus',   0xffca28, 0.13, 2.2, 0.018); // Golden Amber
+    createDotMatrixPlanet('Earth',   0x42a5f5, 0.16, 3.4, 0.014); // Blue Earth
+    createDotMatrixPlanet('Mars',    0xff5252, 0.11, 4.4, 0.010); // Rust Red
+    createDotMatrixPlanet('Jupiter', 0xffa726, 0.32, 5.8, 0.006); // Giant Orange
+    createDotMatrixPlanet('Saturn',  0xffe082, 0.26, 7.4, 0.004); // Ringed Gold
+    createDotMatrixPlanet('Uranus',  0x26c6da, 0.20, 9.0, 0.0028); // Cyan
+    createDotMatrixPlanet('Neptune', 0x42a5f5, 0.19, 10.6, 0.002); // Deep Blue
 
     // Orbiting Dot-Matrix Moon around Earth
     const moonDots = 250;
@@ -2036,13 +2084,24 @@ function initEarth() {
             });
         }
 
-        // Animate Solar System Planets in Orbit
+        // Rotate Sun Anchor in Maximized View
+        if (window.sunGroup) {
+            window.sunGroup.rotation.y += 0.005;
+        }
+
+        // Animate Solar System Planets & Moon Orbiting Sun Anchor
         if (window.solarPlanets) {
             window.solarPlanets.forEach(p => {
                 p.angle += p.speed;
                 p.mesh.position.x = Math.cos(p.angle) * p.orbitDist;
                 p.mesh.position.z = Math.sin(p.angle) * p.orbitDist;
                 p.mesh.rotation.y += 0.02;
+
+                if (p.name === 'Earth' && p.mesh.userData.solarMoonMesh) {
+                    p.mesh.userData.moonAngle = (p.mesh.userData.moonAngle || 0) + 0.04;
+                    p.mesh.userData.solarMoonMesh.position.x = Math.cos(p.mesh.userData.moonAngle) * 0.35;
+                    p.mesh.userData.solarMoonMesh.position.z = Math.sin(p.mesh.userData.moonAngle) * 0.35;
+                }
             });
         }
 
@@ -2092,10 +2151,11 @@ function openGlobeModal() {
     modal.classList.remove('hidden');
     playSound('beep2');
 
-    // Reveal Full Solar System & Milky Way Galaxy in Maximized View
+    // Hide standalone Earth globe, reveal central Sun & 8 Orbiting Planets + Milky Way Galaxy
+    if (window.globeGroup) window.globeGroup.visible = false;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
-    window.targetCamZ = 7.5; // Zoom out to show full orbiting system
+    window.targetCamZ = 8.5; // Zoom out to show full Sun-centered Solar System
 
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
@@ -2122,7 +2182,8 @@ function closeGlobeModal() {
     modal.classList.add('hidden');
     playSound('beep1');
 
-    // Hide Solar System & Milky Way in Minimized Dashboard View (Earth Globe Only)
+    // Restore standalone Earth globe for Minimized View, hide Sun & outer Solar System
+    if (window.globeGroup) window.globeGroup.visible = true;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
     window.targetCamZ = 2.4; // Focus closely on Earth world map globe
