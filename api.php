@@ -65,17 +65,24 @@ function get_uptime_formatted() {
 
 function get_geoip_info() {
     $cache_file = '/tmp/geoip_cache.json';
-    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 3600) {
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 1800) {
         $cached = @file_get_contents($cache_file);
         if ($cached) {
             $data = @json_decode($cached, true);
-            if ($data && isset($data['latitude'])) return $data;
+            if ($data && !empty($data['latitude']) && !empty($data['ip']) && $data['ip'] !== '192.168.0.100') {
+                return $data;
+            }
         }
     }
 
-    // Server-Side GeoIP Lookup via ipwho.is (Bypasses HTTP/CORS/AdBlocker restrictions)
-    $ctx = stream_context_create(['http' => ['timeout' => 3, 'header' => "User-Agent: DietPi-BMB20/1.0\r\n"]]);
-    $raw = @file_get_contents('https://ipwho.is/', false, $ctx);
+    $ctx = stream_context_create(['http' => ['timeout' => 4, 'header' => "User-Agent: DietPi-BMB20/1.0\r\n"]]);
+    
+    // 1. Query ipify for server's real Public IP
+    $public_ip = trim(@file_get_contents('https://api.ipify.org', false, $ctx));
+    
+    // 2. Resolve GeoIP coordinates via ipwho.is
+    $url = $public_ip ? "https://ipwho.is/{$public_ip}" : "https://ipwho.is/";
+    $raw = @file_get_contents($url, false, $ctx);
     if ($raw) {
         $json = @json_decode($raw, true);
         if ($json && !empty($json['success']) && isset($json['latitude'])) {
@@ -84,20 +91,20 @@ function get_geoip_info() {
                 'country' => strtoupper($json['country_code'] ?? $json['country'] ?? 'MY'),
                 'latitude' => floatval($json['latitude']),
                 'longitude' => floatval($json['longitude']),
-                'ip' => $json['ip'] ?? $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
+                'ip' => $json['ip'] ?? $public_ip ?? 'LOCKED'
             ];
             @file_put_contents($cache_file, json_encode($geo));
             return $geo;
         }
     }
 
-    // Robust Fallback GeoIP Coordinates
+    // Default Fallback
     return [
         'city' => 'KUALA LUMPUR',
         'country' => 'MY',
         'latitude' => 3.1390,
         'longitude' => 101.6869,
-        'ip' => $_SERVER['SERVER_ADDR'] ?? '192.168.0.100'
+        'ip' => $public_ip ?: '202.186.1.1'
     ];
 }
 

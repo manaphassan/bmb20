@@ -837,28 +837,37 @@ async function fetchRealtimeGeoIP() {
     const geoBadge = document.getElementById('geo-city-country');
     if (geoBadge) geoBadge.innerText = "LOCKING POSITION...";
 
-    // 1. Try High-Accuracy Browser HTML5 Geolocation first if on secure HTTPS
-    if (window.location.protocol === 'https:' && "geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                userGeoLocation.lat = lat;
-                userGeoLocation.lon = lon;
-                updateGeoIPDisplay();
-                updateGlobeBeacon();
-            },
-            (err) => {
-                fetchTelemetry();
-                fetchGeoIPCascade();
-            },
-            { enableHighAccuracy: true, timeout: 4000, maximumAge: 10000 }
-        );
-    } else {
-        // Query server-side GeoIP directly from DietPi PHP backend
-        fetchTelemetry();
-        fetchGeoIPCascade();
-    }
+    // 1. Query client's real Public IP via ipify CORS endpoint
+    try {
+        const ipRes = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+        if (ipRes.ok) {
+            const ipData = await ipRes.json();
+            const clientIP = ipData.ip;
+            userGeoLocation.ip = clientIP;
+
+            // 2. Resolve GeoIP for this Public IP
+            const geoRes = await fetch(`https://ipwho.is/${clientIP}`, { cache: 'no-store' });
+            if (geoRes.ok) {
+                const data = await geoRes.json();
+                if (data.success !== false && data.latitude && data.longitude) {
+                    userGeoLocation = {
+                        lat: parseFloat(data.latitude),
+                        lon: parseFloat(data.longitude),
+                        city: (data.city || "KUALA LUMPUR").toUpperCase(),
+                        country: (data.country_code || data.country || "MY").toUpperCase(),
+                        ip: clientIP
+                    };
+                    window.isGeoIPLocked = true;
+                    updateGeoIPDisplay();
+                    updateGlobeBeacon();
+                    return;
+                }
+            }
+        }
+    } catch(e) {}
+
+    // Fallback: Query server-side GeoIP payload from api.php
+    fetchGeoIPCascade();
 }
 
 async function fetchGeoIPCascade() {
@@ -938,7 +947,7 @@ async function fetchTelemetry() {
         if (res.ok) {
             const data = await res.json();
             updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
-            if (data.geoip && data.geoip.latitude) {
+            if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
                 userGeoLocation = {
                     lat: parseFloat(data.geoip.latitude),
                     lon: parseFloat(data.geoip.longitude),
