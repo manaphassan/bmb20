@@ -1999,8 +1999,8 @@ function initEarth() {
         else if (view === 'galaxy') window.targetCamZ = 12.0;
     };
 
-    // High-Precision Real Earth Continent Dot Matrix
-    const count = 25000;
+    // Futuristic Abstract 3D Dot-Matrix World Map Sphere for Minimized View
+    const count = 30000;
     const dotGeo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
@@ -2016,17 +2016,28 @@ function initEarth() {
         pos[i * 3 + 1] = Math.sin(theta) * Math.sin(phi);
         pos[i * 3 + 2] = Math.cos(phi);
 
-        // Sample exact pixel from 2D Earth Map
+        // Abstract Dot-Matrix World Map Styling
         if (isRealEarthLand(lat, lon)) {
-            // Bright Gold / Nemesis Yellow Landmass
-            cols[i * 3] = 1.0;
-            cols[i * 3 + 1] = 0.85;
-            cols[i * 3 + 2] = 0.32;
+            // Futuristic Electric Cyan / Amber Gold Gradient Landmass Points
+            const landGradient = (lat + 90) / 180;
+            cols[i * 3] = 0.0 + landGradient * 1.0;      // Red
+            cols[i * 3 + 1] = 0.95 - landGradient * 0.1; // Green
+            cols[i * 3 + 2] = 0.83 - landGradient * 0.5; // Blue
         } else {
-            // Faint Ocean Grid
-            cols[i * 3] = 0.12;
-            cols[i * 3 + 1] = 0.25;
-            cols[i * 3 + 2] = 0.48;
+            // Abstract Latitude/Longitude Coordinate Grid Points for Oceans
+            const isLatGrid = Math.abs(lat % 15) < 0.6;
+            const isLonGrid = Math.abs(lon % 15) < 0.6;
+            if (isLatGrid || isLonGrid) {
+                // Neon Indigo Grid Lines
+                cols[i * 3] = 0.23;
+                cols[i * 3 + 1] = 0.45;
+                cols[i * 3 + 2] = 0.95;
+            } else {
+                // Dim Ocean Space Dots
+                cols[i * 3] = 0.05;
+                cols[i * 3 + 1] = 0.12;
+                cols[i * 3 + 2] = 0.28;
+            }
         }
     }
 
@@ -2034,14 +2045,27 @@ function initEarth() {
     dotGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
     const dotMat = new THREE.PointsMaterial({
-        size: 0.02,
+        size: 0.022,
         vertexColors: true,
         transparent: true,
-        opacity: 0.88
+        opacity: 0.92
     });
 
     const earthPoints = new THREE.Points(dotGeo, dotMat);
     globeGroup.add(earthPoints);
+
+    // 3D Abstract Holographic Coordinate Grid Rings around Abstract Earth
+    const eqRingGeo = new THREE.RingGeometry(1.01, 1.025, 96);
+    const eqRingMat = new THREE.MeshBasicMaterial({ color: 0x00f5d4, side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
+    const eqRing = new THREE.Mesh(eqRingGeo, eqRingMat);
+    eqRing.rotation.x = Math.PI / 2;
+    globeGroup.add(eqRing);
+
+    const pmRingGeo = new THREE.RingGeometry(1.01, 1.025, 96);
+    const pmRingMat = new THREE.MeshBasicMaterial({ color: 0xffca28, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+    const pmRing = new THREE.Mesh(pmRingGeo, pmRingMat);
+    pmRing.rotation.y = Math.PI / 2;
+    globeGroup.add(pmRing);
 
     updateGlobeBeacon();
 
