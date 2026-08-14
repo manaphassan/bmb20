@@ -33,6 +33,150 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    $calConfigFile = file_exists('/var/www/html/calendar_config.json') ? '/var/www/html/calendar_config.json' : (file_exists('/var/www/calendar_config.json') ? '/var/www/calendar_config.json' : '/var/www/html/calendar_config.json');
+
+    if ($action === 'get_calendar_config') {
+        if (file_exists($calConfigFile)) {
+            echo file_get_contents($calConfigFile);
+        } else {
+            echo json_encode(['ical_url' => '', 'enabled' => false]);
+        }
+        exit;
+    }
+
+    if ($action === 'save_calendar_config') {
+        $raw = file_get_contents('php://input');
+        if ($raw) {
+            $decoded = json_decode($raw, true);
+            if ($decoded !== null) {
+                file_put_contents($calConfigFile, json_encode($decoded, JSON_PRETTY_PRINT));
+                @chmod($calConfigFile, 0664);
+                echo json_encode(['status' => 'success']);
+                exit;
+            }
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
+        exit;
+    }
+
+    if ($action === 'get_calendar_events') {
+        $icalUrl = '';
+        if (file_exists($calConfigFile)) {
+            $cfg = json_decode(file_get_contents($calConfigFile), true);
+            $icalUrl = $cfg['ical_url'] ?? '';
+        }
+        if (isset($_GET['ical_url']) && !empty($_GET['ical_url'])) {
+            $icalUrl = trim($_GET['ical_url']);
+        }
+
+        if (empty($icalUrl)) {
+            echo json_encode([
+                'status' => 'unconfigured',
+                'events_today' => [],
+                'events_upcoming' => [],
+                'message' => 'No Google Calendar iCal link configured yet.'
+            ]);
+            exit;
+        }
+
+        $opts = [
+            'http' => [
+                'method' => 'GET',
+                'header' => "User-Agent: Meena-DietPi-Command-Center/2.5\r\n",
+                'timeout' => 6
+            ]
+        ];
+        $context = stream_context_create($opts);
+        $icsData = @file_get_contents($icalUrl, false, $context);
+
+        if (!$icsData) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Unable to fetch iCal feed from Google Calendar. Check URL.'
+            ]);
+            exit;
+        }
+
+        // Parse VEVENT items
+        $events = [];
+        $lines = preg_split("/\r\n|\n|\r/", $icsData);
+        $inEvent = false;
+        $currEvent = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === 'BEGIN:VEVENT') {
+                $inEvent = true;
+                $currEvent = [];
+                continue;
+            }
+            if ($line === 'END:VEVENT') {
+                $inEvent = false;
+                if (!empty($currEvent['summary'])) {
+                    $events[] = $currEvent;
+                }
+                continue;
+            }
+            if ($inEvent) {
+                if (preg_match('/^SUMMARY:(.+)$/i', $line, $m)) {
+                    $currEvent['summary'] = trim($m[1]);
+                } elseif (preg_match('/^DESCRIPTION:(.+)$/i', $line, $m)) {
+                    $currEvent['description'] = trim($m[1]);
+                } elseif (preg_match('/^LOCATION:(.+)$/i', $line, $m)) {
+                    $currEvent['location'] = trim($m[1]);
+                } elseif (preg_match('/^DTSTART(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
+                    $currEvent['start_raw'] = $m[1];
+                    $currEvent['start_ts'] = strtotime($m[1]);
+                } elseif (preg_match('/^DTEND(?:;[^:]+)?:(\d{8}(?:T\d{6}Z?)?)/i', $line, $m)) {
+                    $currEvent['end_raw'] = $m[1];
+                    $currEvent['end_ts'] = strtotime($m[1]);
+                }
+            }
+        }
+
+        // Sort by start timestamp
+        usort($events, function($a, $b) {
+            return ($a['start_ts'] ?? 0) - ($b['start_ts'] ?? 0);
+        });
+
+        $now = time();
+        $todayStart = strtotime('today midnight');
+        $todayEnd = strtotime('tomorrow midnight') - 1;
+        $weekEnd = strtotime('+7 days midnight');
+
+        $eventsToday = [];
+        $eventsUpcoming = [];
+
+        foreach ($events as $ev) {
+            $ts = $ev['start_ts'] ?? 0;
+            if ($ts >= $todayStart && $ts <= $todayEnd) {
+                $eventsToday[] = [
+                    'summary' => $ev['summary'] ?? 'Event',
+                    'time' => date('g:i A', $ts),
+                    'timestamp' => $ts,
+                    'location' => $ev['location'] ?? ''
+                ];
+            } elseif ($ts > $todayEnd && $ts <= $weekEnd) {
+                $eventsUpcoming[] = [
+                    'summary' => $ev['summary'] ?? 'Event',
+                    'date' => date('l, M j', $ts),
+                    'time' => date('g:i A', $ts),
+                    'timestamp' => $ts,
+                    'location' => $ev['location'] ?? ''
+                ];
+            }
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'count_today' => count($eventsToday),
+            'events_today' => $eventsToday,
+            'events_upcoming' => array_slice($eventsUpcoming, 0, 8),
+            'last_sync' => date('H:i:s')
+        ]);
+        exit;
+    }
+
     if ($action === 'purge_ram') {
         @shell_exec('sync; sudo /sbin/sysctl -w vm.drop_caches=3 2>/dev/null');
         echo json_encode(['status' => 'success', 'result' => 'Linux kernel page cache & buffer memory purged successfully.']);

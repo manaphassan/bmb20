@@ -773,6 +773,9 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmdToEvaluate.includes('hardware') || cmdToEvaluate.includes('cpu clock') || cmdToEvaluate.includes('undervoltage') || cmdToEvaluate.includes('voltage') || cmdToEvaluate.includes('throttle')) {
         addMeenaEXP(20, 'Hardware diagnostics');
         speakVerbalHardwareReport();
+    } else if (cmdToEvaluate.includes('calendar') || cmdToEvaluate.includes('schedule') || cmdToEvaluate.includes('agenda') || cmdToEvaluate.includes('events today') || cmdToEvaluate.includes('my events') || cmdToEvaluate.includes('appointments') || cmdToEvaluate.includes('meetings') || cmdToEvaluate.includes('what do i have today') || cmdToEvaluate.includes('what is my schedule')) {
+        addMeenaEXP(15, 'Chrono Calendar check');
+        speakCalendarSchedule();
     } else if (cmdToEvaluate.includes('briefing') || cmdToEvaluate.includes('morning report') || cmdToEvaluate.includes('daily briefing')) {
         triggerMorningBriefing();
     } else if (cmdToEvaluate.includes('profile') || cmdToEvaluate.includes('dossier') || cmdToEvaluate.includes('who are you') || cmdToEvaluate.includes('designation')) {
@@ -2905,13 +2908,23 @@ async function speakVerbalHardwareReport() {
     speakComputerVoice("Raspberry Pi hardware core is running at full capacity, Sensei! All thermal and voltage parameters are nominal!");
 }
 
-function triggerMorningBriefing() {
+async function triggerMorningBriefing() {
     const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31';
     const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'partly cloudy';
     const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : '37.6% blocked';
     const uptime = document.getElementById('uptime-val') ? document.getElementById('uptime-val').innerText : 'online';
 
-    outputMeenaDialogue(`Good morning, Sensei! Welcome to Takahara Academy Command Bridge! System uptime is ${uptime}. Weather is ${desc} at ${temp} degrees Celsius. Pi-hole defense shield is active at ${pihole}. All systems standing by for your command!`);
+    let calNote = "Your calendar schedule is clear today.";
+    try {
+        const calData = await fetchCalendarEvents();
+        if (calData && calData.events_today && calData.events_today.length > 0) {
+            const count = calData.events_today.length;
+            const items = calData.events_today.map(e => `${e.summary} at ${e.time}`).join(', ');
+            calNote = `You have ${count} ${count === 1 ? 'event' : 'events'} scheduled today: ${items}.`;
+        }
+    } catch(e) {}
+
+    outputMeenaDialogue(`Good morning, Sensei! System uptime is ${uptime}. Weather is ${desc} at ${temp}°C. Pi-hole defense is ${pihole}. ${calNote} Standing by for your orders!`);
 }
 
 /**
@@ -2959,6 +2972,149 @@ function closeMeenaProfileModal() {
     }
 }
 
+/**
+ * ==========================================================================
+ * GOOGLE CALENDAR / CHRONO SCHEDULE SYNCHRONIZER
+ * ==========================================================================
+ */
+let cachedCalendarData = null;
+
+async function fetchCalendarEvents(forceRefresh = false) {
+    const todayList = document.getElementById('cal-today-list');
+    const upcomingList = document.getElementById('cal-upcoming-list');
+    const countBadge = document.getElementById('cal-today-count');
+    const urlInput = document.getElementById('cal-ical-url-input');
+
+    try {
+        // Load stored iCal config first
+        const cfgRes = await fetch('api.php?action=get_calendar_config');
+        if (cfgRes.ok) {
+            const cfgData = await cfgRes.json();
+            if (urlInput && cfgData.ical_url) {
+                urlInput.value = cfgData.ical_url;
+            }
+        }
+
+        const res = await fetch('api.php?action=get_calendar_events');
+        if (res.ok) {
+            const data = await res.json();
+            cachedCalendarData = data;
+
+            if (data.status === 'unconfigured') {
+                if (todayList) {
+                    todayList.innerHTML = `<div class="text-lcars-gold text-[10px] p-2 bg-lcars-gold/10 rounded border border-lcars-gold/30">Google Calendar iCal link not configured yet. Paste your secret .ics link below to sync your schedule!</div>`;
+                }
+                if (countBadge) countBadge.innerText = '0';
+                return data;
+            }
+
+            if (data.status === 'error') {
+                if (todayList) {
+                    todayList.innerHTML = `<div class="text-error text-[10px] p-2 bg-error/10 rounded border border-error/30">${data.message || 'Error fetching calendar'}</div>`;
+                }
+                return data;
+            }
+
+            // Render Today's Events
+            if (countBadge) countBadge.innerText = data.count_today || '0';
+            if (todayList) {
+                if (!data.events_today || data.events_today.length === 0) {
+                    todayList.innerHTML = `<div class="text-secondary text-[10px] italic py-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-xs text-primary">check_circle</span><span>No scheduled events today. All clear, Sensei!</span></div>`;
+                } else {
+                    todayList.innerHTML = data.events_today.map(ev => `
+                        <div class="flex items-center justify-between p-2 rounded bg-surface-container-high border-l-2 border-primary">
+                            <div class="flex flex-col">
+                                <span class="text-on-surface font-bold text-xs">${ev.summary}</span>
+                                ${ev.location ? `<span class="text-[8px] text-tertiary">📍 ${ev.location}</span>` : ''}
+                            </div>
+                            <span class="text-primary font-mono text-[10px] font-bold bg-primary/10 px-1.5 py-0.5 rounded">${ev.time}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Render Upcoming Events
+            if (upcomingList) {
+                if (!data.events_upcoming || data.events_upcoming.length === 0) {
+                    upcomingList.innerHTML = `<div class="text-secondary text-[10px] italic py-1">No upcoming events this week.</div>`;
+                } else {
+                    upcomingList.innerHTML = data.events_upcoming.map(ev => `
+                        <div class="flex items-center justify-between p-1.5 rounded bg-surface-container border-l-2 border-secondary/60 text-[9px]">
+                            <span class="text-on-surface font-semibold">${ev.summary}</span>
+                            <span class="text-secondary font-mono">${ev.date} @ ${ev.time}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            return data;
+        }
+    } catch (e) {
+        console.warn('Calendar sync error:', e);
+    }
+}
+
+async function saveCalendarSyncConfig() {
+    const input = document.getElementById('cal-ical-url-input');
+    const url = input ? input.value.trim() : '';
+
+    if (!url) {
+        alert('Please paste a valid Google Calendar Secret iCal URL (.ics)');
+        return;
+    }
+
+    try {
+        const res = await fetch('api.php?action=save_calendar_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ical_url: url, enabled: true, updated_at: new Date().toISOString() })
+        });
+        if (res.ok) {
+            if (window.playSound) window.playSound('beep2');
+            speakComputerVoice("Google Calendar sync link saved successfully, Sensei. Fetching your agenda now.");
+            await fetchCalendarEvents(true);
+        }
+    } catch (e) {
+        alert('Failed to save calendar config');
+    }
+}
+
+function openCalendarModal() {
+    const modal = document.getElementById('calendar-schedule-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        fetchCalendarEvents();
+        if (window.playSound) window.playSound('door');
+    }
+}
+
+function closeCalendarModal() {
+    const modal = document.getElementById('calendar-schedule-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        if (window.playSound) window.playSound('beep1');
+    }
+}
+
+async function speakCalendarSchedule() {
+    const data = await fetchCalendarEvents(true);
+    if (!data || data.status === 'unconfigured') {
+        openCalendarModal();
+        speakComputerVoice("Google Calendar is not synced yet, Sensei. Please paste your secret iCal address into the Chrono Schedule modal.");
+        return;
+    }
+
+    if (data.events_today && data.events_today.length > 0) {
+        const count = data.events_today.length;
+        const eventSummaries = data.events_today.map(e => `${e.summary} at ${e.time}`).join(", and ");
+        speakComputerVoice(`Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${eventSummaries}.`);
+    } else {
+        speakComputerVoice("Sensei, your calendar is completely clear for today! No scheduled appointments found.");
+    }
+}
+
 // Window Global Exports
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
@@ -2967,6 +3123,11 @@ window.openVoiceModal = openVoiceModal;
 window.closeVoiceModal = closeVoiceModal;
 window.openMeenaProfileModal = openMeenaProfileModal;
 window.closeMeenaProfileModal = closeMeenaProfileModal;
+window.openCalendarModal = openCalendarModal;
+window.closeCalendarModal = closeCalendarModal;
+window.fetchCalendarEvents = fetchCalendarEvents;
+window.saveCalendarSyncConfig = saveCalendarSyncConfig;
+window.speakCalendarSchedule = speakCalendarSchedule;
 window.setPersonaArchetype = setPersonaArchetype;
 window.searchLiveWebInfo = searchLiveWebInfo;
 window.saveGeminiApiKey = saveGeminiApiKey;
@@ -3020,10 +3181,11 @@ window.updateTokenMeterUI = updateTokenMeterUI;
 window.getTokenUsage = getTokenUsage;
 window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;
 
-// Initial call to populate UI tokens
+// Initial call to populate UI tokens & load calendar
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         updateTokenMeterUI();
+        fetchCalendarEvents();
     });
 }
 

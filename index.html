@@ -271,6 +271,10 @@
                     <!-- Live State Readout & Voice Test / Dossier -->
                     <div class="flex items-center gap-2">
                         <span class="text-[9px] text-tertiary font-bold animate-pulse" id="meena-status-indicator">STANDBY [LISTENING]</span>
+                        <button onclick="openCalendarModal()" class="text-[9px] bg-tertiary text-black font-bold px-2 py-0.5 rounded hover:bg-tertiary/80 transition-all flex items-center gap-0.5 shadow-sm">
+                            <span class="material-symbols-outlined text-[10px]">calendar_today</span>
+                            <span>SCHEDULE</span>
+                        </button>
                         <button onclick="openMeenaProfileModal()" class="text-[9px] bg-secondary text-black font-bold px-2 py-0.5 rounded hover:bg-secondary/80 transition-all flex items-center gap-0.5 shadow-sm">
                             <span class="material-symbols-outlined text-[10px]">badge</span>
                             <span>AI DOSSIER</span>
@@ -305,8 +309,9 @@
                 </div>
 
                 <!-- Quick Action Suggestion Chips -->
-                <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
+                <div class="grid grid-cols-6 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
                     <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">💡 STATUS</button>
+                    <button onclick="openCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">📅 SCHEDULE</button>
                     <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🛡️ PI-HOLE</button>
                     <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">⚡ HARDWARE</button>
                     <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm">🧹 PURGE RAM</button>
@@ -883,6 +888,74 @@
                     <span>6. REBOOT HOST</span>
                     <span class="text-[8px] text-error font-mono">reboot</span>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Google Calendar / Chrono Schedule Modal -->
+<div id="calendar-schedule-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface border-2 border-tertiary rounded-xl w-full max-w-xl p-5 flex flex-col gap-4 text-on-surface font-sans shadow-[0_0_25px_rgba(77,208,225,0.25)] max-h-[90vh] overflow-y-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-tertiary/40 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary text-2xl">calendar_month</span>
+                <div>
+                    <h2 class="text-base font-bold text-tertiary tracking-wide font-headline">CHRONO SCHEDULE & GOOGLE CALENDAR</h2>
+                    <p class="text-[9px] text-secondary font-mono">Takahara Academy Tactical Schedule & Live Agenda Synchronizer</p>
+                </div>
+            </div>
+            <button onclick="closeCalendarModal()" class="text-secondary hover:text-error transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Today's Live Agenda Feed -->
+        <div class="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-primary font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">today</span>
+                    <span>TODAY'S SCHEDULE (<span id="cal-today-count">0</span> EVENTS)</span>
+                </span>
+                <button onclick="fetchCalendarEvents(true)" class="text-[9px] bg-tertiary/20 hover:bg-tertiary hover:text-black text-tertiary font-bold px-2 py-0.5 rounded border border-tertiary/40 transition-all flex items-center gap-1 font-mono">
+                    <span class="material-symbols-outlined text-[10px]">sync</span>
+                    <span>REFRESH</span>
+                </button>
+            </div>
+            <div id="cal-today-list" class="flex flex-col gap-1.5 min-h-[60px] text-xs font-mono">
+                <div class="text-secondary text-[10px] italic py-2">Loading calendar events...</div>
+            </div>
+        </div>
+
+        <!-- Upcoming 7-Day Agenda -->
+        <div class="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
+            <span class="text-xs text-secondary font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">date_range</span>
+                <span>UPCOMING THIS WEEK</span>
+            </span>
+            <div id="cal-upcoming-list" class="flex flex-col gap-1.5 text-xs font-mono max-h-36 overflow-y-auto">
+                <div class="text-secondary text-[10px] italic py-1">No upcoming events.</div>
+            </div>
+        </div>
+
+        <!-- Google Calendar Sync Configuration (iCal Link) -->
+        <div class="bg-surface-container-high p-3.5 rounded-lg border border-tertiary/30 flex flex-col gap-2">
+            <span class="text-[11px] text-tertiary font-bold flex items-center gap-1 font-mono">
+                <span class="material-symbols-outlined text-xs">link</span>
+                <span>GOOGLE CALENDAR PRIVATE ICAL SYNC LINK:</span>
+            </span>
+            <div class="flex gap-2">
+                <input type="text" id="cal-ical-url-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" class="flex-1 bg-surface-container-lowest border border-outline-variant/50 rounded px-2.5 py-1.5 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none placeholder:text-secondary/50">
+                <button onclick="saveCalendarSyncConfig()" class="bg-tertiary hover:bg-tertiary/80 text-black font-bold px-3 py-1.5 rounded text-xs transition-all flex items-center gap-1 font-mono shadow-sm">
+                    <span class="material-symbols-outlined text-xs">save</span>
+                    <span>SAVE SYNC</span>
+                </button>
+            </div>
+            <div class="text-[8.5px] text-secondary leading-relaxed font-mono">
+                <strong class="text-on-surface">How to find your Google Calendar link:</strong><br/>
+                1. Open <strong class="text-tertiary">calendar.google.com</strong> on your computer.<br/>
+                2. Click the 3 dots next to your calendar &rarr; <strong>Settings and sharing</strong>.<br/>
+                3. Scroll down to <strong>"Integrate calendar"</strong> &rarr; Copy the <strong>"Secret address in iCal format"</strong> (.ics) and paste it above!
             </div>
         </div>
     </div>
