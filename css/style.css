@@ -20,64 +20,18 @@ html, body {
     transition: background-color 0.3s ease;
 }
 
-/* CRT Phosphor Scanline Overlay */
+/* CRT Phosphor Scanline Overlay (Disabled for Ultra-Clean Display) */
 .scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.3) 50%,
-        rgba(0, 0, 0, 0.3)
-    );
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 1000;
-}
-
-.earth-scanlines {
-    background: linear-gradient(
-        to bottom,
-        rgba(194, 193, 255, 0),
-        rgba(194, 193, 255, 0) 50%,
-        rgba(194, 193, 255, 0.04) 50%,
-        rgba(194, 193, 255, 0.04)
-    );
-    background-size: 100% 3px;
-}
-
-/* CRT Terminal Edge Vignette */
-.crt-vignette {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
-    pointer-events: none;
-    z-index: 999;
-}
-
-/* CRT & Scanline Toggle Support (High Clarity Mode) */
-body.no-scanlines .scanlines,
-body.no-scanlines .crt-vignette {
     display: none !important;
 }
 
-body.no-scanlines .earth-scanlines {
+.earth-scanlines {
     background: none !important;
 }
 
-body.no-scanlines .glitch-effect {
-    animation: none !important;
-}
-
-body.no-scanlines {
-    text-shadow: none !important;
+/* CRT Terminal Edge Vignette (Disabled for Crisp Edge-to-Edge Visuals) */
+.crt-vignette {
+    display: none !important;
 }
 
 /* Subtle Tactical Glitch Animation */
