@@ -1,6 +1,6 @@
 <?php
 // DietPi System Telemetry Endpoint
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 function get_cpu_temp() {
