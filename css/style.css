@@ -1,0 +1,342 @@
+/* ==========================================================================
+   DIETPI COMMAND CENTER (BMB20) - LCARS CORE STYLESHEET
+   Authentic Okuda Design System & CRT Terminal Visuals
+   ========================================================================== */
+
+/* Base Reset & Zero-Scroll Viewport Lock */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000000;
+    color: #e4e1ea;
+    font-family: 'JetBrains Mono', monospace;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease;
+}
+
+/* CRT Phosphor Scanline Overlay */
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.earth-scanlines {
+    background: linear-gradient(
+        to bottom,
+        rgba(194, 193, 255, 0),
+        rgba(194, 193, 255, 0) 50%,
+        rgba(194, 193, 255, 0.04) 50%,
+        rgba(194, 193, 255, 0.04)
+    );
+    background-size: 100% 3px;
+}
+
+/* CRT Terminal Edge Vignette */
+.crt-vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Subtle Tactical Glitch Animation */
+@keyframes subtle-glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    2% { transform: translate(-2px, 1px); filter: hue-rotate(30deg); }
+    4% { transform: translate(2px, -1px); filter: hue-rotate(-30deg); }
+    6% { transform: translate(0); filter: hue-rotate(0deg); }
+    100% { transform: translate(0); }
+}
+
+.glitch-effect {
+    animation: subtle-glitch 7s infinite;
+}
+
+/* Glow Utilities */
+.glow-primary {
+    box-shadow: 0 0 12px rgba(102, 204, 255, 0.4);
+}
+
+.active-glow {
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.6);
+}
+
+.danger-glow {
+    box-shadow: 0 0 18px rgba(204, 51, 51, 0.85);
+    animation: alert-pulse 0.8s infinite alternate;
+}
+
+@keyframes alert-pulse {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* LCARS Structural Frame Geometry */
+.lcars-hop-top-left {
+    border-top-left-radius: 24px;
+}
+
+.lcars-hop-bottom-left {
+    border-bottom-left-radius: 24px;
+}
+
+.lcars-hop-top-right {
+    border-top-right-radius: 24px;
+}
+
+/* 100vh Locked Grid Layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    grid-template-rows: 42px minmax(0, 1fr);
+    height: calc(100vh - 26px);
+    width: 100vw;
+    gap: 6px;
+    padding: 6px 6px 0 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: filter 0.3s ease;
+}
+
+.sidebar-area {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    transition: border-color 0.4s ease;
+}
+
+.header-area {
+    grid-column: 2;
+    grid-row: 1;
+    transition: border-color 0.4s ease;
+}
+
+.main-area {
+    grid-column: 2;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1.2fr 1fr 1fr;
+    gap: 6px;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    position: relative;
+}
+
+.footer-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 26px;
+    z-index: 40;
+    box-sizing: border-box;
+    transition: border-color 0.4s ease;
+}
+
+/* ==========================================================================
+   TACTICAL ALERT SYSTEM (CONDITION GREEN, YELLOW, RED ALERT)
+   ========================================================================== */
+
+/* Yellow Alert Mode */
+body.alert-yellow {
+    background-color: #0d0a00;
+}
+body.alert-yellow .sidebar-area {
+    border-right-color: #ffe253 !important;
+}
+body.alert-yellow .header-area,
+body.alert-yellow .footer-area {
+    border-color: #ffe253 !important;
+}
+body.alert-yellow .alert-strobe-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 60px rgba(255, 226, 83, 0.25);
+    z-index: 998;
+    animation: yellow-pulse 1.5s infinite alternate;
+}
+@keyframes yellow-pulse {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+}
+
+/* Red Alert Mode */
+body.alert-red {
+    background-color: #120000;
+}
+body.alert-red .sidebar-area {
+    border-right-color: #cc3333 !important;
+}
+body.alert-red .header-area,
+body.alert-red .footer-area {
+    border-color: #cc3333 !important;
+}
+body.alert-red .alert-strobe-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 90px rgba(204, 51, 51, 0.45);
+    z-index: 998;
+    animation: red-strobe 1.2s infinite;
+}
+@keyframes red-strobe {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.9; }
+}
+
+/* Condition Switcher Buttons */
+.condition-btn {
+    transition: all 0.2s ease;
+}
+.condition-btn.active-condition {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* Matrix Data Cascade Stream */
+.data-stream {
+    position: absolute;
+    top: 0;
+    color: rgba(102, 204, 255, 0.22);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    line-height: 1;
+    white-space: pre;
+    z-index: -1;
+    pointer-events: none;
+}
+
+body.alert-yellow .data-stream {
+    color: rgba(255, 226, 83, 0.25);
+}
+body.alert-red .data-stream {
+    color: rgba(204, 51, 51, 0.3);
+}
+
+@keyframes cascadeDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100vh); }
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker-scroll 24s linear infinite;
+}
+
+/* Equalizer Bars */
+.eq-bar {
+    width: 3px;
+    background-color: #ffcc66;
+    transition: height 0.1s ease;
+}
+
+/* Custom Tactical Scrollbars */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: #0e0e14;
+}
+::-webkit-scrollbar-thumb {
+    background: #464552;
+    border-radius: 2px;
+}
+
+/* 3D Hologram Tactical Line Callouts */
+.callout-line {
+    stroke: #66ccff;
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 4, 2;
+    filter: drop-shadow(0 0 4px rgba(102, 204, 255, 0.7));
+    transition: stroke 0.3s ease, filter 0.3s ease;
+}
+
+.callout-dot {
+    fill: #ffcc66;
+    filter: drop-shadow(0 0 6px rgba(255, 204, 102, 0.9));
+}
+
+.callout-badge {
+    position: absolute;
+    background: rgba(14, 14, 20, 0.85);
+    border: 1px solid rgba(102, 204, 255, 0.6);
+    border-left: 3px solid #ff9900;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #66ccff;
+    pointer-events: none;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    transition: all 0.3s ease;
+    transform: translate(0, -50%);
+}
+
+.callout-badge .callout-title {
+    color: #ff9900;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.callout-badge .callout-sub {
+    color: #adc6ff;
+    font-size: 8px;
+}
+
+/* Tactical Alert Line Tinting */
+body.alert-yellow .callout-line {
+    stroke: #ffcc66;
+    filter: drop-shadow(0 0 4px rgba(255, 204, 102, 0.8));
+}
+body.alert-yellow .callout-badge {
+    border-color: rgba(255, 204, 102, 0.7);
+    border-left-color: #ffcc66;
+    color: #ffcc66;
+}
+
+body.alert-red .callout-line {
+    stroke: #cc3333;
+    filter: drop-shadow(0 0 6px rgba(204, 51, 51, 0.9));
+}
+body.alert-red .callout-badge {
+    border-color: rgba(204, 51, 51, 0.8);
+    border-left-color: #cc3333;
+    color: #ff6666;
+}

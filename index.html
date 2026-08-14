@@ -1,410 +1,136 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
-<title>DIETPI COMMAND CENTER - BMB20</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <title>DIETPI COMMAND CENTER - BMB20</title>
 
-<!-- External Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Mono:wght@700&amp;family=Share+Tech+Mono&amp;family=Antonio:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Three.js for 3D Hologram -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts: Antonio, JetBrains Mono, Space Mono, Share Tech Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Mono:wght@700&amp;family=Share+Tech+Mono&amp;family=Antonio:wght@400;700&amp;display=swap" rel="stylesheet"/>
+    <!-- Material Symbols Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Three.js 3D WebGL Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      "colors": {
-        "surface": "#131319",
-        "surface-dim": "#131319",
-        "surface-bright": "#39383f",
-        "surface-container-lowest": "#0e0e14",
-        "surface-container-low": "#1b1b21",
-        "surface-container": "#1f1f25",
-        "surface-container-high": "#2a2930",
-        "surface-container-highest": "#35343b",
-        "on-surface": "#e4e1ea",
-        "on-surface-variant": "#c7c5d4",
-        "inverse-surface": "#e4e1ea",
-        "inverse-on-surface": "#303036",
-        "outline": "#918f9d",
-        "outline-variant": "#464552",
-        "surface-tint": "#c2c1ff",
-        "primary": "#c2c1ff",
-        "on-primary": "#231f83",
-        "primary-container": "#9999ff",
-        "on-primary-container": "#2d2b8c",
-        "inverse-primary": "#5353b3",
-        "secondary": "#adc6ff",
-        "on-secondary": "#002e69",
-        "secondary-container": "#1e4585",
-        "on-secondary-container": "#93b5fc",
-        "tertiary": "#e1c639",
-        "on-tertiary": "#393000",
-        "tertiary-container": "#bca30e",
-        "on-tertiary-container": "#443900",
-        "error": "#ffb4ab",
-        "on-error": "#690005",
-        "error-container": "#93000a",
-        "on-error-container": "#ffdad6",
-        "primary-fixed": "#e2dfff",
-        "primary-fixed-dim": "#c2c1ff",
-        "on-primary-fixed": "#0b006b",
-        "on-primary-fixed-variant": "#3b3a9a",
-        "secondary-fixed": "#d8e2ff",
-        "secondary-fixed-dim": "#adc6ff",
-        "on-secondary-fixed": "#001a41",
-        "on-secondary-fixed-variant": "#1e4585",
-        "tertiary-fixed": "#ffe253",
-        "tertiary-fixed-dim": "#e1c639",
-        "on-tertiary-fixed": "#211b00",
-        "on-tertiary-fixed-variant": "#524600",
-        "background": "#131319",
-        "on-background": "#e4e1ea",
-        "surface-variant": "#35343b",
-        "lcars-orange": "#ff9900",
-        "lcars-gold": "#ffcc66",
-        "lcars-blue": "#66ccff",
-        "lcars-purple": "#cc6699",
-        "lcars-red": "#cc3333",
-        "lcars-tan": "#ffddaa"
-      },
-      "borderRadius": {
-        "DEFAULT": "0.25rem",
-        "lg": "0.5rem",
-        "xl": "0.75rem",
-        "full": "9999px"
-      },
-      "spacing": {
-        "border-thin": "1px",
-        "gutter": "8px",
-        "unit": "4px",
-        "hop-radius": "24px",
-        "margin-main": "24px"
-      },
-      "fontFamily": {
-        "body-sm": ["JetBrains Mono", "monospace"],
-        "data-mono": ["Share Tech Mono", "JetBrains Mono", "monospace"],
-        "headline-md": ["Antonio", "Anton", "sans-serif"],
-        "label-caps": ["Space Mono", "monospace"],
-        "headline-sm": ["Antonio", "Anton", "sans-serif"],
-        "body-md": ["JetBrains Mono", "monospace"],
-        "display-lg": ["Antonio", "Anton", "sans-serif"]
-      },
-      "fontSize": {
-        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
-        "data-mono": ["13px", { "lineHeight": "1.2", "fontWeight": "500" }],
-        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
-        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
-        "headline-sm": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
-        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
-        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "0.05em", "fontWeight": "700" }]
-      }
-    }
-  }
-}
-</script>
+    <!-- Custom LCARS Stylesheet -->
+    <link rel="stylesheet" href="css/style.css"/>
 
-<style>
-/* Base Reset & Styling */
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    background-color: #131319;
-    color: #e4e1ea;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-/* CRT Scanline Overlay */
-.scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.25) 50%,
-        rgba(0, 0, 0, 0.25)
-    );
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 1000;
-}
-
-.earth-scanlines {
-    background: linear-gradient(
-        to bottom,
-        rgba(194, 193, 255, 0),
-        rgba(194, 193, 255, 0) 50%,
-        rgba(194, 193, 255, 0.05) 50%,
-        rgba(194, 193, 255, 0.05)
-    );
-    background-size: 100% 3px;
-}
-
-/* Glitch Animation */
-@keyframes subtle-glitch {
-    0% { transform: translate(0); filter: hue-rotate(0deg); }
-    2% { transform: translate(-2px, 1px); filter: hue-rotate(45deg); }
-    4% { transform: translate(2px, -1px); filter: hue-rotate(-45deg); }
-    6% { transform: translate(0); filter: hue-rotate(0deg); }
-    100% { transform: translate(0); }
-}
-
-.glitch-effect {
-    animation: subtle-glitch 6s infinite;
-}
-
-/* Glow Utilities */
-.glow-primary {
-    box-shadow: 0 0 12px rgba(194, 193, 255, 0.4);
-}
-
-.active-glow {
-    box-shadow: 0 0 18px rgba(153, 153, 255, 0.7);
-}
-
-.danger-glow {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
-    animation: flicker 0.2s infinite;
-}
-
-/* LCARS Structural Frame Shapes */
-.lcars-hop-top-left {
-    border-top-left-radius: 24px;
-}
-
-.lcars-hop-bottom-left {
-    border-bottom-left-radius: 24px;
-}
-
-/* Grid Layout */
-.grid-container {
-    display: grid;
-    grid-template-columns: 210px 1fr;
-    grid-template-rows: 40px minmax(0, 1fr);
-    height: calc(100vh - 26px);
-    width: 100vw;
-    gap: 5px;
-    padding: 5px 5px 0 5px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-.sidebar-area {
-    grid-column: 1;
-    grid-row: 1 / 3;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.header-area {
-    grid-column: 2;
-    grid-row: 1;
-}
-
-.main-area {
-    grid-column: 2;
-    grid-row: 2;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1.25fr 1fr 1fr;
-    gap: 5px;
-    height: 100%;
-    min-height: 0;
-    overflow-y: auto;
-    position: relative;
-}
-
-.footer-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100vw;
-    height: 26px;
-    z-index: 40;
-    box-sizing: border-box;
-}
-
-/* Audio Equalizer Bars */
-.eq-bar {
-    width: 3px;
-    background-color: #ffe253;
-    transition: height 0.1s ease;
-}
-
-/* Mobile responsive fallback */
-@media (max-width: 1024px) {
-    .grid-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr auto;
-    }
-    .sidebar-area {
-        grid-column: 1;
-        grid-row: 2;
-    }
-    .header-area {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    .main-area {
-        grid-column: 1;
-        grid-row: 3;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-    }
-    .footer-area {
-        grid-column: 1;
-        grid-row: 4;
-    }
-}
-
-/* Data Cascade stream */
-.data-stream {
-    position: absolute;
-    top: 0;
-    color: rgba(173, 198, 255, 0.25);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    line-height: 1;
-    white-space: pre;
-    z-index: -1;
-    pointer-events: none;
-}
-
-@keyframes cascadeDown {
-    from { transform: translateY(-100%); }
-    to { transform: translateY(100vh); }
-}
-
-@keyframes ticker-scroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-}
-
-.ticker-content {
-    display: inline-block;
-    white-space: nowrap;
-    animation: ticker-scroll 22s linear infinite;
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-    width: 6px;
-}
-::-webkit-scrollbar-track {
-    background: #1f1f25;
-}
-::-webkit-scrollbar-thumb {
-    background: #918f9d;
-    border-radius: 3px;
-}
-</style>
+    <!-- Modular JavaScript Engine -->
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/globe.js"></script>
+    <script src="js/telemetry.js"></script>
+    <script src="js/main.js"></script>
 </head>
 <body class="text-on-surface bg-background">
 
-<!-- Data Cascade Container -->
+<!-- Matrix Data Cascade Stream Container -->
 <div class="absolute inset-0 w-full h-full z-[-1] overflow-hidden pointer-events-none" id="cascade-container"></div>
-<!-- Scanline Overlay -->
+<!-- CRT Phosphor Scanline Overlay -->
 <div class="scanlines"></div>
+<!-- CRT Terminal Vignette -->
+<div class="crt-vignette"></div>
 
-<!-- Main Grid Layout -->
-<div class="grid-container relative z-10">
+<!-- Master LCARS Grid Layout -->
+<div class="grid-container relative z-10" id="grid-container">
 
-    <!-- Sidebar (L-Frame Left - Okuda Style) -->
-    <div class="sidebar-area bg-surface-container-low lcars-hop-top-left lcars-hop-bottom-left flex flex-col pt-3 pb-4 border-r-4 border-[#ff9900] rounded-l-hop-radius">
+    <!-- ==========================================
+         SIDEBAR (L-Frame Left - Okuda Style)
+         ========================================== -->
+    <div class="sidebar-area bg-surface-container-low lcars-hop-top-left lcars-hop-bottom-left flex flex-col pt-3 pb-3 border-r-4 border-lcars-orange rounded-l-hop">
         <!-- Okuda Top Elbow Cap -->
-        <div class="bg-[#ff9900] text-black font-headline-sm text-xs px-3 py-1.5 rounded-r-full font-bold tracking-widest flex items-center justify-between mb-4 mr-2 shadow-md">
+        <div class="bg-lcars-orange text-black font-headline-sm text-xs px-3 py-1.5 rounded-r-full font-bold tracking-widest flex items-center justify-between mb-3 mr-2 shadow-md">
             <span>04-8891</span>
             <span>DIETPI CORE</span>
         </div>
 
-        <!-- Service Launcher Links with LCARS Codes -->
-        <div class="flex-1 flex flex-col gap-1.5 px-2 justify-between py-1 font-data-mono">
-            <a href="http://dietpi.local/admin" target="_blank" onclick="playSound('beep1')"
-               class="flex-1 bg-[#ff9900] text-black font-headline-sm text-xs rounded-l-full mr-2 px-3 text-right active-glow flex justify-between items-center transition-all hover:bg-[#ffcc66] font-bold">
-                <span class="text-[9px] bg-black text-[#ff9900] px-1 rounded font-mono">[01-80]</span>
-                <span>PI-HOLE :80</span>
+        <!-- Service Launcher Links -->
+        <div class="flex flex-col gap-1.5 px-2 mb-3 font-data-mono">
+            <a href="http://dietpi.local:8089/admin/login" target="_blank" onclick="playSound('beep1')"
+               class="bg-lcars-orange text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right active-glow flex justify-between items-center transition-all hover:bg-lcars-gold font-bold">
+                <span class="text-[9px] bg-black text-lcars-orange px-1 rounded font-mono">[01-89]</span>
+                <span>PI-HOLE :8089</span>
             </a>
-            <a href="http://dietpi.local:8384" target="_blank" onclick="playSound('beep2')"
-               class="flex-1 bg-[#ffcc66] text-black font-headline-sm text-xs rounded-l-full mr-2 px-3 text-right hover:bg-[#ffe253] transition-colors flex justify-between items-center font-bold">
-                <span class="text-[9px] bg-black text-[#ffcc66] px-1 rounded font-mono">[33-84]</span>
+            <a href="http://192.168.0.100:8384" target="_blank" onclick="playSound('beep2')"
+               class="bg-lcars-gold text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-tertiary transition-colors flex justify-between items-center font-bold">
+                <span class="text-[9px] bg-black text-lcars-gold px-1 rounded font-mono">[33-84]</span>
                 <span>SYNCTHING :8384</span>
             </a>
-            <a href="http://dietpi.local:8096" target="_blank" onclick="playSound('beep2')"
-               class="flex-1 bg-[#66ccff] text-black font-headline-sm text-xs rounded-l-full mr-2 px-3 text-right hover:bg-[#adc6ff] transition-colors flex justify-between items-center font-bold">
-                <span class="text-[9px] bg-black text-[#66ccff] px-1 rounded font-mono">[99-96]</span>
-                <span>JELLYFIN :8096</span>
+            <a href="http://192.168.0.100:8084" target="_blank" onclick="playSound('beep2')"
+               class="bg-lcars-tan text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-lcars-orange transition-colors flex justify-between items-center font-bold">
+                <span class="text-[9px] bg-black text-lcars-tan px-1 rounded font-mono">[80-84]</span>
+                <span>FILE BROWSER :8084</span>
             </a>
-            <a href="http://dietpi.local:5252" target="_blank" onclick="playSound('beep2')"
-               class="flex-1 bg-[#cc6699] text-black font-headline-sm text-xs rounded-l-full mr-2 px-3 text-right hover:bg-[#ff9900] transition-colors flex justify-between items-center font-bold">
-                <span class="text-[9px] bg-black text-[#cc6699] px-1 rounded font-mono">[07-52]</span>
-                <span>DIETPI DASH :5252</span>
+            <a href="https://login.tailscale.com/admin/machines" target="_blank" onclick="playSound('beep2')"
+               class="bg-lcars-blue text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-secondary transition-colors flex justify-between items-center font-bold">
+                <span class="text-[9px] bg-black text-lcars-blue px-1 rounded font-mono">[10-52]</span>
+                <span>TAILSCALE VPN</span>
             </a>
-            <a href="http://dietpi.local:9090" target="_blank" onclick="playSound('beep2')"
-               class="flex-1 bg-[#ffddaa] text-black font-headline-sm text-xs rounded-l-full mr-2 px-3 text-right hover:bg-[#ffcc66] transition-colors flex justify-between items-center font-bold">
-                <span class="text-[9px] bg-black text-[#ffddaa] px-1 rounded font-mono">[14-90]</span>
-                <span>COCKPIT :9090</span>
+            <a href="http://192.168.0.100:5252" target="_blank" onclick="playSound('beep2')"
+               class="bg-lcars-purple text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-lcars-orange transition-colors flex justify-between items-center font-bold">
+                <span class="text-[9px] bg-black text-lcars-purple px-1 rounded font-mono">[52-52]</span>
+                <span>COCKPIT :5252</span>
             </a>
         </div>
 
-        <!-- Resource Monitor Quick View (All Hardware Metrics) -->
-        <div class="px-3 mb-2 text-right font-data-mono text-data-mono flex flex-col gap-1.5 border-t border-b border-outline-variant/30 py-2">
-            <div class="text-tertiary uppercase text-xs font-bold flex justify-between items-center">
-                <span class="text-[9px] bg-[#ff9900] text-black px-1 rounded font-mono font-bold">[12-401]</span>
-                <span class="text-[#ffcc66]">SBC TELEMETRY</span>
+        <!-- GitHub Repository Link -->
+        <div class="px-2 mb-3">
+            <a href="https://github.com/Anzrikart" target="_blank" onclick="playSound('beep2')"
+               class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1 px-3 text-right hover:bg-surface-bright transition-colors flex justify-end items-center gap-1.5 font-bold">
+                <span>DEV: ERIDAL</span>
+                <svg aria-hidden="true" class="h-3.5 w-3.5" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
+            </a>
+        </div>
+
+        <!-- Sidebar Warp Core Power Distribution Matrix -->
+        <div class="px-3 mb-2 font-data-mono text-[10px] flex flex-col gap-1.5 mt-auto">
+            <div class="text-tertiary uppercase text-[10px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between">
+                <span>POWER MATRIX</span>
+                <span class="text-primary font-bold">100%</span>
             </div>
-            <div class="flex flex-col gap-0.5 items-end">
-                <div class="flex justify-between w-full text-secondary text-[11px]"><span>CPU LOAD</span> <span id="side-cpu-val" class="text-primary font-bold">--%</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-primary h-full transition-all" id="side-cpu-bar" style="width: 0%;"></div></div>
+            <div class="flex flex-col gap-0.5">
+                <div class="flex justify-between text-secondary text-[9px]"><span>WARP CORE</span> <span class="text-primary font-bold">100%</span></div>
+                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
+                    <div class="bg-primary h-full w-full"></div>
+                </div>
             </div>
-            <div class="flex flex-col gap-0.5 items-end">
-                <div class="flex justify-between w-full text-secondary text-[11px]"><span>MEMORY</span> <span id="side-ram-val" class="text-tertiary font-bold">--%</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-tertiary h-full transition-all" id="side-ram-bar" style="width: 0%;"></div></div>
+            <div class="flex flex-col gap-0.5">
+                <div class="flex justify-between text-secondary text-[9px]"><span>SHIELD GRID</span> <span class="text-tertiary font-bold">100%</span></div>
+                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
+                    <div class="bg-tertiary h-full w-full"></div>
+                </div>
             </div>
-            <div class="flex flex-col gap-0.5 items-end">
-                <div class="flex justify-between w-full text-secondary text-[11px]"><span>SOC TEMP</span> <span id="side-temp-val" class="text-error font-bold">--°C</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-error h-full transition-all" id="side-temp-bar" style="width: 0%;"></div></div>
-            </div>
-            <div class="flex flex-col gap-0.5 items-end">
-                <div class="flex justify-between w-full text-secondary text-[11px]"><span>DISK USAGE</span> <span id="side-disk-val" class="text-secondary font-bold">--%</span></div>
-                <div class="w-full bg-surface h-1.5 flex justify-end rounded-sm overflow-hidden"><div class="bg-secondary-container h-full transition-all" id="side-disk-bar" style="width: 0%;"></div></div>
+            <div class="flex flex-col gap-0.5">
+                <div class="flex justify-between text-secondary text-[9px]"><span>SUBSPACE SENSORS</span> <span class="text-lcars-blue font-bold">100%</span></div>
+                <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden flex justify-end">
+                    <div class="bg-lcars-blue h-full w-full"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Performance & Sound Controls -->
-        <div class="mt-auto px-2 flex flex-col gap-1.5">
-            <button class="bg-[#ff9900]/20 text-[#ff9900] font-label-caps text-xs border border-[#ff9900]/50 rounded-l-full mr-2 p-2 text-right hover:bg-[#ff9900] hover:text-black transition-colors flex justify-between items-center font-bold" id="eco-toggle" onclick="toggleEcoMode(); playSound('beep3')">
-                <span class="text-[9px] bg-black text-[#ff9900] px-1 rounded font-mono">[55-90]</span>
-                <span id="eco-text">ECO: OFF</span>
-            </button>
-            <button class="bg-[#ffcc66]/20 text-[#ffcc66] font-label-caps text-xs border border-[#ffcc66]/50 rounded-l-full mr-2 p-2 text-right hover:bg-[#ffcc66] hover:text-black transition-colors flex justify-between items-center font-bold" id="cascade-toggle" onclick="toggleCascade(); playSound('beep3')">
-                <span class="text-[9px] bg-black text-[#ffcc66] px-1 rounded font-mono">[22-10]</span>
+        <!-- Bottom Audio & Cascade Controls -->
+        <div class="px-2 flex flex-col gap-1">
+            <!-- Starfleet Acoustic Quick Triggers -->
+            <div class="grid grid-cols-2 gap-1 mr-2 font-data-mono text-[9px]">
+                <button onclick="playDoorChime()" class="bg-surface-container-high hover:bg-tertiary hover:text-black py-1 px-1.5 rounded-l-full text-center font-bold transition-colors">CHIME [C]</button>
+                <button onclick="playWarpSequence()" class="bg-surface-container-high hover:bg-primary hover:text-black py-1 px-1.5 rounded-r text-center font-bold transition-colors">WARP [W]</button>
+            </div>
+
+            <button class="bg-tertiary-container text-on-tertiary-container font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-tertiary transition-colors flex justify-between items-center font-bold" id="cascade-toggle" onclick="toggleCascade()">
+                <span class="material-symbols-outlined text-sm">pause_circle</span>
                 <span>FREEZE</span>
             </button>
-            <button class="bg-[#66ccff]/20 text-[#66ccff] font-label-caps text-xs border border-[#66ccff]/50 rounded-l-full mr-2 p-2 text-right hover:bg-[#66ccff] hover:text-black transition-colors flex justify-between items-center relative overflow-hidden font-bold" id="audio-toggle" onclick="toggleAudio(); playSound('beep4')">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-[9px] bg-black text-[#66ccff] px-1 rounded font-mono">[88-30]</span>
-                    <!-- Equalizer Bars -->
-                    <div class="flex items-end gap-0.5 h-3" id="audio-eq">
-                        <div class="eq-bar h-1"></div>
-                        <div class="eq-bar h-2"></div>
-                        <div class="eq-bar h-3"></div>
+            <button class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-surface-bright transition-colors flex justify-between items-center font-bold" id="audio-toggle" onclick="toggleAudio()">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm" id="audio-icon">volume_off</span>
+                    <!-- Equalizer Micro-Animation Bars -->
+                    <div class="flex items-end gap-0.5 h-3 ml-1">
+                        <div class="eq-bar h-1"></div><div class="eq-bar h-2"></div><div class="eq-bar h-1"></div><div class="eq-bar h-3"></div><div class="eq-bar h-1"></div>
                     </div>
                 </div>
                 <span id="audio-label">AUDIO: OFF</span>
@@ -412,2336 +138,276 @@ body {
         </div>
     </div>
 
-    <!-- Header (L-Frame Top - Starfleet LCARS Style) -->
-    <div class="header-area bg-surface flex justify-between items-center border-b-4 border-[#ff9900] rounded-tr-hop-radius px-4 relative">
+    <!-- ==========================================
+         HEADER (L-Frame Top)
+         ========================================== -->
+    <div class="header-area bg-surface flex justify-between items-center border-b-4 border-lcars-orange rounded-tr-hop px-5 relative">
         <div class="flex items-center gap-3">
-            <span class="bg-[#ff9900] text-black font-headline-sm text-headline-sm px-3 py-0.5 rounded-l-full font-bold tracking-widest uppercase">STARFLEET COMMAND</span>
-            <span class="text-[#ffcc66] font-bold text-sm tracking-widest hidden md:inline">LCARS-2309 // 47-9012 BMB20 CORE</span>
-            <div class="h-5 w-px bg-[#ff9900] opacity-50"></div>
-            <div class="font-data-mono text-data-mono text-[#66ccff] flex items-center gap-1.5 text-xs">
-                <span class="material-symbols-outlined text-sm text-[#ffcc66] animate-pulse">dns</span>
-                <span id="host-name">dietpi.local</span>
+            <span class="font-headline-sm text-sm text-lcars-orange font-bold tracking-wider">LCARS COMMAND CENTER</span>
+            <div class="h-4 w-px bg-outline-variant"></div>
+            <div class="font-data-mono text-xs text-primary flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-lcars-gold">sensors</span>
+                <span id="telemetry-source">CONDITION GREEN [NOMINAL]</span>
             </div>
         </div>
-        <div class="flex items-center gap-3 font-data-mono text-data-mono text-xs">
-            <div class="flex gap-2 items-center bg-[#131319] px-3 py-0.5 rounded-full border border-[#ff9900]/50 text-[#ffcc66]">
-                <span class="text-xs font-label-caps">PI-HOLE:</span>
-                <span class="text-[#66ccff] font-bold" id="dns-queries">ACTIVE</span>
-                <div class="w-2 h-2 rounded-full bg-[#ff9900] animate-pulse shadow-[0_0_8px_#ff9900]"></div>
+
+        <!-- Tactical Alert Condition Switcher -->
+        <div class="flex items-center gap-1 bg-surface-dim px-2 py-1 rounded-full border border-outline-variant/30 font-data-mono">
+            <span class="text-[9px] text-on-surface-variant font-bold mr-1">ALERT:</span>
+            <button id="btn-cond-green" onclick="setAlertCondition('green')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-primary text-black active-condition">GREEN</button>
+            <button id="btn-cond-yellow" onclick="setAlertCondition('yellow')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-tertiary">YELLOW</button>
+            <button id="btn-cond-red" onclick="setAlertCondition('red')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-error">RED</button>
+        </div>
+
+        <div class="flex items-center gap-5 font-data-mono text-xs text-tertiary">
+            <div class="flex gap-2 items-center bg-surface-container px-2.5 py-0.5 rounded-full border border-outline-variant/30">
+                <span class="text-[10px] text-secondary font-bold">PI-HOLE:</span>
+                <span class="text-primary font-bold" id="header-pihole-pct">ACTIVE</span>
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_#66ccff]" id="header-pihole-led"></div>
             </div>
-            <div class="tracking-widest font-bold text-[#ff9900] bg-[#ff9900]/10 border border-[#ff9900]/40 px-2.5 py-0.5 rounded-sm" id="stardate">STARDATE 104184.25</div>
-            <div class="font-bold text-[#ffcc66]" id="clock">00:00:00 UTC</div>
+            <div class="tracking-widest font-bold" id="stardate">STARDATE 47634.4</div>
+            <div class="font-bold text-lcars-gold" id="clock">00:00:00 UTC</div>
         </div>
     </div>
 
-    <!-- Main Content Grid -->
+    <!-- ==========================================
+         MAIN CONTENT GRID
+         ========================================== -->
     <div class="main-area">
 
-        <!-- Row 1 & 2: Central Hologram Planet Monitor (Spans 2 Cols x 2 Rows) -->
-        <div class="col-span-2 row-span-2 bg-surface-container-lowest border border-outline-variant relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm h-full" id="global-monitor-card">
-            <div class="absolute top-0 left-0 bg-[#ff9900] text-black font-headline-sm text-xs px-3 py-1 z-30 font-bold tracking-widest flex items-center gap-2 rounded-r-full shadow-lg">
-                <span>LCARS-2309 // SBC GLOBAL MONITOR</span>
-                <span class="w-2 h-2 rounded-full bg-black animate-ping"></span>
+        <!-- Central Hologram Panel (Hero) -->
+        <div class="col-span-2 row-span-1 bg-surface-container-lowest border border-outline-variant/40 relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm">
+            <div class="absolute top-0 left-0 bg-lcars-orange text-black font-label-caps text-[10px] px-2 py-0.5 z-30 font-bold tracking-wider rounded-br">
+                TACTICAL HOLOGRAPHIC STAGE
             </div>
 
-            <!-- Camera View Controls -->
-            <div class="absolute top-1 left-44 z-30 flex gap-1 font-data-mono text-[9px]">
-                <button onclick="setCameraView('earth')" class="bg-surface-container-high/90 hover:bg-primary hover:text-on-primary text-primary border border-primary/50 px-2 py-0.5 rounded-sm font-bold backdrop-blur-md transition-all">[EARTH LOCK]</button>
-                <button onclick="setCameraView('solar')" class="bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/50 px-2 py-0.5 rounded-sm font-bold backdrop-blur-md transition-all">[SOLAR SYSTEM]</button>
-                <button onclick="setCameraView('galaxy')" class="bg-surface-container-high/90 hover:bg-secondary hover:text-on-secondary text-secondary border border-secondary/50 px-2 py-0.5 rounded-sm font-bold backdrop-blur-md transition-all">[GALAXY VIEW]</button>
+            <!-- 3D Stage Multi-View Mode Switcher -->
+            <div class="absolute top-2 right-2 z-30 flex items-center gap-1 bg-surface-dim/80 backdrop-blur-sm px-1.5 py-1 rounded border border-outline-variant/40 font-data-mono text-[9px]">
+                <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all">PLANET</button>
+                <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all">SYSTEM</button>
+                <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all">GALAXY</button>
             </div>
 
-            <!-- Planet Hover HUD Tooltip -->
-            <div id="planet-hud-tooltip" class="absolute z-40 hidden pointer-events-none bg-surface-container/95 border border-tertiary px-2 py-1 font-data-mono text-[10px] text-tertiary shadow-xl rounded-sm backdrop-blur-md flex items-center gap-1.5">
-                <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
-                <span class="font-bold text-primary" id="tooltip-planet-name">JUPITER</span>
-                <span class="text-[9px] text-secondary border-l border-outline-variant/40 pl-1.5" id="tooltip-planet-info">DIST: 5.8 AU</span>
+            <!-- 3D Tactical Line Callouts Overlay Layer -->
+            <svg id="holo-callouts-svg" class="absolute inset-0 w-full h-full pointer-events-none z-20"></svg>
+            <div id="holo-callout-dom" class="absolute inset-0 w-full h-full pointer-events-none z-20 overflow-hidden"></div>
+
+            <!-- Overlay Telemetry Data (Bottom-Left) -->
+            <div class="absolute bottom-3 left-3 bg-surface-container/90 backdrop-blur-sm px-2.5 py-1.5 border border-primary/40 font-data-mono text-[11px] text-secondary z-30 rounded">
+                <div class="text-primary font-bold" id="hero-subtitle">TARGET: SECTOR 001 [MALAYSIA]</div>
+                <div class="text-[10px] text-on-surface-variant font-mono" id="hero-coords">GEO-COORD: 02° 48' N, 101° 30' E // INCL: 23.4°</div>
             </div>
 
-            <!-- Tactical HUD Crosshair Overlay -->
-            <div class="absolute inset-4 z-20 pointer-events-none flex flex-col justify-between p-2 border border-primary/20 rounded-sm">
-                <div class="flex justify-between items-start text-[9px] font-data-mono text-primary/70">
-                    <div class="border-t-2 border-l-2 border-primary w-4 h-4"></div>
-                    <div class="flex items-center gap-1 font-bold text-tertiary bg-surface-container/70 backdrop-blur-sm px-1.5 py-0.5 border border-tertiary/40">
-                        <span class="material-symbols-outlined text-[10px] animate-spin">sync</span>
-                        <span>[ SYSTEM TRACKING LOCK ]</span>
+            <!-- Planetary Weather Station HUD (Bottom-Right) -->
+            <div class="absolute bottom-3 right-3 bg-surface-container/90 backdrop-blur-sm px-2.5 py-1.5 border border-tertiary/40 font-data-mono text-[10px] text-secondary z-30 rounded flex flex-col gap-1 min-w-[200px]">
+                <div class="flex items-center justify-between border-b border-outline-variant/30 pb-0.5">
+                    <span class="text-tertiary font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs" id="wx-icon">partly_cloudy_day</span>
+                        <span id="wx-desc">ATMOSPHERIC SENSORS</span>
+                    </span>
+                    <span class="text-on-surface font-bold text-xs" id="wx-temp">--°C</span>
+                </div>
+                <div class="flex justify-between text-[9px] text-secondary">
+                    <span>HUM: <strong class="text-on-surface" id="wx-humidity">--%</strong></span>
+                    <span>BAR: <strong class="text-on-surface" id="wx-pressure">-- hPa</strong></span>
+                    <span>WIND: <strong class="text-on-surface" id="wx-wind">--</strong></span>
+                </div>
+                <!-- 3-Day Forecast Strip -->
+                <div class="grid grid-cols-3 gap-1 pt-0.5 border-t border-outline-variant/20" id="wx-forecast">
+                    <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                        <span class="text-[8px] text-secondary font-bold">TODAY</span>
+                        <span class="material-symbols-outlined text-xs text-tertiary my-0.5">partly_cloudy_day</span>
+                        <span class="text-[8px] text-on-surface font-mono">33°/24°</span>
                     </div>
-                    <div class="border-t-2 border-r-2 border-primary w-4 h-4"></div>
-                </div>
-                <div class="flex justify-between items-end text-[9px] font-data-mono text-primary/70">
-                    <div class="border-b-2 border-l-2 border-primary w-4 h-4"></div>
-                    <div class="text-[9px] font-bold text-secondary tracking-wider bg-surface-container/70 backdrop-blur-sm px-1.5 py-0.5">RANGE: 384,400 KM</div>
-                    <div class="border-b-2 border-r-2 border-primary w-4 h-4"></div>
+                    <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                        <span class="text-[8px] text-secondary font-bold">TMRW</span>
+                        <span class="material-symbols-outlined text-xs text-tertiary my-0.5">rainy</span>
+                        <span class="text-[8px] text-on-surface font-mono">32°/24°</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                        <span class="text-[8px] text-secondary font-bold">DAY 3</span>
+                        <span class="material-symbols-outlined text-xs text-tertiary my-0.5">wb_sunny</span>
+                        <span class="text-[8px] text-on-surface font-mono">33°/25°</span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- System Readout Overlay -->
-            <div class="absolute bottom-2.5 left-2.5 bg-surface-container/90 backdrop-blur-md p-2 border border-secondary/60 font-data-mono text-data-mono text-secondary z-30 shadow-lg rounded-sm text-xs">
-                <div>NODE_HOST: <span class="text-primary font-bold">dietpi.local</span></div>
-                <div>UPTIME: <span id="hero-uptime" class="text-tertiary font-bold">FETCHING...</span></div>
-            </div>
-
-            <!-- Dynamic Realtime GeoIP Badge Overlay -->
-            <div class="absolute top-2.5 right-2.5 bg-surface-container/90 backdrop-blur-md p-2 border border-tertiary/60 font-data-mono text-[11px] text-tertiary z-30 flex flex-col gap-0.5 shadow-lg rounded-sm cursor-pointer hover:border-tertiary transition-all" id="geo-location-badge" onclick="fetchRealtimeGeoIP()">
-                <div class="flex items-center gap-1.5 font-bold text-primary">
-                    <span class="material-symbols-outlined text-xs text-tertiary animate-pulse">my_location</span>
-                    <span id="geo-city-country">LOCATING TARGET...</span>
-                </div>
-                <div class="text-[9px] text-secondary font-mono" id="geo-coords">LAT: -- | LON: --</div>
-                <div class="text-[9px] text-on-surface-variant font-mono" id="geo-ip">PUBLIC IP: FETCHING...</div>
-            </div>
-
-            <!-- Dynamic Vector Callout Annotation Line Overlay -->
-            <svg id="callout-svg-overlay" class="absolute inset-0 w-full h-full z-35 pointer-events-none"></svg>
-
-            <!-- 3D Globe Controls: Zoom In / Zoom Out & Maximize Cluster -->
-            <div class="absolute bottom-2.5 right-2.5 z-30 flex items-center gap-1.5">
-                <div class="flex items-center bg-surface-container-high/90 border border-tertiary/60 rounded-sm backdrop-blur-md overflow-hidden shadow-lg">
-                    <button onclick="zoomGlobe(-0.5)" title="Zoom In (+)" class="px-2 py-1 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all flex items-center justify-center">
-                        <span class="material-symbols-outlined text-sm font-bold">add</span>
-                    </button>
-                    <div class="w-[1px] h-4 bg-tertiary/40"></div>
-                    <button onclick="zoomGlobe(0.5)" title="Zoom Out (-)" class="px-2 py-1 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all flex items-center justify-center">
-                        <span class="material-symbols-outlined text-sm font-bold">remove</span>
-                    </button>
-                </div>
-                <button onclick="openGlobeModal()" class="bg-surface-container-high/90 hover:bg-tertiary hover:text-on-tertiary text-tertiary border border-tertiary/60 px-3 py-1 text-[11px] font-data-mono flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all rounded-sm">
-                    <span class="material-symbols-outlined text-sm">public</span>
-                    <span class="font-bold">SOLAR SYSTEM</span>
-                </button>
-            </div>
-
             <!-- 3D Earth Container -->
             <div class="w-full h-full absolute inset-0 z-10 earth-scanlines" id="earth-container"></div>
-            <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-40 mix-blend-screen" id="tactical-shader"></canvas>
         </div>
 
-        <!-- Right Column: Sys Log Stream & Auxiliary Sensor Metrics (Spans 1 Col x 2 Rows) -->
-        <div class="col-span-1 row-span-2 flex flex-col gap-2 h-full">
-            <!-- Top Half: System Log & LCARS Auxiliary Sensor Metrics -->
-            <div class="flex-1 bg-surface p-2.5 border border-outline-variant font-data-mono text-[11px] leading-tight text-primary flex flex-col relative rounded-sm overflow-hidden">
-                <div class="absolute top-0 left-0 bg-[#ff9900] text-black font-label-caps text-[10px] px-2.5 py-0.5 font-bold z-10 flex items-center justify-between w-full pr-3 shadow-md">
-                    <div class="flex items-center gap-1.5">
-                        <span class="bg-black text-[#ff9900] px-1 rounded text-[9px] font-mono">[99-012]</span>
-                        <span>LCARS SENSOR READOUT</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="switchCol3Tab('log')" id="col3-tab-log" class="bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all">[LOGS]</button>
-                        <button onclick="switchCol3Tab('metrics')" id="col3-tab-metrics" class="bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all">[METRICS]</button>
-                    </div>
+        <!-- System Hardware Metrics Panel -->
+        <div class="col-span-1 row-span-1 bg-surface-container-low p-3.5 flex flex-col justify-between border-t-4 border-lcars-orange rounded-sm">
+            <div class="font-headline-sm text-xs text-lcars-orange uppercase tracking-wider font-bold">System Telemetry</div>
+            
+            <div class="flex flex-col gap-0.5 font-data-mono text-xs">
+                <div class="flex justify-between text-secondary">
+                    <span class="flex items-center gap-1.5">CPU LOAD <span class="hidden text-[9px] bg-error text-on-error px-1 rounded font-bold animate-pulse" id="cpu-alert">ALERT</span></span>
+                    <span id="cpu-val">--%</span>
                 </div>
-
-                <!-- Log Stream View -->
-                <div class="overflow-hidden h-full flex flex-col justify-end pt-6 opacity-90" id="sys-log">
-                    <div>&gt; dietpi core initialised...</div>
-                    <div>&gt; network interfaces UP [dietpi.local]</div>
-                    <div>&gt; telemetry loop active...</div>
-                </div>
-
-                <!-- Auxiliary Sensor Metrics View -->
-                <div class="overflow-y-auto h-full hidden pt-6 text-[10px] flex flex-col gap-1.5 text-[#ffcc66]" id="aux-sensor-metrics">
-                    <div class="border-b border-[#ff9900]/30 pb-1">
-                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[CELESTIAL NAVIGATION]</div>
-                        <div class="flex justify-between"><span>EARTH SPEED:</span> <span class="text-primary font-bold">29.78 KM/S</span></div>
-                        <div class="flex justify-between"><span>JUPITER DIST:</span> <span class="text-tertiary font-bold">5.20 AU</span></div>
-                        <div class="flex justify-between"><span>AZIMUTH:</span> <span class="text-[#66ccff] font-bold">142.8°</span></div>
-                    </div>
-                    <div class="border-b border-[#ff9900]/30 pb-1">
-                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[HARDWARE SPECIFICATIONS]</div>
-                        <div class="flex justify-between"><span>ARCH:</span> <span class="text-primary font-bold">aarch64 (ARM64)</span></div>
-                        <div class="flex justify-between"><span>KERNEL:</span> <span class="text-tertiary font-bold">Linux 6.1.21-v8+</span></div>
-                        <div class="flex justify-between"><span>SWAP MEM:</span> <span class="text-[#66ccff] font-bold">0% (0 / 1024M)</span></div>
-                    </div>
-                    <div>
-                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[NETWORK TRANSMISSION]</div>
-                        <div class="flex justify-between"><span>INTERFACE:</span> <span class="text-primary font-bold">eth0 (1000Mbps)</span></div>
-                        <div class="flex justify-between"><span>CW KEYER:</span> <span class="text-tertiary font-bold">750Hz Subspace</span></div>
-                        <div class="flex justify-between"><span>PACKET LOSS:</span> <span class="text-[#66ccff] font-bold">0.00%</span></div>
-                    </div>
+                <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
+                    <div class="bg-primary h-full w-[25%] transition-all" id="cpu-bar"></div>
                 </div>
             </div>
 
-            <!-- Bottom Half: Morse Code Subspace Transmitter -->
-            <div class="flex-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-l-4 border-tertiary rounded-sm">
-                <div class="font-label-caps text-tertiary uppercase font-bold tracking-wider border-b border-outline-variant/30 pb-0.5 mb-1 text-xs flex justify-between items-center">
-                    <span>Morse Transmitter</span>
-                    <span class="text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm" id="morse-status">READY</span>
+            <div class="flex flex-col gap-0.5 font-data-mono text-xs">
+                <div class="flex justify-between text-secondary">
+                    <span>MEMORY</span> <span id="mem-val">--%</span>
                 </div>
-                <div class="bg-surface p-2 border border-secondary/60 flex-1 flex flex-col justify-between shadow-sm rounded-sm gap-1.5">
-                    <div class="flex items-center gap-1.5">
-                        <input type="text" id="morse-input" placeholder="Type message (e.g. SOS / BMB20)..." 
-                               class="flex-1 bg-surface-container-lowest text-primary font-data-mono text-xs px-2 py-1 border border-outline-variant focus:outline-none focus:border-tertiary rounded-sm uppercase tracking-wider"
-                               onkeydown="if(event.key==='Enter') transmitMorseMessage()">
-                        <button onclick="transmitMorseMessage()" 
-                                class="bg-tertiary text-on-tertiary font-label-caps text-[10px] px-2.5 py-1 font-bold rounded-sm hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">send</span>
-                            <span>SEND</span>
-                        </button>
-                    </div>
+                <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
+                    <div class="bg-tertiary h-full w-[35%] transition-all" id="mem-bar"></div>
+                </div>
+            </div>
 
-                    <!-- Morse Preset Quick-Send Chips -->
-                    <div class="flex gap-1 justify-between text-[9px] font-data-mono">
-                        <button onclick="playTodayDateMorse()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[TODAY DATE]</button>
-                        <button onclick="document.getElementById('morse-input').value='SOS'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[SOS]</button>
-                        <button onclick="document.getElementById('morse-input').value='PING'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[PING]</button>
-                        <button onclick="document.getElementById('morse-input').value='DIETPI'; transmitMorseMessage()" class="flex-1 bg-surface-container-highest hover:bg-tertiary hover:text-on-tertiary text-tertiary px-1 py-0.5 border border-tertiary/40 rounded-sm font-bold transition-all text-center">[DIETPI]</button>
-                    </div>
+            <div class="flex flex-col gap-0.5 font-data-mono text-xs">
+                <div class="flex justify-between text-secondary">
+                    <span>CORE TEMP (PI 3)</span> <span id="temp-val">--°C</span>
+                </div>
+                <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
+                    <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
+                </div>
+            </div>
 
-                    <div class="bg-surface-container-lowest p-1.5 border border-outline-variant/30 rounded-sm font-data-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
-                        <div class="flex justify-between text-on-surface-variant text-[9px]">
-                            <span>SIGNAL ENCODING:</span>
-                            <span class="text-tertiary font-bold" id="morse-code-output">...---...</span>
-                        </div>
-                        <div class="text-primary font-bold truncate text-xs" id="morse-live-text">&gt; ENTER SIGNAL MESSAGE ABOVE</div>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] font-data-mono text-secondary pt-0.5 border-t border-outline-variant/20">
-                        <span>AUDIO KEYER: CW 750Hz</span>
-                        <div class="flex items-center gap-1">
-                            <span>TX PULSE</span>
-                            <div class="w-2.5 h-2.5 rounded-full bg-surface-variant" id="morse-tx-led"></div>
-                        </div>
-                    </div>
+            <div class="flex flex-col gap-0.5 font-data-mono text-xs">
+                <div class="flex justify-between text-secondary">
+                    <span>SD STORAGE</span> <span id="disk-val">--%</span>
+                </div>
+                <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden">
+                    <div class="bg-secondary-container h-full w-[40%]" id="disk-bar"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Row 3: Network Security & Live Device Discovery Panel (Full Width) -->
-        <div class="col-span-3 row-span-1 bg-surface-container-low p-2.5 flex gap-3 border-l-4 border-primary items-stretch justify-between h-full rounded-sm border border-outline-variant/30">
-            <!-- Location Telemetry & Network Traffic -->
-            <div class="flex-1 flex flex-col justify-between h-full border-r border-outline-variant/40 pr-3">
-                <div class="font-label-caps text-xs text-[#ffcc66] mb-1 font-bold flex justify-between items-center">
-                    <span>Location & Traffic</span>
-                    <span class="text-[9px] bg-[#ff9900] text-black px-1 rounded font-mono font-bold">[14-0826]</span>
+        <!-- Subspace Network Radar / LAN Device Scanner -->
+        <div class="col-span-1 row-span-1 bg-surface-container p-3 border-l-4 border-lcars-gold rounded-sm flex flex-col justify-between">
+            <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1">
+                <div class="font-headline-sm text-xs text-lcars-gold uppercase tracking-wider font-bold">Subspace Radar</div>
+                <span class="font-data-mono text-[9px] text-primary" id="lan-count">ACTIVE NODES</span>
+            </div>
+            <div class="grid grid-cols-1 gap-1 overflow-y-auto max-h-[145px] pr-0.5" id="lan-devices-container">
+                <!-- Dynamically populated from /proc/net/arp by telemetry.js -->
+                <div class="bg-surface-container-highest px-2 py-1 rounded flex items-center justify-between font-data-mono text-[10px]">
+                    <span class="text-secondary">SCANNING ARP NODES...</span>
+                    <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
                 </div>
-                <div class="bg-surface p-2 flex-1 flex flex-col justify-between border border-outline-variant/40 rounded-sm">
-                    <div class="flex items-center justify-between border-b border-outline-variant/20 pb-0.5">
-                        <div class="flex flex-col">
-                            <span class="font-headline-md text-xs text-primary font-bold truncate" id="telemetry-city">SEARCHING...</span>
-                            <span class="font-data-mono text-on-surface-variant text-[9px]" id="telemetry-country">REALTIME GEOIP LOCK</span>
-                        </div>
-                        <span class="material-symbols-outlined text-lg text-tertiary">my_location</span>
+            </div>
+        </div>
+
+        <!-- Network Uplink & Syslog Terminal -->
+        <div class="col-span-2 row-span-1 flex gap-2">
+            <!-- Bandwidth Graph -->
+            <div class="w-1/2 bg-surface-container-low p-2.5 flex flex-col justify-between border-b-2 border-primary rounded-sm relative">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-label-caps text-lcars-orange font-bold">UPLINK BANDWIDTH</span>
+                    <div class="flex gap-3 text-[10px] font-data-mono font-bold">
+                        <span class="text-primary" id="tx-rate">TX: 0.0 KB/s</span>
+                        <span class="text-tertiary" id="rx-rate">RX: 0.0 KB/s</span>
                     </div>
-                    <div class="w-full h-full flex-1 mt-1 relative overflow-hidden rounded-sm border border-outline-variant/30 min-h-[36px]">
-                        <canvas id="bandwidth-canvas" class="w-full h-full block"></canvas>
-                    </div>
-                    <div class="flex justify-between text-[10px] font-bold font-data-mono mt-1 pt-0.5 border-t border-outline-variant/20">
-                        <span id="tx-rate" class="text-primary">TX: 1.2 MB/s</span>
-                        <span id="rx-rate" class="text-tertiary">RX: 4.8 MB/s</span>
-                    </div>
+                </div>
+                <div class="w-full flex items-center justify-center my-1">
+                    <canvas class="w-full h-11" id="bandwidth-canvas"></canvas>
                 </div>
             </div>
 
-            <!-- VPN Throughput -->
-            <div class="flex-1 flex flex-col justify-between h-full border-r border-outline-variant/40 pr-3">
-                <div class="font-label-caps text-xs text-[#66ccff] mb-1 font-bold flex justify-between items-center">
-                    <span>VPN Throughput</span>
-                    <span class="text-[9px] bg-[#66ccff] text-black px-1 rounded font-mono font-bold">[55-1092]</span>
-                </div>
-                <div class="bg-surface p-2 flex-1 flex flex-col justify-between border border-outline-variant/40 rounded-sm">
-                    <div class="w-full h-full flex-1 relative overflow-hidden rounded-sm min-h-[36px]">
-                        <canvas id="vpn-canvas" class="w-full h-full block"></canvas>
-                    </div>
-                    <div class="flex justify-between mt-1 font-data-mono text-[10px] text-on-surface-variant border-t border-outline-variant/20 pt-0.5">
-                        <span id="vpn-peak">PEAK: 14.2 Mbps</span>
-                        <span id="vpn-avg">AVG: 7.4 Mbps</span>
-                        <span id="vpn-cur" class="text-primary font-bold">CUR: 3.8 Mbps</span>
-                    </div>
+            <!-- Terminal Syslog Stream -->
+            <div class="w-1/2 bg-surface p-2.5 border border-outline-variant/40 font-data-mono text-[10px] text-primary flex flex-col justify-between rounded-sm relative">
+                <div class="text-[10px] font-label-caps text-lcars-gold font-bold mb-1">SYSTEM KERNEL LOG</div>
+                <div class="overflow-hidden h-14 flex flex-col justify-end opacity-90 font-mono leading-tight" id="sys-log">
+                    <div>&gt; system initializing...</div>
+                    <div>&gt; telemetry daemon active...</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Live LAN Device Discovery -->
-            <div class="flex-1 flex flex-col justify-between h-full">
-                <div class="font-label-caps text-xs text-[#cc6699] mb-1 font-bold flex justify-between items-center">
-                    <span>Live Network Discovery</span>
-                    <span class="text-[9px] bg-[#cc6699] text-black px-1 rounded font-mono font-bold">[07-4402]</span>
+        <!-- Live LAN Network Discovery (ARP Table Mapping) -->
+        <div class="col-span-3 row-span-1 bg-surface-container-low p-3 flex flex-col justify-between border-l-4 border-lcars-orange rounded-sm">
+            <div class="flex justify-between items-center mb-1">
+                <span class="font-label-caps text-xs text-lcars-orange font-bold">Live LAN Network Discovery (ARP Table)</span>
+                <span class="text-[10px] font-data-mono text-tertiary">HOST: 192.168.0.100</span>
+            </div>
+            <div class="bg-surface p-2 rounded flex flex-col font-data-mono text-xs overflow-y-auto max-h-24">
+                <div class="grid grid-cols-4 text-secondary border-b border-outline-variant/40 pb-1 mb-1 font-bold text-[10px]">
+                    <span>DEVICE NAME</span>
+                    <span>IP ADDRESS</span>
+                    <span class="text-center">INTERFACE</span>
+                    <span class="text-right">STATUS</span>
                 </div>
-                <div class="bg-surface p-1.5 flex-1 flex flex-col font-data-mono text-[11px] overflow-y-auto border border-outline-variant/40 rounded-sm justify-between">
-                    <div class="grid grid-cols-4 text-secondary border-b border-secondary/50 pb-0.5 mb-0.5 font-bold sticky top-0 bg-surface text-[10px]">
-                        <span>DEVICE</span>
-                        <span>IP ADDR</span>
-                        <span class="text-center font-bold">SIGNAL</span>
-                        <span class="text-right">STAT</span>
-                    </div>
-                    <div class="flex flex-col justify-between flex-1" id="lan-devices-list">
-                        <div class="grid grid-cols-4 text-on-surface border-b border-outline-variant/20 py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold text-[#ffcc66]">DIETPI-GATEWAY</span>
-                            <span class="text-[#66ccff]">192.168.0.1</span>
-                            <span class="text-center text-primary font-bold text-[10px]">📶 100%</span>
-                            <span class="text-right text-primary font-bold">OK</span>
-                        </div>
-                        <div class="grid grid-cols-4 text-on-surface border-b border-outline-variant/20 py-0.5 items-center hover:bg-surface-bright transition-colors">
-                            <span class="truncate pr-1 font-bold text-[#ffcc66]">LOCAL-CLIENT</span>
-                            <span class="text-[#66ccff]">192.168.0.100</span>
-                            <span class="text-center text-tertiary font-bold text-[10px]">📶 98%</span>
-                            <span class="text-right text-primary font-bold">OK</span>
-                        </div>
+                <div class="flex flex-col gap-1" id="lan-devices-list">
+                    <!-- Dynamic devices injected by telemetry.js -->
+                    <div class="grid grid-cols-4 text-on-surface py-0.5 text-[10px]">
+                        <span class="text-tertiary font-bold">GATEWAY</span>
+                        <span class="text-primary font-mono">192.168.0.1</span>
+                        <span class="text-center text-on-surface-variant font-mono">LAN</span>
+                        <span class="text-right text-primary font-bold">OK</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div> <!-- End .main-area -->
 
-    <!-- Footer Ticker -->
-    <div class="footer-area bg-surface-container-high border-t border-secondary py-1 overflow-hidden relative flex items-center">
-        <div class="ticker-content font-data-mono text-[11px] text-tertiary flex gap-8">
-            <span>[HOST] dietpi.local</span>
-            <span>DOM: dietpi.local</span>
-            <span>WEB ROOT: /var/www</span>
-            <span>SYSTEM: DietPi Linux</span>
+    </div>
+
+    <!-- ==========================================
+         FOOTER TICKER
+         ========================================== -->
+    <div class="footer-area bg-surface-container-high border-t border-lcars-orange py-0.5 overflow-hidden relative flex items-center">
+        <div class="ticker-content font-data-mono text-[10px] text-tertiary flex gap-8" id="footer-ticker-content">
+            <span>[SYS STATUS] ALL SUBSYSTEMS NOMINAL</span>
+            <span>HOST: DIETPI (192.168.0.100)</span>
+            <span>GATEWAY: 192.168.0.1</span>
             <span>SECURE BOOT: ACTIVE</span>
-            <span>FIREWALL: ENABLED</span>
-            <span>[HOST] dietpi.local</span>
-            <span>DOM: dietpi.local</span>
-            <span>WEB ROOT: /var/www</span>
-            <span>SYSTEM: DietPi Linux</span>
+            <span>FIREWALL: OPERATIONAL</span>
         </div>
     </div>
-</div> <!-- End .grid-container -->
 
-<!-- Maximize 3D Globe Fullscreen LCARS Modal Overlay -->
-<div id="globe-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col hidden p-4 transition-all duration-300">
-    <div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
-        <div class="flex items-center gap-3">
-            <div class="bg-primary text-on-primary font-bold px-3 py-1 text-sm font-label-caps tracking-widest rounded-sm">SOLAR SYSTEM MAXIMIZED VIEW (SUN ANCHOR CENTER)</div>
-            <span class="font-data-mono text-xs text-secondary">[REALTIME KEPLERIAN ORBIT SCANNER]</span>
-        </div>
-        <button onclick="closeGlobeModal()" class="bg-error text-on-error hover:bg-error/80 px-4 py-1.5 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-lg rounded-sm">
-            <span class="material-symbols-outlined text-base">close</span>
-            <span>CLOSE SCAN</span>
-        </button>
-    </div>
+</div>
 
-    <div class="flex-1 w-full h-full relative overflow-hidden bg-surface-container-lowest border border-outline-variant/60 rounded" id="modal-earth-container">
-        <!-- Telemetry Readout Overlay in Modal -->
-        <div class="absolute top-4 left-4 bg-surface-container/90 backdrop-blur-md p-4 border border-secondary/60 font-data-mono text-xs text-secondary z-30 shadow-2xl flex flex-col gap-1.5">
-            <div class="text-primary font-bold text-sm">SYSTEM_MODE: SOLAR SYSTEM ORBITS</div>
-            <div class="text-tertiary font-bold text-xs">ANCHOR: ☀️ CENTRAL SUN (0,0,0)</div>
-            <div id="modal-target-loc" class="text-primary font-bold">TARGET: SEARCHING...</div>
-            <div id="modal-target-coords" class="text-secondary text-[11px]">COORDS: LAT -- | LON --</div>
-            <div id="modal-target-ip" class="text-on-surface-variant text-[11px]">PUBLIC IP: FETCHING...</div>
-            <div class="text-primary text-[10px] mt-2 border-t border-secondary/40 pt-1">CONTROLS: LEFT-CLICK DRAG TO ROTATE | MOUSE WHEEL TO ZOOM</div>
-        </div>
-
-
-        <!-- Top Right LCARS Floating Zoom In / Zoom Out Controller Bar -->
-        <div class="absolute top-4 right-16 z-30 flex items-center bg-[#070b19]/90 border border-[#4af626]/50 rounded-md backdrop-blur-md p-1 shadow-2xl font-mono text-xs gap-1">
-            <button onclick="zoomGlobe(-3.0)" title="Zoom In (+)" class="bg-[#4af626]/10 hover:bg-[#4af626] hover:text-[#070b19] text-[#4af626] px-2.5 py-1 rounded transition-all flex items-center gap-1 font-bold">
-                <span class="material-symbols-outlined text-base">zoom_in</span>
-                <span>ZOOM IN</span>
-            </button>
-            <button onclick="zoomGlobe(3.0)" title="Zoom Out (-)" class="bg-[#4af626]/10 hover:bg-[#4af626] hover:text-[#070b19] text-[#4af626] px-2.5 py-1 rounded transition-all flex items-center gap-1 font-bold">
-                <span class="material-symbols-outlined text-base">zoom_out</span>
-                <span>ZOOM OUT</span>
-            </button>
-            <button onclick="resetGlobeZoom()" title="Reset Zoom" class="bg-tertiary/20 hover:bg-tertiary hover:text-on-tertiary text-tertiary px-2 py-1 rounded transition-all font-bold text-[10px]">
-                <span>RESET</span>
-            </button>
-        </div>
-
-        <!-- Dynamic Vector Callout Annotation Line Overlay in Modal -->
-        <svg id="modal-callout-svg-overlay" class="absolute inset-0 w-full h-full z-25 pointer-events-none"></svg>
-
-        <!-- Sorted Planet Radar Index Bar (From Sun Outward) -->
-        <div class="absolute bottom-3 left-4 right-4 z-30 bg-surface-container/90 backdrop-blur-md px-3 py-1.5 border border-tertiary/60 font-data-mono text-xs text-on-surface-variant flex items-center justify-between rounded-sm shadow-2xl overflow-x-auto gap-2">
-            <div class="font-bold text-tertiary uppercase tracking-wider text-[10px] whitespace-nowrap">ORBIT SORT (SUN OUTWARD):</div>
-            <div class="flex items-center gap-2 text-[10px] font-bold">
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffe253] text-[#ffe253] rounded-sm">0. SUN [0.0 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#d1d5db] text-[#d1d5db] rounded-sm">1. MERCURY [1.4 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffca28] text-[#ffca28] rounded-sm">2. VENUS [2.2 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#42a5f5] text-[#42a5f5] rounded-sm">3. EARTH [3.4 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ff5252] text-[#ff5252] rounded-sm">4. MARS [4.4 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffa726] text-[#ffa726] rounded-sm">5. JUPITER [5.8 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffe082] text-[#ffe082] rounded-sm">6. SATURN [7.4 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#26c6da] text-[#26c6da] rounded-sm">7. URANUS [9.0 AU]</span>
-                <span class="text-outline">➔</span>
-                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#42a5f5] text-[#42a5f5] rounded-sm">8. NEPTUNE [10.6 AU]</span>
+<!-- ==========================================
+     LCARS TACTICAL NODE & SUBSYSTEM ACTION MODAL
+     ========================================== -->
+<div id="tactical-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-surface-container border-2 border-lcars-orange rounded-tl-2xl rounded-br-2xl p-4 max-w-md w-full shadow-2xl flex flex-col gap-3 font-data-mono">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-lcars-orange animate-pulse"></span>
+                <span class="font-headline-sm text-sm text-lcars-orange font-bold tracking-wider" id="modal-title">NODE DIAGNOSTIC</span>
             </div>
+            <button onclick="closeNodeModal()" class="text-on-surface-variant hover:text-error text-xs font-bold px-2 py-0.5 rounded bg-surface-bright">CLOSE [ESC]</button>
         </div>
 
-        <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-30 mix-blend-screen" id="modal-tactical-shader"></canvas>
+        <!-- Node Information Readout -->
+        <div class="bg-surface-container-lowest p-3 rounded border border-primary/30 flex flex-col gap-1.5 text-xs">
+            <div class="flex justify-between text-secondary"><span>NODE IDENTIFIER:</span> <strong class="text-on-surface" id="modal-node-name">--</strong></div>
+            <div class="flex justify-between text-secondary"><span>IP ADDRESS:</span> <strong class="text-primary font-bold" id="modal-node-ip">--</strong></div>
+            <div class="flex justify-between text-secondary"><span>INTERFACE / PROTOCOL:</span> <strong class="text-tertiary" id="modal-node-dev">eth0 / ARP</strong></div>
+            <div class="flex justify-between text-secondary"><span>SUBSPACE LINK:</span> <strong class="text-primary" id="modal-node-status">ONLINE [OK]</strong></div>
+        </div>
+
+        <!-- Diagnostics Action Console -->
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="executePing()" id="btn-ping" class="bg-primary text-black font-bold py-1.5 px-2 rounded-l-full text-center hover:bg-primary/80 transition-colors text-xs flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">sensors</span>
+                <span>PING DIAGNOSTIC</span>
+            </button>
+            <button onclick="executeSubsystemAction('flush_dns')" class="bg-tertiary text-black font-bold py-1.5 px-2 rounded-r text-center hover:bg-tertiary/80 transition-colors text-xs flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">cleaning_services</span>
+                <span>FLUSH DNS</span>
+            </button>
+            <button onclick="executeSubsystemAction('purge_ram')" class="bg-surface-bright text-on-surface font-bold py-1.5 px-2 rounded-l text-center hover:bg-surface-container-high transition-colors text-xs flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">memory</span>
+                <span>PURGE RAM</span>
+            </button>
+            <button onclick="executeSubsystemAction('reload_daemon')" class="bg-surface-bright text-on-surface font-bold py-1.5 px-2 rounded-r-full text-center hover:bg-surface-container-high transition-colors text-xs flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-sm">sync</span>
+                <span>RELOAD DAEMON</span>
+            </button>
+        </div>
+
+        <!-- Console Output Log Stream -->
+        <div class="bg-surface-dim p-2 rounded text-[11px] text-primary border border-outline-variant/30 min-h-[45px] max-h-[70px] overflow-y-auto" id="modal-console-out">
+            > AWAITING COMMAND INPUT...
+        </div>
     </div>
 </div>
 
-<!-- WebGL Shaders & Scripts -->
-<script id="tactical-vertex" type="x-shader/x-vertex">
-    attribute vec2 a_position;
-    varying vec2 v_texCoord;
-    void main() {
-        gl_Position = vec4(a_position, 0.0, 1.0);
-        v_texCoord = a_position * 0.5 + 0.5;
-    }
-</script>
-<script id="tactical-fragment" type="x-shader/x-fragment">
-    precision highp float;
-    uniform float u_time;
-    uniform vec2 u_resolution;
-    varying vec2 v_texCoord;
-
-    void main() {
-        vec2 uv = v_texCoord;
-        vec2 centered_uv = uv - 0.5;
-        centered_uv.x *= u_resolution.x / u_resolution.y;
-        
-        vec3 color = vec3(0.02, 0.02, 0.08);
-        float dist = length(centered_uv);
-        float angle = atan(centered_uv.y, centered_uv.x);
-        
-        // Rotating Radar Sweep Line
-        float sweep = mod(angle + u_time * 1.5, 6.2831) / 6.2831;
-        float sweep_line = smoothstep(0.015, 0.0, abs(sweep - 0.98)) * (1.0 - dist * 1.4);
-        color += vec3(0.2, 0.5, 1.0) * sweep_line * 0.6;
-
-        // Tactical Reticle Target Rings
-        float ring1 = smoothstep(0.005, 0.0, abs(dist - 0.35));
-        float ring2 = smoothstep(0.005, 0.0, abs(dist - 0.20));
-        color += vec3(0.3, 0.4, 0.8) * (ring1 + ring2) * 0.15;
-
-        // CRT Vignette
-        float vignette = smoothstep(0.9, 0.4, length(uv - 0.5));
-        color *= vignette;
-
-        gl_FragColor = vec4(color, 1.0);
-    }
-</script>
-
-<script>
-let cascadeActive = true;
-let audioActive = false;
-let ecoMode = false;
-let isTabVisible = true;
-
-// GeoIP target location variables
-let userGeoLocation = { lat: 3.1390, lon: 101.6869, city: "KUALA LUMPUR", country: "MY", ip: "FETCHING..." };
-let beaconMesh = null;
-let beaconPulseRing = null;
-let globeGroup = null;
-
-// Page Visibility API
-document.addEventListener('visibilitychange', () => {
-    isTabVisible = !document.hidden;
-});
-
-function toggleEcoMode() {
-    ecoMode = !ecoMode;
-    const icon = document.getElementById('eco-icon');
-    const text = document.getElementById('eco-text');
-    const btn = document.getElementById('eco-toggle');
-    if (ecoMode) {
-        icon.innerText = 'eco';
-        text.innerText = 'ECO: ON';
-        btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
-        btn.classList.remove('bg-surface-variant');
-        if (cascadeActive) toggleCascade();
-    } else {
-        icon.innerText = 'bolt';
-        text.innerText = 'ECO: OFF';
-        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
-        btn.classList.add('bg-surface-variant');
-    }
-}
-
-function updateClock() {
-    const now = new Date();
-    const clockElem = document.getElementById('clock');
-    if (clockElem) clockElem.innerText = now.toISOString().substr(11, 8) + ' UTC';
-
-    const stardateElem = document.getElementById('stardate');
-    if (stardateElem) {
-        // TNG / Voyager Authentic Stardate Formula
-        const stardateVal = ((Date.now() - 1577836800000) / 3155760000 * 1000 + 75000).toFixed(2);
-        stardateElem.innerText = `STARDATE ${stardateVal}`;
-    }
-}
-
-// High-Precision Realtime Geolocation & GeoIP Cascade Engine
-async function fetchRealtimeGeoIP() {
-    const geoBadge = document.getElementById('geo-city-country');
-    if (geoBadge) geoBadge.innerText = "LOCKING POSITION...";
-
-    // 1. Query client's real Public IP via ipify CORS endpoint
-    try {
-        const ipRes = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
-        if (ipRes.ok) {
-            const ipData = await ipRes.json();
-            const clientIP = ipData.ip;
-            userGeoLocation.ip = clientIP;
-
-            // 2. Resolve GeoIP for this Public IP
-            const geoRes = await fetch(`https://ipwho.is/${clientIP}`, { cache: 'no-store' });
-            if (geoRes.ok) {
-                const data = await geoRes.json();
-                if (data.success !== false && data.latitude && data.longitude) {
-                    userGeoLocation = {
-                        lat: parseFloat(data.latitude),
-                        lon: parseFloat(data.longitude),
-                        city: (data.city || "KUALA LUMPUR").toUpperCase(),
-                        country: (data.country_code || data.country || "MY").toUpperCase(),
-                        ip: clientIP
-                    };
-                    window.isGeoIPLocked = true;
-                    updateGeoIPDisplay();
-                    updateGlobeBeacon();
-                    return;
-                }
-            }
-        }
-    } catch(e) {}
-
-    // Fallback: Query server-side GeoIP payload from api.php
-    fetchGeoIPCascade();
-}
-
-async function fetchGeoIPCascade() {
-    // Cascade 1: ipwho.is (High reliability, native CORS)
-    try {
-        const res = await fetch('https://ipwho.is/', { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.success !== false && data.latitude && data.longitude) {
-                userGeoLocation = {
-                    lat: parseFloat(data.latitude),
-                    lon: parseFloat(data.longitude),
-                    city: (data.city || "UNKNOWN").toUpperCase(),
-                    country: (data.country_code || data.country || "").toUpperCase(),
-                    ip: data.ip || "LOCKED"
-                };
-                updateGeoIPDisplay();
-                updateGlobeBeacon();
-                return;
-            }
-        }
-    } catch(e) {}
-
-    // Cascade 2: ipapi.co
-    try {
-        const res = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.latitude && data.longitude) {
-                userGeoLocation = {
-                    lat: parseFloat(data.latitude),
-                    lon: parseFloat(data.longitude),
-                    city: (data.city || "UNKNOWN").toUpperCase(),
-                    country: (data.country_code || data.country || "").toUpperCase(),
-                    ip: data.ip || "LOCKED"
-                };
-                updateGeoIPDisplay();
-                updateGlobeBeacon();
-                return;
-            }
-        }
-    } catch (e) {}
-
-    // Cascade 3: ipify IP lookup fallback
-    try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        if (res.ok) {
-            const data = await res.json();
-            userGeoLocation.ip = data.ip;
-            updateGeoIPDisplay();
-        }
-    } catch (err) {}
-}
-
-function updateGeoIPDisplay() {
-    const cityCountryElem = document.getElementById('geo-city-country');
-    const coordsElem = document.getElementById('geo-coords');
-    const ipElem = document.getElementById('geo-ip');
-    const telemetryCityElem = document.getElementById('telemetry-city');
-    const telemetryCountryElem = document.getElementById('telemetry-country');
-
-    if (cityCountryElem) cityCountryElem.innerText = `${userGeoLocation.city}, ${userGeoLocation.country}`;
-    if (coordsElem) coordsElem.innerText = `LAT: ${userGeoLocation.lat.toFixed(2)}° | LON: ${userGeoLocation.lon.toFixed(2)}°`;
-    if (ipElem) ipElem.innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
-    if (telemetryCityElem) telemetryCityElem.innerText = userGeoLocation.city;
-    if (telemetryCountryElem) telemetryCountryElem.innerText = `REALTIME GEO LOCK [${userGeoLocation.country}]`;
-}
-
-// Telemetry Data Engine
-async function fetchTelemetry() {
-    if (!isTabVisible) return;
-
-    // 1. Try api.json first (Live Daemon Endpoint)
-    try {
-        const res = await fetch('api.json', { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            if (data && data.cpu !== undefined) {
-                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
-                if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
-                    userGeoLocation = {
-                        lat: parseFloat(data.geoip.latitude),
-                        lon: parseFloat(data.geoip.longitude),
-                        city: data.geoip.city || "KUALA LUMPUR",
-                        country: data.geoip.country || "MY",
-                        ip: data.geoip.ip || "LOCKED"
-                    };
-                    updateGeoIPDisplay();
-                    updateGlobeBeacon();
-                }
-                if (data.lan_devices && Array.isArray(data.lan_devices)) {
-                    updateLANDevicesUI(data.lan_devices);
-                }
-                return;
-            }
-        }
-    } catch (e) {}
-
-    // 2. Try api.php fallback
-    try {
-        const res = await fetch('api.php', { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            if (data && data.cpu !== undefined) {
-                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
-                if (data.geoip && data.geoip.latitude && !window.isGeoIPLocked) {
-                    userGeoLocation = {
-                        lat: parseFloat(data.geoip.latitude),
-                        lon: parseFloat(data.geoip.longitude),
-                        city: data.geoip.city || "KUALA LUMPUR",
-                        country: data.geoip.country || "MY",
-                        ip: data.geoip.ip || "LOCKED"
-                    };
-                    updateGeoIPDisplay();
-                    updateGlobeBeacon();
-                }
-                if (data.lan_devices && Array.isArray(data.lan_devices)) {
-                    updateLANDevicesUI(data.lan_devices);
-                }
-                return;
-            }
-        }
-    } catch (e) {}
-
-    // 3. Fallback: Active live simulated telemetry + LAN devices
-    const simulatedCpu = Math.floor(18 + Math.random() * 45);
-    const simulatedMem = Math.floor(32 + Math.random() * 15);
-    const simulatedTemp = Math.floor(43 + Math.random() * 8);
-    const simulatedDisk = 38;
-    updateMetricsUI(simulatedCpu, simulatedMem, simulatedTemp, simulatedDisk, "ONLINE", "SIMULATED");
-
-    const defaultDevices = [
-        { name: "DIETPI-GATEWAY", ip: "192.168.0.1", signal: "100%", status: "OK" },
-        { name: "LOCAL-HOST", ip: "192.168.0.100", signal: "98%", status: "OK" },
-        { name: "DESKTOP-CLIENT", ip: "192.168.0.105", signal: "88%", status: "OK" },
-        { name: "MOBILE-NODE", ip: "192.168.0.42", signal: "94%", status: "OK" }
-    ];
-    updateLANDevicesUI(defaultDevices);
-}
-
-function updateLANDevicesUI(devices) {
-    const listElem = document.getElementById('lan-devices-list');
-    if (!listElem || !Array.isArray(devices)) return;
-
-    let html = '';
-    devices.forEach((dev, idx) => {
-        const borderClass = idx < devices.length - 1 ? 'border-b border-outline-variant/20' : '';
-        const statColor = dev.status === 'OK' ? 'text-primary font-bold' : 'text-error font-bold animate-pulse';
-        html += `
-            <div class="grid grid-cols-4 text-on-surface ${borderClass} py-0.5 items-center hover:bg-surface-bright transition-colors text-[10px]">
-                <span class="truncate pr-1 font-bold text-[#ffcc66]">${dev.name}</span>
-                <span class="text-[#66ccff] font-mono">${dev.ip}</span>
-                <span class="text-center text-tertiary font-bold text-[9px]">📶 ${dev.signal}</span>
-                <span class="text-right ${statColor}">${dev.status}</span>
-            </div>
-        `;
-    });
-    listElem.innerHTML = html;
-}
-
-function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText) {
-    const srcElem = document.getElementById('telemetry-source');
-    if (srcElem) srcElem.innerText = sourceText;
-    const uptimeElem = document.getElementById('hero-uptime');
-    if (uptimeElem) uptimeElem.innerText = uptime || "UPTIME OK";
-
-    // Sidebar Telemetry Updates (CPU, RAM, TEMP, DISK)
-    const sideCpuVal = document.getElementById('side-cpu-val');
-    const sideCpuBar = document.getElementById('side-cpu-bar');
-    if (sideCpuVal) sideCpuVal.innerText = `${cpu}%`;
-    if (sideCpuBar) sideCpuBar.style.width = `${cpu}%`;
-
-    const sideRamVal = document.getElementById('side-ram-val');
-    const sideRamBar = document.getElementById('side-ram-bar');
-    if (sideRamVal) sideRamVal.innerText = `${mem}%`;
-    if (sideRamBar) sideRamBar.style.width = `${mem}%`;
-
-    const sideTempVal = document.getElementById('side-temp-val');
-    const sideTempBar = document.getElementById('side-temp-bar');
-    if (sideTempVal) sideTempVal.innerText = `${temp}°C`;
-    if (sideTempBar) sideTempBar.style.width = `${temp}%`;
-
-    const sideDiskVal = document.getElementById('side-disk-val');
-    const sideDiskBar = document.getElementById('side-disk-bar');
-    if (sideDiskVal) sideDiskVal.innerText = `${disk}%`;
-    if (sideDiskBar) sideDiskBar.style.width = `${disk}%`;
-}
-
-let txHistory = new Array(40).fill(0.3);
-let rxHistory = new Array(40).fill(0.5);
-let vpnHistory = new Array(24).fill(0.4);
-
-function drawBandwidthCanvas() {
-    const canvas = document.getElementById('bandwidth-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = canvas.clientWidth || 250;
-    const h = canvas.height = canvas.clientHeight || 45;
-
-    ctx.clearRect(0, 0, w, h);
-
-    // Horizontal Grid Lines
-    ctx.strokeStyle = 'rgba(145, 143, 157, 0.15)';
-    ctx.lineWidth = 1;
-    for (let y = 0; y < h; y += 10) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-    }
-
-    const step = w / (txHistory.length - 1);
-
-    // Draw TX Area Waveform (Nemesis Cyan/Blue)
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    for (let i = 0; i < txHistory.length; i++) {
-        const x = i * step;
-        const y = h - (txHistory[i] * (h - 4));
-        ctx.lineTo(x, y);
-    }
-    ctx.lineTo(w, h);
-    ctx.closePath();
-    const txGrad = ctx.createLinearGradient(0, 0, 0, h);
-    txGrad.addColorStop(0, 'rgba(173, 198, 255, 0.45)');
-    txGrad.addColorStop(1, 'rgba(173, 198, 255, 0.02)');
-    ctx.fillStyle = txGrad;
-function drawBandwidthCanvas() {
-    const canvas = document.getElementById('bandwidth-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = canvas.clientWidth || 250;
-    const h = canvas.height = canvas.clientHeight || 50;
-
-    ctx.clearRect(0, 0, w, h);
-
-    const count = txHistory.length;
-    const colWidth = Math.floor(w / count);
-    const blockHeight = 3;
-    const blockGap = 1.5;
-
-    for (let i = 0; i < count; i++) {
-        const x = i * colWidth;
-        const txVal = txHistory[i];
-        const rxVal = rxHistory[i];
-
-        const totalBlocks = Math.floor((h - 4) / (blockHeight + blockGap));
-        const txBlocks = Math.floor(txVal * totalBlocks);
-        const rxBlocks = Math.floor(rxVal * totalBlocks);
-
-        // Draw TX Stacked LCARS Blocks (Ice Blue / Secondary)
-        for (let b = 0; b < txBlocks; b++) {
-            const y = h - ((b + 1) * (blockHeight + blockGap));
-            ctx.fillStyle = b > totalBlocks * 0.75 ? '#ff9900' : '#66ccff';
-            ctx.fillRect(x, y, (colWidth / 2) - 1, blockHeight);
-        }
-
-        // Draw RX Stacked LCARS Blocks (Butterscotch Gold / Primary)
-        for (let b = 0; b < rxBlocks; b++) {
-            const y = h - ((b + 1) * (blockHeight + blockGap));
-            ctx.fillStyle = b > totalBlocks * 0.75 ? '#cc3333' : '#ffcc66';
-            ctx.fillRect(x + (colWidth / 2), y, (colWidth / 2) - 1, blockHeight);
-        }
-    }
-}
-
-function drawVPNCanvas() {
-    const canvas = document.getElementById('vpn-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = canvas.clientWidth || 250;
-    const h = canvas.height = canvas.clientHeight || 50;
-
-    ctx.clearRect(0, 0, w, h);
-
-    const count = vpnHistory.length;
-    const colWidth = Math.floor(w / count);
-    const blockHeight = 3;
-    const blockGap = 1.5;
-
-    for (let i = 0; i < count; i++) {
-        const x = i * colWidth;
-        const vpnVal = vpnHistory[i];
-
-        const totalBlocks = Math.floor((h - 4) / (blockHeight + blockGap));
-        const vpnBlocks = Math.floor(vpnVal * totalBlocks);
-
-        // Draw VPN Stacked LCARS Blocks (Okuda Orange & Magenta)
-        for (let b = 0; b < vpnBlocks; b++) {
-            const y = h - ((b + 1) * (blockHeight + blockGap));
-            if (b > totalBlocks * 0.8) {
-                ctx.fillStyle = '#cc3333'; // Starfleet Alert Red
-            } else if (b > totalBlocks * 0.5) {
-                ctx.fillStyle = '#ff9900'; // Okuda Orange
-            } else {
-                ctx.fillStyle = '#cc6699'; // LCARS Purple
-            }
-            ctx.fillRect(x, y, colWidth - 1.5, blockHeight);
-        }
-
-        // Top Glowing LCARS Pill Cap
-        if (vpnBlocks > 0) {
-            const topY = h - (vpnBlocks * (blockHeight + blockGap));
-            ctx.fillStyle = '#ffcc66';
-            ctx.fillRect(x, topY - 1, colWidth - 1.5, 2);
-        }
-    }
-}
-
-function initBandwidthGraph() {
-    drawBandwidthCanvas();
-    drawVPNCanvas();
-}
-
-function updateBandwidth() {
-    if (!isTabVisible || ecoMode) return;
-
-    txHistory.shift();
-    txHistory.push(Math.min(0.95, Math.max(0.1, (txHistory[txHistory.length - 1] + (Math.random() * 0.3 - 0.15)))));
-
-    rxHistory.shift();
-    rxHistory.push(Math.min(0.95, Math.max(0.15, (rxHistory[rxHistory.length - 1] + (Math.random() * 0.4 - 0.2)))));
-
-    vpnHistory.shift();
-    vpnHistory.push(Math.min(0.95, Math.max(0.1, (vpnHistory[vpnHistory.length - 1] + (Math.random() * 0.35 - 0.17)))));
-
-    drawBandwidthCanvas();
-    drawVPNCanvas();
-
-    // Update Numerical Readouts
-    const txVal = (txHistory[txHistory.length - 1] * 3.5).toFixed(1);
-    const rxVal = (rxHistory[rxHistory.length - 1] * 8.2).toFixed(1);
-    const vpnCur = (vpnHistory[vpnHistory.length - 1] * 12.0).toFixed(1);
-
-    const txElem = document.getElementById('tx-rate');
-    const rxElem = document.getElementById('rx-rate');
-    const vpnCurElem = document.getElementById('vpn-cur');
-
-    if (txElem) txElem.innerText = `TX: ${txVal} MB/s`;
-    if (rxElem) rxElem.innerText = `RX: ${rxVal} MB/s`;
-    if (vpnCurElem) vpnCurElem.innerText = `CUR: ${vpnCur} Mbps`;
-function switchCol3Tab(tab) {
-    const logElem = document.getElementById('sys-log');
-    const metricsElem = document.getElementById('aux-sensor-metrics');
-    const btnLog = document.getElementById('col3-tab-log');
-    const btnMetrics = document.getElementById('col3-tab-metrics');
-
-    if (tab === 'metrics') {
-        if (logElem) logElem.classList.add('hidden');
-        if (metricsElem) metricsElem.classList.remove('hidden');
-        if (btnLog) { btnLog.className = 'bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all'; }
-        if (btnMetrics) { btnMetrics.className = 'bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all'; }
-    } else {
-        if (logElem) logElem.classList.remove('hidden');
-        if (metricsElem) metricsElem.classList.add('hidden');
-        if (btnLog) { btnLog.className = 'bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all'; }
-        if (btnMetrics) { btnMetrics.className = 'bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all'; }
-    }
-}
-
-function appendSysLog() {
-    if (!isTabVisible || ecoMode) return;
-    const logs = [
-        "> ethernet rx 1000Mbps ok...",
-        "> geoip location locked target.",
-        "> pi-hole query filter clear.",
-        "> memory cache optimized.",
-        "> thermal state nominal."
-    ];
-    const container = document.getElementById('sys-log');
-    if (!container) return;
-    const div = document.createElement('div');
-    div.innerText = logs[Math.floor(Math.random() * logs.length)];
-    container.appendChild(div);
-    if (container.children.length > 7) {
-        container.removeChild(container.firstElementChild);
-    }
-}
-
-const chars = '0123456789ABCDEF';
-function generateCascade() {
-    if (!cascadeActive || ecoMode || !isTabVisible) return;
-    const container = document.getElementById('cascade-container');
-    if (!container) return;
-    const stream = document.createElement('div');
-    stream.className = 'data-stream';
-    stream.style.left = `${Math.random() * 100}vw`;
-    let content = '';
-    for(let i=0; i<12; i++) {
-        content += chars[Math.floor(Math.random() * chars.length)] + '\n';
-    }
-    stream.innerText = content;
-    const duration = 3 + Math.random() * 4;
-    stream.style.animation = `cascadeDown ${duration}s linear`;
-    container.appendChild(stream);
-    setTimeout(() => {
-        if(container.contains(stream)) container.removeChild(stream);
-    }, duration * 1000);
-}
-
-function toggleCascade() {
-    cascadeActive = !cascadeActive;
-    const btn = document.getElementById('cascade-toggle');
-    if (cascadeActive) {
-        btn.innerHTML = '<span class="material-symbols-outlined text-sm">pause_circle</span> <span>FREEZE</span>';
-    } else {
-        btn.innerHTML = '<span class="material-symbols-outlined text-sm">play_circle</span> <span>PLAY</span>';
-        const container = document.getElementById('cascade-container');
-        if (container) container.innerHTML = '';
-    }
-}
-
-// Advanced Web Audio API Sound Engine (Starship Ambient Hum + Sci-Fi Music + SFX)
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let humOsc = null;
-let humHarmonicOsc = null;
-let humGain = null;
-let lfoOsc = null;
-let ambientPingInterval = null;
-let synthChordInterval = null;
-let arpeggioInterval = null;
-
-// Modal Sci-Fi Command Bridge Harmonic Progression (Frequency Pairs & Chords)
-const sciFiChords = [
-    [110.00, 220.00, 329.63, 440.00, 659.25], // Low A Deep Sub + E/A Octaves
-    [130.81, 261.63, 392.00, 523.25, 783.99], // C Maj High Resonance
-    [146.83, 293.66, 440.00, 587.33, 880.00], // D Sub + A/D Octaves
-    [98.00,  196.00, 293.66, 392.00, 587.33]  // Low G Bridge Sub
-];
-let currentChordIdx = 0;
-
-function playSciFiChordPad() {
-    if (!audioActive || !isTabVisible || ecoMode) return;
-    try {
-        const chord = sciFiChords[currentChordIdx];
-        currentChordIdx = (currentChordIdx + 1) % sciFiChords.length;
-
-        // Sub-bass sweep + multi-harmonic pad
-        chord.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-
-            osc.type = idx === 0 ? 'sine' : (idx % 2 === 0 ? 'triangle' : 'sawtooth');
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(220 + idx * 80, audioCtx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(500 + idx * 120, audioCtx.currentTime + 3.0);
-            filter.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 7.5);
-
-            // Smooth LCARS bridge envelope
-            gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(idx === 0 ? 0.04 : 0.015, audioCtx.currentTime + 2.0);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 7.8);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + 7.9);
-        });
-    } catch (e) {}
-}
-
-const arpeggioNotes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
-function playSciFiArpeggioNote() {
-    if (!audioActive || !isTabVisible || ecoMode) return;
-    try {
-        const note = arpeggioNotes[Math.floor(Math.random() * arpeggioNotes.length)];
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        // High-tech glass computer telemetry blip
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(note, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(note * 1.5, audioCtx.currentTime + 0.08);
-
-        gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.45);
-    } catch (e) {}
-}
-
-function startSciFiMusic() {
-    if (synthChordInterval) clearInterval(synthChordInterval);
-    if (arpeggioInterval) clearInterval(arpeggioInterval);
-
-    playSciFiChordPad();
-    synthChordInterval = setInterval(playSciFiChordPad, 8000);
-    arpeggioInterval = setInterval(playSciFiArpeggioNote, 1200);
-}
-
-function stopSciFiMusic() {
-    if (synthChordInterval) { clearInterval(synthChordInterval); synthChordInterval = null; }
-    if (arpeggioInterval) { clearInterval(arpeggioInterval); arpeggioInterval = null; }
-}
-
-function toggleAudio() {
-    audioActive = !audioActive;
-    const icon = document.getElementById('audio-icon');
-    const label = document.getElementById('audio-label');
-    const btn = document.getElementById('audio-toggle');
-
-    if (audioActive) {
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        icon.innerText = 'volume_up';
-        label.innerText = 'AUDIO: ON';
-        btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
-        btn.classList.remove('bg-surface-variant');
-        startAmbientHum();
-        startSciFiMusic();
-        animateEqualizer(true);
-        startAmbientPings();
-        playSound('command_on');
-    } else {
-        icon.innerText = 'volume_off';
-        label.innerText = 'AUDIO: OFF';
-        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
-        btn.classList.add('bg-surface-variant');
-        stopAmbientHum();
-        stopSciFiMusic();
-        animateEqualizer(false);
-        stopAmbientPings();
-    }
-}
-
-function startAmbientHum() {
-    if (humOsc) return;
-    try {
-        // Deep 48Hz Warp Core Engine Hum with Low Frequency LFO Modulation
-        humOsc = audioCtx.createOscillator();
-        humHarmonicOsc = audioCtx.createOscillator();
-        humGain = audioCtx.createGain();
-        lfoOsc = audioCtx.createOscillator();
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(140, audioCtx.currentTime);
-
-        humOsc.type = 'sawtooth';
-        humOsc.frequency.setValueAtTime(48.0, audioCtx.currentTime); // Deep Sub-Bass A0
-
-        humHarmonicOsc.type = 'triangle';
-        humHarmonicOsc.frequency.setValueAtTime(96.0, audioCtx.currentTime); // Harmonic A1
-
-        lfoOsc.type = 'sine';
-        lfoOsc.frequency.setValueAtTime(0.08, audioCtx.currentTime); // Ultra-slow Starship Breathing
-
-        const lfoGain = audioCtx.createGain();
-        lfoGain.gain.setValueAtTime(25, audioCtx.currentTime);
-        lfoOsc.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        humGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
-        humGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 2.0);
-
-        humOsc.connect(filter);
-        humHarmonicOsc.connect(filter);
-        filter.connect(humGain);
-        humGain.connect(audioCtx.destination);
-
-        humOsc.start();
-        humHarmonicOsc.start();
-        lfoOsc.start();
-    } catch (e) {}
-}
-
-function stopAmbientHum() {
-    if (humGain) {
-        humGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 0.5);
-        setTimeout(() => {
-            if (humOsc) { humOsc.stop(); humOsc.disconnect(); humOsc = null; }
-            if (humHarmonicOsc) { humHarmonicOsc.stop(); humHarmonicOsc.disconnect(); humHarmonicOsc = null; }
-            if (lfoOsc) { lfoOsc.stop(); lfoOsc.disconnect(); lfoOsc = null; }
-        }, 500);
-    }
-}
-
-// Morse Code Dictionary & Transmission Engine
-const MORSE_MAP = {
-    'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',   'E': '.',     'F': '..-.',
-    'G': '--.',   'H': '....',  'I': '..',    'J': '.---',  'K': '-.-',   'L': '.-..',
-    'M': '--',    'N': '-.',    'O': '---',   'P': '.--.',  'Q': '--.-',  'R': '.-.',
-    'S': '...',   'T': '-',     'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',
-    'Y': '-.--',  'Z': '--..',  '1': '.----', '2': '..---', '3': '...--', '4': '....-',
-    '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
-    ' ': ' '
-};
-
-let isMorseTransmitting = false;
-
-function textToMorse(text) {
-    return text.toUpperCase().split('').map(char => MORSE_MAP[char] || '').join(' ');
-}
-
-function getTodayDateString() {
-    const now = new Date();
-    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-}
-
-function playTodayDateMorse() {
-    const dateStr = getTodayDateString();
-    const inputElem = document.getElementById('morse-input');
-    if (inputElem) inputElem.value = dateStr;
-    transmitMorseMessage();
-}
-
-function playMorseBeep(durationMs) {
-    return new Promise((resolve) => {
-        try {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(750, audioCtx.currentTime); // 750Hz Standard CW Tone
-
-            gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.005);
-            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000) - 0.005);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            // Light up TX LED
-            const led = document.getElementById('morse-tx-led');
-            if (led) led.className = 'w-2.5 h-2.5 rounded-full bg-tertiary shadow-[0_0_8px_#ffe253] animate-pulse';
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + (durationMs / 1000));
-
-            setTimeout(() => {
-                if (led) led.className = 'w-2.5 h-2.5 rounded-full bg-surface-variant';
-                resolve();
-            }, durationMs);
-        } catch (e) {
-            resolve();
-        }
-    });
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function transmitMorseMessage() {
-    if (isMorseTransmitting) return;
-    const inputElem = document.getElementById('morse-input');
-    const statusElem = document.getElementById('morse-status');
-    const codeElem = document.getElementById('morse-code-output');
-    const liveElem = document.getElementById('morse-live-text');
-
-    let text = inputElem ? inputElem.value.trim() : '';
-    if (!text) text = 'BMB20 DIETPI';
-
-    const morse = textToMorse(text);
-    isMorseTransmitting = true;
-
-    if (statusElem) { statusElem.innerText = 'TRANSMITTING'; statusElem.className = 'text-[9px] text-tertiary bg-surface-container px-1.5 py-0.5 border border-tertiary/40 rounded-sm font-bold animate-pulse'; }
-    if (codeElem) codeElem.innerText = morse;
-    if (liveElem) liveElem.innerText = `> ${text.toUpperCase()}`;
-
-    const unit = 70; // 70ms Dot Unit
-
-    for (let char of morse) {
-        if (!isMorseTransmitting) break;
-        if (char === '.') {
-            await playMorseBeep(unit);
-            await sleep(unit);
-        } else if (char === '-') {
-            await playMorseBeep(unit * 3);
-            await sleep(unit);
-        } else if (char === ' ') {
-            await sleep(unit * 3);
-        }
-    }
-
-    isMorseTransmitting = false;
-    if (statusElem) { statusElem.innerText = 'SENT [OK]'; statusElem.className = 'text-[9px] text-primary bg-surface-container px-1.5 py-0.5 border border-primary/40 rounded-sm font-bold'; }
-    setTimeout(() => {
-        if (statusElem && !isMorseTransmitting) { statusElem.innerText = 'READY'; }
-    }, 3000);
-}
-
-function startAmbientPings() {
-    if (ambientPingInterval) clearInterval(ambientPingInterval);
-    ambientPingInterval = setInterval(() => {
-        if (audioActive && isTabVisible && !ecoMode && !isMorseTransmitting) {
-            // Play background telemetry Morse code pulse ("DIETPI")
-            const morseSignals = [
-                "-.. .. . - .--. ..", // DIETPI
-                "... --- ...",          // SOS
-                "-... -- -... ...-- ......", // BMB20
-                "-.-. --- -- -- .- -. -.." // COMMAND
-            ];
-            const chosenStr = morseSignals[Math.floor(Math.random() * morseSignals.length)];
-            const unit = 60;
-            let timeOffset = 0;
-
-            for (let symbol of chosenStr) {
-                if (symbol === '.') {
-                    setTimeout(() => playMorseBeep(unit), timeOffset);
-                    timeOffset += unit + unit;
-                } else if (symbol === '-') {
-                    setTimeout(() => playMorseBeep(unit * 3), timeOffset);
-                    timeOffset += (unit * 3) + unit;
-                } else if (symbol === ' ') {
-                    timeOffset += unit * 2;
-                }
-            }
-        }
-    }, 9000);
-}
-
-function stopAmbientPings() {
-    if (ambientPingInterval) {
-        clearInterval(ambientPingInterval);
-        ambientPingInterval = null;
-    }
-}
-
-function animateEqualizer(active) {
-    const bars = document.querySelectorAll('.eq-bar');
-    if (!active) {
-        bars.forEach(b => b.style.height = '3px');
-        return;
-    }
-    bars.forEach((b, idx) => {
-        const h = Math.floor(4 + Math.random() * 10);
-        b.style.height = `${h}px`;
-    });
-    if (audioActive) {
-        setTimeout(() => animateEqualizer(true), 150);
-    }
-}
-
-function playSound(type) {
-    if (!audioActive) return;
-    try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if (type === 'beep1') {
-            // Futuristic LCARS Double-Chirp Keypress
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(1760, audioCtx.currentTime); // A6
-            osc.frequency.setValueAtTime(2637, audioCtx.currentTime + 0.035); // E7
-            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.095);
-        } else if (type === 'beep2') {
-            // High-Tech Computer Terminal Affirmation
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
-            osc.frequency.exponentialRampToValueAtTime(1479.98, audioCtx.currentTime + 0.06); // F#6
-            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.085);
-        } else if (type === 'bridge_chirp' || type === 'ping') {
-            // Starfleet Tactical Scanner Sonar Sweep
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(2093.00, audioCtx.currentTime); // C7
-            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.12); // C6
-            gain.gain.setValueAtTime(0.025, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.14);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
-        } else if (type === 'command_on') {
-            // Futuristic Command Center Power On Swoop
-            osc.type = 'sawtooth';
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(400, audioCtx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(3200, audioCtx.currentTime + 0.3);
-            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.36);
-        } else if (type === 'alert') {
-            // Red Alert Tactical Klaxon Sweep
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.18);
-            gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.23);
-        } else {
-            // Standard Tactical Button Tap
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime); // E6
-            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.055);
-        }
-    } catch (e) {}
-}
-
-// Convert Lat/Lon coordinates to 3D Sphere Vector3
-function latLonToVector3(lat, lon, radius) {
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lon + 180) * (Math.PI / 180);
-    return new THREE.Vector3(
-        -radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.sin(theta)
-    );
-}
-
-// Update 3D Beacon Mesh on Globe
-function updateGlobeBeacon() {
-    if (!globeGroup) return;
-    const pos = latLonToVector3(userGeoLocation.lat, userGeoLocation.lon, 1.02);
-
-    if (!beaconMesh) {
-        const beaconGeo = new THREE.SphereGeometry(0.028, 16, 16);
-        const beaconMat = new THREE.MeshBasicMaterial({ color: 0xffe253 });
-        beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
-        globeGroup.add(beaconMesh);
-
-        // Pulse Ring
-        const ringGeo = new THREE.RingGeometry(0.03, 0.07, 32);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xc2c1ff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
-        beaconPulseRing = new THREE.Mesh(ringGeo, ringMat);
-        globeGroup.add(beaconPulseRing);
-    }
-
-    beaconMesh.position.copy(pos);
-    beaconPulseRing.position.copy(pos);
-    beaconPulseRing.lookAt(new THREE.Vector3(0,0,0));
-
-    // Smoothly rotate globe to face the target coordinates
-    const targetRotY = -((userGeoLocation.lon + 180) * (Math.PI / 180));
-    globeGroup.rotation.y = targetRotY;
-}
-
-// Three.js 3D Globe Initialization & Real Earth Map Sampler
-let globalRenderer = null;
-let globalCamera = null;
-let earthMapCtx = null;
-
-function initEarthMapCanvas() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 720;
-    canvas.height = 360;
-    earthMapCtx = canvas.getContext('2d', { willReadFrequently: true });
-
-    // Fill Ocean (Black)
-    earthMapCtx.fillStyle = '#000000';
-    earthMapCtx.fillRect(0, 0, 720, 360);
-
-    // Draw High-Precision World Continent Map (White Landmasses)
-    earthMapCtx.fillStyle = '#ffffff';
-
-    // North America (Alaska, Canada, USA, Mexico, Central America)
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(30, 36); earthMapCtx.lineTo(260, 24); earthMapCtx.lineTo(270, 76); 
-    earthMapCtx.lineTo(220, 144); earthMapCtx.lineTo(190, 156); earthMapCtx.lineTo(164, 130); 
-    earthMapCtx.lineTo(110, 96); earthMapCtx.lineTo(70, 80); earthMapCtx.closePath();
-    earthMapCtx.fill();
-
-    // Greenland & Iceland
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(250, 16); earthMapCtx.lineTo(320, 20); earthMapCtx.lineTo(290, 64); earthMapCtx.closePath();
-    earthMapCtx.fill();
-    earthMapCtx.fillRect(330, 48, 12, 10); // Iceland
-
-    // South America (Colombia, Brazil, Chile, Argentina, Patagonia)
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(196, 156); earthMapCtx.lineTo(290, 190); earthMapCtx.lineTo(270, 290); 
-    earthMapCtx.lineTo(220, 310); earthMapCtx.lineTo(190, 230); earthMapCtx.closePath();
-    earthMapCtx.fill();
-
-    // British Isles (UK & Ireland)
-    earthMapCtx.fillRect(344, 52, 16, 24);
-
-    // Europe (Scandinavia, Iberian Peninsula, Italy, Balkans, Eastern Europe)
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(330, 36); earthMapCtx.lineTo(440, 44); earthMapCtx.lineTo(430, 110); 
-    earthMapCtx.lineTo(340, 104); earthMapCtx.closePath();
-    earthMapCtx.fill();
-
-    // Africa & Madagascar
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(324, 104); earthMapCtx.lineTo(460, 110); earthMapCtx.lineTo(444, 250); 
-    earthMapCtx.lineTo(380, 260); earthMapCtx.lineTo(324, 184); earthMapCtx.closePath();
-    earthMapCtx.fill();
-    earthMapCtx.fillRect(470, 200, 18, 50); // Madagascar
-
-    // Asia (Siberia, China, India peninsula, Indochina, Arabia)
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(430, 24); earthMapCtx.lineTo(710, 24); earthMapCtx.lineTo(696, 170); 
-    earthMapCtx.lineTo(570, 164); earthMapCtx.lineTo(500, 190); earthMapCtx.lineTo(476, 150); 
-    earthMapCtx.lineTo(430, 104); earthMapCtx.closePath();
-    earthMapCtx.fill();
-
-    // Japan Archipelago & Korea
-    earthMapCtx.fillRect(660, 70, 14, 40); // Japan
-    earthMapCtx.fillRect(638, 82, 12, 22); // Korea
-
-    // Indonesia & SE Asia Archipelago
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(560, 170); earthMapCtx.lineTo(670, 170); earthMapCtx.lineTo(660, 210); 
-    earthMapCtx.lineTo(560, 210); earthMapCtx.closePath();
-    earthMapCtx.fill();
-
-    // Australia, Tasmania & New Zealand
-    earthMapCtx.beginPath();
-    earthMapCtx.moveTo(580, 220); earthMapCtx.lineTo(690, 220); earthMapCtx.lineTo(676, 296); 
-    earthMapCtx.lineTo(580, 284); earthMapCtx.closePath();
-    earthMapCtx.fill();
-    earthMapCtx.fillRect(690, 270, 12, 34); // NZ
-
-    // Antarctica
-    earthMapCtx.fillRect(0, 316, 720, 44);
-}
-
-function isRealEarthLand(lat, lon) {
-    if (!earthMapCtx) initEarthMapCanvas();
-    const x = Math.floor(((lon + 180) / 360) * 720);
-    const y = Math.floor(((90 - lat) / 180) * 360);
-    try {
-        const pixel = earthMapCtx.getImageData(x, y, 1, 1).data[0];
-        return pixel > 128;
-    } catch(e) {
-        return false;
-    }
-}
-
-function initEarth() {
-    if (typeof THREE === 'undefined') {
-        setTimeout(initEarth, 200);
-        return;
-    }
-    const container = document.getElementById('earth-container');
-    if (!container) return;
-
-    const width = container.clientWidth || 400;
-    const height = container.clientHeight || 300;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 2.4);
-    camera.lookAt(0, 0, 0);
-    globalCamera = camera;
-    window.targetCamX = 0;
-    window.targetCamY = 0;
-    window.targetCamZ = 2.4;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-    globalRenderer = renderer;
-
-    globeGroup = new THREE.Group();
-    scene.add(globeGroup);
-
-    // 1. Milky Way Galaxy 3D Particle Spiral Disc
-    const milkyWayGroup = new THREE.Group();
-    const mwStarCount = 4500;
-    const mwGeo = new THREE.BufferGeometry();
-    const mwPos = new Float32Array(mwStarCount * 3);
-    const mwCols = new Float32Array(mwStarCount * 3);
-
-    for (let i = 0; i < mwStarCount; i++) {
-        // Logarithmic 4-arm galaxy spiral structure
-        const armIndex = i % 4;
-        const armOffset = (armIndex * Math.PI) / 2;
-        const dist = Math.pow(Math.random(), 1.8) * 18 + 0.5;
-        const angle = dist * 0.45 + armOffset + (Math.random() * 0.4 - 0.2);
-
-        const x = dist * Math.cos(angle);
-        const y = (Math.random() * 2 - 1) * (1.2 / (dist * 0.2 + 1)); // Thin disc
-        const z = dist * Math.sin(angle);
-
-        mwPos[i * 3] = x;
-        mwPos[i * 3 + 1] = y;
-        mwPos[i * 3 + 2] = z;
-
-        // Galactic Core (White/Gold) to Outer Spiral Arms (Blue/Purple)
-        const rand = Math.random();
-        if (dist < 3) {
-            mwCols[i * 3] = 1.0; mwCols[i * 3 + 1] = 0.95; mwCols[i * 3 + 2] = 0.8; // Bright Core
-        } else if (rand > 0.6) {
-            mwCols[i * 3] = 0.76; mwCols[i * 3 + 1] = 0.77; mwCols[i * 3 + 2] = 1.0; // Cyan Arm
-        } else if (rand > 0.3) {
-            mwCols[i * 3] = 1.0; mwCols[i * 3 + 1] = 0.88; mwCols[i * 3 + 2] = 0.32; // Gold Arm
-        } else {
-            mwCols[i * 3] = 0.76; mwCols[i * 3 + 1] = 0.45; mwCols[i * 3 + 2] = 1.0; // Purple Arm
-        }
-    }
-
-    mwGeo.setAttribute('position', new THREE.BufferAttribute(mwPos, 3));
-    mwGeo.setAttribute('color', new THREE.BufferAttribute(mwCols, 3));
-    const mwMat = new THREE.PointsMaterial({ size: 0.035, vertexColors: true, transparent: true, opacity: 0.75 });
-    const milkyWayPoints = new THREE.Points(mwGeo, mwMat);
-    milkyWayGroup.add(milkyWayPoints);
-    milkyWayGroup.rotation.x = Math.PI / 4; // Tilted galaxy disc view
-    milkyWayGroup.position.z = -4.0;
-    scene.add(milkyWayGroup);
-    window.milkyWayGroup = milkyWayGroup;
-    window.milkyWayGroup.visible = false; // Hide in Minimized Earth View
-
-    // 2. Solar System Planetary Orbits Engine (LCARS Dot-Matrix Particle Style)
-    const solarSystemGroup = new THREE.Group();
-    scene.add(solarSystemGroup);
-    window.solarSystemGroup = solarSystemGroup;
-    window.solarSystemGroup.visible = false; // Hide in Minimized Earth View
-
-    // ☀️ 3D Glowing Central Sun Anchor for Maximized Solar System View
-    const sunGroup = new THREE.Group();
-    solarSystemGroup.add(sunGroup);
-    window.sunGroup = sunGroup;
-
-    // Sun Core Sphere (Golden Particle Sun Core)
-    const sunDots = 1800;
-    const sunGeo = new THREE.BufferGeometry();
-    const sunPos = new Float32Array(sunDots * 3);
-    for (let i = 0; i < sunDots; i++) {
-        const phi = Math.acos(-1 + (2 * i) / sunDots);
-        const theta = Math.sqrt(sunDots * Math.PI) * phi;
-        sunPos[i * 3] = 0.65 * Math.cos(theta) * Math.sin(phi);
-        sunPos[i * 3 + 1] = 0.65 * Math.sin(theta) * Math.sin(phi);
-        sunPos[i * 3 + 2] = 0.65 * Math.cos(phi);
-    }
-    sunGeo.setAttribute('position', new THREE.BufferAttribute(sunPos, 3));
-    const sunMat = new THREE.PointsMaterial({ size: 0.03, color: 0xffe253, transparent: true, opacity: 0.95 });
-    const sunPoints = new THREE.Points(sunGeo, sunMat);
-    sunGroup.add(sunPoints);
-
-    // Sun Solar Corona Glow Aura
-    const coronaGeo = new THREE.SphereGeometry(0.85, 32, 32);
-    const coronaMat = new THREE.MeshBasicMaterial({ color: 0xffa726, transparent: true, opacity: 0.35, side: THREE.BackSide });
-    const coronaMesh = new THREE.Mesh(coronaGeo, coronaMat);
-    sunGroup.add(coronaMesh);
-
-    window.solarPlanets = [];
-
-    // Helper to generate an HD LCARS Dot-Matrix Particle Sphere planet matching Earth's dot-matrix style
-    function createDotMatrixPlanet(name, colorHex, radius, orbitDist, speed, semimajor, velocity, type, mag, symbol) {
-        // Concentric Orbit Ring Lines (Vivid Electric Blue)
-        const ringGeo = new THREE.RingGeometry(orbitDist - 0.015, orbitDist + 0.015, 128);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x1976d2, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        ringMesh.rotation.x = Math.PI / 2;
-        solarSystemGroup.add(ringMesh);
-
-        // HD Dot-Matrix Particle Sphere Geometry
-        const dotCount = Math.max(800, Math.floor(radius * 9500));
-        const pGeo = new THREE.BufferGeometry();
-        const pPos = new Float32Array(dotCount * 3);
-        const pCols = new Float32Array(dotCount * 3);
-
-        const baseColor = new THREE.Color(colorHex);
-
-        for (let i = 0; i < dotCount; i++) {
-            const phi = Math.acos(-1 + (2 * i) / dotCount);
-            const theta = Math.sqrt(dotCount * Math.PI) * phi;
-
-            pPos[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
-            pPos[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
-            pPos[i * 3 + 2] = radius * Math.cos(phi);
-
-            // Colored particle variation
-            const varRatio = 0.8 + Math.random() * 0.4;
-            pCols[i * 3] = Math.min(1.0, baseColor.r * varRatio);
-            pCols[i * 3 + 1] = Math.min(1.0, baseColor.g * varRatio);
-            pCols[i * 3 + 2] = Math.min(1.0, baseColor.b * varRatio);
-        }
-
-        pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-        pGeo.setAttribute('color', new THREE.BufferAttribute(pCols, 3));
-
-        const pMat = new THREE.PointsMaterial({
-            size: 0.035,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.95
-        });
-
-        const planetPoints = new THREE.Points(pGeo, pMat);
-        solarSystemGroup.add(planetPoints);
-
-        // Saturn Dot-Matrix Rings
-        if (name === 'Saturn') {
-            const ringDots = 1400;
-            const rGeo = new THREE.BufferGeometry();
-            const rPos = new Float32Array(ringDots * 3);
-
-            for (let i = 0; i < ringDots; i++) {
-                const r = radius * 1.35 + Math.random() * (radius * 1.1);
-                const a = Math.random() * Math.PI * 2;
-                rPos[i * 3] = r * Math.cos(a);
-                rPos[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
-                rPos[i * 3 + 2] = r * Math.sin(a);
-            }
-
-            rGeo.setAttribute('position', new THREE.BufferAttribute(rPos, 3));
-            const rMat = new THREE.PointsMaterial({ size: 0.028, color: 0xffe253, transparent: true, opacity: 0.9 });
-            const saturnRings = new THREE.Points(rGeo, rMat);
-            saturnRings.rotation.x = Math.PI / 6;
-            planetPoints.add(saturnRings);
-        }
-
-        // Earth Orbiting Dot-Matrix Moon
-        if (name === 'Earth') {
-            const moonDots = 300;
-            const mGeo = new THREE.BufferGeometry();
-            const mPos = new Float32Array(moonDots * 3);
-            for (let i = 0; i < moonDots; i++) {
-                const phi = Math.acos(-1 + (2 * i) / moonDots);
-                const theta = Math.sqrt(moonDots * Math.PI) * phi;
-                mPos[i * 3] = 0.06 * Math.cos(theta) * Math.sin(phi);
-                mPos[i * 3 + 1] = 0.06 * Math.sin(theta) * Math.sin(phi);
-                mPos[i * 3 + 2] = 0.06 * Math.cos(phi);
-            }
-            mGeo.setAttribute('position', new THREE.BufferAttribute(mPos, 3));
-            const mMat = new THREE.PointsMaterial({ size: 0.025, color: 0xffffff, transparent: true, opacity: 0.95 });
-            const solarMoonMesh = new THREE.Points(mGeo, mMat);
-            planetPoints.add(solarMoonMesh);
-            planetPoints.userData.solarMoonMesh = solarMoonMesh;
-        }
-
-        const planetObj = {
-            name: name,
-            mesh: planetPoints,
-            orbitDist: orbitDist,
-            speed: speed,
-            angle: Math.random() * Math.PI * 2,
-            semimajor: semimajor,
-            velocity: velocity,
-            type: type,
-            mag: mag,
-            symbol: symbol
-        };
-
-        window.solarPlanets.push(planetObj);
-    }
-
-    // Create 8 Dot-Matrix Solar System Planets Orbiting the Sun with Exact Keplerian Scientific Telemetry
-    createDotMatrixPlanet('Mercury', 0xd1d5db, 0.08, 1.4, 0.024,  0.387, 47.36, 'TERRESTRIAL', '-0.4', '☿');
-    createDotMatrixPlanet('Venus',   0xffca28, 0.13, 2.2, 0.018,  0.723, 35.02, 'TERRESTRIAL', '-4.4', '♀');
-    createDotMatrixPlanet('Earth',   0x64b5f6, 0.16, 3.4, 0.014,  1.000, 29.78, 'TERRESTRIAL', '-3.9', '🌎');
-    createDotMatrixPlanet('Mars',    0xff5252, 0.11, 4.4, 0.010,  1.524, 24.07, 'TERRESTRIAL', '-1.5', '♂');
-    createDotMatrixPlanet('Jupiter', 0xffa726, 0.32, 5.8, 0.006,  5.204, 13.07, 'GAS GIANT',   '-2.7', '♃');
-    createDotMatrixPlanet('Saturn',  0xffe082, 0.26, 7.4, 0.004,  9.582, 9.69,  'GAS GIANT',   '+0.7', '♄');
-    createDotMatrixPlanet('Uranus',  0x26c6da, 0.20, 9.0, 0.0028, 19.201,6.81,  'ICE GIANT',   '+5.7', '♅');
-    createDotMatrixPlanet('Neptune', 0x42a5f5, 0.19, 10.6, 0.002, 30.047,5.43,  'ICE GIANT',   '+7.8', '♆');
-
-    // 🌌 Solar System Scope-Style 3D Particle Asteroid Belt (Between Mars & Jupiter)
-    const asteroidDots = 1600;
-    const astGeo = new THREE.BufferGeometry();
-    const astPos = new Float32Array(asteroidDots * 3);
-    const astCols = new Float32Array(asteroidDots * 3);
-
-    for (let i = 0; i < asteroidDots; i++) {
-        const r = 4.8 + (Math.random() - 0.5) * 0.7; // Belt radius between Mars (4.4) and Jupiter (5.8)
-        const a = Math.random() * Math.PI * 2;
-        astPos[i * 3] = r * Math.cos(a);
-        astPos[i * 3 + 1] = (Math.random() - 0.5) * 0.15; // Vertical scatter
-        astPos[i * 3 + 2] = r * Math.sin(a);
-
-        // Rocky grey/amber dot-matrix color
-        const c = 0.45 + Math.random() * 0.4;
-        astCols[i * 3] = c * 0.9;
-        astCols[i * 3 + 1] = c * 0.8;
-        astCols[i * 3 + 2] = c * 0.7;
-    }
-
-    astGeo.setAttribute('position', new THREE.BufferAttribute(astPos, 3));
-    astGeo.setAttribute('color', new THREE.BufferAttribute(astCols, 3));
-    const astMat = new THREE.PointsMaterial({ size: 0.024, vertexColors: true, transparent: true, opacity: 0.8 });
-    const asteroidBeltPoints = new THREE.Points(astGeo, astMat);
-    solarSystemGroup.add(asteroidBeltPoints);
-    window.asteroidBeltPoints = asteroidBeltPoints;
-
-    // Orbiting Dot-Matrix Moon around Earth
-    const moonDots = 250;
-    const mGeo = new THREE.BufferGeometry();
-    const mPos = new Float32Array(moonDots * 3);
-    for (let i = 0; i < moonDots; i++) {
-        const phi = Math.acos(-1 + (2 * i) / moonDots);
-        const theta = Math.sqrt(moonDots * Math.PI) * phi;
-        mPos[i * 3] = 0.06 * Math.cos(theta) * Math.sin(phi);
-        mPos[i * 3 + 1] = 0.06 * Math.sin(theta) * Math.sin(phi);
-        mPos[i * 3 + 2] = 0.06 * Math.cos(phi);
-    }
-    mGeo.setAttribute('position', new THREE.BufferAttribute(mPos, 3));
-    const mMat = new THREE.PointsMaterial({ size: 0.018, color: 0xffffff, transparent: true, opacity: 0.9 });
-    window.moonMesh = new THREE.Points(mGeo, mMat);
-    globeGroup.add(window.moonMesh);
-    window.moonAngle = 0;
-
-    // Tactical Orbital Satellite Ring
-    const orbitRingGeo = new THREE.RingGeometry(1.25, 1.27, 64);
-    const orbitRingMat = new THREE.MeshBasicMaterial({ color: 0xadc6ff, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
-    const orbitRing = new THREE.Mesh(orbitRingGeo, orbitRingMat);
-    orbitRing.rotation.x = Math.PI / 3;
-    globeGroup.add(orbitRing);
-
-    // 3. Translucent Glowing Atmospheric Aura
-    const auraGeo = new THREE.SphereGeometry(1.08, 32, 32);
-    const auraMat = new THREE.MeshBasicMaterial({ color: 0xadc6ff, transparent: true, opacity: 0.15, side: THREE.BackSide });
-    const auraMesh = new THREE.Mesh(auraGeo, auraMat);
-    globeGroup.add(auraMesh);
-
-    // 4. Live Orbiting Satellite Constellation (ISS, STARLINK, SBC-SAT)
-    window.satellites = [];
-    function createSatellite(name, colorHex, orbitR, inclination, speed) {
-        const satGroup = new THREE.Group();
-        const satGeo = new THREE.BoxGeometry(0.04, 0.04, 0.04);
-        const satMat = new THREE.MeshBasicMaterial({ color: colorHex });
-        const satMesh = new THREE.Mesh(satGeo, satMat);
-        satGroup.add(satMesh);
-
-        // Solar Panel Wings
-        const wingGeo = new THREE.BoxGeometry(0.12, 0.01, 0.03);
-        const wingMat = new THREE.MeshBasicMaterial({ color: 0xadc6ff });
-        const wingMesh = new THREE.Mesh(wingGeo, wingMat);
-        satMesh.add(wingMesh);
-
-        satGroup.rotation.z = inclination;
-        globeGroup.add(satGroup);
-
-        window.satellites.push({ group: satGroup, mesh: satMesh, orbitR, speed, angle: Math.random() * Math.PI * 2, name });
-    }
-
-    createSatellite('ISS Node', 0xffffff, 1.22, Math.PI / 4, 0.015);
-    createSatellite('Starlink-01', 0xadc6ff, 1.30, -Math.PI / 3, 0.018);
-    createSatellite('SBC-Sat 09', 0xffe253, 1.38, Math.PI / 6, 0.012);
-
-    // Show standalone Earth globe in Minimized Monitor
-    globeGroup.visible = true;
-
-    // Camera View Presets & Dynamic Zoom Controls
-    window.targetCamZ = 2.4; // Default Earth-only Minimized View
-    window.zoomGlobe = function(delta) {
-        if (typeof playSound === 'function') playSound('beep1');
-        if (window.targetCamZ !== undefined) {
-            window.targetCamZ = Math.max(1.1, Math.min(32.0, window.targetCamZ + delta));
-        }
-    };
-
-    window.resetGlobeZoom = function() {
-        if (typeof playSound === 'function') playSound('beep1');
-        const modal = document.getElementById('globe-modal');
-        if (modal && !modal.classList.contains('hidden')) {
-            window.targetCamX = 0;
-            window.targetCamY = 16.0;
-            window.targetCamZ = 18.0;
-        } else {
-            window.targetCamX = 0;
-            window.targetCamY = 0;
-            window.targetCamZ = 2.4;
-        }
-    };
-
-    window.setCameraView = function(view) {
-        if (typeof playSound === 'function') playSound('beep1');
-        if (view === 'earth') window.targetCamZ = 2.4;
-        else if (view === 'solar') window.targetCamZ = 6.5;
-        else if (view === 'galaxy') window.targetCamZ = 12.0;
-    };
-
-    // Futuristic Abstract 3D Dot-Matrix World Map Sphere for Minimized View
-    const count = 30000;
-    const dotGeo = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 3);
-    const cols = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
-        const phi = Math.acos(-1 + (2 * i) / count);
-        const theta = Math.sqrt(count * Math.PI) * phi;
-
-        const lat = 90 - (phi * (180 / Math.PI));
-        const lon = ((theta * (180 / Math.PI)) % 360) - 180;
-
-        pos[i * 3] = Math.cos(theta) * Math.sin(phi);
-        pos[i * 3 + 1] = Math.sin(theta) * Math.sin(phi);
-        pos[i * 3 + 2] = Math.cos(phi);
-
-        // Abstract Dot-Matrix World Map Styling
-        if (isRealEarthLand(lat, lon)) {
-            // Futuristic Electric Cyan / Amber Gold Gradient Landmass Points
-            const landGradient = (lat + 90) / 180;
-            cols[i * 3] = 0.0 + landGradient * 1.0;      // Red
-            cols[i * 3 + 1] = 0.95 - landGradient * 0.1; // Green
-            cols[i * 3 + 2] = 0.83 - landGradient * 0.5; // Blue
-        } else {
-            // Abstract Latitude/Longitude Coordinate Grid Points for Oceans
-            const isLatGrid = Math.abs(lat % 15) < 0.6;
-            const isLonGrid = Math.abs(lon % 15) < 0.6;
-            if (isLatGrid || isLonGrid) {
-                // Neon Indigo Grid Lines
-                cols[i * 3] = 0.23;
-                cols[i * 3 + 1] = 0.45;
-                cols[i * 3 + 2] = 0.95;
-            } else {
-                // Dim Ocean Space Dots
-                cols[i * 3] = 0.05;
-                cols[i * 3 + 1] = 0.12;
-                cols[i * 3 + 2] = 0.28;
-            }
-        }
-    }
-
-    dotGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    dotGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
-
-    const dotMat = new THREE.PointsMaterial({
-        size: 0.022,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.92
-    });
-
-    const earthPoints = new THREE.Points(dotGeo, dotMat);
-    globeGroup.add(earthPoints);
-
-    // 3D Abstract Holographic Coordinate Grid Rings around Abstract Earth
-    const eqRingGeo = new THREE.RingGeometry(1.01, 1.025, 96);
-    const eqRingMat = new THREE.MeshBasicMaterial({ color: 0x00f5d4, side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
-    const eqRing = new THREE.Mesh(eqRingGeo, eqRingMat);
-    eqRing.rotation.x = Math.PI / 2;
-    globeGroup.add(eqRing);
-
-    const pmRingGeo = new THREE.RingGeometry(1.01, 1.025, 96);
-    const pmRingMat = new THREE.MeshBasicMaterial({ color: 0xffca28, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
-    const pmRing = new THREE.Mesh(pmRingGeo, pmRingMat);
-    pmRing.rotation.y = Math.PI / 2;
-    globeGroup.add(pmRing);
-
-    updateGlobeBeacon();
-
-    // Mouse & Touch Controls (Rotate & Zoom)
-    let isUserDragging = false;
-    let prevMousePos = { x: 0, y: 0 };
-    let autoRotateResumeTimeout = null;
-    const canvasElem = renderer.domElement;
-    canvasElem.style.cursor = 'grab';
-
-    canvasElem.addEventListener('mousedown', (e) => {
-        isUserDragging = true;
-        prevMousePos = { x: e.clientX, y: e.clientY };
-        canvasElem.style.cursor = 'grabbing';
-    });
-
-    canvasElem.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? 0.8 : -0.8;
-        window.zoomGlobe(delta);
-    }, { passive: false });
-
-    // Raycaster for Interactive Planet & Sun Hover Tooltips
-    const raycaster = new THREE.Raycaster();
-    const mouseVec = new THREE.Vector2();
-    const tooltipElem = document.getElementById('planet-hud-tooltip');
-    const nameElem = document.getElementById('tooltip-planet-name');
-    const infoElem = document.getElementById('tooltip-planet-info');
-
-    canvasElem.addEventListener('mousemove', (e) => {
-        const rect = canvasElem.getBoundingClientRect();
-        mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-        mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-        if (tooltipElem) {
-            tooltipElem.style.left = `${e.clientX - rect.left + 15}px`;
-            tooltipElem.style.top = `${e.clientY - rect.top - 10}px`;
-        }
-
-        if (window.solarSystemGroup && window.solarSystemGroup.visible) {
-            raycaster.setFromCamera(mouseVec, camera);
-            
-            // Check Sun Core Anchor hover
-            if (window.sunGroup) {
-                const sunHits = raycaster.intersectObjects(window.sunGroup.children, true);
-                if (sunHits.length > 0) {
-                    if (tooltipElem) tooltipElem.classList.remove('hidden');
-                    if (nameElem) nameElem.innerText = "☀️ SUN (SOLAR ANCHOR CORE)";
-                    if (infoElem) infoElem.innerText = "TEMP: 5,778 K | MASS: 1.989 × 10^30 KG";
-                    return;
-                }
-            }
-
-            // Check Orbiting Planets hover
-            if (window.solarPlanets) {
-                for (let p of window.solarPlanets) {
-                    const hits = raycaster.intersectObject(p.mesh, true);
-                    if (hits.length > 0) {
-                        if (tooltipElem) tooltipElem.classList.remove('hidden');
-                        if (nameElem) nameElem.innerText = `🪐 ${p.name.toUpperCase()}`;
-                        if (infoElem) infoElem.innerText = `ORBIT: ${p.orbitDist.toFixed(1)} AU | SPEED: ${(p.speed * 1000).toFixed(0)} KM/S`;
-                        return;
-                    }
-                }
-            }
-        }
-        if (tooltipElem) tooltipElem.classList.add('hidden');
-
-        if (!isUserDragging) return;
-        const deltaX = e.clientX - prevMousePos.x;
-        const deltaY = e.clientY - prevMousePos.y;
-
-        globeGroup.rotation.y += deltaX * 0.006;
-        globeGroup.rotation.x += deltaY * 0.006;
-        globeGroup.rotation.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, globeGroup.rotation.x));
-
-        prevMousePos = { x: e.clientX, y: e.clientY };
-
-        if (autoRotateResumeTimeout) clearTimeout(autoRotateResumeTimeout);
-        autoRotateResumeTimeout = setTimeout(() => {
-            isUserDragging = false;
-        }, 3500);
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (isUserDragging) {
-            isUserDragging = false;
-            canvasElem.style.cursor = 'grab';
-        }
-    });
-
-    // Scroll Wheel Zoom
-    window.addEventListener('wheel', (e) => {
-        if (!camera) return;
-        window.targetCamZ += e.deltaY * 0.003;
-        window.targetCamZ = Math.max(1.1, Math.min(14.0, window.targetCamZ));
-    }, { passive: true });
-
-    // Touch Support
-    canvasElem.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-            isUserDragging = true;
-            prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
-    });
-
-    canvasElem.addEventListener('touchmove', (e) => {
-        if (!isUserDragging || e.touches.length !== 1) return;
-        const deltaX = e.touches[0].clientX - prevMousePos.x;
-        const deltaY = e.touches[0].clientY - prevMousePos.y;
-
-        globeGroup.rotation.y += deltaX * 0.006;
-        globeGroup.rotation.x += deltaY * 0.006;
-        prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    });
-
-    canvasElem.addEventListener('touchend', () => {
-        isUserDragging = false;
-    });
-
-    // Dynamic 3D-to-2D Vector Callout / Annotation Leader Line Generator
-    function updateCalloutAnnotations() {
-        if (!camera || !globalRenderer) return;
-
-        const isModalOpen = document.getElementById('globe-modal') && !document.getElementById('globe-modal').classList.contains('hidden');
-        const svgElem = isModalOpen ? document.getElementById('modal-callout-svg-overlay') : document.getElementById('callout-svg-overlay');
-        const activeContainer = isModalOpen ? document.getElementById('modal-earth-container') : document.getElementById('earth-container');
-
-        if (!svgElem || !activeContainer) return;
-
-        const w = activeContainer.clientWidth || 400;
-        const h = activeContainer.clientHeight || 300;
-
-        let svgHTML = '';
-
-        // Project 3D vector to 2D Callout Leader Line with Scientific Telemetry Support
-        function drawCalloutPin(pos3D, labelTitle, labelDetail, strokeColor, offsetX = 50, offsetY = -35, labelDetail2 = "") {
-            const tempVec = pos3D.clone();
-            tempVec.project(camera);
-
-            if (tempVec.z > 1.0) return; // Behind camera
-
-            const x1 = (tempVec.x * 0.5 + 0.5) * w;
-            const y1 = (-tempVec.y * 0.5 + 0.5) * h;
-
-            if (x1 < -200 || x1 > w + 200 || y1 < -200 || y1 > h + 200) return;
-
-            const x2 = x1 + offsetX;
-            const y2 = y1 + offsetY;
-            const x3 = x2 + (offsetX > 0 ? 30 : -30);
-            const boxW = labelDetail2 ? 195 : 170;
-            const boxH = labelDetail2 ? 31 : 23;
-            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - (boxW + 4);
-
-            svgHTML += `
-                <polyline points="${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y2.toFixed(1)}" 
-                          fill="none" stroke="${strokeColor}" stroke-width="1.3" stroke-dasharray="3,2" opacity="0.95" />
-                <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="3.5" fill="${strokeColor}" opacity="0.95" />
-                <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="7" fill="none" stroke="${strokeColor}" stroke-width="1" opacity="0.6" />
-                
-                <g transform="translate(${textAnchor.toFixed(1)}, ${(y2 - 11).toFixed(1)})">
-                    <rect x="0" y="0" width="${boxW}" height="${boxH}" fill="#070b19" fill-opacity="0.93" stroke="${strokeColor}" stroke-width="1" rx="3" />
-                    <text x="6" y="10" fill="${strokeColor}" font-family="monospace" font-size="8.5" font-weight="bold">${labelTitle}</text>
-                    <text x="6" y="18" fill="#c0c5d5" font-family="monospace" font-size="7.5">${labelDetail}</text>
-                    ${labelDetail2 ? `<text x="6" y="26" fill="#4af626" font-family="monospace" font-size="7">${labelDetail2}</text>` : ''}
-                </g>
-            `;
-        }
-
-        // 1. Maximized Solar System View: Draw 3D Dot Matrix Planet Alignment, Dotted Lines & Callout Pins with Name + Distance from Earth
-        if (window.solarSystemGroup && window.solarSystemGroup.visible) {
-            // Sun Center Callout
-            if (window.sunGroup && window.sunGroup.visible) {
-                const sunWorld = new THREE.Vector3();
-                window.sunGroup.getWorldPosition(sunWorld);
-                drawCalloutPin(sunWorld, "☀️ SOL (SUN CORE)", "SPECTRAL TYPE G2V | 0.0 AU", "#ffe253", -50, -45, "SOLAR ANCHOR | T_EFF 5778 K");
-            }
-
-            // Find Earth 3D & 2D Screen Position
-            let earthWorldPos = null;
-            let earthScreenPos = null;
-            if (window.solarPlanets) {
-                const earthObj = window.solarPlanets.find(p => p.name === 'Earth');
-                if (earthObj) {
-                    earthWorldPos = new THREE.Vector3();
-                    earthObj.mesh.getWorldPosition(earthWorldPos);
-                    const tempVec = earthWorldPos.clone();
-                    tempVec.project(camera);
-                    if (tempVec.z <= 1.0) {
-                        earthScreenPos = {
-                            x: (tempVec.x * 0.5 + 0.5) * w,
-                            y: (-tempVec.y * 0.5 + 0.5) * h
-                        };
-                    }
-                }
-
-                const planetColors = {
-                    'Mercury': '#d1d5db', 'Venus': '#ffca28', 'Earth': '#64b5f6',
-                    'Mars': '#ff5252', 'Jupiter': '#ffa726', 'Saturn': '#ffe082',
-                    'Uranus': '#26c6da', 'Neptune': '#42a5f5'
-                };
-                const offsets = [
-                    [55, -35], [-60, 30], [-65, -45], [60, -35],
-                    [-70, -45], [70, 40], [-75, 35], [75, -40]
-                ];
-
-                window.solarPlanets.forEach((p, idx) => {
-                    const pWorld = new THREE.Vector3();
-                    p.mesh.getWorldPosition(pWorld);
-                    const tempVec = pWorld.clone();
-                    tempVec.project(camera);
-                    if (tempVec.z > 1.0) return;
-
-                    const px = (tempVec.x * 0.5 + 0.5) * w;
-                    const py = (-tempVec.y * 0.5 + 0.5) * h;
-
-                    // Draw Dotted White Alignment Line from Earth to this Planet
-                    if (earthScreenPos && p.name !== 'Earth') {
-                        svgHTML += `
-                            <line x1="${earthScreenPos.x.toFixed(1)}" y1="${earthScreenPos.y.toFixed(1)}" 
-                                  x2="${px.toFixed(1)}" y2="${py.toFixed(1)}" 
-                                  stroke="#ffffff" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.85" />
-                        `;
-                    }
-
-                    // Calculate Realtime Distance from Earth in 3D Scene & Heliocentric Position
-                    let distText = "ORIGIN 0.00 AU";
-                    let astroDetail2 = "";
-
-                    if (earthWorldPos && p.name !== 'Earth') {
-                        const dist3D = earthWorldPos.distanceTo(pWorld);
-                        const distAU = dist3D / 3.4; // 3.4 is Earth's orbit radius scale
-                        const distKmMillions = Math.round(distAU * 149.6);
-                        const lonDeg = Math.round((Math.atan2(pWorld.z, pWorld.x) * 180 / Math.PI + 360) % 360);
-
-                        distText = `DIST FROM EARTH: ${distAU.toFixed(2)} AU (${distKmMillions}M KM)`;
-                        astroDetail2 = `HELIOCENTRIC LON: ${lonDeg}° | VEL: ${p.velocity} KM/S`;
-                    } else if (p.name === 'Earth') {
-                        const lonDeg = Math.round((Math.atan2(earthWorldPos.z, earthWorldPos.x) * 180 / Math.PI + 360) % 360);
-                        distText = "EARTH ORIGIN [GEO BEACON]";
-                        astroDetail2 = `HELIOCENTRIC LON: ${lonDeg}° | VEL: 29.78 KM/S`;
-                    }
-
-                    const col = planetColors[p.name] || '#ffffff';
-                    const off = offsets[idx % offsets.length];
-
-                    // Draw Callout Pin with Planet Name, Type, Distance from Earth & Heliocentric Longitude / Speed
-                    drawCalloutPin(pWorld, `${p.symbol} ${p.name.toUpperCase()} [${p.type}]`, distText, col, off[0], off[1], astroDetail2);
-                });
-            }
-        }
-
-        // 2. Minimized Earth View: Dedicated Satellite Constellation & Target Callout Pins
-        if (window.globeGroup && window.globeGroup.visible) {
-            // Earth Globe Center Tag
-            const earthWorld = new THREE.Vector3();
-            globeGroup.getWorldPosition(earthWorld);
-            drawCalloutPin(earthWorld, "🌎 PLANET EARTH", "25,000 HD POINTS", "#42a5f5", -75, -50);
-
-            // Orbiting Satellite Constellation Callouts (ISS, Starlink, SBC-Sat)
-            if (window.satellites) {
-                const satDetails = [
-                    { title: "🛰️ ISS NODE", sub: "ALT: 408 KM | INCL: 51.6°", color: "#ff5252", off: [-70, 45] },
-                    { title: "🛰️ STARLINK-01", sub: "ALT: 550 KM | LEO BROADBAND", color: "#adc6ff", off: [70, -40] },
-                    { title: "🛰️ SBC-SAT 09", sub: "ALT: 650 KM | DIETPI TELEMETRY", color: "#ffe253", off: [-75, -45] }
-                ];
-
-                window.satellites.forEach((s, idx) => {
-                    const sWorld = new THREE.Vector3();
-                    s.mesh.getWorldPosition(sWorld);
-                    const info = satDetails[idx % satDetails.length];
-                    drawCalloutPin(sWorld, info.title, info.sub, info.color, info.off[0], info.off[1]);
-                });
-            }
-
-            // Realtime GeoIP Target Beacon Tag
-            if (beaconMesh) {
-                const bWorld = new THREE.Vector3();
-                beaconMesh.getWorldPosition(bWorld);
-                drawCalloutPin(bWorld, "📍 TARGET BEACON", `${userGeoLocation.city}, ${userGeoLocation.country}`, "#26c6da", 70, -35);
-            }
-
-            // Luna Moon Tag
-            if (window.moonMesh) {
-                const mWorld = new THREE.Vector3();
-                window.moonMesh.getWorldPosition(mWorld);
-                drawCalloutPin(mWorld, "🌕 LUNA MOON", "RANGE: 384,400 KM", "#e0e0e0", 65, 40);
-            }
-        }
-
-        svgElem.innerHTML = svgHTML;
-    }
-
-    let ringScale = 1.0;
-    function animate(t) {
-        requestAnimationFrame(animate);
-        if (!isTabVisible || ecoMode) return;
-        
-        // Render 3D-to-2D Vector Callout Leader Lines
-        updateCalloutAnnotations();
-        
-        // Smooth Camera X, Y & Z Interpolation & Always Point at Origin (0,0,0)
-        const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
-        if (activeCam) {
-            if (window.targetCamX !== undefined) {
-                activeCam.position.x += (window.targetCamX - activeCam.position.x) * 0.08;
-            }
-            if (window.targetCamY !== undefined) {
-                activeCam.position.y += (window.targetCamY - activeCam.position.y) * 0.08;
-            }
-            if (window.targetCamZ !== undefined) {
-                activeCam.position.z += (window.targetCamZ - activeCam.position.z) * 0.08;
-            }
-            activeCam.lookAt(0, 0, 0);
-        }
-
-        if (!isUserDragging) {
-            globeGroup.rotation.y += 0.002;
-        }
-
-        // Rotate Milky Way Galaxy Disc
-        if (milkyWayGroup) {
-            milkyWayGroup.rotation.z += 0.0003;
-            milkyWayGroup.rotation.y += 0.0001;
-        }
-
-        // Animate Satellites Orbiting Earth
-        if (window.satellites) {
-            window.satellites.forEach(s => {
-                s.angle += s.speed;
-                s.mesh.position.x = Math.cos(s.angle) * s.orbitR;
-                s.mesh.position.y = Math.sin(s.angle) * s.orbitR;
-                s.mesh.rotation.y += 0.03;
-            });
-        }
-
-        // Rotate Sun Anchor in Maximized View
-        if (window.sunGroup) {
-            window.sunGroup.rotation.y += 0.005;
-        }
-
-        // Animate Solar System Planets & Moon Orbiting Sun Anchor
-        if (window.solarPlanets) {
-            window.solarPlanets.forEach(p => {
-                p.angle += p.speed;
-                p.mesh.position.x = Math.cos(p.angle) * p.orbitDist;
-                p.mesh.position.z = Math.sin(p.angle) * p.orbitDist;
-                p.mesh.rotation.y += 0.02;
-
-                if (p.name === 'Earth' && p.mesh.userData.solarMoonMesh) {
-                    p.mesh.userData.moonAngle = (p.mesh.userData.moonAngle || 0) + 0.04;
-                    p.mesh.userData.solarMoonMesh.position.x = Math.cos(p.mesh.userData.moonAngle) * 0.35;
-                    p.mesh.userData.solarMoonMesh.position.z = Math.sin(p.mesh.userData.moonAngle) * 0.35;
-                }
-            });
-        }
-
-        // Rotate Solar System Scope 3D Particle Asteroid Belt
-        if (window.asteroidBeltPoints) {
-            window.asteroidBeltPoints.rotation.y += 0.0008;
-        }
-
-        // Orbit Moon around Earth
-        if (window.moonMesh) {
-            window.moonAngle += 0.03;
-            window.moonMesh.position.x = Math.cos(window.moonAngle) * 1.35;
-            window.moonMesh.position.z = Math.sin(window.moonAngle) * 1.35;
-            window.moonMesh.position.y = Math.sin(window.moonAngle * 0.5) * 0.2;
-        }
-
-        if (orbitRing) {
-            orbitRing.rotation.z += 0.002;
-        }
-
-        if (beaconPulseRing) {
-            ringScale += 0.015;
-            if (ringScale > 2.2) ringScale = 1.0;
-            beaconPulseRing.scale.set(ringScale, ringScale, ringScale);
-        }
-
-        renderer.render(scene, camera);
-    }
-    animate(0);
-
-    window.addEventListener('resize', () => {
-        const modalElem = document.getElementById('globe-modal');
-        const activeContainer = (modalElem && !modalElem.classList.contains('hidden')) ? 
-            document.getElementById('modal-earth-container') : 
-            document.getElementById('earth-container');
-
-        if (activeContainer && renderer && camera) {
-            const w = activeContainer.clientWidth || 400;
-            const h = activeContainer.clientHeight || 300;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-        }
-    });
-}
-
-function openGlobeModal() {
-    const modal = document.getElementById('globe-modal');
-    const modalContainer = document.getElementById('modal-earth-container');
-    if (!modal || !modalContainer || !globalRenderer) return;
-
-    modal.classList.remove('hidden');
-    playSound('beep2');
-
-    // MAXIMIZED VIEW: Hide central Earth globe & Sun anchor, leave only planet system orbits & Milky Way
-    if (window.globeGroup) window.globeGroup.visible = false;
-    if (window.sunGroup) window.sunGroup.visible = false; // Hide central globe / sun
-    if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
-    if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
-
-    // SOLAR SYSTEM SCOPE 3D PERSPECTIVE MODE: Tilted 3D Orbit View looking over ecliptic plane
-    window.targetCamX = 0;
-    window.targetCamY = 16.0;
-    window.targetCamZ = 18.0;
-
-    const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
-    if (activeCam) {
-        activeCam.position.set(0, 16.0, 18.0);
-        activeCam.lookAt(0, 0, 0);
-    }
-
-    // Move 3D Globe Canvas into Modal Container
-    modalContainer.appendChild(globalRenderer.domElement);
-
-    // Update modal telemetry readouts
-    const locElem = document.getElementById('modal-target-loc');
-    const coordsElem = document.getElementById('modal-target-coords');
-    const ipElem = document.getElementById('modal-target-ip');
-
-    if (locElem) locElem.innerText = `TARGET: ${userGeoLocation.city.toUpperCase()}, ${userGeoLocation.country.toUpperCase()}`;
-    if (coordsElem) coordsElem.innerText = `COORDS: LAT ${userGeoLocation.lat.toFixed(2)}° | LON ${userGeoLocation.lon.toFixed(2)}°`;
-    if (ipElem) ipElem.innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
-
-    setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-    }, 50);
-}
-
-function closeGlobeModal() {
-    const modal = document.getElementById('globe-modal');
-    const earthContainer = document.getElementById('earth-container');
-    if (!modal || !earthContainer || !globalRenderer) return;
-
-    modal.classList.add('hidden');
-    playSound('beep1');
-
-    // MINIMIZED VIEW: Restore Earth-only globe, hide outer planet system
-    if (window.globeGroup) window.globeGroup.visible = true;
-    if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
-    if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
-
-    // Reset camera back to default angled Earth view for Minimized Monitor
-    window.targetCamX = 0;
-    window.targetCamY = 0;
-    window.targetCamZ = 2.4;
-
-    const activeCam = (typeof camera !== 'undefined' && camera) ? camera : window.globalCamera;
-    if (activeCam) {
-        activeCam.position.set(0, 0, 2.4);
-        activeCam.lookAt(0, 0, 0);
-    }
-
-    // Move 3D Globe Canvas back to Main Hero Container
-    earthContainer.appendChild(globalRenderer.domElement);
-
-    setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-    }, 50);
-}
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeGlobeModal();
-});
-
-window.onload = () => {
-    updateClock();
-    setInterval(updateClock, 1000);
-    fetchTelemetry();
-    setInterval(fetchTelemetry, 2000);
-    initBandwidthGraph();
-    setInterval(updateBandwidth, 1200);
-    setInterval(appendSysLog, 3000);
-    setInterval(generateCascade, 250);
-    initEarth();
-    fetchRealtimeGeoIP();
-    setInterval(fetchRealtimeGeoIP, 30000);
-
-    const inputElem = document.getElementById('morse-input');
-    if (inputElem) inputElem.value = getTodayDateString();
-};
-</script>
 </body>
 </html>

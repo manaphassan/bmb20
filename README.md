@@ -1,56 +1,103 @@
-# BMB20 Command Center - DietPi LCARS Landing Page
+# 🖖 BMB20 LCARS Command Center - DietPi SBC Edition
 
-A high-performance, sci-fi LCARS (Starship Command Center) HTML5 landing page optimized for hosting on **DietPi Linux SBC servers** (e.g. `192.168.0.100` or `dietpi.local`).
+An authentic, high-performance Starfleet LCARS (Library Computer Access and Retrieval System) Command Dashboard and SBC Telemetry Hub, optimized for **DietPi single-board computers (Raspberry Pi 3 Model B)** at `192.168.0.100` or `dietpi.local`.
 
-## 📁 Repository & Project Structure
+---
+
+## 🚀 Key Features
+
+### 1. 🪐 3D Holographic Tactical Stage (`Three.js`)
+* **Multi-View Modes**:
+  * **Planetary (`[PLANET]` / `P`)**: Rotating point-cloud Earth with Malaysia sector base beacon $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$ and orbital satellite.
+  * **Solar System (`[SYSTEM]` / `S`)**: Sol star with 8 planets orbiting in concentric orbital paths.
+  * **Galaxy Map (`[GALAXY]` / `G`)**: 3,800-star rotating 2-arm logarithmic spiral galaxy disk with core glow.
+* **Vector Line Callout Notations**: Dynamic 60 FPS projected SVG leader lines and glassmorphic HUD telemetry cards tracking coordinates in real time.
+
+### 2. 🎙️ Starfleet Acoustic Synthesizer & LCARS Voice Engine
+* **Pure Web Audio API**: Zero-latency procedural sound generation.
+  * **TNG Door / Comm Hail Chime (`C`)**: 3-tone ascending major chord (`C5` $\to$ `E5` $\to$ `G5`).
+  * **Warp Drive Engagement Sequence (`W`)**: Accelerating sub-bass sweep into high-frequency warp pulse.
+  * **Transporter Beaming Shimmer (`B`)**: Dual FM bell shimmer.
+  * **Warp Core Engine**: Deep 48Hz pulsating ambient hum.
+  * **Red Alert Klaxon**: Looping 2-stage emergency frequency sweep.
+* **LCARS Spoken Voice (Web Speech API)**: Authentic Starfleet Computer announcements calibrated to Majel Barrett's voice cadence.
+
+### 3. ⛅ Planetary Weather Station & 3-Day Forecast
+* **Real-time Atmospheric Telemetry**: Temperature (°C), Humidity (%), Barometric Pressure (hPa), and Surface Wind Vectors (km/h + Cardinal Bearing).
+* **3-Day Forecast Strip**: High/Low temperatures and condition icons for Today, Tomorrow, and Day 3.
+* **Zero-API-Key Data Source**: Live Open-Meteo meteorological feed for coordinate $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$.
+
+### 4. 🛰️ Subspace Network Radar & Tactical Action Console
+* **LAN Node Scanner**: Real-time connected home devices mapped from `/proc/net/arp` with IP, MAC, and interface (`eth0`/`wlan0`).
+* **Tactical Node Modal**: Click any node to run ICMP Ping Diagnostics, Flush DNS Cache, Purge Memory Buffers, or Reload the Telemetry Daemon.
+
+### 5. ⚡ Realtime Hardware & Service Monitoring
+* **Non-blocking Telemetry Daemon (`bmb20-stats.sh`)**: Direct `/proc` parser reading Delta CPU (100ms sample), RAM, SOC Temp, SD Storage, and dynamic `KB/s`/`MB/s` network bandwidth.
+* **Live Pi-hole v6 Engine**: Multi-tier extraction querying internal FTL socket port 4711 and SQLite database.
+* **Real Kernel Event Log**: Live kernel events from `dmesg -T` and `journalctl`.
+
+---
+
+## 🌐 Active Services Roster & Ports
+
+| Identifier | Service | Port / URL | Description |
+| :--- | :--- | :--- | :--- |
+| **`[01-89]`** | **Pi-hole v6** | `http://dietpi.local:8089/admin/login` | DNS Ad-blocking & Network Shield |
+| **`[80-84]`** | **File Browser** | `http://dietpi.local:8084/` | Web-based Local File Manager |
+| **`[33-84]`** | **Syncthing** | `http://192.168.0.100:8384` | Continuous File Synchronization |
+| **`[10-52]`** | **Tailscale VPN** | `https://login.tailscale.com/admin/machines` | Secure Mesh Network Console |
+| **`[52-52]`** | **Cockpit** | `http://192.168.0.100:5252` | Linux Server Web Administration |
+
+---
+
+## ⌨️ Master Keyboard Hotkey Guide
+
+| Key | Action |
+| :--- | :--- |
+| **`1`** | Condition Green (*"All systems nominal"*) |
+| **`2`** | Yellow Alert (*Caution Chime + Stand by*) |
+| **`3`** | Red Alert (*Klaxon + "Shields up. Battle stations"*) |
+| **`4`** or **`P`** | 3D Earth Planetary View |
+| **`5`** or **`S`** | 3D Sol System Orbital View |
+| **`6`** or **`G`** | 3D Milky Way Galaxy Map |
+| **`W`** | Warp Drive Engagement Sequence |
+| **`C`** | TNG Door / Comm Hail Chime |
+| **`B`** | Transporter Beaming Shimmer |
+| **`M`** or **`A`** | Audio Interface Toggle (ON / OFF) |
+| **`ESC`** | Close Tactical Action Modal |
+
+---
+
+## 📁 Repository Structure
 
 ```text
 d:\HaNa_Innovation\bmb20\
-├── .agents/
-│   └── skills/
-│       └── dietpi-lcars-deploy/
-│           └── SKILL.md                 # Agent Skill for DietPi LCARS deployment
-├── DESIGN.md                            # Nemesis Blue LCARS Design Specification
-├── code.html                            # Original Base HTML5 Command Center UI
-├── index.html                           # Optimized Production Landing Page
-├── api.php                              # Lightweight DietPi PHP System Telemetry API
-├── deploy-dietpi.sh                     # Linux Web Server Deployment Shell Script
-├── deploy.ps1                           # Automated Windows PowerShell SSH/SCP Deployer
-└── README.md                            # Project Overview & Usage Guide
+├── index.html                   # Master LCARS UI Command Center
+├── api.php                      # Telemetry & Tactical Actions API endpoint
+├── css/
+│   └── style.css                # LCARS Okuda Design System & Scanline Overlays
+├── js/
+│   ├── config.js                # Hostname, coordinates & service URL config
+│   ├── audio.js                 # Starfleet Web Audio synth & Web Speech API engine
+│   ├── globe.js                 # Three.js 3D WebGL Hologram & SVG Callouts
+│   ├── telemetry.js             # Telemetry parser, weather & tactical modal
+│   ├── tailwind-config.js       # Color palette & font token mappings
+│   └── main.js                  # Master application lifecycle & hotkey router
+├── daemon/
+│   ├── bmb20-stats.sh           # Background systemd telemetry scraper daemon
+│   └── bmb20-stats.service      # Linux systemd service unit definition
+├── deploy.ps1                   # Automated Windows PowerShell deployment script
+└── README.md                    # System documentation and operational guide
 ```
 
 ---
 
-## ⚡ Features
+## 🛠️ Deployment Instructions
 
-- **LCARS Nemesis Blue Aesthetics**: High-contrast, glowing sci-fi UI based on [DESIGN.md](DESIGN.md).
-- **DietPi Service Dashboard**: Quick launchers for Pi-hole, Syncthing, Jellyfin, Cockpit, and DietPi-Dashboard.
-- **SBC Resource Protection**: Integrated Eco-Mode toggle and `visibilitychange` API listener to pause WebGL/3D Earth when tab is in background or running on low-resource SBC hardware.
-- **Real & Fallback Telemetry**: Fetches real SOC temperature, memory utilization, CPU load, and disk stats from [api.php](api.php) with simulated fallback if PHP is disabled.
-- **Synthesized Web Audio**: Interactive beep sounds generated using Web Audio API (no external MP3 asset dependency).
-
----
-
-## 🚀 Deployment Instructions
-
-### 1. Auto-Deploy via PowerShell (From Windows Host)
+### Automated Push to DietPi Host
 ```powershell
-.\deploy.ps1 -TargetHost "192.168.0.100" -User "root"
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1 -TargetHost "192.168.0.100"
 ```
 
-### 2. Manual Linux SSH Deployment (On DietPi Host)
-```bash
-# Upload files via SCP
-scp index.html api.php deploy-dietpi.sh root@192.168.0.100:/var/www/html/
-
-# Run setup script via SSH
-ssh root@192.168.0.100 "chmod +x /var/www/html/deploy-dietpi.sh && /var/www/html/deploy-dietpi.sh"
-```
-
----
-
-## 🌐 Web Server Access
-
-After deployment, open your browser at:
-- **`http://192.168.0.100`**
-- **`http://dietpi.local`**
+Once deployed, access the dashboard at:
+👉 **`http://192.168.0.100`** or **`http://dietpi.local`**
