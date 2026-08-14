@@ -928,9 +928,9 @@ function updateGeoIPDisplay() {
 async function fetchTelemetry() {
     if (!isTabVisible) return;
     try {
-        let res = await fetch('api.php', { cache: 'no-store' });
+        let res = await fetch('api.json', { cache: 'no-store' });
         if (!res.ok) {
-            res = await fetch('api.json', { cache: 'no-store' });
+            res = await fetch('api.php', { cache: 'no-store' });
         }
         if (res.ok) {
             const data = await res.json();
@@ -945,21 +945,13 @@ async function fetchTelemetry() {
                 };
                 updateGeoIPDisplay();
                 updateGlobeBeacon();
+            }
             if (data.lan_devices && Array.isArray(data.lan_devices)) {
                 updateLANDevicesUI(data.lan_devices);
             }
             return;
         }
-    } catch (e) {
-        try {
-            const res = await fetch('api.json', { cache: 'no-store' });
-            if (res.ok) {
-                const data = await res.json();
-                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
-                return;
-            }
-        } catch (err) {}
-    }
+    } catch (e) {}
 
     const simulatedCpu = Math.floor(15 + Math.random() * 55);
     const simulatedMem = Math.floor(35 + Math.random() * 20);
