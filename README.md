@@ -8,31 +8,35 @@ An authentic, high-performance Starfleet LCARS (Library Computer Access and Retr
 
 ### 1. 🪐 3D Holographic Tactical Stage (`Three.js`)
 * **Multi-View Modes**:
-  * **Planetary (`[PLANET]` / `P`)**: Rotating point-cloud Earth with Malaysia sector base beacon $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$ and orbital satellite.
+  * **Planetary (`[PLANET]` / `P`)**: Rotating point-cloud Earth with Malaysia sector base beacon $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$, geo-sync satellite, and live **ISS Space Station Orbit Tracking**.
   * **Solar System (`[SYSTEM]` / `S`)**: Sol star with 8 planets orbiting in concentric orbital paths.
   * **Galaxy Map (`[GALAXY]` / `G`)**: 3,800-star rotating 2-arm logarithmic spiral galaxy disk with core glow.
 * **Vector Line Callout Notations**: Dynamic 60 FPS projected SVG leader lines and glassmorphic HUD telemetry cards tracking coordinates in real time.
+* **Interactive Orbit & Zoom Controls**: Mouse drag / touch to orbit in 3D with smooth inertial damping; scroll wheel to zoom.
 
-### 2. 🎙️ Starfleet Acoustic Synthesizer & LCARS Voice Engine
-* **Pure Web Audio API**: Zero-latency procedural sound generation.
-  * **TNG Door / Comm Hail Chime (`C`)**: 3-tone ascending major chord (`C5` $\to$ `E5` $\to$ `G5`).
-  * **Warp Drive Engagement Sequence (`W`)**: Accelerating sub-bass sweep into high-frequency warp pulse.
-  * **Transporter Beaming Shimmer (`B`)**: Dual FM bell shimmer.
-  * **Warp Core Engine**: Deep 48Hz pulsating ambient hum.
-  * **Red Alert Klaxon**: Looping 2-stage emergency frequency sweep.
-* **LCARS Spoken Voice (Web Speech API)**: Authentic Starfleet Computer announcements calibrated to Majel Barrett's voice cadence.
+### 2. 🎙️ J.A.R.V.I.S. AI Voice Engine & Speech Recognition
+* **Web Speech Recognition API (`[VOICE: ON]` / `V`)**: Direct voice commands through your microphone:
+  * *"Computer, Red Alert"* $\to$ Arms tactical shields and sounds klaxon.
+  * *"Computer, Status Report"* $\to$ J.A.R.V.I.S. speaks live CPU, temperature, memory, and Pi-hole metrics.
+  * *"Computer, Warp Speed"* $\to$ Executes warp drive acceleration sweep.
+  * *"Computer, Planet Earth"* $\to$ Switches 3D stage to terrestrial view.
+* **Web Audio API Procedural Synthesizer**: TNG Door Chimes (`C`), Warp Drive (`W`), Transporter Beaming (`B`), 48Hz Warp Core Hum, and Emergency Klaxon.
+* **High-Clarity / CRT Scanline Toggle (`R`)**: Instant toggle between razor-sharp typography and retro phosphor CRT scanlines.
 
-### 3. ⛅ Planetary Weather Station & 3-Day Forecast
+### 3. 🛰️ ISS Space Station Subspace Tracker
+* **Real-time Live Telemetry**: Live ISS coordinates $[Lat, Lon]$, velocity (~27,600 km/h), and altitude (~420 km) with dynamic 3D orbital mesh and leader line tracking.
+
+### 4. ⛅ Planetary Weather Station & 3-Day Forecast
 * **Real-time Atmospheric Telemetry**: Temperature (°C), Humidity (%), Barometric Pressure (hPa), and Surface Wind Vectors (km/h + Cardinal Bearing).
 * **3-Day Forecast Strip**: High/Low temperatures and condition icons for Today, Tomorrow, and Day 3.
 * **Zero-API-Key Data Source**: Live Open-Meteo meteorological feed for coordinate $[02.81^\circ\text{N}, 101.50^\circ\text{E}]$.
 
-### 4. 🛰️ Subspace Network Radar & Tactical Action Console
+### 5. 🛰️ Subspace Network Radar & Tactical Action Console
 * **LAN Node Scanner**: Real-time connected home devices mapped from `/proc/net/arp` with IP, MAC, and interface (`eth0`/`wlan0`).
 * **Tactical Node Modal**: Click any node to run ICMP Ping Diagnostics, Flush DNS Cache, Purge Memory Buffers, or Reload the Telemetry Daemon.
 
-### 5. ⚡ Realtime Hardware & Service Monitoring
-* **Non-blocking Telemetry Daemon (`bmb20-stats.sh`)**: Direct `/proc` parser reading Delta CPU (100ms sample), RAM, SOC Temp, SD Storage, and dynamic `KB/s`/`MB/s` network bandwidth.
+### 6. ⚡ Realtime Hardware & Service Monitoring
+* **Non-blocking Telemetry Daemon (`bmb20-stats.sh`)**: Direct `/proc` parser reading Delta CPU (100ms sample), RAM, SOC Temp, SD Storage, DietPi OS update status, and dynamic bandwidth.
 * **Live Pi-hole v6 Engine**: Multi-tier extraction querying internal FTL socket port 4711 and SQLite database.
 * **Real Kernel Event Log**: Live kernel events from `dmesg -T` and `journalctl`.
 
@@ -63,6 +67,8 @@ An authentic, high-performance Starfleet LCARS (Library Computer Access and Retr
 | **`W`** | Warp Drive Engagement Sequence |
 | **`C`** | TNG Door / Comm Hail Chime |
 | **`B`** | Transporter Beaming Shimmer |
+| **`V`** | J.A.R.V.I.S. Voice Mic Toggle (Speech Recognition) |
+| **`R`** | Retro CRT Scanline / High Clarity Toggle |
 | **`M`** or **`A`** | Audio Interface Toggle (ON / OFF) |
 | **`ESC`** | Close Tactical Action Modal |
 

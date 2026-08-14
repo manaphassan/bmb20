@@ -132,6 +132,24 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     const diskPct = Math.min(100, Math.max(2, disk));
     if (diskVal) diskVal.innerText = `${disk}%`;
     if (diskBar) diskBar.style.width = `${diskPct}%`;
+
+    // 5. OS Updates & Kernel Health
+    const osBadge = document.getElementById('os-upgrades-badge');
+    if (osBadge) {
+        if (fullData && fullData.os_health) {
+            const pending = fullData.os_health.pending || 0;
+            if (pending > 0) {
+                osBadge.innerText = `UPDATES: ${pending} PENDING`;
+                osBadge.className = "text-[9px] font-data-mono text-tertiary font-bold animate-pulse";
+            } else {
+                osBadge.innerText = `DIETPI: OPTIMIZED`;
+                osBadge.className = "text-[9px] font-data-mono text-primary font-bold";
+            }
+        } else {
+            osBadge.innerText = `DIETPI: OPTIMIZED`;
+            osBadge.className = "text-[9px] font-data-mono text-primary";
+        }
+    }
 }
 
 // Update Dynamic Footer Ticker

@@ -121,6 +121,10 @@
                 <button onclick="playWarpSequence()" class="bg-surface-container-high hover:bg-primary hover:text-black py-1 px-1.5 rounded-r text-center font-bold transition-colors">WARP [W]</button>
             </div>
 
+            <button class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-surface-bright transition-colors flex justify-between items-center font-bold" id="voice-mic-btn" onclick="toggleVoiceRecognition()">
+                <span class="material-symbols-outlined text-sm" id="voice-mic-icon">mic_off</span>
+                <span id="voice-mic-label">VOICE: OFF</span>
+            </button>
             <button class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right hover:bg-surface-bright transition-colors flex justify-between items-center font-bold" id="scanline-toggle" onclick="toggleScanlines()">
                 <span class="material-symbols-outlined text-sm" id="scanline-icon">tv_off</span>
                 <span id="scanline-label">CRT: OFF</span>
@@ -177,8 +181,20 @@
 
         <!-- Central Hologram Panel (Hero) -->
         <div class="col-span-2 row-span-1 bg-surface-container-lowest border border-outline-variant/40 relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm">
-            <div class="absolute top-0 left-0 bg-lcars-orange text-black font-label-caps text-[10px] px-2 py-0.5 z-30 font-bold tracking-wider rounded-br">
-                TACTICAL HOLOGRAPHIC STAGE
+            <div class="absolute top-0 left-0 flex items-center gap-2 z-30">
+                <div class="bg-lcars-orange text-black font-label-caps text-[10px] px-2 py-0.5 font-bold tracking-wider rounded-br">
+                    TACTICAL HOLOGRAPHIC STAGE
+                </div>
+                <!-- Live ISS Subspace Tracker Badge -->
+                <div class="bg-surface-container-high/90 backdrop-blur-sm border border-lcars-gold/40 px-2 py-0.5 rounded text-[9px] font-data-mono text-lcars-gold flex items-center gap-1" id="iss-hud-badge">
+                    <span class="w-1.5 h-1.5 rounded-full bg-lcars-gold animate-pulse"></span>
+                    <span>ISS: 28.5°N, 80.5°W // 27,580 KM/H</span>
+                </div>
+                <!-- Voice Command Transcription Badge -->
+                <div class="bg-surface-container-high/90 backdrop-blur-sm border border-primary/40 px-2 py-0.5 rounded text-[9px] font-data-mono text-primary flex items-center gap-1 opacity-40 transition-opacity" id="voice-hud-badge">
+                    <span class="material-symbols-outlined text-xs">mic</span>
+                    <span>MIC STANDBY [V]</span>
+                </div>
             </div>
 
             <!-- 3D Stage Multi-View Mode Switcher -->
@@ -239,7 +255,7 @@
         <div class="col-span-1 row-span-1 bg-surface-container-low p-3 flex flex-col justify-between border-t-4 border-lcars-orange rounded-sm overflow-hidden">
             <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
                 <span class="font-headline-sm text-xs text-lcars-orange uppercase tracking-wider font-bold">System Telemetry</span>
-                <span class="text-[9px] font-data-mono text-tertiary">WARP CORE: 100%</span>
+                <span class="text-[9px] font-data-mono text-tertiary" id="os-upgrades-badge">DIETPI: OPTIMIZED</span>
             </div>
             
             <div class="grid grid-cols-2 gap-x-3 gap-y-2 font-data-mono text-xs">

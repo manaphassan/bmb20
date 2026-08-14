@@ -11,8 +11,17 @@ let earthGroup, solarGroup, galaxyGroup;
 let currentHologramView = 'earth';
 
 // Earth View Variables
-let earthPoints, globeMesh, ringMesh, beaconMesh, satelliteMesh;
+let earthPoints, globeMesh, ringMesh, beaconMesh, satelliteMesh, issMesh;
 let satAngle = 0;
+let issData = { lat: 28.5, lon: -80.5, alt: 418, vel: 27580, visibility: "daylight" };
+
+// Interactive Orbit & Zoom Variables
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+let userRotation = { x: 0, y: 0 };
+let targetRotation = { x: 0, y: 0 };
+let targetCameraZ = 240;
+let lastInteractionTime = 0;
 
 // Solar System View Variables
 let solarPlanets = [];
@@ -72,12 +81,119 @@ function initEarth() {
     solarGroup.visible = false;
     galaxyGroup.visible = false;
 
+    // Setup Interactive Orbit & Zoom Controls
+    setupOrbitControls(container);
+
+    // Fetch Live ISS Position
+    fetchISSPosition();
+    setInterval(fetchISSPosition, 5000);
+
     // Handle Window Resize
     window.addEventListener('resize', onWindowResize, false);
     setTimeout(onWindowResize, 80);
 
     // Start Master Render Loop
     animate();
+}
+
+/**
+ * Interactive Mouse Drag & Touch Orbit Controls
+ */
+function setupOrbitControls(container) {
+    container.style.cursor = 'grab';
+
+    const onPointerDown = (clientX, clientY) => {
+        isDragging = true;
+        previousMousePosition = { x: clientX, y: clientY };
+        container.style.cursor = 'grabbing';
+        lastInteractionTime = Date.now();
+    };
+
+    const onPointerMove = (clientX, clientY) => {
+        if (!isDragging) return;
+        const deltaX = clientX - previousMousePosition.x;
+        const deltaY = clientY - previousMousePosition.y;
+
+        targetRotation.y += deltaX * 0.008;
+        targetRotation.x += deltaY * 0.008;
+        targetRotation.x = Math.max(-1.1, Math.min(1.1, targetRotation.x));
+
+        previousMousePosition = { x: clientX, y: clientY };
+        lastInteractionTime = Date.now();
+    };
+
+    const onPointerUp = () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+    };
+
+    // Mouse Events
+    container.addEventListener('mousedown', (e) => onPointerDown(e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', onPointerUp);
+
+    // Touch Events
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+    });
+    window.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches.length === 1) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    });
+    window.addEventListener('touchend', onPointerUp);
+
+    // Scroll Wheel Zoom
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetCameraZ += e.deltaY * 0.22;
+        targetCameraZ = Math.max(110, Math.min(380, targetCameraZ));
+        lastInteractionTime = Date.now();
+    }, { passive: false });
+}
+
+/**
+ * Live ISS Orbit Tracker
+ */
+async function fetchISSPosition() {
+    try {
+        const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+        if (res.ok) {
+            const data = await res.json();
+            issData = {
+                lat: data.latitude,
+                lon: data.longitude,
+                alt: Math.round(data.altitude),
+                vel: Math.round(data.velocity),
+                visibility: data.visibility
+            };
+            updateISSMeshPosition();
+            updateISSHUD();
+        }
+    } catch (e) {
+        // Fallback smooth calculated orbit
+        const t = Date.now() / 1000;
+        issData.lat = Math.sin(t * 0.001) * 51.6;
+        issData.lon = ((t * 0.05) % 360) - 180;
+        updateISSMeshPosition();
+    }
+}
+
+function updateISSMeshPosition() {
+    if (!issMesh) return;
+    const radius = 62;
+    const altScale = radius + (issData.alt / 420 * 12);
+    const phi = (90 - issData.lat) * (Math.PI / 180);
+    const theta = (issData.lon + 180) * (Math.PI / 180);
+
+    issMesh.position.x = -altScale * Math.sin(phi) * Math.cos(theta);
+    issMesh.position.z = altScale * Math.sin(phi) * Math.sin(theta);
+    issMesh.position.y = altScale * Math.cos(phi);
+}
+
+function updateISSHUD() {
+    const badge = document.getElementById('iss-hud-badge');
+    if (badge) {
+        badge.innerText = `ISS: ${issData.lat.toFixed(1)}°, ${issData.lon.toFixed(1)}° // ${issData.vel} KM/H`;
+    }
 }
 
 /**
@@ -174,6 +290,23 @@ function buildEarthModel() {
     const satMat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
     satelliteMesh = new THREE.Mesh(satGeo, satMat);
     earthGroup.add(satelliteMesh);
+
+    // F. ISS Space Station 3D Model with Solar Wings
+    issMesh = new THREE.Group();
+    const coreModule = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 3.2, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    coreModule.rotation.z = Math.PI / 2;
+    issMesh.add(coreModule);
+
+    const solarWingMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, wireframe: true });
+    const wingLeft = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8), solarWingMat);
+    wingLeft.position.x = -3.0;
+    const wingRight = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8), solarWingMat);
+    wingRight.position.x = 3.0;
+    issMesh.add(wingLeft);
+    issMesh.add(wingRight);
+
+    updateISSMeshPosition();
+    earthGroup.add(issMesh);
 }
 
 function checkContinentalWeight(lat, lon) {
@@ -479,6 +612,9 @@ function updateCallouts() {
         if (satelliteMesh) {
             renderCallout(satelliteMesh, "SAT-BMB20", "ALT: 420 KM // GEO-SYNC", -25, 20, -35, 0);
         }
+        if (issMesh) {
+            renderCallout(issMesh, "ISS (ZARYA)", `ALT: ${issData.alt} KM // ${issData.vel} KM/H`, 30, 22, 45, 0);
+        }
     } else if (currentHologramView === 'solar') {
         if (solarSunMesh) {
             renderCallout(solarSunMesh, "SOL PRIMARY", "CLASS G2V // 5778 K", 25, -25, 45, 0);
@@ -509,9 +645,20 @@ function animate() {
 
     if (!scene || !camera || !renderer) return;
 
+    // Smooth User Drag & Inertial Damping
+    userRotation.x += (targetRotation.x - userRotation.x) * 0.08;
+    userRotation.y += (targetRotation.y - userRotation.y) * 0.08;
+    camera.position.z += (targetCameraZ - camera.position.z) * 0.08;
+
+    // Auto Gentle Rotation when idle (> 3.5s)
+    const isIdle = (Date.now() - lastInteractionTime) > 3500;
+
     if (currentHologramView === 'earth') {
-        // Planetary Rotation
-        if (earthGroup) earthGroup.rotation.y += 0.0035;
+        if (earthGroup) {
+            if (isIdle) targetRotation.y += 0.003;
+            earthGroup.rotation.x = userRotation.x;
+            earthGroup.rotation.y = userRotation.y;
+        }
 
         // Satellite Orbit Motion
         if (satelliteMesh) {
@@ -526,6 +673,12 @@ function animate() {
         // Sol Star Pulse & Rotation
         if (solarSunMesh) solarSunMesh.rotation.y += 0.006;
 
+        if (solarGroup) {
+            if (isIdle) targetRotation.y += 0.0015;
+            solarGroup.rotation.x = 0.35 + userRotation.x;
+            solarGroup.rotation.y = userRotation.y;
+        }
+
         // Planets Orbit Propagation
         solarPlanets.forEach(p => {
             p.angle += p.speed;
@@ -534,11 +687,12 @@ function animate() {
             p.mesh.position.y = 0;
             p.mesh.rotation.y += 0.02;
         });
-
-        if (solarGroup) solarGroup.rotation.y += 0.001;
     } else if (currentHologramView === 'galaxy') {
-        // Galaxy Disk Rotation
-        if (galaxyGroup) galaxyGroup.rotation.y += 0.0022;
+        if (galaxyGroup) {
+            if (isIdle) targetRotation.y += 0.002;
+            galaxyGroup.rotation.x = 0.55 + userRotation.x;
+            galaxyGroup.rotation.y = userRotation.y;
+        }
     }
 
     renderer.render(scene, camera);

@@ -208,6 +208,21 @@ while true; do
     fi
 
     # --------------------------------------------------------------------------
+    # 8.9. OS Package Updates & System Health (every 300s)
+    # --------------------------------------------------------------------------
+    if [ -z "$LAST_UPD_TIME" ]; then LAST_UPD_TIME=0; fi
+    if [ $((CUR_TIME - LAST_UPD_TIME)) -ge 300 ] || [ -z "$UPD_JSON" ]; then
+        PENDING_UPGRADES=0
+        if [ -f /var/lib/dietpi/dietpi-autostart ]; then
+            PENDING_UPGRADES=$(apt list --upgradable 2>/dev/null | grep -v 'Listing...' | wc -l)
+        fi
+        PENDING_UPGRADES=${PENDING_UPGRADES:-0}
+        KERNEL_VER=$(uname -r 2>/dev/null || echo "6.1.21-v7+")
+        UPD_JSON="{\"pending\":${PENDING_UPGRADES},\"kernel\":\"${KERNEL_VER}\",\"dietpi_version\":\"v9.x\",\"status\":\"$([ "$PENDING_UPGRADES" -eq 0 ] && echo 'OPTIMIZED' || echo 'UPDATES AVAILABLE')\"}"
+        LAST_UPD_TIME=$CUR_TIME
+    fi
+
+    # --------------------------------------------------------------------------
     # 9. Atomic JSON Payload Write
     # --------------------------------------------------------------------------
     JSON_PAYLOAD=$(cat <<EOF
@@ -223,6 +238,7 @@ while true; do
   "syslog": "${SYSLOG_MSG}",
   "pihole": ${PIHOLE_JSON},
   "weather": ${WEATHER_JSON},
+  "os_health": ${UPD_JSON},
   "geoip": {
     "city": "BANTING / KL",
     "country": "MY",

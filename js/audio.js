@@ -403,9 +403,155 @@ function toggleAudio() {
     }
 }
 
+/**
+ * ==========================================================================
+ * J.A.R.V.I.S. VOICE COMMAND RECOGNITION (Web Speech Recognition API)
+ * ==========================================================================
+ */
+let recognition = null;
+let isListening = false;
+
+function initVoiceRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.warn("SpeechRecognition API not supported in this browser.");
+        return;
+    }
+
+    try {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            isListening = true;
+            updateVoiceHUD("LISTENING...", true);
+        };
+
+        recognition.onresult = (event) => {
+            const last = event.results.length - 1;
+            const command = event.results[last][0].transcript.trim().toLowerCase();
+            handleVoiceCommand(command);
+        };
+
+        recognition.onerror = (event) => {
+            if (event.error !== 'no-speech') {
+                console.warn("Speech recognition error:", event.error);
+            }
+        };
+
+        recognition.onend = () => {
+            if (isListening) {
+                // Auto-restart if user still wants mic on
+                try { recognition.start(); } catch (e) {}
+            } else {
+                updateVoiceHUD("MIC OFF", false);
+            }
+        };
+    } catch (e) {
+        console.warn("Speech recognition init failed:", e);
+    }
+}
+
+function toggleVoiceRecognition() {
+    if (!recognition) initVoiceRecognition();
+    if (!recognition) {
+        alert("Speech Recognition is not supported by your browser. Please use Chrome, Edge, or a WebSpeech-compatible browser.");
+        return;
+    }
+
+    if (isListening) {
+        isListening = false;
+        recognition.stop();
+        updateVoiceHUD("MIC OFF", false);
+        if (playSound) playSound('beep1');
+        if (speakComputerVoice) speakComputerVoice("Voice listening deactivated, sir.");
+    } else {
+        isListening = true;
+        try {
+            recognition.start();
+            updateVoiceHUD("LISTENING...", true);
+            if (playSound) playSound('beep2');
+            if (speakComputerVoice) speakComputerVoice("Standing by for your command, sir.");
+        } catch (e) {
+            console.warn("Voice recognition start error:", e);
+        }
+    }
+}
+
+function updateVoiceHUD(text, active) {
+    const micBtn = document.getElementById('voice-mic-btn');
+    const micIcon = document.getElementById('voice-mic-icon');
+    const micLabel = document.getElementById('voice-mic-label');
+    const hudBadge = document.getElementById('voice-hud-badge');
+
+    if (micIcon) micIcon.innerText = active ? 'mic' : 'mic_off';
+    if (micLabel) micLabel.innerText = active ? 'VOICE: ON' : 'VOICE: OFF';
+    if (micBtn) {
+        if (active) {
+            micBtn.classList.add('bg-primary', 'text-black', 'active-condition');
+            micBtn.classList.remove('bg-surface-variant', 'text-on-surface-variant');
+        } else {
+            micBtn.classList.remove('bg-primary', 'text-black', 'active-condition');
+            micBtn.classList.add('bg-surface-variant', 'text-on-surface-variant');
+        }
+    }
+
+    if (hudBadge) {
+        hudBadge.innerText = text.toUpperCase();
+        hudBadge.style.opacity = active ? '1' : '0.4';
+    }
+}
+
+function handleVoiceCommand(cmd) {
+    const hudBadge = document.getElementById('voice-hud-badge');
+    if (hudBadge) {
+        hudBadge.innerText = `CMD: "${cmd}"`;
+    }
+
+    if (cmd.includes('red alert') || cmd.includes('alert red') || cmd.includes('shields up')) {
+        if (window.setAlertCondition) window.setAlertCondition('red', true);
+    } else if (cmd.includes('yellow alert') || cmd.includes('condition yellow') || cmd.includes('caution')) {
+        if (window.setAlertCondition) window.setAlertCondition('yellow', true);
+    } else if (cmd.includes('green') || cmd.includes('nominal') || cmd.includes('all clear') || cmd.includes('stand down')) {
+        if (window.setAlertCondition) window.setAlertCondition('green', true);
+    } else if (cmd.includes('warp') || cmd.includes('engage') || cmd.includes('accelerate')) {
+        if (window.playWarpSequence) window.playWarpSequence();
+    } else if (cmd.includes('chime') || cmd.includes('door') || cmd.includes('hail')) {
+        if (window.playDoorChime) window.playDoorChime();
+    } else if (cmd.includes('beam') || cmd.includes('transport') || cmd.includes('energize')) {
+        if (window.playTransporterChime) window.playTransporterChime();
+    } else if (cmd.includes('planet') || cmd.includes('earth') || cmd.includes('terrestrial')) {
+        if (window.switchHologramView) window.switchHologramView('earth');
+    } else if (cmd.includes('solar') || cmd.includes('system') || cmd.includes('sun')) {
+        if (window.switchHologramView) window.switchHologramView('solar');
+    } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
+        if (window.switchHologramView) window.switchHologramView('galaxy');
+    } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
+        speakVerbalStatusReport();
+    } else if (cmd.includes('clarity') || cmd.includes('scanline') || cmd.includes('crt')) {
+        if (window.toggleScanlines) window.toggleScanlines();
+    } else if (cmd.includes('audio off') || cmd.includes('mute') || cmd.includes('silence')) {
+        if (window.toggleAudio) window.toggleAudio();
+    } else {
+        if (window.playSound) window.playSound('beep2');
+    }
+}
+
+function speakVerbalStatusReport() {
+    const cpu = document.getElementById('cpu-val') ? document.getElementById('cpu-val').innerText : '24 percent';
+    const mem = document.getElementById('mem-val') ? document.getElementById('mem-val').innerText : '26 percent';
+    const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52 degrees';
+    const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'active';
+
+    speakComputerVoice(`Status report, sir. CPU load is at ${cpu}, memory utilization is ${mem}. Processor temperature is ${temp}. Pi-hole shield is ${pihole}. All subsystems nominal.`);
+}
+
 // Window Global Exports
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
+window.toggleVoiceRecognition = toggleVoiceRecognition;
 window.startRedAlertKlaxon = startRedAlertKlaxon;
 window.stopRedAlertKlaxon = stopRedAlertKlaxon;
 window.playYellowAlertChirp = playYellowAlertChirp;
@@ -413,3 +559,4 @@ window.playDoorChime = playDoorChime;
 window.playWarpSequence = playWarpSequence;
 window.playTransporterChime = playTransporterChime;
 window.speakComputerVoice = speakComputerVoice;
+window.speakVerbalStatusReport = speakVerbalStatusReport;

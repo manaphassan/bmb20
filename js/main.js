@@ -176,7 +176,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Keyboard Hotkey Support (1=Green, 2=Yellow, 3=Red, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, M/A=Audio)
+// Keyboard Hotkey Support (1=Green, 2=Yellow, 3=Red, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, V=Voice Mic, M/A=Audio)
 window.addEventListener('keydown', (e) => {
     // Ignore input if focused in text fields
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
@@ -202,6 +202,8 @@ window.addEventListener('keydown', (e) => {
         if (window.playTransporterChime) window.playTransporterChime();
     } else if (k === 'r') {
         toggleScanlines();
+    } else if (k === 'v') {
+        if (window.toggleVoiceRecognition) window.toggleVoiceRecognition();
     } else if (k === 'm' || k === 'a') {
         if (window.toggleAudio) window.toggleAudio();
     }
