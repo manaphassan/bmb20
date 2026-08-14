@@ -79,11 +79,11 @@
                 <span class="text-[9px] bg-black text-lcars-purple px-1 rounded font-mono">[52-52]</span>
                 <span>COCKPIT :5252</span>
             </a>
-            <a href="calendar.html" onclick="playSound('beep2')"
+            <button onclick="switchDeck(3); playSound('beep2');"
                class="bg-tertiary text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-primary transition-colors flex justify-between items-center font-bold shadow-sm">
                 <span class="material-symbols-outlined text-sm">calendar_month</span>
                 <span>CHRONO SCHEDULE</span>
-            </a>
+            </button>
             <a href="settings.html" onclick="playSound('beep2')"
                class="bg-primary text-black font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right hover:bg-tertiary transition-colors flex justify-between items-center font-bold shadow-sm">
                 <span class="material-symbols-outlined text-sm">settings</span>
@@ -205,15 +205,19 @@
             </div>
             <div class="h-4 w-px bg-outline-variant"></div>
             
-            <!-- Dual-Deck Mode Switcher (Deck 1 / Deck 2) -->
+            <!-- 3-Deck Mode Switcher (Deck 1 / Deck 2 / Deck 3) -->
             <div class="flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-full border border-primary/40 font-data-mono">
                 <button id="deck-tab-1" onclick="switchDeck(1)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition" title="Deck 1: Meena AI Assistant & Tactical Command (Shortcut: Key 1)">
                     <span class="material-symbols-outlined text-[11px]">smart_toy</span>
-                    <span>[1] MEENA AI DECK</span>
+                    <span>[1] AI BRIDGE</span>
                 </button>
                 <button id="deck-tab-2" onclick="switchDeck(2)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Deck 2: 3D Observatory & System NOC (Shortcut: Key 2)">
                     <span class="material-symbols-outlined text-[11px]">public</span>
                     <span>[2] OBSERVATORY NOC</span>
+                </button>
+                <button id="deck-tab-3" onclick="switchDeck(3)" class="px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Deck 3: Chrono Calendar & Operations Agenda (Shortcut: Key 3)">
+                    <span class="material-symbols-outlined text-[11px]">calendar_month</span>
+                    <span>[3] CHRONO CALENDAR</span>
                 </button>
             </div>
         </div>
@@ -283,10 +287,10 @@
                     <!-- Live State Readout & Voice Test / Dossier / Settings -->
                     <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="text-[9px] text-tertiary font-bold animate-pulse mr-1" id="meena-status-indicator">STANDBY [LISTENING]</span>
-                        <a href="calendar.html" class="text-[9px] bg-tertiary text-black font-bold px-2 py-0.5 rounded hover:bg-tertiary/80 transition-all flex items-center gap-0.5 shadow-sm">
+                        <button onclick="switchDeck(3); playSound('beep2');" class="text-[9px] bg-tertiary text-black font-bold px-2 py-0.5 rounded hover:bg-tertiary/80 transition-all flex items-center gap-0.5 shadow-sm">
                             <span class="material-symbols-outlined text-[10px]">calendar_today</span>
                             <span>SCHEDULE</span>
-                        </a>
+                        </button>
                         <button onclick="openMeenaProfileModal()" class="text-[9px] bg-secondary text-black font-bold px-2 py-0.5 rounded hover:bg-secondary/80 transition-all flex items-center gap-0.5 shadow-sm">
                             <span class="material-symbols-outlined text-[10px]">badge</span>
                             <span>AI DOSSIER</span>
@@ -327,7 +331,7 @@
                 <!-- Quick Action Suggestion Chips -->
                 <div class="grid grid-cols-6 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
                     <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">💡 STATUS</button>
-                    <a href="calendar.html" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center">📅 SCHEDULE</a>
+                    <button onclick="switchDeck(3); playSound('beep2');" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center">📅 SCHEDULE</button>
                     <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🛡️ PI-HOLE</button>
                     <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">⚡ HARDWARE</button>
                     <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm">🧹 PURGE RAM</button>
@@ -498,6 +502,105 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- ======================================================================
+             DECK 3: CHRONO CALENDAR & DAILY OPERATIONS AGENDA
+             ====================================================================== -->
+        <div id="deck-3-container" class="hidden p-4 flex flex-col gap-4 max-w-7xl mx-auto w-full font-data-mono overflow-y-auto h-full">
+            <!-- Chrono Header Strip -->
+            <div class="flex justify-between items-center bg-surface-container-low p-3 rounded-lg border-l-4 border-tertiary shadow-sm flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shadow-[0_0_8px_rgba(77,208,225,0.3)]">
+                        <span class="material-symbols-outlined text-xl">calendar_month</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold tracking-wider text-tertiary font-headline">CHRONO CALENDAR & OPERATIONS AGENDA</h2>
+                            <span id="chrono-sync-status" class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40">LOADING SYNC...</span>
+                        </div>
+                        <p class="text-[10px] text-secondary">Takahara Academy Tactical Schedule & Google Calendar Integration</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="speakCalendarSpokenSummary()" class="bg-primary text-black hover:bg-primary/80 font-bold px-2.5 py-1.5 rounded text-[10px] flex items-center gap-1 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-xs">volume_up</span>
+                        <span>READ AGENDA</span>
+                    </button>
+                    <button onclick="loadCalendarFeed(true)" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1.5 rounded font-bold text-[10px] flex items-center gap-1 border border-outline-variant/30 transition-all">
+                        <span class="material-symbols-outlined text-xs">sync</span>
+                        <span>REFRESH</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calendar Grid & Agenda Columns -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+                <!-- Monthly Grid (7 Cols) -->
+                <div class="lg:col-span-7 flex flex-col gap-3 bg-surface-container-low p-4 rounded-lg border border-outline-variant/30 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-tertiary text-sm">date_range</span>
+                            <h3 class="text-xs font-bold text-on-surface font-headline tracking-wide" id="calendar-month-label">CALENDAR GRID</h3>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="prevCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2 py-0.5 rounded text-[10px] font-bold border border-outline-variant/30 transition-all">
+                                <span class="material-symbols-outlined text-xs">chevron_left</span>
+                            </button>
+                            <button onclick="nextCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2 py-0.5 rounded text-[10px] font-bold border border-outline-variant/30 transition-all">
+                                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Month Calendar Days Grid -->
+                    <div class="grid grid-cols-7 gap-1" id="calendar-month-grid">
+                        <!-- Dynamically generated by assets/js/calendar.js -->
+                    </div>
+
+                    <!-- Google Calendar Sync Strip -->
+                    <div class="mt-auto pt-2.5 border-t border-outline-variant/30 flex flex-col gap-1.5">
+                        <span class="text-[9px] text-tertiary font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[11px]">link</span>
+                            <span>GOOGLE CALENDAR PRIVATE ICAL (.ICS) SYNC:</span>
+                        </span>
+                        <div class="flex gap-2">
+                            <input type="text" id="chrono-ical-input" placeholder="Paste your secret .ics address here..." class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded px-2.5 py-1 text-[10px] font-mono text-on-surface focus:border-tertiary focus:outline-none">
+                            <button onclick="saveGoogleCalendarUrl(document.getElementById('chrono-ical-input').value)" class="bg-tertiary hover:bg-tertiary/80 text-black font-bold px-3 py-1 rounded text-[10px] font-mono transition-all">SAVE SYNC</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Cards (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col gap-3">
+                    <!-- Today's Schedule -->
+                    <div class="bg-surface-container-low p-3.5 rounded-lg border border-primary/40 shadow-sm flex flex-col gap-2">
+                        <div class="flex items-center justify-between border-b border-primary/30 pb-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-primary text-sm">today</span>
+                                <h4 class="text-[11px] font-bold text-primary tracking-wider uppercase">TODAY'S OPERATIONS</h4>
+                            </div>
+                            <span id="chrono-today-count" class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold font-mono">0 EVENTS</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5 max-h-48 overflow-y-auto" id="chrono-today-events">
+                            <div class="text-secondary text-xs italic p-2">Loading today's agenda...</div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming 7-Day Agenda -->
+                    <div class="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant/30 shadow-sm flex flex-col gap-2 flex-1">
+                        <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-secondary text-sm">upcoming</span>
+                                <h4 class="text-[11px] font-bold text-secondary tracking-wider uppercase">UPCOMING THIS WEEK</h4>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5 max-h-60 overflow-y-auto" id="chrono-upcoming-events">
+                            <div class="text-secondary text-xs italic p-2">No upcoming events.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

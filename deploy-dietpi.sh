@@ -23,12 +23,6 @@ if [ -f "${SCRIPT_DIR}/index.html" ]; then
     cp -fv "${SCRIPT_DIR}/index.html" "/var/www/index.html" 2>/dev/null || true
 fi
 
-if [ -f "${SCRIPT_DIR}/calendar.html" ]; then
-    echo "[+] Deploying calendar.html..."
-    cp -fv "${SCRIPT_DIR}/calendar.html" "${TARGET_DIR}/calendar.html"
-    cp -fv "${SCRIPT_DIR}/calendar.html" "/var/www/calendar.html" 2>/dev/null || true
-fi
-
 if [ -f "${SCRIPT_DIR}/settings.html" ]; then
     echo "[+] Deploying settings.html..."
     cp -fv "${SCRIPT_DIR}/settings.html" "${TARGET_DIR}/settings.html"
