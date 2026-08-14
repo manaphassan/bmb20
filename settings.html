@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEENA™ // Tactical Settings & System Control</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Core Application CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-surface text-on-surface font-mono min-h-screen flex flex-col p-4 md:p-6 select-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-container-high/30 via-surface to-surface-container-lowest">
+
+    <!-- Top LCARS Navigation Bar -->
+    <header class="flex items-center justify-between border-b-2 border-primary/40 pb-3 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 border-2 border-primary flex items-center justify-center text-primary shadow-[0_0_12px_rgba(194,193,255,0.3)]">
+                <span class="material-symbols-outlined text-2xl">settings</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-lg md:text-xl font-bold tracking-wider text-primary font-headline">SYSTEM SETTINGS & CONFIGURATION</h1>
+                    <span class="text-[10px] bg-tertiary/20 text-tertiary px-2 py-0.5 rounded font-bold border border-tertiary/40">TAKAHARA ACADEMY</span>
+                </div>
+                <p class="text-xs text-secondary">Unified Central Control Console for Meena AI, APIs, Integrations & Hardware</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-4 py-2 rounded font-bold text-xs flex items-center gap-2 border border-outline-variant/40 transition-all shadow-sm">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>RETURN TO BRIDGE</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Settings Layout -->
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 max-w-7xl mx-auto w-full">
+        
+        <!-- Sidebar Navigation Tabs -->
+        <div class="flex flex-col gap-2 bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 h-fit">
+            <span class="text-[10px] text-secondary font-bold px-2 py-1 uppercase tracking-wider">Configuration Categories</span>
+            
+            <button onclick="switchTab('ai-voice')" id="tab-btn-ai-voice" class="settings-nav-btn active flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">record_voice_over</span>
+                <span>AI Persona & Voice</span>
+            </button>
+
+            <button onclick="switchTab('cloud-api')" id="tab-btn-cloud-api" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">cloud_sync</span>
+                <span>Neural Cloud (Gemini)</span>
+            </button>
+
+            <button onclick="switchTab('calendar-sync')" id="tab-btn-calendar-sync" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">calendar_month</span>
+                <span>Google Calendar Sync</span>
+            </button>
+
+            <button onclick="switchTab('memory-graph')" id="tab-btn-memory-graph" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">hub</span>
+                <span>Knowledge Graph Backup</span>
+            </button>
+
+            <button onclick="switchTab('system-maintenance')" id="tab-btn-system-maintenance" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">admin_panel_settings</span>
+                <span>DietPi System & Sudo</span>
+            </button>
+        </div>
+
+        <!-- Settings Content Area -->
+        <div class="md:col-span-3 flex flex-col gap-6">
+
+            <!-- 1. AI Persona & Voice Settings -->
+            <section id="panel-ai-voice" class="settings-panel flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">psychology</span>
+                        <span>AI PERSONA & SPEECH SYNTHESIS ENGINE</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Tune Meena's personality matrix, vocal acoustics, pitch and speaking rate.</p>
+                </div>
+
+                <!-- Persona Selector -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs text-on-surface font-bold">Active Persona Archetype:</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high border-2 border-transparent hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                            <input type="radio" name="persona" value="ALEX" id="persona-alex" onchange="savePersonaSetting('ALEX')" class="accent-primary">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-primary">Alex Dunphy (Default - Hyper-Genius)</span>
+                                <span class="text-[10px] text-secondary">Intellectual, witty, academic vocabulary, deadpan charm.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high border-2 border-transparent hover:border-tertiary/50 cursor-pointer transition-all has-[:checked]:border-tertiary has-[:checked]:bg-tertiary/10">
+                            <input type="radio" name="persona" value="TAKAHARA" id="persona-takahara" onchange="savePersonaSetting('TAKAHARA')" class="accent-tertiary">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-tertiary">Japanese Tactical Companion</span>
+                                <span class="text-[10px] text-secondary">Energetic, disciplined, Starfleet tactical respect for Sensei.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Voice Selection & Tuning -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs text-on-surface font-bold">Speech Synthesizer Voice:</label>
+                        <select id="voice-select" onchange="changeVoiceSetting(this.value)" class="bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-primary focus:outline-none">
+                            <option value="">Loading speech voices...</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="testVoicePreview()" class="w-full bg-primary text-black font-bold py-2 px-4 rounded-lg text-xs hover:bg-primary/80 transition-all flex items-center justify-center gap-2 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">volume_up</span>
+                            <span>TEST VOICE ACOUSTICS</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rate & Pitch Sliders -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Speaking Rate:</span>
+                            <span id="rate-val-txt" class="text-primary font-mono">1.14x</span>
+                        </div>
+                        <input type="range" id="rate-slider" min="0.8" max="1.5" step="0.02" value="1.14" oninput="updateRateSlider(this.value)" class="w-full accent-primary">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span>Speaking Pitch:</span>
+                            <span id="pitch-val-txt" class="text-tertiary font-mono">1.10x</span>
+                        </div>
+                        <input type="range" id="pitch-slider" min="0.8" max="1.5" step="0.02" value="1.10" oninput="updatePitchSlider(this.value)" class="w-full accent-tertiary">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Neural Cloud (Gemini) Settings -->
+            <section id="panel-cloud-api" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-tertiary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">cloud_sync</span>
+                        <span>GOOGLE GEMINI 1.5 FLASH NEURAL UPLINK</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Enable live generative reasoning, open-domain questions, and multimodal intelligence.</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-on-surface font-bold">Gemini API Key:</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                        <button onclick="saveGeminiKey()" class="bg-tertiary text-black font-bold px-4 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono">SAVE KEY</button>
+                        <button onclick="clearGeminiKey()" class="bg-surface-bright text-error font-bold px-3 py-2 rounded-lg text-xs hover:bg-error hover:text-white transition-all font-mono">REMOVE</button>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-secondary">
+                        <span id="gemini-status-label" class="font-bold text-primary">Status: Offline Local Brain</span>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-tertiary hover:underline flex items-center gap-1">
+                            <span>Get Free Gemini Key</span>
+                            <span class="material-symbols-outlined text-[10px]">open_in_new</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Token Consumption Tracker -->
+                <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2 mt-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-lcars-gold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">speed</span>
+                            <span>TOKEN USAGE TELEMETRY METER</span>
+                        </span>
+                        <button onclick="resetTokenQuota()" class="text-[9px] bg-surface-bright text-secondary hover:text-error px-2 py-0.5 rounded transition-all font-mono">RESET COUNTER</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center my-1">
+                        <div class="bg-surface-container-lowest p-2 rounded border border-outline-variant/20">
+                            <span class="text-[9px] text-secondary block">Today's Tokens</span>
+                            <strong class="text-sm text-primary font-mono" id="stat-tokens-today">0</strong>
+                        </div>
+                        <div class="bg-surface-container-lowest p-2 rounded border border-outline-variant/20">
+                            <span class="text-[9px] text-secondary block">Estimated Cost</span>
+                            <strong class="text-sm text-tertiary font-mono" id="stat-cost-today">$0.00</strong>
+                        </div>
+                        <div class="bg-surface-container-lowest p-2 rounded border border-outline-variant/20">
+                            <span class="text-[9px] text-secondary block">Quota Tier</span>
+                            <strong class="text-sm text-lcars-gold font-mono">Free (1.5 Flash)</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Google Calendar Sync Settings -->
+            <section id="panel-calendar-sync" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-tertiary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">calendar_month</span>
+                        <span>GOOGLE CALENDAR & CHRONO AGENDA SYNC</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Sync your daily Google Calendar schedule so Meena can read your daily events on voice command.</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-on-surface font-bold">Google Calendar Secret iCal Address (.ics):</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="settings-ical-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                        <button onclick="saveCalendarSetting()" class="bg-tertiary text-black font-bold px-4 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono">SAVE & TEST</button>
+                    </div>
+                    <div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/30 text-[10px] text-secondary leading-relaxed">
+                        <strong class="text-on-surface block mb-1">3-Step Setup Instructions:</strong>
+                        1. Open <strong class="text-tertiary">calendar.google.com</strong> on your desktop browser.<br/>
+                        2. Click the 3 dots next to your calendar &rarr; <strong>Settings and sharing</strong>.<br/>
+                        3. Scroll down to <strong>"Integrate calendar"</strong> &rarr; Copy the <strong>"Secret address in iCal format"</strong> and paste it above!
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Knowledge Graph Backup & Memory -->
+            <section id="panel-memory-graph" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">hub</span>
+                        <span>SYNAPTIC KNOWLEDGE GRAPH MEMORY & BACKUPS</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Backup, export, restore, or synchronize learned memories stored on your DietPi host.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
+                        <span class="text-xs font-bold text-primary">EXPORT MEMORIES</span>
+                        <p class="text-[10px] text-secondary">Download your entire knowledge graph as a JSON file backup.</p>
+                        <button onclick="exportKnowledgeJSON()" class="bg-primary text-black font-bold py-2 rounded text-xs hover:bg-primary/80 transition-all flex items-center justify-center gap-1 font-mono mt-auto">
+                            <span class="material-symbols-outlined text-xs">download</span>
+                            <span>EXPORT BACKUP (.JSON)</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
+                        <span class="text-xs font-bold text-tertiary">IMPORT MEMORIES</span>
+                        <p class="text-[10px] text-secondary">Restore your knowledge graph from an existing JSON backup file.</p>
+                        <input type="file" id="import-json-file" accept=".json" class="hidden" onchange="importKnowledgeJSON(event)">
+                        <button onclick="document.getElementById('import-json-file').click()" class="bg-tertiary text-black font-bold py-2 rounded text-xs hover:bg-tertiary/80 transition-all flex items-center justify-center gap-1 font-mono mt-auto">
+                            <span class="material-symbols-outlined text-xs">upload</span>
+                            <span>IMPORT FILE</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. DietPi System & Sudo Controls -->
+            <section id="panel-system-maintenance" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-lcars-gold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+                        <span>DIETPI SYSTEM MAINTENANCE & ROOT ACTIONS</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Direct hardware execution controls for single-board computers.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button onclick="executeMaintenanceAction('dietpi_update')" class="bg-surface-container-high hover:bg-lcars-gold hover:text-black p-3 rounded-lg border border-outline-variant/30 text-left transition-all flex items-center justify-between">
+                        <div>
+                            <strong class="text-xs block text-lcars-gold">DIETPI OS & PACKAGES UPDATE</strong>
+                            <span class="text-[10px] text-secondary">Executes non-interactive dietpi-update</span>
+                        </div>
+                        <span class="material-symbols-outlined text-base">system_update</span>
+                    </button>
+
+                    <button onclick="executeMaintenanceAction('purge_ram')" class="bg-surface-container-high hover:bg-error hover:text-white p-3 rounded-lg border border-outline-variant/30 text-left transition-all flex items-center justify-between">
+                        <div>
+                            <strong class="text-xs block text-error">PURGE LINUX RAM CACHE</strong>
+                            <span class="text-[10px] text-secondary">Frees Linux buffer & page cache (drop_caches)</span>
+                        </div>
+                        <span class="material-symbols-outlined text-base">cleaning_services</span>
+                    </button>
+
+                    <button onclick="executeMaintenanceAction('flush_dns')" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-3 rounded-lg border border-outline-variant/30 text-left transition-all flex items-center justify-between">
+                        <div>
+                            <strong class="text-xs block text-tertiary">FLUSH PI-HOLE DNS CACHE</strong>
+                            <span class="text-[10px] text-secondary">Restarts Pi-hole FTL DNS resolver</span>
+                        </div>
+                        <span class="material-symbols-outlined text-base">restart_alt</span>
+                    </button>
+
+                    <button onclick="executeMaintenanceAction('system_reboot')" class="bg-surface-container-high hover:bg-error hover:text-white p-3 rounded-lg border border-outline-variant/30 text-left transition-all flex items-center justify-between">
+                        <div>
+                            <strong class="text-xs block text-error">REBOOT RASPBERRY PI HOST</strong>
+                            <span class="text-[10px] text-secondary">Power cycle system (systemctl reboot)</span>
+                        </div>
+                        <span class="material-symbols-outlined text-base">power_settings_new</span>
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Embedded Scripts for Settings Controller -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.settings-nav-btn').forEach(b => {
+                b.classList.remove('active', 'bg-primary/20', 'text-primary', 'border-l-4', 'border-primary');
+                b.classList.add('text-secondary', 'hover:bg-surface-container-high');
+            });
+
+            const panel = document.getElementById(`panel-${tabId}`);
+            const btn = document.getElementById(`tab-btn-${tabId}`);
+            if (panel) panel.classList.remove('hidden');
+            if (btn) {
+                btn.classList.add('active', 'bg-primary/20', 'text-primary', 'border-l-4', 'border-primary');
+                btn.classList.remove('text-secondary', 'hover:bg-surface-container-high');
+            }
+        }
+
+        // Initialize Settings on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('ai-voice');
+            loadAllSettings();
+        });
+
+        function loadAllSettings() {
+            // Persona
+            const persona = localStorage.getItem('meena_persona') || 'ALEX';
+            if (persona === 'ALEX') {
+                document.getElementById('persona-alex').checked = true;
+            } else {
+                document.getElementById('persona-takahara').checked = true;
+            }
+
+            // Sliders
+            const rate = localStorage.getItem('meena_speech_rate') || '1.14';
+            const pitch = localStorage.getItem('meena_speech_pitch') || '1.10';
+            document.getElementById('rate-slider').value = rate;
+            document.getElementById('rate-val-txt').innerText = `${parseFloat(rate).toFixed(2)}x`;
+            document.getElementById('pitch-slider').value = pitch;
+            document.getElementById('pitch-val-txt').innerText = `${parseFloat(pitch).toFixed(2)}x`;
+
+            // Gemini Key
+            const key = localStorage.getItem('gemini_api_key') || '';
+            if (key) {
+                document.getElementById('gemini-key-input').value = key;
+                document.getElementById('gemini-status-label').innerText = 'Status: Gemini 1.5 Flash Active 🟢';
+                document.getElementById('gemini-status-label').className = 'font-bold text-tertiary';
+            }
+
+            // Tokens
+            const tokens = localStorage.getItem('meena_daily_tokens') || '0';
+            const cost = localStorage.getItem('meena_daily_cost') || '0.00';
+            document.getElementById('stat-tokens-today').innerText = parseInt(tokens, 10).toLocaleString();
+            document.getElementById('stat-cost-today').innerText = `$${cost}`;
+
+            // Calendar
+            fetch('api.php?action=get_calendar_config')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.ical_url) {
+                        document.getElementById('settings-ical-input').value = d.ical_url;
+                    }
+                })
+                .catch(() => {});
+
+            // Voices
+            populateVoices();
+        }
+
+        function populateVoices() {
+            if (!('speechSynthesis' in window)) return;
+            const select = document.getElementById('voice-select');
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) {
+                window.speechSynthesis.onvoiceschanged = populateVoices;
+                return;
+            }
+
+            const current = localStorage.getItem('meena_voice_name') || '';
+            select.innerHTML = '';
+            voices.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                opt.innerText = `${v.name} (${v.lang})`;
+                if (v.name === current) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function savePersonaSetting(p) {
+            localStorage.setItem('meena_persona', p);
+        }
+
+        function changeVoiceSetting(name) {
+            localStorage.setItem('meena_voice_name', name);
+        }
+
+        function updateRateSlider(v) {
+            document.getElementById('rate-val-txt').innerText = `${parseFloat(v).toFixed(2)}x`;
+            localStorage.setItem('meena_speech_rate', v);
+        }
+
+        function updatePitchSlider(v) {
+            document.getElementById('pitch-val-txt').innerText = `${parseFloat(v).toFixed(2)}x`;
+            localStorage.setItem('meena_speech_pitch', v);
+        }
+
+        function testVoicePreview() {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const text = "All Takahara Academy settings verified, Sensei. Systems operational.";
+            const u = new SpeechSynthesisUtterance(text);
+            const vName = localStorage.getItem('meena_voice_name');
+            const rate = parseFloat(localStorage.getItem('meena_speech_rate') || '1.14');
+            const pitch = parseFloat(localStorage.getItem('meena_speech_pitch') || '1.10');
+            
+            if (vName) {
+                const voices = window.speechSynthesis.getVoices();
+                const matched = voices.find(v => v.name === vName);
+                if (matched) u.voice = matched;
+            }
+            u.rate = rate;
+            u.pitch = pitch;
+            window.speechSynthesis.speak(u);
+        }
+
+        function saveGeminiKey() {
+            const k = document.getElementById('gemini-key-input').value.trim();
+            if (!k) return;
+            localStorage.setItem('gemini_api_key', k);
+            document.getElementById('gemini-status-label').innerText = 'Status: Gemini 1.5 Flash Active 🟢';
+            document.getElementById('gemini-status-label').className = 'font-bold text-tertiary';
+            alert('Gemini API key saved successfully!');
+        }
+
+        function clearGeminiKey() {
+            localStorage.removeItem('gemini_api_key');
+            document.getElementById('gemini-key-input').value = '';
+            document.getElementById('gemini-status-label').innerText = 'Status: Offline Local Brain';
+            document.getElementById('gemini-status-label').className = 'font-bold text-primary';
+            alert('Gemini key removed. Meena is now in 100% Offline Local Brain mode.');
+        }
+
+        function resetTokenQuota() {
+            localStorage.setItem('meena_daily_tokens', '0');
+            localStorage.setItem('meena_daily_cost', '0.00');
+            document.getElementById('stat-tokens-today').innerText = '0';
+            document.getElementById('stat-cost-today').innerText = '$0.00';
+        }
+
+        async function saveCalendarSetting() {
+            const url = document.getElementById('settings-ical-input').value.trim();
+            if (!url) {
+                alert('Please enter a valid iCal address');
+                return;
+            }
+            const res = await fetch('api.php?action=save_calendar_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ical_url: url, enabled: true })
+            });
+            if (res.ok) {
+                alert('Google Calendar sync link saved and active!');
+            }
+        }
+
+        function exportKnowledgeJSON() {
+            const data = localStorage.getItem('meena_knowledge_bank') || '[]';
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `takahara_meena_knowledge_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+        }
+
+        function importKnowledgeJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (Array.isArray(parsed)) {
+                        localStorage.setItem('meena_knowledge_bank', JSON.stringify(parsed));
+                        alert(`Successfully imported ${parsed.length} knowledge nodes!`);
+                    }
+                } catch(err) {
+                    alert('Invalid JSON file format.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function executeMaintenanceAction(action) {
+            if (!confirm(`Are you sure you want to execute ${action}?`)) return;
+            try {
+                const res = await fetch(`api.php?action=${action}`);
+                if (res.ok) {
+                    const d = await res.json();
+                    alert(`Result: ${d.result || 'Executed successfully.'}`);
+                }
+            } catch(e) {
+                alert('Action failed');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -23,6 +23,12 @@ if [ -f "${SCRIPT_DIR}/index.html" ]; then
     cp -fv "${SCRIPT_DIR}/index.html" "/var/www/index.html" 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/settings.html" ]; then
+    echo "[+] Deploying settings.html..."
+    cp -fv "${SCRIPT_DIR}/settings.html" "${TARGET_DIR}/settings.html"
+    cp -fv "${SCRIPT_DIR}/settings.html" "/var/www/settings.html" 2>/dev/null || true
+fi
+
 if [ -f "${SCRIPT_DIR}/api.php" ]; then
     echo "[+] Deploying api.php backend..."
     cp -fv "${SCRIPT_DIR}/api.php" "${TARGET_DIR}/api.php"
