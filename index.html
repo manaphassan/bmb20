@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>DIETPI COMMAND CENTER - BMB20</title>
+
+<!-- External Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Mono:wght@700&amp;family=Share+Tech+Mono&amp;family=Antonio:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Three.js for 3D Hologram -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "surface": "#131319",
+        "surface-dim": "#131319",
+        "surface-bright": "#39383f",
+        "surface-container-lowest": "#0e0e14",
+        "surface-container-low": "#1b1b21",
+        "surface-container": "#1f1f25",
+        "surface-container-high": "#2a2930",
+        "surface-container-highest": "#35343b",
+        "on-surface": "#e4e1ea",
+        "on-surface-variant": "#c7c5d4",
+        "inverse-surface": "#e4e1ea",
+        "inverse-on-surface": "#303036",
+        "outline": "#918f9d",
+        "outline-variant": "#464552",
+        "surface-tint": "#c2c1ff",
+        "primary": "#c2c1ff",
+        "on-primary": "#231f83",
+        "primary-container": "#9999ff",
+        "on-primary-container": "#2d2b8c",
+        "inverse-primary": "#5353b3",
+        "secondary": "#adc6ff",
+        "on-secondary": "#002e69",
+        "secondary-container": "#1e4585",
+        "on-secondary-container": "#93b5fc",
+        "tertiary": "#e1c639",
+        "on-tertiary": "#393000",
+        "tertiary-container": "#bca30e",
+        "on-tertiary-container": "#443900",
+        "error": "#ffb4ab",
+        "on-error": "#690005",
+        "error-container": "#93000a",
+        "on-error-container": "#ffdad6",
+        "primary-fixed": "#e2dfff",
+        "primary-fixed-dim": "#c2c1ff",
+        "on-primary-fixed": "#0b006b",
+        "on-primary-fixed-variant": "#3b3a9a",
+        "secondary-fixed": "#d8e2ff",
+        "secondary-fixed-dim": "#adc6ff",
+        "on-secondary-fixed": "#001a41",
+        "on-secondary-fixed-variant": "#1e4585",
+        "tertiary-fixed": "#ffe253",
+        "tertiary-fixed-dim": "#e1c639",
+        "on-tertiary-fixed": "#211b00",
+        "on-tertiary-fixed-variant": "#524600",
+        "background": "#131319",
+        "on-background": "#e4e1ea",
+        "surface-variant": "#35343b"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      "spacing": {
+        "border-thin": "1px",
+        "gutter": "8px",
+        "unit": "4px",
+        "hop-radius": "24px",
+        "margin-main": "24px"
+      },
+      "fontFamily": {
+        "body-sm": ["JetBrains Mono", "monospace"],
+        "data-mono": ["Share Tech Mono", "JetBrains Mono", "monospace"],
+        "headline-md": ["Antonio", "Anton", "sans-serif"],
+        "label-caps": ["Space Mono", "monospace"],
+        "headline-sm": ["Antonio", "Anton", "sans-serif"],
+        "body-md": ["JetBrains Mono", "monospace"],
+        "display-lg": ["Antonio", "Anton", "sans-serif"]
+      },
+      "fontSize": {
+        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+        "data-mono": ["13px", { "lineHeight": "1.2", "fontWeight": "500" }],
+        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+        "headline-sm": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+      }
+    }
+  }
+}
+</script>
+
+<style>
+/* Base Reset & Styling */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: #131319;
+    color: #e4e1ea;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* CRT Scanline Overlay */
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.25) 50%,
+        rgba(0, 0, 0, 0.25)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.earth-scanlines {
+    background: linear-gradient(
+        to bottom,
+        rgba(194, 193, 255, 0),
+        rgba(194, 193, 255, 0) 50%,
+        rgba(194, 193, 255, 0.05) 50%,
+        rgba(194, 193, 255, 0.05)
+    );
+    background-size: 100% 3px;
+}
+
+/* Glitch Animation */
+@keyframes subtle-glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    2% { transform: translate(-2px, 1px); filter: hue-rotate(45deg); }
+    4% { transform: translate(2px, -1px); filter: hue-rotate(-45deg); }
+    6% { transform: translate(0); filter: hue-rotate(0deg); }
+    100% { transform: translate(0); }
+}
+
+.glitch-effect {
+    animation: subtle-glitch 6s infinite;
+}
+
+/* Glow Utilities */
+.glow-primary {
+    box-shadow: 0 0 12px rgba(194, 193, 255, 0.4);
+}
+
+.active-glow {
+    box-shadow: 0 0 18px rgba(153, 153, 255, 0.7);
+}
+
+.danger-glow {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+    animation: flicker 0.2s infinite;
+}
+
+/* LCARS Structural Frame Shapes */
+.lcars-hop-top-left {
+    border-top-left-radius: 24px;
+}
+
+.lcars-hop-bottom-left {
+    border-bottom-left-radius: 24px;
+}
+
+/* Grid Layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    width: 100vw;
+    gap: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.sidebar-area {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-area {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.main-area {
+    grid-column: 2;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+    position: relative;
+}
+
+.footer-area {
+    grid-column: 1 / 3;
+    grid-row: 3;
+}
+
+/* Audio Equalizer Bars */
+.eq-bar {
+    width: 3px;
+    background-color: #ffe253;
+    transition: height 0.1s ease;
+}
+
+/* Mobile responsive fallback */
+@media (max-width: 1024px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+    .sidebar-area {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .header-area {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .main-area {
+        grid-column: 1;
+        grid-row: 3;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    .footer-area {
+        grid-column: 1;
+        grid-row: 4;
+    }
+}
+
+/* Data Cascade stream */
+.data-stream {
+    position: absolute;
+    top: 0;
+    color: rgba(173, 198, 255, 0.25);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    line-height: 1;
+    white-space: pre;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes cascadeDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100vh); }
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: ticker-scroll 22s linear infinite;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #1f1f25;
+}
+::-webkit-scrollbar-thumb {
+    background: #918f9d;
+    border-radius: 3px;
+}
+</style>
+</head>
+<body class="text-on-surface bg-background">
+
+<!-- Data Cascade Container -->
+<div class="absolute inset-0 w-full h-full z-[-1] overflow-hidden pointer-events-none" id="cascade-container"></div>
+<!-- Scanline Overlay -->
+<div class="scanlines"></div>
+
+<!-- Main Grid Layout -->
+<div class="grid-container relative z-10">
+
+    <!-- Sidebar (L-Frame Left) -->
+    <div class="sidebar-area bg-surface-container-low lcars-hop-top-left lcars-hop-bottom-left flex flex-col pt-6 pb-4 border-r-4 border-secondary rounded-l-hop-radius">
+        <div class="px-4 mb-6 text-right">
+            <h2 class="font-headline-md text-headline-md text-primary tracking-widest uppercase">DIETPI</h2>
+            <div class="font-label-caps text-label-caps text-tertiary">CORE NODE dietpi.local</div>
+        </div>
+
+        <!-- Service Launcher Links -->
+        <div class="flex-1 flex flex-col gap-2 px-2">
+            <a href="http://dietpi.local/admin" target="_blank" onclick="playSound('beep1')"
+               class="bg-primary text-on-primary font-label-caps text-label-caps rounded-l-full mr-2 p-3 text-right active-glow flex justify-between items-center transition-all hover:bg-primary-container">
+                <span class="material-symbols-outlined text-sm">shield</span>
+                <span>PI-HOLE :80</span>
+            </a>
+            <a href="http://dietpi.local:8384" target="_blank" onclick="playSound('beep2')"
+               class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-l-full mr-3 p-3 text-right hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors flex justify-between items-center">
+                <span class="material-symbols-outlined text-sm">sync</span>
+                <span>SYNCTHING :8384</span>
+            </a>
+            <a href="http://dietpi.local:8096" target="_blank" onclick="playSound('beep2')"
+               class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-l-full mr-3 p-3 text-right hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors flex justify-between items-center">
+                <span class="material-symbols-outlined text-sm">movie</span>
+                <span>JELLYFIN :8096</span>
+            </a>
+            <a href="http://dietpi.local:5252" target="_blank" onclick="playSound('beep2')"
+               class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-l-full mr-3 p-3 text-right hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors flex justify-between items-center">
+                <span class="material-symbols-outlined text-sm">dashboard</span>
+                <span>DIETPI DASH :5252</span>
+            </a>
+            <a href="http://dietpi.local:9090" target="_blank" onclick="playSound('beep2')"
+               class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-l-full mr-3 p-3 text-right hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors flex justify-between items-center">
+                <span class="material-symbols-outlined text-sm">terminal</span>
+                <span>COCKPIT :9090</span>
+            </a>
+        </div>
+
+        <!-- Resource Monitor Quick View -->
+        <div class="px-4 mb-4 text-right font-data-mono text-data-mono flex flex-col gap-2">
+            <div class="text-tertiary uppercase text-xs font-bold">Hardware QuickMon</div>
+            <div class="flex flex-col gap-1 items-end">
+                <div class="flex justify-between w-full text-secondary text-xs"><span>RAM</span> <span id="side-ram-val">45%</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end"><div class="bg-primary h-full transition-all" id="side-ram-bar" style="width: 45%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-1 items-end">
+                <div class="flex justify-between w-full text-secondary text-xs"><span>TEMP</span> <span id="side-temp-val">48°C</span></div>
+                <div class="w-full bg-surface h-1.5 flex justify-end"><div class="bg-tertiary h-full transition-all" id="side-temp-bar" style="width: 48%;"></div></div>
+            </div>
+        </div>
+
+        <!-- Performance & Sound Controls -->
+        <div class="mt-auto px-2 flex flex-col gap-1.5">
+            <button class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps rounded-l-full mr-3 p-2.5 text-right hover:bg-surface-bright transition-colors flex justify-between items-center" id="eco-toggle" onclick="toggleEcoMode(); playSound('beep3')">
+                <span class="material-symbols-outlined text-sm" id="eco-icon">bolt</span>
+                <span id="eco-text">ECO: OFF</span>
+            </button>
+            <button class="bg-tertiary-container text-on-tertiary-container font-label-caps text-label-caps rounded-l-full mr-3 p-2.5 text-right hover:bg-tertiary hover:text-on-tertiary transition-colors flex justify-between items-center" id="cascade-toggle" onclick="toggleCascade(); playSound('beep3')">
+                <span class="material-symbols-outlined text-sm">pause_circle</span>
+                <span>FREEZE</span>
+            </button>
+            <button class="bg-tertiary-container text-on-tertiary-container font-label-caps text-label-caps rounded-l-full mr-3 p-2.5 text-right hover:bg-tertiary hover:text-on-tertiary transition-colors flex justify-between items-center relative overflow-hidden" id="audio-toggle" onclick="toggleAudio(); playSound('beep4')">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm" id="audio-icon">volume_up</span>
+                    <!-- Equalizer Bars -->
+                    <div class="flex items-end gap-0.5 h-3" id="audio-eq">
+                        <div class="eq-bar h-1"></div>
+                        <div class="eq-bar h-2"></div>
+                        <div class="eq-bar h-3"></div>
+                    </div>
+                </div>
+                <span id="audio-label">AUDIO: OFF</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header (L-Frame Top) -->
+    <div class="header-area bg-surface flex justify-between items-end pb-2 border-b-4 border-secondary rounded-tr-hop-radius px-6 relative">
+        <div class="flex items-center gap-4">
+            <span class="font-headline-sm text-headline-sm text-primary">DIETPI COMMAND CENTER</span>
+            <div class="h-6 w-px bg-secondary opacity-50"></div>
+            <div class="font-data-mono text-data-mono text-secondary flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-primary animate-pulse">dns</span>
+                <span id="host-name">dietpi.local</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 font-data-mono text-data-mono text-tertiary">
+            <div class="flex gap-4 items-center bg-surface-container-low px-3 py-1 rounded-full border border-secondary/30">
+                <span class="text-xs text-secondary font-label-caps">PI-HOLE:</span>
+                <span class="text-primary" id="dns-queries">ACTIVE</span>
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+            </div>
+            <div class="tracking-widest" id="stardate">STARDATE 47634.4</div>
+            <div class="font-bold text-primary" id="clock">00:00:00 UTC</div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-area">
+
+        <!-- Central Hologram Panel (Hero) -->
+        <div class="col-span-2 row-span-1 bg-surface-container-lowest border border-outline-variant relative overflow-hidden flex items-center justify-center glitch-effect">
+            <div class="absolute top-0 left-0 bg-primary text-on-primary font-label-caps text-label-caps px-2 py-1 z-30 font-bold">SBC GLOBAL MONITOR</div>
+            
+            <!-- System Readout Overlay -->
+            <div class="absolute bottom-4 left-4 bg-surface-container/90 backdrop-blur-md p-2.5 border border-secondary/60 font-data-mono text-data-mono text-secondary z-30 shadow-lg">
+                <div>NODE_HOST: <span class="text-primary">dietpi.local</span></div>
+                <div>UPTIME: <span id="hero-uptime" class="text-tertiary">FETCHING...</span></div>
+            </div>
+
+            <!-- Dynamic Realtime GeoIP Badge Overlay -->
+            <div class="absolute top-3 right-3 bg-surface-container/90 backdrop-blur-md p-2.5 border border-tertiary/60 font-data-mono text-[11px] text-tertiary z-30 flex flex-col gap-0.5 shadow-lg" id="geo-location-badge">
+                <div class="flex items-center gap-1.5 font-bold text-primary">
+                    <span class="material-symbols-outlined text-xs text-tertiary animate-pulse">my_location</span>
+                    <span id="geo-city-country">LOCATING TARGET...</span>
+                </div>
+                <div class="text-[10px] text-secondary" id="geo-coords">LAT: -- | LON: --</div>
+                <div class="text-[10px] text-on-surface-variant" id="geo-ip">PUBLIC IP: FETCHING...</div>
+            </div>
+
+            <!-- 3D Earth Container -->
+            <div class="w-full h-full absolute inset-0 z-10 earth-scanlines" id="earth-container"></div>
+            <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-40 mix-blend-screen" id="tactical-shader"></canvas>
+        </div>
+
+        <!-- System Metrics Panel -->
+        <div class="col-span-1 row-span-1 bg-surface-container-low p-4 flex flex-col gap-3 border-t-4 border-secondary">
+            <div class="font-headline-sm text-headline-sm text-primary uppercase flex justify-between items-center">
+                <span>Metrics</span>
+                <span class="text-xs text-tertiary font-data-mono" id="telemetry-source">SIMULATED</span>
+            </div>
+            <div class="flex flex-col gap-1 font-data-mono text-data-mono">
+                <div class="flex justify-between text-secondary">
+                    <span class="flex items-center gap-2">CPU LOAD <span class="hidden text-[10px] bg-error text-on-error px-1 rounded font-bold animate-pulse" id="cpu-alert">HIGH</span></span>
+                    <span id="cpu-val">--%</span>
+                </div>
+                <div class="w-full bg-surface h-2"><div class="bg-primary h-full transition-all" id="cpu-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-1 font-data-mono text-data-mono">
+                <div class="flex justify-between text-secondary"><span>MEMORY</span> <span id="mem-val">--%</span></div>
+                <div class="w-full bg-surface h-2"><div class="bg-tertiary h-full transition-all" id="mem-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-1 font-data-mono text-data-mono">
+                <div class="flex justify-between text-secondary"><span>SOC TEMP</span> <span id="temp-val">--°C</span></div>
+                <div class="w-full bg-surface h-2"><div class="bg-error h-full transition-all" id="temp-bar" style="width: 0%;"></div></div>
+            </div>
+            <div class="flex flex-col gap-1 font-data-mono text-data-mono">
+                <div class="flex justify-between text-secondary"><span>DISK (/var/www)</span> <span id="disk-val">--%</span></div>
+                <div class="w-full bg-surface h-2"><div class="bg-secondary-container h-full transition-all" id="disk-bar" style="width: 0%;"></div></div>
+            </div>
+        </div>
+
+        <!-- DietPi Services Status -->
+        <div class="col-span-1 row-span-1 bg-surface-container p-4 border-l-4 border-tertiary">
+            <div class="font-headline-sm text-headline-sm text-tertiary uppercase mb-3">Service Health</div>
+            <div class="grid grid-cols-1 gap-2">
+                <div class="bg-surface-container-highest p-2 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-data-mono text-data-mono text-on-surface">PI-HOLE DNS</span>
+                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 50/80 | DNS Filter</span>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+                </div>
+                <div class="bg-surface-container-highest p-2 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-data-mono text-data-mono text-on-surface">SYNCTHING</span>
+                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 8384 | P2P Sync</span>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+                </div>
+                <div class="bg-surface-container-highest p-2 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-data-mono text-data-mono text-on-surface">JELLYFIN MEDIA</span>
+                        <span class="text-[10px] text-on-surface-variant font-data-mono">Port 8096 | Streaming</span>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+                </div>
+                <div class="bg-surface-container-highest p-2 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-data-mono text-data-mono text-on-surface">LIGHTTPD / NGINX</span>
+                        <span class="text-[10px] text-primary font-data-mono">Port 80 | Web Server [OK]</span>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c2c1ff]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network & Sys Log -->
+        <div class="col-span-2 row-span-1 flex gap-2">
+            <div class="w-1/2 flex flex-col gap-2">
+                <div class="bg-surface-container-low p-3 h-1/2 flex items-center justify-between border-b-2 border-secondary">
+                    <div class="flex flex-col">
+                        <span class="font-label-caps text-label-caps text-secondary">LOCATION TELEMETRY</span>
+                        <span class="font-headline-md text-headline-md text-primary" id="telemetry-city">SEARCHING...</span>
+                        <span class="font-data-mono text-data-mono text-on-surface-variant text-xs" id="telemetry-country">REALTIME GEOIP LOCK</span>
+                    </div>
+                    <span class="material-symbols-outlined text-4xl text-tertiary">my_location</span>
+                </div>
+                <div class="bg-surface-container-highest p-2 h-1/2 font-data-mono text-data-mono text-secondary flex flex-col justify-end relative overflow-hidden">
+                    <div class="absolute top-0 left-0 bg-secondary text-on-secondary font-label-caps text-label-caps px-2 py-0.5 text-xs">NETWORK TRAFFIC</div>
+                    <div class="flex items-end gap-1 h-10 w-full mt-4" id="bandwidth-graph"></div>
+                    <div class="flex justify-between mt-1 text-[10px]">
+                        <span id="tx-rate">TX: 1.2 MB/s</span>
+                        <span id="rx-rate">RX: 4.8 MB/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Log -->
+            <div class="w-1/2 bg-surface p-2 border border-outline-variant font-data-mono text-data-mono text-[11px] leading-tight text-primary flex flex-col relative">
+                <div class="absolute top-0 left-0 bg-outline-variant text-on-surface font-label-caps text-label-caps px-2 py-0.5 text-xs z-10">SYS LOG STREAM</div>
+                <div class="overflow-hidden h-full flex flex-col justify-end pt-6 opacity-80" id="sys-log">
+                    <div>&gt; dietpi core initialised...</div>
+                    <div>&gt; network interfaces UP [dietpi.local]</div>
+                    <div>&gt; telemetry loop active...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Ticker -->
+    <div class="footer-area bg-surface-container-high border-t border-secondary py-1 overflow-hidden relative flex items-center">
+        <div class="ticker-content font-data-mono text-[11px] text-tertiary flex gap-8">
+            <span>[HOST] dietpi.local</span>
+            <span>DOM: dietpi.local</span>
+            <span>WEB ROOT: /var/www</span>
+            <span>SYSTEM: DietPi Linux</span>
+            <span>SECURE BOOT: ACTIVE</span>
+            <span>FIREWALL: ENABLED</span>
+            <span>[HOST] dietpi.local</span>
+            <span>DOM: dietpi.local</span>
+            <span>WEB ROOT: /var/www</span>
+            <span>SYSTEM: DietPi Linux</span>
+        </div>
+    </div>
+</div>
+
+<!-- WebGL Shaders & Scripts -->
+<script id="tactical-vertex" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+    varying vec2 v_texCoord;
+    void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+        v_texCoord = a_position * 0.5 + 0.5;
+    }
+</script>
+<script id="tactical-fragment" type="x-shader/x-fragment">
+    precision highp float;
+    uniform float u_time;
+    uniform vec2 u_resolution;
+    varying vec2 v_texCoord;
+
+    void main() {
+        vec2 uv = v_texCoord;
+        vec2 centered_uv = uv - 0.5;
+        centered_uv.x *= u_resolution.x / u_resolution.y;
+        
+        vec3 color = vec3(0.02, 0.02, 0.08);
+        float dist = length(centered_uv);
+        float angle = atan(centered_uv.y, centered_uv.x);
+        
+        // Rotating Radar Sweep Line
+        float sweep = mod(angle + u_time * 1.5, 6.2831) / 6.2831;
+        float sweep_line = smoothstep(0.015, 0.0, abs(sweep - 0.98)) * (1.0 - dist * 1.4);
+        color += vec3(0.2, 0.5, 1.0) * sweep_line * 0.6;
+
+        // Tactical Reticle Target Rings
+        float ring1 = smoothstep(0.005, 0.0, abs(dist - 0.35));
+        float ring2 = smoothstep(0.005, 0.0, abs(dist - 0.20));
+        color += vec3(0.3, 0.4, 0.8) * (ring1 + ring2) * 0.15;
+
+        // CRT Vignette
+        float vignette = smoothstep(0.9, 0.4, length(uv - 0.5));
+        color *= vignette;
+
+        gl_FragColor = vec4(color, 1.0);
+    }
+</script>
+
+<script>
+let cascadeActive = true;
+let audioActive = false;
+let ecoMode = false;
+let isTabVisible = true;
+
+// GeoIP target location variables
+let userGeoLocation = { lat: 3.1390, lon: 101.6869, city: "KUALA LUMPUR", country: "MY", ip: "FETCHING..." };
+let beaconMesh = null;
+let beaconPulseRing = null;
+let globeGroup = null;
+
+// Page Visibility API
+document.addEventListener('visibilitychange', () => {
+    isTabVisible = !document.hidden;
+});
+
+function toggleEcoMode() {
+    ecoMode = !ecoMode;
+    const icon = document.getElementById('eco-icon');
+    const text = document.getElementById('eco-text');
+    const btn = document.getElementById('eco-toggle');
+    if (ecoMode) {
+        icon.innerText = 'eco';
+        text.innerText = 'ECO: ON';
+        btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+        btn.classList.remove('bg-surface-variant');
+        if (cascadeActive) toggleCascade();
+    } else {
+        icon.innerText = 'bolt';
+        text.innerText = 'ECO: OFF';
+        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+        btn.classList.add('bg-surface-variant');
+    }
+}
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').innerText = now.toISOString().substr(11, 8) + ' UTC';
+    const startYear = 2323;
+    const currentYear = now.getUTCFullYear();
+    const startOfYear = new Date(currentYear, 0, 0);
+    const diff = now - startOfYear;
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const stardate = (currentYear - startYear) * 1000 + (dayOfYear * (1000/365));
+    document.getElementById('stardate').innerText = `STARDATE ${stardate.toFixed(1)}`;
+}
+
+// Fetch Realtime GeoIP location to pinpoint user on 3D Earth
+async function fetchRealtimeGeoIP() {
+    try {
+        const res = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.latitude && data.longitude) {
+                userGeoLocation = {
+                    lat: parseFloat(data.latitude),
+                    lon: parseFloat(data.longitude),
+                    city: (data.city || "UNKNOWN").toUpperCase(),
+                    country: (data.country_code || data.country || "").toUpperCase(),
+                    ip: data.ip || "LOCKED"
+                };
+                updateGeoIPDisplay();
+                updateGlobeBeacon();
+            }
+        }
+    } catch (e) {
+        // Fallback to secondary GeoIP provider
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            if (res.ok) {
+                const data = await res.json();
+                userGeoLocation.ip = data.ip;
+                updateGeoIPDisplay();
+            }
+        } catch (err) {}
+    }
+}
+
+function updateGeoIPDisplay() {
+    document.getElementById('geo-city-country').innerText = `${userGeoLocation.city}, ${userGeoLocation.country}`;
+    document.getElementById('geo-coords').innerText = `LAT: ${userGeoLocation.lat.toFixed(2)}° | LON: ${userGeoLocation.lon.toFixed(2)}°`;
+    document.getElementById('geo-ip').innerText = `PUBLIC IP: ${userGeoLocation.ip}`;
+    document.getElementById('telemetry-city').innerText = userGeoLocation.city;
+    document.getElementById('telemetry-country').innerText = `GEOIP TARGET [${userGeoLocation.country}]`;
+}
+
+// Telemetry Data Engine
+async function fetchTelemetry() {
+    if (!isTabVisible) return;
+    try {
+        let res = await fetch('api.php', { cache: 'no-store' });
+        if (!res.ok) {
+            res = await fetch('api.json', { cache: 'no-store' });
+        }
+        if (res.ok) {
+            const data = await res.json();
+            updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
+            return;
+        }
+    } catch (e) {
+        try {
+            const res = await fetch('api.json', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL DIETPI");
+                return;
+            }
+        } catch (err) {}
+    }
+
+    const simulatedCpu = Math.floor(15 + Math.random() * 55);
+    const simulatedMem = Math.floor(35 + Math.random() * 20);
+    const simulatedTemp = Math.floor(42 + Math.random() * 12);
+    const simulatedDisk = 50;
+    updateMetricsUI(simulatedCpu, simulatedMem, simulatedTemp, simulatedDisk, "ONLINE", "SIMULATED");
+}
+
+function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText) {
+    document.getElementById('telemetry-source').innerText = sourceText;
+    document.getElementById('hero-uptime').innerText = uptime || "UPTIME OK";
+
+    document.getElementById('cpu-val').innerText = `${cpu}%`;
+    const cpuBar = document.getElementById('cpu-bar');
+    cpuBar.style.width = `${cpu}%`;
+    if (cpu > 80) {
+        cpuBar.className = "bg-error danger-glow h-full transition-all";
+        document.getElementById('cpu-alert').classList.remove('hidden');
+        playSound('alert');
+    } else {
+        cpuBar.className = "bg-primary h-full transition-all";
+        document.getElementById('cpu-alert').classList.add('hidden');
+    }
+
+    document.getElementById('mem-val').innerText = `${mem}%`;
+    document.getElementById('mem-bar').style.width = `${mem}%`;
+    document.getElementById('side-ram-val').innerText = `${mem}%`;
+    document.getElementById('side-ram-bar').style.width = `${mem}%`;
+
+    document.getElementById('temp-val').innerText = `${temp}°C`;
+    document.getElementById('temp-bar').style.width = `${temp}%`;
+    document.getElementById('side-temp-val').innerText = `${temp}°C`;
+    document.getElementById('side-temp-bar').style.width = `${temp}%`;
+
+    document.getElementById('disk-val').innerText = `${disk}%`;
+    document.getElementById('disk-bar').style.width = `${disk}%`;
+}
+
+function initBandwidthGraph() {
+    const container = document.getElementById('bandwidth-graph');
+    if (!container) return;
+    container.innerHTML = '';
+    for(let i = 0; i < 20; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'w-full bg-secondary opacity-50';
+        bar.style.height = `${Math.random() * 100}%`;
+        container.appendChild(bar);
+    }
+}
+
+function updateBandwidth() {
+    if (!isTabVisible || ecoMode) return;
+    const container = document.getElementById('bandwidth-graph');
+    if (!container || !container.firstElementChild) return;
+    container.removeChild(container.firstElementChild);
+    const bar = document.createElement('div');
+    bar.className = 'w-full bg-primary';
+    bar.style.height = `${20 + Math.random() * 80}%`;
+    container.appendChild(bar);
+}
+
+function appendSysLog() {
+    if (!isTabVisible || ecoMode) return;
+    const logs = [
+        "> ethernet rx 1000Mbps ok...",
+        "> geoip location locked target.",
+        "> pi-hole query filter clear.",
+        "> memory cache optimized.",
+        "> thermal state nominal."
+    ];
+    const container = document.getElementById('sys-log');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.innerText = logs[Math.floor(Math.random() * logs.length)];
+    container.appendChild(div);
+    if (container.children.length > 7) {
+        container.removeChild(container.firstElementChild);
+    }
+}
+
+const chars = '0123456789ABCDEF';
+function generateCascade() {
+    if (!cascadeActive || ecoMode || !isTabVisible) return;
+    const container = document.getElementById('cascade-container');
+    if (!container) return;
+    const stream = document.createElement('div');
+    stream.className = 'data-stream';
+    stream.style.left = `${Math.random() * 100}vw`;
+    let content = '';
+    for(let i=0; i<12; i++) {
+        content += chars[Math.floor(Math.random() * chars.length)] + '\n';
+    }
+    stream.innerText = content;
+    const duration = 3 + Math.random() * 4;
+    stream.style.animation = `cascadeDown ${duration}s linear`;
+    container.appendChild(stream);
+    setTimeout(() => {
+        if(container.contains(stream)) container.removeChild(stream);
+    }, duration * 1000);
+}
+
+function toggleCascade() {
+    cascadeActive = !cascadeActive;
+    const btn = document.getElementById('cascade-toggle');
+    if (cascadeActive) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">pause_circle</span> <span>FREEZE</span>';
+    } else {
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">play_circle</span> <span>PLAY</span>';
+        const container = document.getElementById('cascade-container');
+        if (container) container.innerHTML = '';
+    }
+}
+
+// Advanced Web Audio API Sound Engine (Starship Ambient Hum + SFX)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let humOsc = null;
+let humGain = null;
+let lfoOsc = null;
+
+function toggleAudio() {
+    audioActive = !audioActive;
+    const icon = document.getElementById('audio-icon');
+    const label = document.getElementById('audio-label');
+    const btn = document.getElementById('audio-toggle');
+    const eqBars = document.querySelectorAll('.eq-bar');
+
+    if (audioActive) {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        icon.innerText = 'volume_up';
+        label.innerText = 'AUDIO: ON';
+        btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+        btn.classList.remove('bg-surface-variant');
+        startAmbientHum();
+        animateEqualizer(true);
+    } else {
+        icon.innerText = 'volume_off';
+        label.innerText = 'AUDIO: OFF';
+        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+        btn.classList.add('bg-surface-variant');
+        stopAmbientHum();
+        animateEqualizer(false);
+    }
+}
+
+function startAmbientHum() {
+    if (humOsc) return;
+    try {
+        humOsc = audioCtx.createOscillator();
+        humGain = audioCtx.createGain();
+        lfoOsc = audioCtx.createOscillator();
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+        humOsc.type = 'sawtooth';
+        humOsc.frequency.setValueAtTime(55, audioCtx.currentTime); // Deep A1 starship engine hum
+
+        lfoOsc.type = 'sine';
+        lfoOsc.frequency.setValueAtTime(0.2, audioCtx.currentTime);
+
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.setValueAtTime(15, audioCtx.currentTime);
+        lfoOsc.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+
+        humGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+        humGain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 1.5);
+
+        humOsc.connect(filter);
+        filter.connect(humGain);
+        humGain.connect(audioCtx.destination);
+
+        humOsc.start();
+        lfoOsc.start();
+    } catch (e) {}
+}
+
+function stopAmbientHum() {
+    if (humGain) {
+        humGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 0.5);
+        setTimeout(() => {
+            if (humOsc) { humOsc.stop(); humOsc.disconnect(); humOsc = null; }
+            if (lfoOsc) { lfoOsc.stop(); lfoOsc.disconnect(); lfoOsc = null; }
+        }, 500);
+    }
+}
+
+function animateEqualizer(active) {
+    const bars = document.querySelectorAll('.eq-bar');
+    if (!active) {
+        bars.forEach(b => b.style.height = '3px');
+        return;
+    }
+    bars.forEach((b, idx) => {
+        const h = Math.floor(4 + Math.random() * 10);
+        b.style.height = `${h}px`;
+    });
+    if (audioActive) {
+        setTimeout(() => animateEqualizer(true), 150);
+    }
+}
+
+function playSound(type) {
+    if (!audioActive) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'beep1') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.08);
+        } else if (type === 'beep2') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.06);
+        } else if (type === 'alert') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        } else {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+    } catch (e) {}
+}
+
+// Convert Lat/Lon coordinates to 3D Sphere Vector3
+function latLonToVector3(lat, lon, radius) {
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+    return new THREE.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+    );
+}
+
+// Update 3D Beacon Mesh on Globe
+function updateGlobeBeacon() {
+    if (!globeGroup) return;
+    const pos = latLonToVector3(userGeoLocation.lat, userGeoLocation.lon, 1.02);
+
+    if (!beaconMesh) {
+        const beaconGeo = new THREE.SphereGeometry(0.028, 16, 16);
+        const beaconMat = new THREE.MeshBasicMaterial({ color: 0xffe253 });
+        beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
+        globeGroup.add(beaconMesh);
+
+        // Pulse Ring
+        const ringGeo = new THREE.RingGeometry(0.03, 0.07, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xc2c1ff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+        beaconPulseRing = new THREE.Mesh(ringGeo, ringMat);
+        globeGroup.add(beaconPulseRing);
+    }
+
+    beaconMesh.position.copy(pos);
+    beaconPulseRing.position.copy(pos);
+    beaconPulseRing.lookAt(new THREE.Vector3(0,0,0));
+
+    // Smoothly rotate globe to face the target coordinates
+    const targetRotY = -((userGeoLocation.lon + 180) * (Math.PI / 180));
+    globeGroup.rotation.y = targetRotY;
+}
+
+// Three.js 3D Globe Initialization
+function initEarth() {
+    if (typeof THREE === 'undefined') return;
+    const container = document.getElementById('earth-container');
+    if (!container) return;
+
+    const width = container.clientWidth || 400;
+    const height = container.clientHeight || 300;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.z = 2.4;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+
+    const dotGeo = new THREE.BufferGeometry();
+    const count = 7500;
+    const pos = new Float32Array(count * 3);
+    const cols = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+        const phi = Math.acos(-1 + (2 * i) / count);
+        const theta = Math.sqrt(count * Math.PI) * phi;
+        pos[i * 3] = Math.cos(theta) * Math.sin(phi);
+        pos[i * 3 + 1] = Math.sin(theta) * Math.sin(phi);
+        pos[i * 3 + 2] = Math.cos(phi);
+
+        // Nemesis Blue Dot Matrix Palette
+        cols[i * 3] = 0.6;
+        cols[i * 3 + 1] = 0.6;
+        cols[i * 3 + 2] = 1.0;
+    }
+
+    dotGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    dotGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+
+    const dotMat = new THREE.PointsMaterial({
+        size: 0.018,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.75
+    });
+
+    const earthPoints = new THREE.Points(dotGeo, dotMat);
+    globeGroup.add(earthPoints);
+
+    updateGlobeBeacon();
+
+    let ringScale = 1.0;
+    function animate(t) {
+        requestAnimationFrame(animate);
+        if (!isTabVisible || ecoMode) return;
+        globeGroup.rotation.y += 0.002;
+
+        if (beaconPulseRing) {
+            ringScale += 0.015;
+            if (ringScale > 2.2) ringScale = 1.0;
+            beaconPulseRing.scale.set(ringScale, ringScale, ringScale);
+        }
+
+        renderer.render(scene, camera);
+    }
+    animate(0);
+
+    window.addEventListener('resize', () => {
+        const w = container.clientWidth || 400;
+        const h = container.clientHeight || 300;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+    });
+}
+
+window.onload = () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+    fetchTelemetry();
+    setInterval(fetchTelemetry, 2000);
+    initBandwidthGraph();
+    setInterval(updateBandwidth, 1200);
+    setInterval(appendSysLog, 3000);
+    setInterval(generateCascade, 250);
+    initEarth();
+    fetchRealtimeGeoIP();
+};
+</script>
+</body>
+</html>

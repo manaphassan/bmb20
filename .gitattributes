@@ -1,0 +1,16 @@
+# Auto detect text files and perform LF normalization on check-in
+* text=auto
+
+# Enforce Unix LF line endings for shell scripts (Prevents \r CRLF Linux syntax errors)
+*.sh text eol=lf
+*.php text eol=lf
+
+# Enforce CRLF line endings for PowerShell scripts
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
