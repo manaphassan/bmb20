@@ -47,6 +47,14 @@ async function fetchTelemetry() {
     } catch (err) {
         console.warn("Telemetry fetch fallback active:", err);
     }
+
+    // Fallback Simulated Data if daemon is restarting
+    const simCpu = Math.floor(15 + Math.random() * 35);
+    const simMem = Math.floor(25 + Math.random() * 10);
+    const simTemp = Math.floor(46 + Math.random() * 5);
+    const simDisk = 38;
+    updateMetricsUI(simCpu, simMem, simTemp, simDisk, "ONLINE", "SIMULATED / SYNCING", { uptime: "ONLINE" });
+    updateBandwidth(Math.random() * 800000, Math.random() * 2500000);
 }
 
 async function fetchSentinelAlerts() {
@@ -76,15 +84,6 @@ async function fetchSentinelAlerts() {
 }
 setInterval(fetchSentinelAlerts, 20000);
 setTimeout(fetchSentinelAlerts, 2000);
-
-    // Fallback Simulated Data if daemon is restarting
-    const simCpu = Math.floor(15 + Math.random() * 35);
-    const simMem = Math.floor(25 + Math.random() * 10);
-    const simTemp = Math.floor(46 + Math.random() * 5);
-    const simDisk = 38;
-    updateMetricsUI(simCpu, simMem, simTemp, simDisk, "ONLINE", "SIMULATED / SYNCING", { uptime: "ONLINE" });
-    updateBandwidth(Math.random() * 800000, Math.random() * 2500000);
-}
 
 // Update DOM Metrics & Thermal Alert Thresholds
 function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}) {
