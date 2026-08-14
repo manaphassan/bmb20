@@ -96,7 +96,26 @@ function setMeenaVoiceByName(voiceName) {
 }
 
 function testMeenaVoice() {
-    speakComputerVoice("Konnichiwa, Commander. Meena is online and speaking fluent English with Japanese accent.");
+    const hour = new Date().getHours();
+    let timeGreeting = "Good afternoon";
+    if (hour >= 5 && hour < 12) timeGreeting = "Good morning";
+    else if (hour >= 18 && hour < 22) timeGreeting = "Good evening";
+    else if (hour >= 22 || hour < 5) timeGreeting = "Good evening";
+
+    speakComputerVoice(`Konnichiwa, Sensei! ${timeGreeting}. Meena is online and speaking fluent English with Japanese accent.`);
+}
+
+function getMeenaTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+        return "Ohayou gozaimasu! Good morning, Sensei. Meena system is online. Takahara neural protocols nominal.";
+    } else if (hour >= 12 && hour < 18) {
+        return "Konnichiwa! Good afternoon, Sensei. Meena system is online. Takahara neural protocols nominal.";
+    } else if (hour >= 18 && hour < 22) {
+        return "Konbanwa! Good evening, Sensei. Meena system is online. Takahara neural protocols nominal.";
+    } else {
+        return "Otsukaresama desu, Sensei. Working late tonight? Meena system is active and monitoring all sectors.";
+    }
 }
 
 if ('speechSynthesis' in window) {
@@ -295,7 +314,7 @@ function playWarpSequence() {
         osc.stop(now + 1.45);
         subOsc.stop(now + 1.45);
 
-        speakComputerVoice("Warp sequence initiated. Dimensional space translation underway, Commander.");
+        speakComputerVoice("Warp sequence initiated. Dimensional space translation underway, Sensei.");
     } catch (e) {}
 }
 
@@ -330,7 +349,7 @@ function startRedAlertKlaxon() {
     
     // Play immediately & speak announcement
     playSound('alert');
-    speakComputerVoice("Code Red. Emergency defense barriers and tactical shields initialized. Please prepare for battle, Commander.");
+    speakComputerVoice("Code Red. Emergency defense barriers and tactical shields initialized. Please prepare for battle, Sensei.");
 
     // Loop every 1200ms
     redAlertInterval = setInterval(() => {
@@ -352,7 +371,7 @@ function stopRedAlertKlaxon() {
 function playYellowAlertChirp() {
     stopRedAlertKlaxon();
     playSound('caution');
-    speakComputerVoice("Code Yellow. Environmental sensors detecting subspace anomalies. Monitoring facility status, Commander.");
+    speakComputerVoice("Code Yellow. Environmental sensors detecting subspace anomalies. Monitoring facility status, Sensei.");
 }
 
 // Deep 48Hz Warp Core Engine Ambient Hum
@@ -442,7 +461,7 @@ function toggleAudio() {
         animateEqualizer(true);
         playSound('chime');
         setTimeout(() => {
-            speakComputerVoice("Konnichiwa, Commander. Meena system is online. Takahara neural protocols nominal.");
+            speakComputerVoice(getMeenaTimeGreeting());
         }, 400);
     } else {
         if (icon) icon.innerText = 'volume_off';
@@ -533,7 +552,11 @@ function toggleVoiceRecognition() {
             recognition.start();
             updateVoiceHUD("LISTENING...", true);
             if (playSound) playSound('beep2');
-            if (speakComputerVoice) speakComputerVoice("Hai, Commander. Meena is listening.");
+            const hour = new Date().getHours();
+            let promptGreeting = "Hai, Sensei! Meena is listening.";
+            if (hour >= 5 && hour < 12) promptGreeting = "Good morning, Sensei! Meena is listening.";
+            else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Meena is listening.";
+            if (speakComputerVoice) speakComputerVoice(promptGreeting);
         } catch (e) {
             console.warn("Voice recognition start error:", e);
             openVoiceModal();
@@ -595,7 +618,16 @@ function handleVoiceCommand(rawCmd) {
     if (isWakeWordOnly) {
         if (playSound) playSound('beep2');
         if (hudBadge) hudBadge.innerText = `MEENA: READY...`;
-        speakComputerVoice("Hai, Commander? Meena is ready for your command.");
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) {
+            speakComputerVoice("Good morning, Sensei! Meena is ready for your command.");
+        } else if (hour >= 12 && hour < 18) {
+            speakComputerVoice("Konnichiwa, Sensei. Meena is ready for your command.");
+        } else if (hour >= 18 && hour < 22) {
+            speakComputerVoice("Good evening, Sensei. Meena is standing by for your command.");
+        } else {
+            speakComputerVoice("Hai, Sensei. Working late tonight? Meena is standing by.");
+        }
         return;
     }
 
@@ -637,7 +669,7 @@ function speakVerbalStatusReport() {
     const temp = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52 degrees';
     const pihole = document.getElementById('header-pihole-pct') ? document.getElementById('header-pihole-pct').innerText : 'active';
 
-    speakComputerVoice(`Diagnostic status report, Commander. Core processing load is ${cpu}, memory utilization is ${mem}. Thermal regulation is ${temp}. Facility defense shield is ${pihole}. All parameters optimal.`);
+    speakComputerVoice(`Diagnostic status report, Sensei. Core processing load is ${cpu}, memory utilization is ${mem}. Thermal regulation is ${temp}. Facility defense shield is ${pihole}. All parameters optimal.`);
 }
 
 function speakVerbalWeatherReport() {
@@ -646,7 +678,7 @@ function speakVerbalWeatherReport() {
     const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75 percent';
     const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
 
-    speakComputerVoice(`Atmospheric observation from Terra station, Commander. Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. The outside environment is pleasant today.`);
+    speakComputerVoice(`Atmospheric observation from Terra station, Sensei. Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. The outside environment is pleasant today.`);
 }
 
 // Window Global Exports
