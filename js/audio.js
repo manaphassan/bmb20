@@ -275,7 +275,7 @@ function startRedAlertKlaxon() {
     
     // Play immediately & speak announcement
     playSound('alert');
-    speakComputerVoice("Red alert, sir. Shields at maximum. All tactical stations armed.");
+    speakComputerVoice("Code Red, sir. Tactical shields at maximum. All defense stations armed.");
 
     // Loop every 1200ms
     redAlertInterval = setInterval(() => {
@@ -297,7 +297,7 @@ function stopRedAlertKlaxon() {
 function playYellowAlertChirp() {
     stopRedAlertKlaxon();
     playSound('caution');
-    speakComputerVoice("Condition yellow, sir. Monitoring power grid.");
+    speakComputerVoice("Code Yellow, sir. Monitoring subspace anomalies and power grid.");
 }
 
 // Deep 48Hz Warp Core Engine Ambient Hum
@@ -533,11 +533,11 @@ function handleVoiceCommand(cmd) {
         hudBadge.innerText = `CMD: "${cmd}"`;
     }
 
-    if (cmd.includes('red alert') || cmd.includes('alert red') || cmd.includes('shields up')) {
+    if (cmd.includes('red') || cmd.includes('code red') || cmd.includes('shields up') || cmd.includes('battle stations')) {
         if (window.setAlertCondition) window.setAlertCondition('red', true);
-    } else if (cmd.includes('yellow alert') || cmd.includes('condition yellow') || cmd.includes('caution')) {
+    } else if (cmd.includes('yellow') || cmd.includes('code yellow') || cmd.includes('caution')) {
         if (window.setAlertCondition) window.setAlertCondition('yellow', true);
-    } else if (cmd.includes('green') || cmd.includes('nominal') || cmd.includes('all clear') || cmd.includes('stand down')) {
+    } else if (cmd.includes('green') || cmd.includes('code green') || cmd.includes('nominal') || cmd.includes('all clear') || cmd.includes('stand down')) {
         if (window.setAlertCondition) window.setAlertCondition('green', true);
     } else if (cmd.includes('warp') || cmd.includes('engage') || cmd.includes('accelerate')) {
         if (window.playWarpSequence) window.playWarpSequence();
@@ -545,12 +545,14 @@ function handleVoiceCommand(cmd) {
         if (window.playDoorChime) window.playDoorChime();
     } else if (cmd.includes('beam') || cmd.includes('transport') || cmd.includes('energize')) {
         if (window.playTransporterChime) window.playTransporterChime();
-    } else if (cmd.includes('planet') || cmd.includes('earth') || cmd.includes('terrestrial')) {
+    } else if (cmd.includes('terra') || cmd.includes('planet') || cmd.includes('earth') || cmd.includes('terrestrial')) {
         if (window.switchHologramView) window.switchHologramView('earth');
     } else if (cmd.includes('solar') || cmd.includes('system') || cmd.includes('sun')) {
         if (window.switchHologramView) window.switchHologramView('solar');
     } else if (cmd.includes('galaxy') || cmd.includes('milky way') || cmd.includes('stars')) {
         if (window.switchHologramView) window.switchHologramView('galaxy');
+    } else if (cmd.includes('weather') || cmd.includes('forecast') || cmd.includes('atmospheric') || cmd.includes('meteo')) {
+        speakVerbalWeatherReport();
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
         speakVerbalStatusReport();
     } else if (cmd.includes('clarity') || cmd.includes('scanline') || cmd.includes('crt')) {
@@ -571,6 +573,15 @@ function speakVerbalStatusReport() {
     speakComputerVoice(`Status report, sir. CPU load is at ${cpu}, memory utilization is ${mem}. Processor temperature is ${temp}. Pi-hole shield is ${pihole}. All subsystems nominal.`);
 }
 
+function speakVerbalWeatherReport() {
+    const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31 degrees';
+    const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'partly cloudy';
+    const hum = document.getElementById('wx-humidity') ? document.getElementById('wx-humidity').innerText : '75 percent';
+    const wind = document.getElementById('wx-wind') ? document.getElementById('wx-wind').innerText : '12 km/h';
+
+    speakComputerVoice(`Atmospheric report for Terra base: Currently ${temp} Celsius with ${desc}. Relative humidity is ${hum}, surface wind is ${wind}. Planetary conditions are optimal, sir.`);
+}
+
 // Window Global Exports
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
@@ -583,6 +594,10 @@ window.stopRedAlertKlaxon = stopRedAlertKlaxon;
 window.playYellowAlertChirp = playYellowAlertChirp;
 window.playDoorChime = playDoorChime;
 window.playWarpSequence = playWarpSequence;
+window.playTransporterChime = playTransporterChime;
+window.speakComputerVoice = speakComputerVoice;
+window.speakVerbalStatusReport = speakVerbalStatusReport;
+window.speakVerbalWeatherReport = speakVerbalWeatherReport;
 window.playTransporterChime = playTransporterChime;
 window.speakComputerVoice = speakComputerVoice;
 window.speakVerbalStatusReport = speakVerbalStatusReport;

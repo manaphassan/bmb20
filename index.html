@@ -157,10 +157,10 @@
 
         <!-- Tactical Alert Condition Switcher -->
         <div class="flex items-center gap-1 bg-surface-dim px-2 py-1 rounded-full border border-outline-variant/30 font-data-mono">
-            <span class="text-[9px] text-on-surface-variant font-bold mr-1">ALERT:</span>
-            <button id="btn-cond-green" onclick="setAlertCondition('green')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-primary text-black active-condition">GREEN</button>
-            <button id="btn-cond-yellow" onclick="setAlertCondition('yellow')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-tertiary">YELLOW</button>
-            <button id="btn-cond-red" onclick="setAlertCondition('red')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-error">RED</button>
+            <span class="text-[9px] text-on-surface-variant font-bold mr-1">STATUS:</span>
+            <button id="btn-cond-green" onclick="setAlertCondition('green')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-primary text-black active-condition">CODE GREEN</button>
+            <button id="btn-cond-yellow" onclick="setAlertCondition('yellow')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-tertiary">CODE YELLOW</button>
+            <button id="btn-cond-red" onclick="setAlertCondition('red')" class="condition-btn px-2 py-0.5 rounded font-bold text-[9px] bg-surface-bright text-on-surface-variant hover:text-error">CODE RED</button>
         </div>
 
         <div class="flex items-center gap-5 font-data-mono text-xs text-tertiary">
@@ -199,7 +199,7 @@
 
             <!-- 3D Stage Multi-View Mode Switcher -->
             <div class="absolute top-2 right-2 z-30 flex items-center gap-1 bg-surface-dim/80 backdrop-blur-sm px-1.5 py-1 rounded border border-outline-variant/40 font-data-mono text-[9px]">
-                <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all">PLANET</button>
+                <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all">TERRA</button>
                 <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all">SYSTEM</button>
                 <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all">GALAXY</button>
             </div>
@@ -210,7 +210,7 @@
 
             <!-- Overlay Telemetry Data (Bottom-Left) -->
             <div class="absolute bottom-3 left-3 bg-surface-container/90 backdrop-blur-sm px-2.5 py-1.5 border border-primary/40 font-data-mono text-[11px] text-secondary z-30 rounded">
-                <div class="text-primary font-bold" id="hero-subtitle">TARGET: SECTOR 001 [MALAYSIA]</div>
+                <div class="text-primary font-bold" id="hero-subtitle">TARGET: TERRA [SECTOR 001]</div>
                 <div class="text-[10px] text-on-surface-variant font-mono" id="hero-coords">GEO-COORD: 02° 48' N, 101° 30' E // INCL: 23.4°</div>
             </div>
 
@@ -463,25 +463,33 @@
                 <span>1. STATUS REPORT</span>
                 <span class="text-[9px] text-tertiary">DIAGNOSTICS</span>
             </button>
-            <button onclick="handleVoiceCommand('red alert'); closeVoiceModal();" class="bg-surface-container-high hover:bg-error hover:text-white p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                <span>2. RED ALERT</span>
-                <span class="text-[9px] text-error font-mono">BATTLE STATIONS</span>
+            <button onclick="handleVoiceCommand('weather forecast'); closeVoiceModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>2. WEATHER FORECAST</span>
+                <span class="text-[9px] text-tertiary font-mono">ATMOSPHERIC</span>
             </button>
-            <button onclick="handleVoiceCommand('green'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                <span>3. CONDITION GREEN</span>
-                <span class="text-[9px] text-primary">ALL NOMINAL</span>
+            <button onclick="handleVoiceCommand('code red'); closeVoiceModal();" class="bg-surface-container-high hover:bg-error hover:text-white p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>3. CODE RED</span>
+                <span class="text-[9px] text-error font-mono">SHIELDS UP</span>
             </button>
-            <button onclick="handleVoiceCommand('warp'); closeVoiceModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                <span>4. WARP SPEED</span>
-                <span class="text-[9px] text-tertiary">ENGAGE</span>
+            <button onclick="handleVoiceCommand('code yellow'); closeVoiceModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>4. CODE YELLOW</span>
+                <span class="text-[9px] text-tertiary font-mono">CAUTION</span>
+            </button>
+            <button onclick="handleVoiceCommand('code green'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>5. CODE GREEN</span>
+                <span class="text-[9px] text-primary">NOMINAL</span>
+            </button>
+            <button onclick="handleVoiceCommand('terra'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>6. TERRA VIEW</span>
+                <span class="text-[9px] text-primary">PLANET III</span>
             </button>
             <button onclick="handleVoiceCommand('solar'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                <span>5. SOL SYSTEM VIEW</span>
+                <span>7. SOL SYSTEM</span>
                 <span class="text-[9px] text-primary">8 PLANETS</span>
             </button>
-            <button onclick="handleVoiceCommand('galaxy'); closeVoiceModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                <span>6. MILKY WAY MAP</span>
-                <span class="text-[9px] text-primary">3.8K STARS</span>
+            <button onclick="handleVoiceCommand('warp'); closeVoiceModal();" class="bg-surface-container-high hover:bg-tertiary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                <span>8. WARP SPEED</span>
+                <span class="text-[9px] text-tertiary">ENGAGE</span>
             </button>
         </div>
 

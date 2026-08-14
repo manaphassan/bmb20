@@ -607,7 +607,7 @@ function updateCallouts() {
 
     if (currentHologramView === 'earth') {
         if (beaconMesh) {
-            renderCallout(beaconMesh, "SECTOR 001", "MALAYSIA BASE [02.81°N]", 30, -22, 40, 0);
+            renderCallout(beaconMesh, "TERRA BASE", "SECTOR 001 [02.81°N, 101.50°E]", 30, -22, 40, 0);
         }
         if (satelliteMesh) {
             renderCallout(satelliteMesh, "SAT-BMB20", "ALT: 420 KM // GEO-SYNC", -25, 20, -35, 0);
