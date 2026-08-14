@@ -35,6 +35,13 @@ if [ -f "${SCRIPT_DIR}/api.php" ]; then
     cp -fv "${SCRIPT_DIR}/api.php" "/var/www/api.php" 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/calendar_config.json" ]; then
+    echo "[+] Deploying calendar_config.json..."
+    cp -fv "${SCRIPT_DIR}/calendar_config.json" "${TARGET_DIR}/calendar_config.json"
+    cp -fv "${SCRIPT_DIR}/calendar_config.json" "/var/www/calendar_config.json" 2>/dev/null || true
+    chmod 0664 "${TARGET_DIR}/calendar_config.json" 2>/dev/null || true
+fi
+
 if [ -d "${SCRIPT_DIR}/assets" ]; then
     echo "[+] Deploying unified assets directory..."
     mkdir -p "${TARGET_DIR}/assets" "/var/www/assets"
