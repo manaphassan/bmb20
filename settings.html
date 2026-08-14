@@ -209,12 +209,13 @@
                     <p class="text-[11px] text-secondary">Sync your daily Google Calendar schedule so Meena can read your daily events on voice command.</p>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs text-on-surface font-bold">Google Calendar Secret iCal Address (.ics):</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="settings-ical-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
-                        <button onclick="saveCalendarSetting()" class="bg-tertiary text-black font-bold px-4 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono">SAVE & TEST</button>
-                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs text-on-surface font-bold">Google Calendar Secret iCal Address (.ics):</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="settings-ical-input" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                            <button onclick="saveCalendarSetting()" class="bg-tertiary text-black font-bold px-4 py-2 rounded-lg text-xs hover:bg-tertiary/80 transition-all font-mono">SAVE & TEST</button>
+                        </div>
+                        <div id="calendar-sync-feedback" class="text-xs text-secondary font-mono"></div>
                     <div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/30 text-[10px] text-secondary leading-relaxed">
                         <strong class="text-on-surface block mb-1">3-Step Setup Instructions:</strong>
                         1. Open <strong class="text-tertiary">calendar.google.com</strong> on your desktop browser.<br/>

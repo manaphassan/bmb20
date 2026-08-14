@@ -195,18 +195,58 @@ function resetTokenQuota() {
 
 async function saveCalendarSetting() {
     const input = document.getElementById('settings-ical-input');
+    const resultMsg = document.getElementById('calendar-sync-feedback');
     const url = input ? input.value.trim() : '';
     if (!url) {
         alert('Please enter a valid Google Calendar Secret iCal address (.ics)');
         return;
     }
-    const res = await fetch('api.php?action=save_calendar_config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ical_url: url, enabled: true, updated_at: new Date().toISOString() })
-    });
-    if (res.ok) {
-        alert('Google Calendar synchronization URL saved successfully!');
+    
+    if (resultMsg) {
+        resultMsg.innerText = 'Connecting to Google Calendar and verifying feed...';
+        resultMsg.className = 'text-xs text-lcars-gold font-bold animate-pulse';
+    }
+
+    try {
+        const res = await fetch('api.php?action=save_calendar_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ical_url: url, enabled: true, updated_at: new Date().toISOString() })
+        });
+        
+        if (res.ok) {
+            // Test fetch immediately
+            const testRes = await fetch('api.php?action=get_calendar_events');
+            const data = await testRes.json();
+            
+            if (data.status === 'success') {
+                const todayCount = (data.events_today || []).length;
+                const upCount = (data.events_upcoming || []).length;
+                if (resultMsg) {
+                    resultMsg.innerText = `✅ Verified & Synced! (${todayCount} event(s) today, ${upCount} upcoming this week)`;
+                    resultMsg.className = 'text-xs text-tertiary font-bold';
+                }
+                alert(`Google Calendar verified and saved! Found ${todayCount} event(s) today.`);
+            } else {
+                if (resultMsg) {
+                    resultMsg.innerText = `⚠️ Saved, but Google returned: ${data.message || 'Check link format'}`;
+                    resultMsg.className = 'text-xs text-lcars-gold font-bold';
+                }
+                alert('Saved configuration! ' + (data.message || ''));
+            }
+        } else {
+            if (resultMsg) {
+                resultMsg.innerText = '❌ Failed to save configuration to DietPi host.';
+                resultMsg.className = 'text-xs text-error font-bold';
+            }
+            alert('Failed to save to server.');
+        }
+    } catch(e) {
+        if (resultMsg) {
+            resultMsg.innerText = `❌ Error: ${e.message}`;
+            resultMsg.className = 'text-xs text-error font-bold';
+        }
+        alert('Connection error: ' + e.message);
     }
 }
 

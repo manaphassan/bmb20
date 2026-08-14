@@ -37,7 +37,13 @@ if (isset($_GET['action'])) {
 
     if ($action === 'get_calendar_config') {
         if (file_exists($calConfigFile)) {
-            echo file_get_contents($calConfigFile);
+            $cfg = json_decode(file_get_contents($calConfigFile), true) ?: [];
+            $primaryUrl = $cfg['ical_url'] ?? '';
+            if (empty($primaryUrl) && !empty($cfg['calendars'][0]['url'])) {
+                $primaryUrl = $cfg['calendars'][0]['url'];
+            }
+            $cfg['ical_url'] = $primaryUrl;
+            echo json_encode($cfg);
         } else {
             echo json_encode(['calendars' => [], 'ical_url' => '', 'enabled' => false]);
         }
@@ -49,9 +55,25 @@ if (isset($_GET['action'])) {
         if ($raw) {
             $decoded = json_decode($raw, true);
             if ($decoded !== null) {
+                if (isset($decoded['ical_url']) && !empty($decoded['ical_url'])) {
+                    $url = trim($decoded['ical_url']);
+                    $existingCals = $decoded['calendars'] ?? [];
+                    if (empty($existingCals)) {
+                        $existingCals[] = [
+                            'id' => 'cal_primary',
+                            'name' => 'Main Calendar',
+                            'url' => $url,
+                            'color' => '#c2c1ff',
+                            'enabled' => true
+                        ];
+                    } else {
+                        $existingCals[0]['url'] = $url;
+                    }
+                    $decoded['calendars'] = $existingCals;
+                }
                 file_put_contents($calConfigFile, json_encode($decoded, JSON_PRETTY_PRINT));
                 @chmod($calConfigFile, 0664);
-                echo json_encode(['status' => 'success']);
+                echo json_encode(['status' => 'success', 'calendars_count' => count($decoded['calendars'] ?? [])]);
                 exit;
             }
         }
