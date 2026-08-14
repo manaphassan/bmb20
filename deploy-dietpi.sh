@@ -45,7 +45,7 @@ fi
 
 # Configure sudoers for www-data to manage Pi-hole, hardware and daemon actions without password
 if [ -d "/etc/sudoers.d" ]; then
-    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee, /usr/bin/vcgencmd, /sbin/reboot, /usr/sbin/reboot" > /etc/sudoers.d/dietpi-bmb20
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee, /usr/bin/vcgencmd, /sbin/reboot, /usr/sbin/reboot, /boot/dietpi/dietpi-update, /usr/sbin/dietpi-update, /usr/bin/dietpi-update, /usr/bin/apt, /usr/bin/apt-get" > /etc/sudoers.d/dietpi-bmb20
     chmod 0440 /etc/sudoers.d/dietpi-bmb20
 fi
 

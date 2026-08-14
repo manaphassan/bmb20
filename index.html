@@ -867,13 +867,21 @@
                     <span>2. FLUSH DNS RESOLVER</span>
                     <span class="text-[8px] text-tertiary font-mono">restartdns</span>
                 </button>
+                <button onclick="requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-lcars-gold hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                    <span>3. DIETPI OS UPDATE</span>
+                    <span class="text-[8px] text-lcars-gold font-mono">dietpi-update</span>
+                </button>
                 <button onclick="speakVerbalHardwareReport(); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-primary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                    <span>3. HARDWARE HEALTH</span>
+                    <span>4. HARDWARE HEALTH</span>
                     <span class="text-[8px] text-primary font-mono">vcgencmd</span>
                 </button>
                 <button onclick="requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-secondary hover:text-black p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
-                    <span>4. RELOAD TELEMETRY</span>
+                    <span>5. RELOAD TELEMETRY</span>
                     <span class="text-[8px] text-secondary font-mono">systemctl</span>
+                </button>
+                <button onclick="requestSudoAuthorization('system_reboot', 'Power Cycle & Reboot Raspberry Pi Host'); closeMeenaProfileModal();" class="bg-surface-container-high hover:bg-error hover:text-white p-2 rounded text-left font-bold transition-all border border-outline-variant/30 flex items-center justify-between">
+                    <span>6. REBOOT HOST</span>
+                    <span class="text-[8px] text-error font-mono">reboot</span>
                 </button>
             </div>
         </div>

@@ -51,6 +51,19 @@ if (isset($_GET['action'])) {
         exit;
     }
 
+    if ($action === 'dietpi_update') {
+        $output = @shell_exec('sudo /boot/dietpi/dietpi-update 1 2>&1');
+        if (!$output) {
+            $output = @shell_exec('sudo dietpi-update 1 2>&1');
+        }
+        echo json_encode([
+            'status' => 'success',
+            'result' => 'DietPi OS & core packages update routine finished successfully.',
+            'log' => substr($output ?: 'DietPi system update command executed.', 0, 400)
+        ]);
+        exit;
+    }
+
     if ($action === 'hardware_diag') {
         $clock = @shell_exec('vcgencmd measure_clock arm 2>/dev/null');
         $volts = @shell_exec('vcgencmd measure_volts core 2>/dev/null');

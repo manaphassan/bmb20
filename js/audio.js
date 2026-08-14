@@ -737,6 +737,8 @@ function handleVoiceCommand(rawCmd) {
         requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver');
     } else if (cmdToEvaluate.includes('reload daemon') || cmdToEvaluate.includes('restart telemetry') || cmdToEvaluate.includes('restart daemon')) {
         requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service');
+    } else if (cmdToEvaluate.includes('dietpi update') || cmdToEvaluate.includes('update dietpi') || cmdToEvaluate.includes('update system') || cmdToEvaluate.includes('update os') || cmdToEvaluate.includes('system update') || cmdToEvaluate.includes('dietpi-update')) {
+        requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)');
     } else if (cmdToEvaluate.includes('reboot') || cmdToEvaluate.includes('restart pi') || cmdToEvaluate.includes('power cycle')) {
         requestSudoAuthorization('system_reboot', 'Power Cycle & Reboot Raspberry Pi Host');
     } else if (cmdToEvaluate.includes('authorize') || cmdToEvaluate.includes('confirm') || cmdToEvaluate.includes('proceed') || cmdToEvaluate.includes('yes do it') || cmdToEvaluate.includes('approved')) {
