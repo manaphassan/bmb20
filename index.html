@@ -514,18 +514,48 @@ body {
             <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-40 mix-blend-screen" id="tactical-shader"></canvas>
         </div>
 
-        <!-- Right Column: Sys Log Stream & Morse Transmitter (Spans 1 Col x 2 Rows) -->
+        <!-- Right Column: Sys Log Stream & Auxiliary Sensor Metrics (Spans 1 Col x 2 Rows) -->
         <div class="col-span-1 row-span-2 flex flex-col gap-2 h-full">
-            <!-- Top Half: System Log Stream Terminal -->
+            <!-- Top Half: System Log & LCARS Auxiliary Sensor Metrics -->
             <div class="flex-1 bg-surface p-2.5 border border-outline-variant font-data-mono text-[11px] leading-tight text-primary flex flex-col relative rounded-sm overflow-hidden">
-                <div class="absolute top-0 left-0 bg-outline-variant text-on-surface font-label-caps text-[10px] px-2.5 py-0.5 font-bold z-10 flex items-center justify-between w-full pr-3">
-                    <span>SYS LOG STREAM</span>
-                    <span class="text-[9px] text-tertiary">LIVE TELEMETRY</span>
+                <div class="absolute top-0 left-0 bg-[#ff9900] text-black font-label-caps text-[10px] px-2.5 py-0.5 font-bold z-10 flex items-center justify-between w-full pr-3 shadow-md">
+                    <div class="flex items-center gap-1.5">
+                        <span class="bg-black text-[#ff9900] px-1 rounded text-[9px] font-mono">[99-012]</span>
+                        <span>LCARS SENSOR READOUT</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="switchCol3Tab('log')" id="col3-tab-log" class="bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all">[LOGS]</button>
+                        <button onclick="switchCol3Tab('metrics')" id="col3-tab-metrics" class="bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all">[METRICS]</button>
+                    </div>
                 </div>
+
+                <!-- Log Stream View -->
                 <div class="overflow-hidden h-full flex flex-col justify-end pt-6 opacity-90" id="sys-log">
                     <div>&gt; dietpi core initialised...</div>
                     <div>&gt; network interfaces UP [dietpi.local]</div>
                     <div>&gt; telemetry loop active...</div>
+                </div>
+
+                <!-- Auxiliary Sensor Metrics View -->
+                <div class="overflow-y-auto h-full hidden pt-6 text-[10px] flex flex-col gap-1.5 text-[#ffcc66]" id="aux-sensor-metrics">
+                    <div class="border-b border-[#ff9900]/30 pb-1">
+                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[CELESTIAL NAVIGATION]</div>
+                        <div class="flex justify-between"><span>EARTH SPEED:</span> <span class="text-primary font-bold">29.78 KM/S</span></div>
+                        <div class="flex justify-between"><span>JUPITER DIST:</span> <span class="text-tertiary font-bold">5.20 AU</span></div>
+                        <div class="flex justify-between"><span>AZIMUTH:</span> <span class="text-[#66ccff] font-bold">142.8°</span></div>
+                    </div>
+                    <div class="border-b border-[#ff9900]/30 pb-1">
+                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[HARDWARE SPECIFICATIONS]</div>
+                        <div class="flex justify-between"><span>ARCH:</span> <span class="text-primary font-bold">aarch64 (ARM64)</span></div>
+                        <div class="flex justify-between"><span>KERNEL:</span> <span class="text-tertiary font-bold">Linux 6.1.21-v8+</span></div>
+                        <div class="flex justify-between"><span>SWAP MEM:</span> <span class="text-[#66ccff] font-bold">0% (0 / 1024M)</span></div>
+                    </div>
+                    <div>
+                        <div class="text-[#ff9900] font-bold text-[9px] uppercase tracking-wider mb-0.5">[NETWORK TRANSMISSION]</div>
+                        <div class="flex justify-between"><span>INTERFACE:</span> <span class="text-primary font-bold">eth0 (1000Mbps)</span></div>
+                        <div class="flex justify-between"><span>CW KEYER:</span> <span class="text-tertiary font-bold">750Hz Subspace</span></div>
+                        <div class="flex justify-between"><span>PACKET LOSS:</span> <span class="text-[#66ccff] font-bold">0.00%</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -1169,6 +1199,23 @@ function updateBandwidth() {
     if (txElem) txElem.innerText = `TX: ${txVal} MB/s`;
     if (rxElem) rxElem.innerText = `RX: ${rxVal} MB/s`;
     if (vpnCurElem) vpnCurElem.innerText = `CUR: ${vpnCur} Mbps`;
+function switchCol3Tab(tab) {
+    const logElem = document.getElementById('sys-log');
+    const metricsElem = document.getElementById('aux-sensor-metrics');
+    const btnLog = document.getElementById('col3-tab-log');
+    const btnMetrics = document.getElementById('col3-tab-metrics');
+
+    if (tab === 'metrics') {
+        if (logElem) logElem.classList.add('hidden');
+        if (metricsElem) metricsElem.classList.remove('hidden');
+        if (btnLog) { btnLog.className = 'bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all'; }
+        if (btnMetrics) { btnMetrics.className = 'bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all'; }
+    } else {
+        if (logElem) logElem.classList.remove('hidden');
+        if (metricsElem) metricsElem.classList.add('hidden');
+        if (btnLog) { btnLog.className = 'bg-black text-[#ffcc66] px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-[#ffcc66] hover:text-black transition-all'; }
+        if (btnMetrics) { btnMetrics.className = 'bg-[#ffcc66] text-black px-1.5 py-0.2 text-[8px] font-bold rounded hover:bg-black hover:text-[#ffcc66] transition-all'; }
+    }
 }
 
 function appendSysLog() {
