@@ -637,12 +637,111 @@ function handleVoiceCommand(rawCmd) {
         speakVerbalWeatherReport();
     } else if (cmd.includes('status') || cmd.includes('report') || cmd.includes('diagnostics')) {
         speakVerbalStatusReport();
+    } else if (cmd.startsWith('remember ') || cmd.includes('remember that ')) {
+        const fact = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*)?remember\s*(that\s*)?/i, '').trim();
+        if (fact) rememberFact(fact);
+    } else if (cmd.includes('recall') || cmd.includes('what did you learn') || cmd.includes('read memory') || cmd.includes('show memory')) {
+        recallMemories();
+    } else if (cmd.includes('clear memory') || cmd.includes('forget all') || cmd.includes('reset memory')) {
+        clearMemories();
     } else if (cmd.includes('clarity') || cmd.includes('scanline') || cmd.includes('crt')) {
         if (window.toggleScanlines) window.toggleScanlines();
     } else if (cmd.includes('audio off') || cmd.includes('mute') || cmd.includes('silence')) {
         if (window.toggleAudio) window.toggleAudio();
     } else {
-        if (window.playSound) window.playSound('beep2');
+        // Conversational AI Brain Fallback for Natural Questions & Learning
+        askMeenaAI(rawCmd);
+    }
+}
+
+/**
+ * ==========================================================================
+ * MEENA LONG-TERM MEMORY & LEARNING SYSTEM
+ * ==========================================================================
+ */
+function getMeenaMemories() {
+    try {
+        return JSON.parse(localStorage.getItem('meena_tactical_memories') || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function rememberFact(fact) {
+    const memories = getMeenaMemories();
+    memories.push({
+        fact: fact,
+        timestamp: new Date().toISOString()
+    });
+    if (memories.length > 25) memories.shift();
+    localStorage.setItem('meena_tactical_memories', JSON.stringify(memories));
+    if (window.playSound) window.playSound('beep2');
+    speakComputerVoice(`Understood, Sensei! I have learned and saved that to Takahara tactical memory.`);
+}
+
+function recallMemories() {
+    const memories = getMeenaMemories();
+    if (memories.length === 0) {
+        speakComputerVoice("My memory is currently clear, Sensei! You can teach me by saying: Meena, remember, followed by any note.");
+        return;
+    }
+    const count = memories.length;
+    const latest = memories.slice(-3).map((m, i) => `${i + 1}: ${m.fact}`).join(". ");
+    speakComputerVoice(`I have learned ${count} items for Takahara Academy, Sensei. Here are the latest notes: ${latest}`);
+}
+
+function clearMemories() {
+    localStorage.removeItem('meena_tactical_memories');
+    if (window.playSound) window.playSound('beep1');
+    speakComputerVoice("Takahara memory registers have been reset, Sensei.");
+}
+
+/**
+ * ==========================================================================
+ * MEENA CONVERSATIONAL AI BRAIN (Gemini Flash + Heuristics)
+ * ==========================================================================
+ */
+async function askMeenaAI(question) {
+    const memories = getMeenaMemories();
+    const memoryContext = memories.length > 0 ? ("\nThings Sensei taught you: " + memories.map(m => m.fact).join("; ")) : "";
+    
+    const prompt = `You are M.E.E.N.A. (Master Electronic Executive Neural Assistant), an energetic, charismatic anime heroine AI personal assistant for home base Takahara Academy. You speak cheerful, natural English with authentic polite Japanese expressions (e.g. Ohayou, Konnichiwa, Hai Sensei, Otsukare). Address the user as Sensei.${memoryContext}\n\nSensei asks: "${question}".\nRespond in 1-2 concise, spoken sentences:`;
+    
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (apiKey) {
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (reply) {
+                    speakComputerVoice(reply.replace(/[*_#]/g, ''));
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("Gemini AI fetch error:", e);
+        }
+    }
+    
+    // Offline intelligent anime companion heuristic responses
+    const q = question.toLowerCase();
+    if (q.includes('who are you') || q.includes('introduce yourself')) {
+        speakComputerVoice("I am M.E.E.N.A., your personal tactical assistant for Takahara Academy! I manage our home systems, defense shields, and telemetry, Sensei!");
+    } else if (q.includes('takahara') || q.includes('home base')) {
+        speakComputerVoice("Takahara Academy is our home operations center! All perimeter barriers and telemetry nodes are currently secure, Sensei!");
+    } else if (q.includes('how are you') || q.includes('genki')) {
+        speakComputerVoice("All neural pathways are running at peak performance, Sensei! Ready for your next command!");
+    } else if (q.includes('thank you') || q.includes('arigato')) {
+        speakComputerVoice("Douitashimashite, Sensei! It's always my pleasure to assist you!");
+    } else {
+        speakComputerVoice(`Acknowledged, Sensei! You can teach me more by saying 'Meena, remember', or add a Gemini API key in the console for open-ended conversation!`);
     }
 }
 
@@ -685,3 +784,7 @@ window.testMeenaVoice = testMeenaVoice;
 window.populateVoiceSelector = populateVoiceSelector;
 window.setMeenaPitch = setMeenaPitch;
 window.setMeenaRate = setMeenaRate;
+window.rememberFact = rememberFact;
+window.recallMemories = recallMemories;
+window.clearMemories = clearMemories;
+window.askMeenaAI = askMeenaAI;
