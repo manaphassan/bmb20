@@ -676,6 +676,13 @@ body {
             <div class="text-primary text-[10px] mt-2 border-t border-secondary/40 pt-1">CONTROLS: LEFT-CLICK DRAG TO ROTATE | MOUSE WHEEL TO ZOOM</div>
         </div>
 
+        <!-- Top Bar Astronomical Timestamp Controller (Matching Reference Image) -->
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-[#070b19]/90 backdrop-blur-md px-4 py-1.5 border border-[#4af626]/50 rounded-md font-mono flex items-center gap-3 text-xs text-[#4af626] shadow-2xl">
+            <button onclick="playSound('beep1')" class="hover:bg-[#4af626]/20 px-1.5 py-0.5 rounded text-[10px] font-bold">◀</button>
+            <span class="font-bold tracking-widest text-sm" id="modal-astro-date">14:08:2026 AD</span>
+            <button onclick="playSound('beep1')" class="hover:bg-[#4af626]/20 px-1.5 py-0.5 rounded text-[10px] font-bold">▶</button>
+        </div>
+
         <!-- Dynamic Vector Callout Annotation Line Overlay in Modal -->
         <svg id="modal-callout-svg-overlay" class="absolute inset-0 w-full h-full z-25 pointer-events-none"></svg>
 
@@ -2174,7 +2181,7 @@ function initEarth() {
             const x2 = x1 + offsetX;
             const y2 = y1 + offsetY;
             const x3 = x2 + (offsetX > 0 ? 30 : -30);
-            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - 124;
+            const textAnchor = offsetX > 0 ? x3 + 4 : x3 - 174;
 
             svgHTML += `
                 <polyline points="${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y2.toFixed(1)}" 
@@ -2183,40 +2190,31 @@ function initEarth() {
                 <circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="7" fill="none" stroke="${strokeColor}" stroke-width="1" opacity="0.6" />
                 
                 <g transform="translate(${textAnchor.toFixed(1)}, ${(y2 - 11).toFixed(1)})">
-                    <rect x="0" y="0" width="120" height="23" fill="#0b0d17" fill-opacity="0.9" stroke="${strokeColor}" stroke-width="1" rx="2" />
+                    <rect x="0" y="0" width="170" height="23" fill="#070b19" fill-opacity="0.92" stroke="${strokeColor}" stroke-width="1" rx="3" />
                     <text x="6" y="10" fill="${strokeColor}" font-family="monospace" font-size="8.5" font-weight="bold">${labelTitle}</text>
-                    <text x="6" y="18" fill="#a0a5b5" font-family="monospace" font-size="7.5">${labelDetail}</text>
+                    <text x="6" y="18" fill="#c0c5d5" font-family="monospace" font-size="7.5">${labelDetail}</text>
                 </g>
             `;
         }
 
-        // 1. Maximized Solar System View: Draw Earth Alignment Lines & Direct Planet Labels (Matching Reference Image)
+        // 1. Maximized Solar System View: Draw 3D Dot Matrix Planet Alignment, Dotted Lines & Callout Pins with Name + Distance from Earth
         if (window.solarSystemGroup && window.solarSystemGroup.visible) {
-            // Sun Center Marker
+            // Sun Center Callout
             if (window.sunGroup && window.sunGroup.visible) {
                 const sunWorld = new THREE.Vector3();
                 window.sunGroup.getWorldPosition(sunWorld);
-                const tempVec = sunWorld.clone();
-                tempVec.project(camera);
-                if (tempVec.z <= 1.0) {
-                    const sx = (tempVec.x * 0.5 + 0.5) * w;
-                    const sy = (-tempVec.y * 0.5 + 0.5) * h;
-                    svgHTML += `
-                        <circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="10" fill="#ffe253" opacity="0.9" />
-                        <circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="18" fill="none" stroke="#ffe253" stroke-width="1.5" opacity="0.5" />
-                        <text x="${(sx + 14).toFixed(1)}" y="${(sy + 4).toFixed(1)}" fill="#ffe253" font-family="sans-serif, system-ui" font-size="12" font-weight="bold" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.9))">Sun</text>
-                    `;
-                }
+                drawCalloutPin(sunWorld, "☀️ SOL (SUN CORE)", "CENTER ANCHOR 0.0 AU", "#ffe253", -50, -45);
             }
 
-            // Find Earth 2D Screen Position
+            // Find Earth 3D & 2D Screen Position
+            let earthWorldPos = null;
             let earthScreenPos = null;
             if (window.solarPlanets) {
                 const earthObj = window.solarPlanets.find(p => p.name === 'Earth');
                 if (earthObj) {
-                    const eWorld = new THREE.Vector3();
-                    earthObj.mesh.getWorldPosition(eWorld);
-                    const tempVec = eWorld.clone();
+                    earthWorldPos = new THREE.Vector3();
+                    earthObj.mesh.getWorldPosition(earthWorldPos);
+                    const tempVec = earthWorldPos.clone();
                     tempVec.project(camera);
                     if (tempVec.z <= 1.0) {
                         earthScreenPos = {
@@ -2226,8 +2224,17 @@ function initEarth() {
                     }
                 }
 
-                // Draw Dotted Alignment Lines from Earth to Other Planets & Direct Planet Labels
-                window.solarPlanets.forEach(p => {
+                const planetColors = {
+                    'Mercury': '#d1d5db', 'Venus': '#ffca28', 'Earth': '#64b5f6',
+                    'Mars': '#ff5252', 'Jupiter': '#ffa726', 'Saturn': '#ffe082',
+                    'Uranus': '#26c6da', 'Neptune': '#42a5f5'
+                };
+                const offsets = [
+                    [55, -35], [-60, 30], [-65, -45], [60, -35],
+                    [-70, -45], [70, 40], [-75, 35], [75, -40]
+                ];
+
+                window.solarPlanets.forEach((p, idx) => {
                     const pWorld = new THREE.Vector3();
                     p.mesh.getWorldPosition(pWorld);
                     const tempVec = pWorld.clone();
@@ -2246,16 +2253,23 @@ function initEarth() {
                         `;
                     }
 
-                    // Direct Planet Label (White Text with clean drop-shadow next to planet)
-                    const labelX = px + 10;
-                    const labelY = py - 8;
-                    const isEarth = (p.name === 'Earth');
-                    const labelColor = isEarth ? '#64b5f6' : '#ffffff';
+                    // Calculate Realtime Distance from Earth in 3D Scene
+                    let distText = "ORIGIN 0.00 AU";
+                    if (earthWorldPos && p.name !== 'Earth') {
+                        const dist3D = earthWorldPos.distanceTo(pWorld);
+                        const distAU = dist3D / 3.4; // 3.4 is Earth's orbit radius scale
+                        const distKmMillions = Math.round(distAU * 149.6);
+                        distText = `DIST FROM EARTH: ${distAU.toFixed(2)} AU (${distKmMillions}M KM)`;
+                    } else if (p.name === 'Earth') {
+                        distText = "EARTH ORIGIN (0 KM)";
+                    }
 
-                    svgHTML += `
-                        <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.5" fill="${labelColor}" opacity="0.95" />
-                        <text x="${labelX.toFixed(1)}" y="${labelY.toFixed(1)}" fill="${labelColor}" font-family="sans-serif, system-ui" font-size="12" font-weight="600" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.9))">${p.name}</text>
-                    `;
+                    const col = planetColors[p.name] || '#ffffff';
+                    const off = offsets[idx % offsets.length];
+                    const symbol = p.name === 'Earth' ? '🌎' : (p.name === 'Saturn' ? '♄' : (p.name === 'Jupiter' ? '♃' : '🪐'));
+
+                    // Draw Callout Pin with Planet Name & Distance from Earth
+                    drawCalloutPin(pWorld, `${symbol} ${p.name.toUpperCase()}`, distText, col, off[0], off[1]);
                 });
             }
         }
