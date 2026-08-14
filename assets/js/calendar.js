@@ -56,10 +56,10 @@ async function loadCalendarFeed(forceRefresh = false) {
         if (data.status === 'success') {
             calendarState.eventsToday = data.events_today || [];
             calendarState.eventsUpcoming = data.events_upcoming || [];
+            calendarState.allEvents = data.all_events || [...calendarState.eventsToday, ...calendarState.eventsUpcoming];
             if (data.calendars) calendarState.calendars = data.calendars;
             calendarState.isSynced = true;
             calendarState.lastSyncTime = data.last_sync || new Date().toLocaleTimeString();
-            calendarState.allEvents = [...calendarState.eventsToday, ...calendarState.eventsUpcoming];
         } else if (data.status === 'unconfigured') {
             calendarState.isSynced = false;
             calendarState.eventsToday = [];

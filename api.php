@@ -141,7 +141,8 @@ if (isset($_GET['action'])) {
         $now = time();
         $todayStart = strtotime('today midnight');
         $todayEnd = strtotime('tomorrow midnight') - 1;
-        $horizonEnd = strtotime('+30 days midnight');
+        $horizonStart = strtotime('-30 days midnight');
+        $horizonEnd = strtotime('+120 days midnight');
 
         foreach ($calendarList as $cal) {
             $url = trim($cal['url'] ?? '');
@@ -189,17 +190,14 @@ if (isset($_GET['action'])) {
                 if ($line === 'END:VEVENT') {
                     $inEvent = false;
                     if (!empty($currEvent['summary']) && !empty($currEvent['start_ts'])) {
-                        // Expand event into occurrences (standard + recurring)
                         $startTs = $currEvent['start_ts'];
                         $duration = (!empty($currEvent['end_ts']) && $currEvent['end_ts'] > $startTs) ? ($currEvent['end_ts'] - $startTs) : 3600;
 
                         if (empty($currEvent['rrule'])) {
-                            // Single one-off event
-                            if ($startTs >= ($todayStart - 86400) && $startTs <= $horizonEnd) {
+                            if ($startTs >= $horizonStart && $startTs <= $horizonEnd) {
                                 $allEvents[] = $currEvent;
                             }
                         } else {
-                            // Parse RRULE
                             $rrule = $currEvent['rrule'];
                             $freq = '';
                             if (preg_match('/FREQ=([A-Z]+)/i', $rrule, $mFreq)) {
@@ -212,12 +210,11 @@ if (isset($_GET['action'])) {
                                 if ($u && $u < $horizonEnd) $untilTs = $u;
                             }
 
-                            // Generate recurring occurrences in range
                             $occTs = $startTs;
                             $count = 0;
-                            while ($occTs <= $untilTs && $count < 200) {
+                            while ($occTs <= $untilTs && $count < 300) {
                                 $count++;
-                                if ($occTs >= $todayStart && $occTs <= $horizonEnd) {
+                                if ($occTs >= $horizonStart && $occTs <= $horizonEnd) {
                                     $inst = $currEvent;
                                     $inst['start_ts'] = $occTs;
                                     $inst['end_ts'] = $occTs + $duration;
@@ -271,32 +268,28 @@ if (isset($_GET['action'])) {
 
         $eventsToday = [];
         $eventsUpcoming = [];
+        $eventsFormatted = [];
 
         foreach ($allEvents as $ev) {
             $ts = $ev['start_ts'] ?? 0;
             $timeLabel = !empty($ev['is_all_day']) ? 'ALL DAY' : date('g:i A', $ts);
+            $formatted = [
+                'summary' => $ev['summary'] ?? 'Event',
+                'date' => date('D, M j', $ts),
+                'time' => $timeLabel,
+                'timestamp' => $ts,
+                'is_all_day' => $ev['is_all_day'] ?? false,
+                'location' => $ev['location'] ?? '',
+                'calendar' => $ev['calendar_name'] ?? 'Main',
+                'color' => $ev['calendar_color'] ?? '#c2c1ff'
+            ];
+
+            $eventsFormatted[] = $formatted;
 
             if ($ts >= $todayStart && $ts <= $todayEnd) {
-                $eventsToday[] = [
-                    'summary' => $ev['summary'] ?? 'Event',
-                    'time' => $timeLabel,
-                    'timestamp' => $ts,
-                    'is_all_day' => $ev['is_all_day'] ?? false,
-                    'location' => $ev['location'] ?? '',
-                    'calendar' => $ev['calendar_name'] ?? 'Main',
-                    'color' => $ev['calendar_color'] ?? '#c2c1ff'
-                ];
+                $eventsToday[] = $formatted;
             } elseif ($ts > $todayEnd) {
-                $eventsUpcoming[] = [
-                    'summary' => $ev['summary'] ?? 'Event',
-                    'date' => date('D, M j', $ts),
-                    'time' => $timeLabel,
-                    'timestamp' => $ts,
-                    'is_all_day' => $ev['is_all_day'] ?? false,
-                    'location' => $ev['location'] ?? '',
-                    'calendar' => $ev['calendar_name'] ?? 'Main',
-                    'color' => $ev['calendar_color'] ?? '#c2c1ff'
-                ];
+                $eventsUpcoming[] = $formatted;
             }
         }
 
@@ -306,11 +299,14 @@ if (isset($_GET['action'])) {
             'calendars' => $calendarList,
             'count_today' => count($eventsToday),
             'count_upcoming' => count($eventsUpcoming),
+            'total_events' => count($allEvents),
             'events_today' => $eventsToday,
-            'events_upcoming' => array_slice($eventsUpcoming, 0, 15),
+            'events_upcoming' => array_slice($eventsUpcoming, 0, 20),
+            'all_events' => $eventsFormatted,
             'last_sync' => date('H:i:s')
         ]);
         exit;
+    }
     }
 
     if ($action === 'purge_ram') {
