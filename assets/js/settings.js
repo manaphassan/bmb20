@@ -192,11 +192,26 @@ function resetTokenQuota() {
     if (costElem) costElem.innerText = '$0.00';
 }
 
-/**
- * ==========================================================================
- * MULTI-CALENDAR MANAGEMENT IN SETTINGS
- * ==========================================================================
- */
+const DEFAULT_CALENDARS = [
+    {
+        id: 'cal_school',
+        name: 'School',
+        url: 'https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics',
+        color: '#ffe253',
+        enabled: true
+    },
+    {
+        id: 'cal_manaphassan',
+        name: 'Manaphassan',
+        url: 'https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics',
+        color: '#c2c1ff',
+        enabled: true
+    }
+];
+
+let settingsCalendarState = {
+    calendars: [...DEFAULT_CALENDARS]
+};
 
 async function loadSettingsCalendars() {
     try {
@@ -204,20 +219,12 @@ async function loadSettingsCalendars() {
         if (!res.ok) throw new Error('Network error');
         const data = await res.json();
         
-        let cals = data.calendars || [];
-        if (cals.length === 0 && data.ical_url) {
-            cals.push({
-                id: 'cal_primary',
-                name: 'Primary Calendar',
-                url: data.ical_url,
-                color: '#c2c1ff',
-                enabled: true
-            });
-        }
+        let cals = (data.calendars && data.calendars.length > 0) ? data.calendars : [...DEFAULT_CALENDARS];
         settingsCalendarState.calendars = cals;
         renderSettingsCalendarsList();
     } catch(e) {
         console.warn('Failed to load settings calendar list:', e);
+        renderSettingsCalendarsList();
     }
 }
 

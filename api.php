@@ -42,19 +42,39 @@ if (isset($_GET['action'])) {
         }
     }
 
+    $defaultCalendars = [
+        [
+            'id' => 'cal_school',
+            'name' => 'School',
+            'url' => 'https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics',
+            'color' => '#ffe253',
+            'enabled' => true
+        ],
+        [
+            'id' => 'cal_manaphassan',
+            'name' => 'Manaphassan',
+            'url' => 'https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics',
+            'color' => '#c2c1ff',
+            'enabled' => true
+        ]
+    ];
+
     if ($action === 'get_calendar_config') {
+        $cfg = [];
         if (file_exists($calConfigFile)) {
             $raw = file_get_contents($calConfigFile);
             $cfg = json_decode($raw, true) ?: [];
-            $primaryUrl = $cfg['ical_url'] ?? '';
-            if (empty($primaryUrl) && !empty($cfg['calendars'][0]['url'])) {
-                $primaryUrl = $cfg['calendars'][0]['url'];
-            }
-            $cfg['ical_url'] = $primaryUrl;
-            echo json_encode($cfg);
-        } else {
-            echo json_encode(['calendars' => [], 'ical_url' => '', 'enabled' => false]);
         }
+        if (empty($cfg['calendars'])) {
+            $cfg['calendars'] = $defaultCalendars;
+            $cfg['ical_url'] = $defaultCalendars[1]['url'];
+            $cfg['enabled'] = true;
+            // Persist defaults
+            @file_put_contents($calConfigFile, json_encode($cfg, JSON_PRETTY_PRINT));
+            @file_put_contents('/var/www/html/calendar_config.json', json_encode($cfg, JSON_PRETTY_PRINT));
+            @file_put_contents('/var/www/calendar_config.json', json_encode($cfg, JSON_PRETTY_PRINT));
+        }
+        echo json_encode($cfg);
         exit;
     }
 

@@ -5,6 +5,23 @@
  * ==========================================================================
  */
 
+const DEFAULT_CALENDARS = [
+    {
+        id: 'cal_school',
+        name: 'School',
+        url: 'https://calendar.google.com/calendar/ical/family18415538213271862905%40group.calendar.google.com/private-c9be2f37a11684206fb6444787171026/basic.ics',
+        color: '#ffe253',
+        enabled: true
+    },
+    {
+        id: 'cal_manaphassan',
+        name: 'Manaphassan',
+        url: 'https://calendar.google.com/calendar/ical/manaphassan%40gmail.com/private-7c930b7bb4f28b86c63cc1868910d334/basic.ics',
+        color: '#c2c1ff',
+        enabled: true
+    }
+];
+
 let calendarState = {
     currentYear: new Date().getFullYear(),
     currentMonth: new Date().getMonth(),
@@ -12,7 +29,7 @@ let calendarState = {
     eventsToday: [],
     eventsUpcoming: [],
     allEvents: [],
-    calendars: [],
+    calendars: [...DEFAULT_CALENDARS],
     isSynced: false,
     lastSyncTime: null
 };
