@@ -679,6 +679,30 @@ body {
         <!-- Dynamic Vector Callout Annotation Line Overlay in Modal -->
         <svg id="modal-callout-svg-overlay" class="absolute inset-0 w-full h-full z-25 pointer-events-none"></svg>
 
+        <!-- Sorted Planet Radar Index Bar (From Sun Outward) -->
+        <div class="absolute bottom-3 left-4 right-4 z-30 bg-surface-container/90 backdrop-blur-md px-3 py-1.5 border border-tertiary/60 font-data-mono text-xs text-on-surface-variant flex items-center justify-between rounded-sm shadow-2xl overflow-x-auto gap-2">
+            <div class="font-bold text-tertiary uppercase tracking-wider text-[10px] whitespace-nowrap">ORBIT SORT (SUN OUTWARD):</div>
+            <div class="flex items-center gap-2 text-[10px] font-bold">
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffe253] text-[#ffe253] rounded-sm">0. SUN [0.0 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#d1d5db] text-[#d1d5db] rounded-sm">1. MERCURY [1.4 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffca28] text-[#ffca28] rounded-sm">2. VENUS [2.2 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#42a5f5] text-[#42a5f5] rounded-sm">3. EARTH [3.4 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ff5252] text-[#ff5252] rounded-sm">4. MARS [4.4 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffa726] text-[#ffa726] rounded-sm">5. JUPITER [5.8 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#ffe082] text-[#ffe082] rounded-sm">6. SATURN [7.4 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#26c6da] text-[#26c6da] rounded-sm">7. URANUS [9.0 AU]</span>
+                <span class="text-outline">➔</span>
+                <span class="bg-surface-container-highest px-2 py-0.5 border border-[#42a5f5] text-[#42a5f5] rounded-sm">8. NEPTUNE [10.6 AU]</span>
+            </div>
+        </div>
+
         <canvas class="absolute inset-0 w-full h-full z-20 pointer-events-none opacity-30 mix-blend-screen" id="modal-tactical-shader"></canvas>
     </div>
 </div>
@@ -2214,9 +2238,17 @@ function initEarth() {
         // Render 3D-to-2D Vector Callout Leader Lines
         updateCalloutAnnotations();
         
-        // Smooth Camera Z Interpolation for Presets
-        if (camera && window.targetCamZ) {
-            camera.position.z += (window.targetCamZ - camera.position.z) * 0.06;
+        // Smooth Camera Y & Z Interpolation for Top View & Presets
+        if (camera) {
+            if (window.targetCamY !== undefined) {
+                camera.position.y += (window.targetCamY - camera.position.y) * 0.06;
+            }
+            if (window.targetCamZ !== undefined) {
+                camera.position.z += (window.targetCamZ - camera.position.z) * 0.06;
+            }
+            if (window.targetCamY !== undefined && window.targetCamY > 5.0) {
+                camera.lookAt(0, 0, 0);
+            }
         }
 
         if (!isUserDragging) {
@@ -2310,7 +2342,14 @@ function openGlobeModal() {
     if (window.globeGroup) window.globeGroup.visible = false;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = true;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = true;
-    window.targetCamZ = 8.5; // Zoom out to show full Sun-centered Solar System
+
+    // DEFAULT TOP VIEW: Position camera directly above Sun looking straight down at circular planet orbits
+    if (camera) {
+        camera.position.set(0, 14.0, 0.01);
+        camera.lookAt(0, 0, 0);
+    }
+    window.targetCamY = 14.0;
+    window.targetCamZ = 0.01;
 
     // Move 3D Globe Canvas into Modal Container
     modalContainer.appendChild(globalRenderer.domElement);
@@ -2341,7 +2380,14 @@ function closeGlobeModal() {
     if (window.globeGroup) window.globeGroup.visible = true;
     if (window.solarSystemGroup) window.solarSystemGroup.visible = false;
     if (window.milkyWayGroup) window.milkyWayGroup.visible = false;
-    window.targetCamZ = 2.4; // Focus closely on Earth world map globe
+
+    // Reset camera back to default angled Earth view
+    if (camera) {
+        camera.position.set(0, 0, 2.4);
+        camera.lookAt(0, 0, 0);
+    }
+    window.targetCamY = 0;
+    window.targetCamZ = 2.4;
 
     // Move 3D Globe Canvas back to Main Hero Container
     earthContainer.appendChild(globalRenderer.domElement);
