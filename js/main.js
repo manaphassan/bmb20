@@ -201,30 +201,53 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Dual-Deck Operational Routing Master Controller
+// 4-Deck Operational Routing Master Controller
 let currentDeck = 1;
 
 function switchDeck(deckNumber) {
     currentDeck = deckNumber;
-    const deck1 = document.getElementById('deck-1-container');
-    const deck2 = document.getElementById('deck-2-container');
-    const tab1 = document.getElementById('deck-tab-1');
-    const tab2 = document.getElementById('deck-tab-2');
+    const decks = [
+        document.getElementById('deck-1-container'),
+        document.getElementById('deck-2-container'),
+        document.getElementById('deck-3-container'),
+        document.getElementById('deck-4-container')
+    ];
+    const tabs = [
+        document.getElementById('deck-tab-1'),
+        document.getElementById('deck-tab-2'),
+        document.getElementById('deck-tab-3'),
+        document.getElementById('deck-tab-4')
+    ];
+
+    decks.forEach((deck, idx) => {
+        if (deck) {
+            if (idx + 1 === deckNumber) {
+                deck.classList.remove('hidden');
+            } else {
+                deck.classList.add('hidden');
+            }
+        }
+    });
+
+    tabs.forEach((tab, idx) => {
+        if (tab) {
+            if (idx + 1 === deckNumber) {
+                tab.className = "px-2.5 py-1 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#c2c1ff]";
+            } else {
+                tab.className = "px-2.5 py-1 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
+            }
+        }
+    });
 
     if (deckNumber === 1) {
-        if (deck1) deck1.classList.remove('hidden');
-        if (deck2) deck2.classList.add('hidden');
-        if (tab1) tab1.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#66ccff]";
-        if (tab2) tab2.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
         if (window.initKnowledgeGraph) window.initKnowledgeGraph();
         if (window.updateGrowthUI) window.updateGrowthUI();
-    } else {
-        if (deck1) deck1.classList.add('hidden');
-        if (deck2) deck2.classList.remove('hidden');
-        if (tab1) tab1.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-surface-bright text-on-surface-variant hover:text-primary transition-all flex items-center gap-1";
-        if (tab2) tab2.className = "px-2.5 py-0.5 rounded font-bold text-[10px] bg-primary text-black transition-all flex items-center gap-1 active-condition shadow-[0_0_8px_#66ccff]";
-        // Trigger Three.js resize to ensure crisp 3D rendering on Deck 2
+    } else if (deckNumber === 2) {
         window.dispatchEvent(new Event('resize'));
+    } else if (deckNumber === 3) {
+        if (window.loadCalendarFeed) window.loadCalendarFeed();
+    } else if (deckNumber === 4) {
+        if (window.loadAllSettings) window.loadAllSettings();
     }
 }
 

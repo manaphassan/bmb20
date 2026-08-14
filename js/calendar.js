@@ -236,17 +236,23 @@ function nextCalendarMonth() {
 }
 
 function speakCalendarSpokenSummary() {
+    let msg = "";
     if (!calendarState.isSynced || calendarState.eventsToday.length === 0) {
-        if (window.speakComputerVoice) {
-            window.speakComputerVoice("Sensei, your calendar schedule is completely clear for today. All operational pathways are ready.");
-        }
-        return;
+        msg = "Sensei, your calendar schedule is completely clear for today. All operational pathways are ready.";
+    } else {
+        const count = calendarState.eventsToday.length;
+        const summaries = calendarState.eventsToday.map(e => `${e.summary} at ${e.time}`).join(", and ");
+        msg = `Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${summaries}.`;
     }
 
-    const count = calendarState.eventsToday.length;
-    const summaries = calendarState.eventsToday.map(e => `${e.summary} at ${e.time}`).join(", and ");
     if (window.speakComputerVoice) {
-        window.speakComputerVoice(`Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${summaries}.`);
+        window.speakComputerVoice(msg);
+    } else if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(msg);
+        u.rate = 1.14;
+        u.pitch = 1.10;
+        window.speechSynthesis.speak(u);
     }
 }
 

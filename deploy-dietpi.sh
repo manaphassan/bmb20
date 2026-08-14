@@ -55,6 +55,13 @@ if [ -d "${SCRIPT_DIR}/js" ]; then
     cp -rfv "${SCRIPT_DIR}/js/"* "/var/www/js/" 2>/dev/null || true
 fi
 
+if [ -d "${SCRIPT_DIR}/assets" ]; then
+    echo "[+] Deploying assets directory..."
+    mkdir -p "${TARGET_DIR}/assets" "/var/www/assets"
+    cp -rfv "${SCRIPT_DIR}/assets/"* "${TARGET_DIR}/assets/"
+    cp -rfv "${SCRIPT_DIR}/assets/"* "/var/www/assets/" 2>/dev/null || true
+fi
+
 # Configure sudoers for www-data to manage Pi-hole, hardware and daemon actions without password
 if [ -d "/etc/sudoers.d" ]; then
     echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/pihole, /usr/bin/pihole, /usr/bin/systemctl, /usr/bin/sync, /usr/bin/tee, /usr/bin/vcgencmd, /sbin/reboot, /usr/sbin/reboot, /boot/dietpi/dietpi-update, /usr/sbin/dietpi-update, /usr/bin/dietpi-update, /usr/bin/apt, /usr/bin/apt-get" > /etc/sudoers.d/dietpi-bmb20
