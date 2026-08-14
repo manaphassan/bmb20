@@ -782,7 +782,10 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmdToEvaluate.includes('weather') || cmdToEvaluate.includes('forecast') || cmdToEvaluate.includes('atmospheric') || cmdToEvaluate.includes('meteo')) {
         addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
-    } else if (cmdToEvaluate.includes('status') || cmdToEvaluate.includes('report') || cmdToEvaluate.includes('diagnostics')) {
+    } else if (cmdToEvaluate.includes('when finish') || cmdToEvaluate.includes('when done') || cmdToEvaluate.includes('after update') || cmdToEvaluate.includes('when you finish') || cmdToEvaluate.includes('notify when done') || cmdToEvaluate.includes('tell me when done')) {
+        notifyOnCompletion = true;
+        speakComputerVoice("Understood, Sensei. I will notify you with a full report as soon as the background task finishes.");
+    } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics)$/i.test(cmdToEvaluate))) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
     } else if (cmdToEvaluate.includes('who is') || cmdToEvaluate.includes('who was') || cmdToEvaluate.includes('what is') || cmdToEvaluate.includes('what was') || cmdToEvaluate.includes('search') || cmdToEvaluate.includes('lookup') || cmdToEvaluate.includes('look up') || cmdToEvaluate.includes('google') || cmdToEvaluate.includes('tell me about') || cmdToEvaluate.includes('explain')) {
@@ -843,7 +846,14 @@ function addMeenaEXP(points, reason = '') {
     if (newStatus.level > oldStatus.level) {
         setMeenaMood('PROUD');
         if (window.playSound) window.playSound('beep2');
-        speakComputerVoice(`Sugoi, Sensei! My neural sync level has increased to Level ${newStatus.level}! Rank: ${newStatus.rank}!`);
+        const feed = document.getElementById('meena-chat-feed');
+        if (feed) {
+            const lvlMsg = document.createElement('div');
+            lvlMsg.className = "text-[9px] text-tertiary font-mono my-0.5 border-l border-tertiary pl-1.5";
+            lvlMsg.innerText = `[NEURAL SYNC]: Level Up! Now Lv. ${newStatus.level} (${newStatus.rank})`;
+            feed.appendChild(lvlMsg);
+            feed.scrollTop = feed.scrollHeight;
+        }
     }
 }
 
@@ -2575,10 +2585,15 @@ function sendChatMessage(text) {
  * Prompts Sensei for explicit interactive or verbal confirmation
  * ==========================================================================
  */
+let activeSudoOperation = null;
+let notifyOnCompletion = false;
+
 function requestSudoAuthorization(action, description) {
     pendingSudoAction = { action, description };
     setMeenaMood('TACTICAL');
-    playYellowAlertChirp();
+    if (window.playSound) window.playSound('beep2');
+
+    const cleanDesc = description.replace(/^execute\s+/i, '').trim();
 
     const feed = document.getElementById('meena-chat-feed');
     if (feed) {
@@ -2597,7 +2612,7 @@ function requestSudoAuthorization(action, description) {
                 </div>
                 <span class="text-[9px] bg-lcars-gold/20 text-lcars-gold px-1.5 py-0.5 rounded font-bold">AWAITING CONFIRMATION</span>
             </div>
-            <div class="text-[10px] text-on-surface">Target Operation: <strong class="text-primary font-bold">${description}</strong></div>
+            <div class="text-[10px] text-on-surface">Target Operation: <strong class="text-primary font-bold">${cleanDesc}</strong></div>
             <div class="text-[8.5px] text-secondary">Target Host: DietPi SBC (192.168.0.100) // Endpoint: api.php?action=${action}</div>
             <div class="flex gap-2 mt-1">
                 <button onclick="confirmSudoAuthorization(true)" class="bg-lcars-gold hover:bg-lcars-gold/80 text-black font-bold px-3 py-1 rounded text-xs flex items-center gap-1 shadow-sm transition-all">
@@ -2614,7 +2629,7 @@ function requestSudoAuthorization(action, description) {
         feed.scrollTop = feed.scrollHeight;
     }
 
-    speakComputerVoice(`Sensei, executing ${description} requires Level-4 administrative authorization. Please confirm to proceed.`);
+    speakComputerVoice(`Level-4 authorization requested for ${cleanDesc}. Please confirm to proceed, Sensei.`);
 }
 
 function confirmSudoAuthorization(isApproved) {
@@ -2623,19 +2638,21 @@ function confirmSudoAuthorization(isApproved) {
 
     if (!pendingSudoAction) return;
     const { action, description } = pendingSudoAction;
+    const cleanDesc = description.replace(/^execute\s+/i, '').trim();
     pendingSudoAction = null;
 
     if (isApproved) {
         addMeenaEXP(25, `Sudo auth: ${action}`);
-        executeSudoAction(action, `Authorization confirmed, Sensei! Executing ${description} now!`);
+        executeSudoAction(action, `Authorization confirmed. Executing ${cleanDesc} now, Sensei.`);
     } else {
         if (window.playSound) window.playSound('beep1');
         setMeenaMood('CHEERFUL');
-        outputMeenaDialogue(`Command execution aborted, Sensei. Standing down.`);
+        outputMeenaDialogue(`Operation aborted, Sensei. Standing down.`);
     }
 }
 
 async function executeSudoAction(action, voiceAck) {
+    activeSudoOperation = { action, startTime: Date.now() };
     if (voiceAck) speakComputerVoice(voiceAck);
     if (window.playSound) window.playSound('beep2');
 
@@ -2654,9 +2671,16 @@ async function executeSudoAction(action, voiceAck) {
                 feed.scrollTop = feed.scrollHeight;
             }
             if (window.fetchTelemetry) window.fetchTelemetry();
+
+            if (notifyOnCompletion) {
+                notifyOnCompletion = false;
+                speakComputerVoice(`Task finished, Sensei. ${resultMsg}`);
+            }
         }
     } catch (e) {
         console.warn(`Sudo action ${action} failed:`, e);
+    } finally {
+        activeSudoOperation = null;
     }
 }
 
