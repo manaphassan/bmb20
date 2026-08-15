@@ -674,11 +674,9 @@ function runFallbackHeadChromaTracker(video) {
     const now = performance.now();
     const tauDecayMs = 380; // 380ms exponential decay for event surface
 
-    let M00 = 0, M10 = 0, M01 = 0;
-    let minX = mw, maxX = 0, minY = mh, maxY = 0;
-    let activeEventPixels = 0;
-    let skinPixelCount = 0;
-    let darkFeatureCount = 0;
+    const histX = new Float32Array(mw);
+    const histY = new Float32Array(mh);
+    const activePoints = [];
 
     for (let y = 1; y < mh - 1; y++) {
         for (let x = 1; x < mw - 1; x++) {
@@ -723,43 +721,87 @@ function runFallbackHeadChromaTracker(video) {
             if (isSkin && isDarkFeature) pixelWeight += 2.4;
 
             if (pixelWeight > 0.8) {
-                M00 += pixelWeight;
-                M10 += x * pixelWeight;
-                M01 += y * pixelWeight;
-                activeEventPixels++;
-
-                if (isSkin) skinPixelCount++;
-                if (isDarkFeature) darkFeatureCount++;
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
+                activePoints.push({ x, y, weight: pixelWeight, isSkin, isDark: isDarkFeature });
+                histX[x] += pixelWeight;
+                histY[y] += pixelWeight;
             }
         }
     }
 
-    // 4. Area Gating & Minimum Mass Gate (Zero Ghost Reticles)
-    const contourWidth = Math.max(1, maxX - minX);
-    const contourHeight = Math.max(1, maxY - minY);
-    const hasSufficientHumanMass = (M00 >= 22) && (activeEventPixels >= 14) && (skinPixelCount >= 5 || darkFeatureCount >= 4);
-
-    if (!hasSufficientHumanMass) {
+    if (activePoints.length < 14) {
         headCentroid.active = false;
         isSenseiPresent = false;
         headCentroid.velocity = 0;
         return;
     }
 
-    // 5. Spatial Centroid Moments (Claude Pageau cam-track Formula)
-    const rawCentroidX = M10 / M00;
+    // 4. Find the Dominant Primary Cluster Peak (Gaussian smoothed mode)
+    let bestPeakX = mw * 0.5, maxDensX = 0;
+    for (let x = 2; x < mw - 2; x++) {
+        const dens = histX[x - 2] * 0.15 + histX[x - 1] * 0.25 + histX[x] * 0.40 + histX[x + 1] * 0.25 + histX[x + 2] * 0.15;
+        if (dens > maxDensX) {
+            maxDensX = dens;
+            bestPeakX = x;
+        }
+    }
 
-    // 6. Cranial Biometric Isolation:
-    // Position reticle strictly at the upper eye/forehead band (top 30% of active mass)
+    let bestPeakY = mh * 0.5, maxDensY = 0;
+    for (let y = 2; y < mh - 2; y++) {
+        const dens = histY[y - 2] * 0.15 + histY[y - 1] * 0.25 + histY[y] * 0.40 + histY[y + 1] * 0.25 + histY[y + 2] * 0.15;
+        if (dens > maxDensY) {
+            maxDensY = dens;
+            bestPeakY = y;
+        }
+    }
+
+    if (maxDensX < 10 || maxDensY < 10) {
+        headCentroid.active = false;
+        isSenseiPresent = false;
+        return;
+    }
+
+    // 5. Evaluate Spatial Moments strictly for the Primary Subject Cluster (eliminating multi-person cross-contamination)
+    const clusterRadiusX = mw * 0.18;
+    const clusterRadiusY = mh * 0.25;
+
+    let M00 = 0, M10 = 0, M01 = 0;
+    let minX = mw, maxX = 0, minY = mh, maxY = 0;
+    let skinPixelCount = 0, darkFeatureCount = 0;
+
+    for (const pt of activePoints) {
+        if (Math.abs(pt.x - bestPeakX) <= clusterRadiusX && Math.abs(pt.y - bestPeakY) <= clusterRadiusY) {
+            M00 += pt.weight;
+            M10 += pt.x * pt.weight;
+            M01 += pt.y * pt.weight;
+
+            if (pt.isSkin) skinPixelCount++;
+            if (pt.isDark) darkFeatureCount++;
+            if (pt.x < minX) minX = pt.x;
+            if (pt.x > maxX) maxX = pt.x;
+            if (pt.y < minY) minY = pt.y;
+            if (pt.y > maxY) maxY = pt.y;
+        }
+    }
+
+    const hasSufficientHumanMass = (M00 >= 16) && (skinPixelCount >= 4 || darkFeatureCount >= 4);
+    if (!hasSufficientHumanMass) {
+        headCentroid.active = false;
+        isSenseiPresent = false;
+        return;
+    }
+
+    // 6. Spatial Centroid Moments (Claude Pageau Formula on Primary Cluster)
+    const rawCentroidX = M10 / M00;
+    const contourWidth = Math.max(12, maxX - minX);
+    const contourHeight = Math.max(14, maxY - minY);
+
+    // 7. Cranial Biometric Isolation:
+    // Position reticle strictly at the upper eye/forehead band (top 30% of active primary cluster)
     const cranialY = minY + contourHeight * 0.30;
     const targetNormX = Math.max(0.05, Math.min(0.95, rawCentroidX / mw));
     const targetNormY = Math.max(0.05, Math.min(0.95, cranialY / mh));
     const targetNormW = Math.max(0.20, Math.min(0.36, contourWidth / mw));
-    const targetNormH = Math.max(0.24, Math.min(0.44, contourHeight / mh * 0.75));
+    const targetNormH = Math.max(0.24, Math.min(0.44, contourHeight / mh * 0.85));
 
     updateHeadTrackingCentroid(targetNormX, targetNormY, targetNormW, targetNormH, {
         minX: Math.max(0, (minX / mw) - 0.03),
