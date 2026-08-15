@@ -669,11 +669,11 @@ function runFallbackHeadChromaTracker(video) {
             const normG = g / sum;
 
             // Skin Chrominance Locus
-            const isSkin = (normR >= 0.32 && normR <= 0.60) && 
-                           (normG >= 0.22 && normG <= 0.38) && 
+            const isSkin = (normR >= 0.33 && normR <= 0.58) && 
+                           (normG >= 0.23 && normG <= 0.38) && 
                            (normR > normG) && 
-                           ((r - b) > 15) && 
-                           (r > 40);
+                           ((r - b) > 18) && 
+                           (r > 45);
 
             // Temporal Motion (Head movement, blinking, breathing)
             const diff = (Math.abs(r - prevFrameData[idx]) + 
@@ -686,16 +686,16 @@ function runFallbackHeadChromaTracker(video) {
             const contrast = Math.abs(r - currData[idxRight]) + Math.abs(r - currData[idxDown]);
 
             // Hair or dark facial feature (eyebrows, eyes, beard)
-            const isDarkFeature = (r < 65 && g < 65 && b < 65 && y < mh * 0.75);
+            const isDarkFeature = (r < 60 && g < 60 && b < 60);
 
             let weight = 0;
-            if (diff > 4) weight += diff * 1.5;
-            if (isSkin && contrast > 8) weight += 2.0;
-            if (isSkin && isDarkFeature) weight += 2.5;
-            if (isSkin && diff > 3) weight += 3.0;
+            if (isSkin && contrast > 7) weight += 2.5;
+            if (isSkin && isDarkFeature) weight += 3.0;
+            if (diff > 4) weight += diff * 1.2;
+            if (isSkin && diff > 2.5) weight += 2.5;
 
-            if (weight > 1.2) {
-                candidatePoints.push({ px: x, py: y, weight });
+            if (weight > 1.4) {
+                candidatePoints.push({ px: x, py: y, weight, isSkin, isDark: isDarkFeature });
                 histX[x] += weight;
                 histY[y] += weight;
             }
@@ -704,30 +704,41 @@ function runFallbackHeadChromaTracker(video) {
 
     prevFrameData.set(currData);
 
-    if (candidatePoints.length < 6) {
-        if (performance.now() - headCentroid.lastDetectedTime > 3000) {
+    // Require minimum facial candidate density
+    if (candidatePoints.length < 20) {
+        if (performance.now() - headCentroid.lastDetectedTime > 500) {
             headCentroid.active = false;
+            isSenseiPresent = false;
         }
         return;
     }
 
-    // Find spatial mode peak (smoothed 1D Gaussian across X and Y)
+    // Find spatial mode peak across full frame (Gaussian smoothed 1D)
     let bestPeakX = mw * 0.5, maxDensX = 0;
     for (let x = 2; x < mw - 2; x++) {
-        const dens = histX[x - 1] * 0.25 + histX[x] * 0.5 + histX[x + 1] * 0.25;
+        const dens = histX[x - 2] * 0.15 + histX[x - 1] * 0.25 + histX[x] * 0.40 + histX[x + 1] * 0.25 + histX[x + 2] * 0.15;
         if (dens > maxDensX) {
             maxDensX = dens;
             bestPeakX = x;
         }
     }
 
-    let bestPeakY = mh * 0.45, maxDensY = 0;
-    for (let y = 2; y < Math.floor(mh * 0.85); y++) {
-        const dens = histY[y - 1] * 0.25 + histY[y] * 0.5 + histY[y + 1] * 0.25;
+    let bestPeakY = mh * 0.5, maxDensY = 0;
+    for (let y = 2; y < mh - 2; y++) {
+        const dens = histY[y - 2] * 0.15 + histY[y - 1] * 0.25 + histY[y] * 0.40 + histY[y + 1] * 0.25 + histY[y + 2] * 0.15;
         if (dens > maxDensY) {
             maxDensY = dens;
             bestPeakY = y;
         }
+    }
+
+    // Require strong cluster density to reject background room shadows/curtains
+    if (maxDensX < 14 || maxDensY < 14) {
+        if (performance.now() - headCentroid.lastDetectedTime > 500) {
+            headCentroid.active = false;
+            isSenseiPresent = false;
+        }
+        return;
     }
 
     // Cluster filtering strictly within head radius of peak
@@ -736,12 +747,16 @@ function runFallbackHeadChromaTracker(video) {
 
     let headSumX = 0, headSumY = 0, headWeightSum = 0;
     let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
+    let skinCount = 0, darkCount = 0;
 
     for (const pt of candidatePoints) {
         if (Math.abs(pt.px - bestPeakX) <= radiusX && Math.abs(pt.py - bestPeakY) <= radiusY) {
             headSumX += pt.px * pt.weight;
             headSumY += pt.py * pt.weight;
             headWeightSum += pt.weight;
+
+            if (pt.isSkin) skinCount++;
+            if (pt.isDark) darkCount++;
 
             if (pt.px < minClusterX) minClusterX = pt.px;
             if (pt.px > maxClusterX) maxClusterX = pt.px;
@@ -750,13 +765,14 @@ function runFallbackHeadChromaTracker(video) {
         }
     }
 
-    if (headWeightSum >= 5) {
+    // Must be a valid biological human cluster with significant weight and both skin + facial features
+    if (headWeightSum >= 28 && (skinCount >= 8 || darkCount >= 6)) {
         const rawHeadX = (headSumX / headWeightSum) / mw;
         const rawHeadY = (headSumY / headWeightSum) / mh;
         const clusterW = Math.max(14, maxClusterX - minClusterX);
         const clusterH = Math.max(18, maxClusterY - minClusterY);
-        const rawHeadW = Math.max(0.20, Math.min(0.40, clusterW / mw));
-        const rawHeadH = Math.max(0.26, Math.min(0.50, clusterH / mh));
+        const rawHeadW = Math.max(0.20, Math.min(0.38, clusterW / mw));
+        const rawHeadH = Math.max(0.26, Math.min(0.48, clusterH / mh));
 
         updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
             minX: Math.max(0, (minClusterX / mw) - 0.03),
@@ -764,6 +780,11 @@ function runFallbackHeadChromaTracker(video) {
             maxX: Math.min(1, (maxClusterX / mw) + 0.03),
             maxY: Math.min(1, (maxClusterY / mh) + 0.03)
         });
+    } else {
+        if (performance.now() - headCentroid.lastDetectedTime > 500) {
+            headCentroid.active = false;
+            isSenseiPresent = false;
+        }
     }
 }
 
