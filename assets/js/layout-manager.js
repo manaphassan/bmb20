@@ -126,7 +126,7 @@ function applyLayoutMode(mode) {
         if (commLayout) commLayout.style.display = 'flex';
         document.body.classList.add('mode-communicator');
         document.body.classList.remove('mode-bridge');
-        if (headerModeBadge) headerModeBadge.innerText = 'MODE: COMM';
+        if (headerModeBadge) headerModeBadge.innerHTML = '<span class="material-symbols-outlined text-[13px]">devices</span><span class="truncate">COMM</span>';
         if (commModeBadge) commModeBadge.innerText = 'COMMUNICATOR';
 
         // Trigger immediate sync of transcript and telemetry
@@ -136,7 +136,7 @@ function applyLayoutMode(mode) {
         if (bridgeLayout) bridgeLayout.style.display = 'flex';
         document.body.classList.add('mode-bridge');
         document.body.classList.remove('mode-communicator');
-        if (headerModeBadge) headerModeBadge.innerText = 'MODE: BRIDGE';
+        if (headerModeBadge) headerModeBadge.innerHTML = '<span class="material-symbols-outlined text-[13px]">devices</span><span class="truncate">BRIDGE</span>';
 
         // Resize 3D WebGL and 2D Knowledge Graph canvases
         if (window.resizeKnowledgeGraphCanvas) window.resizeKnowledgeGraphCanvas();
