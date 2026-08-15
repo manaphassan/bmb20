@@ -61,11 +61,15 @@ async function fetchTelemetry() {
     updateBandwidth(Math.random() * 800000, Math.random() * 2500000);
 }
 
+let lastThermalAlertTime = 0;
+let lastUndervoltageAlertTime = 0;
+
 async function fetchSentinelAlerts() {
     try {
-        const res = await fetch('api.php?action=sentinel_status', { cache: 'no-store' });
+        const res = await fetch('api/telemetry?t=' + Date.now(), { cache: 'no-store' }).catch(() => fetch('api.json'));
         if (res.ok) {
-            const alertData = await res.json();
+            const data = await res.json();
+            const alertData = data.sentinel || (data.syslog && data.syslog.includes('Undervoltage') ? { level: 'YELLOW', status: 'VOLTAGE BUS ANOMALY', timestamp: data.syslog } : null);
             if (alertData && alertData.level) {
                 const badge = document.getElementById('sentinel-status-badge');
                 if (badge) {
@@ -74,7 +78,11 @@ async function fetchSentinelAlerts() {
                         badge.className = "text-[9px] bg-warning/20 text-warning px-1.5 py-0.5 rounded font-bold border border-warning/40 animate-pulse";
                         if (lastSentinelAlertTimestamp !== alertData.timestamp) {
                             lastSentinelAlertTimestamp = alertData.timestamp;
-                            if (window.playSound) window.playSound('redalert');
+                            if (window.showNotificationAlert) {
+                                window.showNotificationAlert("SENTINEL PATROL ALERT", alertData.status, "warning");
+                            } else if (window.playSound) {
+                                window.playSound('redalert');
+                            }
                         }
                     } else {
                         badge.className = "text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40";
@@ -91,6 +99,20 @@ setTimeout(fetchSentinelAlerts, 2000);
 
 // Update DOM Metrics & Thermal Alert Thresholds
 function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}) {
+    // Proactive Thermal & Undervoltage Warning Notifications
+    if (temp >= 70 && Date.now() - lastThermalAlertTime > 60000) {
+        lastThermalAlertTime = Date.now();
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("THERMAL WARNING", `CPU core temperature reached ${temp}°C. Cooling active.`, "warning");
+        }
+    }
+
+    if (fullData.hardware && fullData.hardware.throttled_desc === 'THROTTLED' && Date.now() - lastUndervoltageAlertTime > 120000) {
+        lastUndervoltageAlertTime = Date.now();
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("POWER BUS WARNING", `Host hardware voltage/frequency throttle detected.`, "warning");
+        }
+    }
     const srcElem = document.getElementById('telemetry-source');
     if (srcElem && typeof activeAlertCondition !== 'undefined' && activeAlertCondition === 'green') {
         srcElem.innerText = sourceText;

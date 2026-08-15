@@ -1180,6 +1180,9 @@ function handleVoiceCommand(rawCmd) {
         speakVerbalWeatherReport();
     } else if (cmdToEvaluate.includes('when finish') || cmdToEvaluate.includes('when done') || cmdToEvaluate.includes('after update') || cmdToEvaluate.includes('when you finish') || cmdToEvaluate.includes('notify when done') || cmdToEvaluate.includes('tell me when done') || cmdToEvaluate.includes('beritahu bila siap')) {
         notifyOnCompletion = true;
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("NOTIFICATIONS ENGAGED", "Meena will notify you when background operations conclude.", "task");
+        }
         speakComputerVoice("Understood, Sensei. I will notify you with a full report as soon as the background task finishes.");
     } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics|status sistem|keadaan sistem)$/i.test(cmdToEvaluate))) {
         addMeenaEXP(15, 'System status report');
@@ -3250,7 +3253,11 @@ async function executeSudoAction(action, voiceAck) {
 
             if (notifyOnCompletion) {
                 notifyOnCompletion = false;
-                speakComputerVoice(`Task finished, Sensei. ${resultMsg}`);
+                if (window.showNotificationAlert) {
+                    window.showNotificationAlert("TASK COMPLETE", resultMsg || "Background operation completed successfully.", "task", { speak: true, forceOsNotify: true });
+                } else {
+                    speakComputerVoice(`Task finished, Sensei. ${resultMsg}`);
+                }
             }
         }
     } catch (e) {

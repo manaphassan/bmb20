@@ -54,6 +54,9 @@ function setAlertCondition(condition, isManual = true) {
 
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('red');
         if (window.startRedAlertKlaxon) window.startRedAlertKlaxon();
+        if (isManual) {
+            showNotificationAlert("CONDITION: RED // BATTLE STATIONS", "Tactical defense shields and full combat readiness activated!", "error", { silent: true });
+        }
     } else if (condition === 'yellow') {
         body.classList.add('alert-yellow');
         overlay.style.display = 'block';
@@ -69,6 +72,9 @@ function setAlertCondition(condition, isManual = true) {
 
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('yellow');
         if (window.playYellowAlertChirp) window.playYellowAlertChirp();
+        if (isManual) {
+            showNotificationAlert("CONDITION: YELLOW // CAUTION", "Subspace anomalies detected. Systems under elevated monitoring.", "warning", { silent: true });
+        }
     } else {
         overlay.style.display = 'none';
         if (badge) {
@@ -85,6 +91,9 @@ function setAlertCondition(condition, isManual = true) {
         if (window.stopRedAlertKlaxon) window.stopRedAlertKlaxon();
         if (isManual && window.speakComputerVoice) {
             window.speakComputerVoice("All systems operating within nominal parameters, sir.");
+        }
+        if (isManual) {
+            showNotificationAlert("CONDITION GREEN // NOMINAL", "Bridge telemetry and facility security nominal.", "success", { silent: true });
         }
     }
 }
@@ -355,10 +364,121 @@ window.addEventListener('DOMContentLoaded', () => {
         if (window.initBootScanner) window.initBootScanner();
         if (window.initCommunicatorPTT) window.initCommunicatorPTT();
     } catch (e) { console.warn("[LayoutManager] Init error:", e); }
+
+    // Request notification permissions gracefully on first user interaction
+    document.addEventListener('click', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => {});
+        }
+    }, { once: true });
 });
+
+/**
+ * ==========================================================================
+ * LCARS TACTICAL NOTIFICATION & ALERT DISPATCHER
+ * Universal Toast, OS Desktop Notification, Sound Chime & Voice Dispatcher
+ * ==========================================================================
+ */
+function showNotificationAlert(title, message, type = 'info', options = {}) {
+    // 1. Ensure Toast Container exists in DOM
+    let container = document.getElementById('lcars-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'lcars-toast-container';
+        container.className = 'fixed top-3 right-3 sm:top-4 sm:right-4 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-[92vw] sm:w-80';
+        document.body.appendChild(container);
+    }
+
+    // 2. Determine Styling and Tone by Type
+    let borderColor = 'border-primary shadow-[0_0_12px_rgba(102,204,255,0.3)]';
+    let bgColor = 'bg-surface-container/95';
+    let icon = 'info';
+    let iconColor = 'text-primary';
+    let soundType = 'beep1';
+
+    if (type === 'error' || type === 'red') {
+        borderColor = 'border-error shadow-[0_0_15px_rgba(255,84,73,0.5)]';
+        icon = 'fmd_bad';
+        iconColor = 'text-error';
+        soundType = 'alert';
+    } else if (type === 'warning' || type === 'yellow') {
+        borderColor = 'border-tertiary shadow-[0_0_12px_rgba(255,226,83,0.4)]';
+        icon = 'warning';
+        iconColor = 'text-tertiary';
+        soundType = 'caution';
+    } else if (type === 'success') {
+        borderColor = 'border-lcars-cyan shadow-[0_0_12px_rgba(77,208,225,0.4)]';
+        icon = 'check_circle';
+        iconColor = 'text-lcars-cyan';
+        soundType = 'beep2';
+    } else if (type === 'task') {
+        borderColor = 'border-secondary shadow-[0_0_12px_rgba(255,179,160,0.4)]';
+        icon = 'task_alt';
+        iconColor = 'text-secondary';
+        soundType = 'chime';
+    }
+
+    // 3. Play audio effect
+    if (window.playSound && !options.silent) {
+        window.playSound(soundType);
+    }
+
+    // 4. Create Toast Element
+    const toast = document.createElement('div');
+    toast.className = `pointer-events-auto border-2 ${borderColor} ${bgColor} backdrop-blur-md p-3 rounded-tl-xl rounded-br-xl flex items-start gap-2.5 shadow-2xl transition-all duration-300 transform translate-y-[-10px] opacity-0 font-data-mono`;
+    
+    toast.innerHTML = `
+        <div class="mt-0.5 flex-shrink-0">
+            <span class="material-symbols-outlined text-lg ${iconColor} animate-pulse">${icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="text-xs font-bold text-on-surface font-headline tracking-wider truncate">${title}</span>
+                <span class="text-[8px] text-secondary font-mono">${new Date().toLocaleTimeString()}</span>
+            </div>
+            <p class="text-[10px] text-secondary leading-snug break-words">${message}</p>
+        </div>
+        <button class="text-secondary hover:text-on-surface p-0.5 transition-colors flex-shrink-0" onclick="this.parentElement.remove()">
+            <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    // Auto dismiss after duration (default 6.5s)
+    const duration = options.duration || 6500;
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('opacity-0', 'translate-x-full');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+
+    // 5. Send Native OS Notification if permitted
+    if ('Notification' in window && Notification.permission === 'granted' && (!isTabFocused || options.forceOsNotify)) {
+        try {
+            new Notification(`[MEENA // LCARS] ${title}`, {
+                body: message,
+                icon: '/assets/images/screen.png'
+            });
+        } catch (e) {}
+    }
+
+    // 6. Optional Spoken Recital
+    if (options.speak && window.speakComputerVoice) {
+        window.speakComputerVoice(`${title}. ${message}`);
+    }
+}
 
 window.toggleScanlines = toggleScanlines;
 window.setAlertCondition = setAlertCondition;
 window.cycleAlertCondition = cycleAlertCondition;
 window.switchDeck = switchDeck;
+window.showNotificationAlert = showNotificationAlert;
 
