@@ -810,7 +810,51 @@ function get_pihole_info() {
     $pct = 37.6;
     $status = "enabled";
 
-    // Try reading gravity.db
+    // 1. Check local Pi-hole Web API on port 8089 or 80
+    $ctx = stream_context_create(['http' => ['timeout' => 0.6]]);
+    $ports = ['8089', '80'];
+    foreach ($ports as $port) {
+        $raw = @file_get_contents("http://127.0.0.1:{$port}/admin/api.php?summaryRaw", false, $ctx);
+        if ($raw) {
+            $json = @json_decode($raw, true);
+            if ($json && isset($json['dns_queries_today'])) {
+                return [
+                    'status' => $json['status'] ?? 'enabled',
+                    'queries' => intval($json['dns_queries_today'] ?? 0),
+                    'blocked' => intval($json['ads_blocked_today'] ?? 0),
+                    'percent' => floatval($json['ads_percentage_today'] ?? 0),
+                    'domains' => intval($json['domains_being_blocked'] ?? 0)
+                ];
+            }
+        }
+    }
+
+    // 2. Try Pi-hole FTL telnet socket on 127.0.0.1:4711
+    $fp = @fsockopen('127.0.0.1', 4711, $errno, $errstr, 0.5);
+    if ($fp) {
+        @fwrite($fp, ">stats\n");
+        $out = '';
+        while (!feof($fp)) {
+            $line = fgets($fp, 128);
+            $out .= $line;
+            if (strpos($line, '---end---') !== false) break;
+        }
+        @fclose($fp);
+        if (!empty($out) && preg_match('/dns_queries_today\s+(\d+)/', $out, $qMatch)) {
+            preg_match('/ads_blocked_today\s+(\d+)/', $out, $bMatch);
+            preg_match('/ads_percentage_today\s+([0-9.]+)/', $out, $pMatch);
+            preg_match('/domains_being_blocked\s+(\d+)/', $out, $dMatch);
+            return [
+                'status' => $status,
+                'queries' => intval($qMatch[1] ?? 0),
+                'blocked' => intval($bMatch[1] ?? 0),
+                'percent' => floatval($pMatch[1] ?? 0),
+                'domains' => intval($dMatch[1] ?? 0)
+            ];
+        }
+    }
+
+    // 3. Try reading SQLite databases
     if (file_exists('/etc/pihole/gravity.db') && class_exists('SQLite3')) {
         try {
             $db = new SQLite3('/etc/pihole/gravity.db', SQLITE3_OPEN_READONLY);
@@ -820,7 +864,6 @@ function get_pihole_info() {
         } catch (Exception $e) {}
     }
 
-    // Try reading pihole-FTL.db for queries
     if (file_exists('/etc/pihole/pihole-FTL.db') && class_exists('SQLite3')) {
         try {
             $db = new SQLite3('/etc/pihole/pihole-FTL.db', SQLITE3_OPEN_READONLY);

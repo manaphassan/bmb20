@@ -120,117 +120,117 @@
         <!-- 2. Tactical Alert Condition Dynamic Single-Button Cycler (Key 0) -->
         <div class="px-2 mb-2 font-data-mono">
             <button id="status-cycle-btn" onclick="cycleAlertCondition()" 
-                    class="w-full flex items-center justify-between bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 py-1.5 px-2.5 rounded-l-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)] mr-2"
+                    class="w-full flex items-center justify-between bg-primary/20 hover:bg-primary/30 text-primary border border-primary/60 py-2 px-3 rounded-l-full font-data-mono text-xs font-bold transition-all shadow-[0_0_10px_rgba(102,204,255,0.25)] mr-2 active:scale-95"
                     title="Click to cycle Tactical Alert Condition (GREEN -> YELLOW -> RED) [Key 0]">
-                <div class="flex items-center gap-1.5 truncate">
-                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" id="status-cycle-dot"></span>
-                    <span id="status-cycle-text" class="truncate">COND: GREEN</span>
+                <div class="flex items-center gap-2 truncate">
+                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse flex-shrink-0" id="status-cycle-dot"></span>
+                    <span id="status-cycle-text" class="truncate font-bold">COND: GREEN</span>
                 </div>
-                <span class="material-symbols-outlined text-xs flex-shrink-0">sync</span>
+                <span class="material-symbols-outlined text-sm flex-shrink-0">sync</span>
             </button>
         </div>
 
-        <!-- 3. Service Portal Route Matrix (Compact 2-Column LCARS Grid) -->
+        <!-- 3. Service Portal Route Matrix (2-Column LCARS Grid) -->
         <div class="px-2 mb-2 font-data-mono">
-            <div class="text-secondary text-[8.5px] uppercase font-bold tracking-wider mb-1 flex justify-between items-center mr-2">
+            <div class="text-secondary text-[9.5px] uppercase font-bold tracking-wider mb-1 flex justify-between items-center mr-2">
                 <span>PORTAL ROUTING</span>
                 <span class="text-tertiary font-mono">[SYS-06]</span>
             </div>
-            <div class="grid grid-cols-2 gap-1 mr-2 text-[10px]">
+            <div class="grid grid-cols-2 gap-1.5 mr-2 text-xs">
                 <a href="http://dietpi.local:8089/admin/login" target="_blank" onclick="playSound('beep1')"
-                   class="bg-lcars-orange hover:bg-lcars-gold text-black font-bold py-1 px-2 rounded-l-full flex items-center justify-between transition-colors shadow-sm" title="Pi-hole DNS Sinkhole :8089">
-                    <span class="text-[8px] bg-black text-lcars-orange px-1 rounded font-mono">01</span>
-                    <span class="truncate">PI-HOLE</span>
+                   class="bg-lcars-orange hover:bg-lcars-gold text-black font-bold py-2 px-2.5 rounded-l-full flex items-center justify-between transition-colors shadow-sm active:scale-95" title="Pi-hole DNS Sinkhole :8089">
+                    <span class="text-[9px] bg-black text-lcars-orange px-1.5 py-0.5 rounded font-mono font-bold">01</span>
+                    <span class="truncate font-bold">PI-HOLE</span>
                 </a>
                 <a href="http://dietpi.local:5252" target="_blank" onclick="playSound('beep2')"
-                   class="bg-lcars-purple hover:bg-lcars-orange text-black font-bold py-1 px-2 rounded-r flex items-center justify-between transition-colors shadow-sm" title="Cockpit System Admin :5252">
-                    <span class="text-[8px] bg-black text-lcars-purple px-1 rounded font-mono">52</span>
-                    <span class="truncate">COCKPIT</span>
+                   class="bg-lcars-purple hover:bg-lcars-orange text-black font-bold py-2 px-2.5 rounded-r flex items-center justify-between transition-colors shadow-sm active:scale-95" title="Cockpit System Admin :5252">
+                    <span class="text-[9px] bg-black text-lcars-purple px-1.5 py-0.5 rounded font-mono font-bold">52</span>
+                    <span class="truncate font-bold">COCKPIT</span>
                 </a>
                 <a href="http://dietpi.local:8384" target="_blank" onclick="playSound('beep2')"
-                   class="bg-lcars-gold hover:bg-tertiary text-black font-bold py-1 px-2 rounded-l-full flex items-center justify-between transition-colors shadow-sm" title="Syncthing Data Matrix :8384">
-                    <span class="text-[8px] bg-black text-lcars-gold px-1 rounded font-mono">33</span>
-                    <span class="truncate">SYNCTHING</span>
+                   class="bg-lcars-gold hover:bg-tertiary text-black font-bold py-2 px-2.5 rounded-l-full flex items-center justify-between transition-colors shadow-sm active:scale-95" title="Syncthing Data Matrix :8384">
+                    <span class="text-[9px] bg-black text-lcars-gold px-1.5 py-0.5 rounded font-mono font-bold">33</span>
+                    <span class="truncate font-bold">SYNCTHING</span>
                 </a>
                 <a href="http://dietpi.local:8084" target="_blank" onclick="playSound('beep2')"
-                   class="bg-lcars-tan hover:bg-lcars-orange text-black font-bold py-1 px-2 rounded-r flex items-center justify-between transition-colors shadow-sm" title="File Browser Storage :8084">
-                    <span class="text-[8px] bg-black text-lcars-tan px-1 rounded font-mono">80</span>
-                    <span class="truncate">FILES</span>
+                   class="bg-lcars-tan hover:bg-lcars-orange text-black font-bold py-2 px-2.5 rounded-r flex items-center justify-between transition-colors shadow-sm active:scale-95" title="File Browser Storage :8084">
+                    <span class="text-[9px] bg-black text-lcars-tan px-1.5 py-0.5 rounded font-mono font-bold">80</span>
+                    <span class="truncate font-bold">FILES</span>
                 </a>
                 <a href="https://login.tailscale.com/admin/machines" target="_blank" onclick="playSound('beep2')"
-                   class="bg-lcars-blue hover:bg-secondary text-black font-bold py-1 px-2 rounded-l-full flex items-center justify-between transition-colors shadow-sm" title="Tailscale Secure VPN Mesh">
-                    <span class="text-[8px] bg-black text-lcars-blue px-1 rounded font-mono">10</span>
-                    <span class="truncate">TAILSCALE</span>
+                   class="bg-lcars-blue hover:bg-secondary text-black font-bold py-2 px-2.5 rounded-l-full flex items-center justify-between transition-colors shadow-sm active:scale-95" title="Tailscale Secure VPN Mesh">
+                    <span class="text-[9px] bg-black text-lcars-blue px-1.5 py-0.5 rounded font-mono font-bold">10</span>
+                    <span class="truncate font-bold">TAILSCALE</span>
                 </a>
                 <a href="settings.html" onclick="playSound('beep2')"
-                   class="bg-primary hover:bg-tertiary text-black font-bold py-1 px-2 rounded-r flex items-center justify-between transition-colors shadow-sm" title="Master Configuration & Settings">
-                    <span class="material-symbols-outlined text-xs">settings</span>
-                    <span class="truncate">SETTINGS</span>
+                   class="bg-primary hover:bg-tertiary text-black font-bold py-2 px-2.5 rounded-r flex items-center justify-between transition-colors shadow-sm active:scale-95" title="Master Configuration & Settings">
+                    <span class="material-symbols-outlined text-sm font-bold">settings</span>
+                    <span class="truncate font-bold">SETTINGS</span>
                 </a>
             </div>
         </div>
 
         <!-- 4. Sensors & Hardware Telemetry Dock -->
-        <div class="px-2 mb-2 font-data-mono text-[9px] flex flex-col gap-1.5 bg-surface-container/70 p-2 rounded mr-2 border border-outline-variant/30 shadow-inner">
+        <div class="px-2 mb-2 font-data-mono text-[10px] flex flex-col gap-1.5 bg-surface-container/70 p-2.5 rounded mr-2 border border-outline-variant/30 shadow-inner">
             <!-- Atmospheric Weather Readout -->
-            <div class="text-tertiary uppercase text-[9px] font-headline-sm border-b border-outline-variant/30 pb-0.5 flex justify-between items-center">
-                <span class="flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[11px]" id="wx-icon">partly_cloudy_day</span>
+            <div class="text-tertiary uppercase text-[10px] font-headline-sm border-b border-outline-variant/30 pb-1 flex justify-between items-center font-bold">
+                <span class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs" id="wx-icon">partly_cloudy_day</span>
                     <span>ATMOSPHERIC</span>
                 </span>
-                <span class="text-on-surface font-bold font-mono" id="wx-temp">--&deg;C</span>
+                <span class="text-on-surface font-bold font-mono text-xs" id="wx-temp">--&deg;C</span>
             </div>
-            <div class="flex justify-between text-secondary text-[8px]">
-                <span id="wx-desc" class="truncate max-w-[90px]">TERRA SENSORS</span>
-                <span id="wx-wind" class="text-primary font-mono">--</span>
+            <div class="flex justify-between text-secondary text-[9px]">
+                <span id="wx-desc" class="truncate max-w-[100px]">TERRA SENSORS</span>
+                <span id="wx-wind" class="text-primary font-mono font-bold">--</span>
             </div>
             <!-- 3-Day Mini Forecast Strip -->
-            <div class="grid grid-cols-3 gap-1 py-0.5 border-t border-b border-outline-variant/20" id="wx-forecast">
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-0.5 py-0.5 rounded text-center">
-                    <span class="text-[6.5px] text-secondary font-bold">TODAY</span>
-                    <span class="text-[7px] text-on-surface font-mono">33&deg;/24&deg;</span>
+            <div class="grid grid-cols-3 gap-1 py-1 border-t border-b border-outline-variant/20" id="wx-forecast">
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7.5px] text-secondary font-bold">TODAY</span>
+                    <span class="text-[8px] text-on-surface font-mono font-bold">33&deg;/24&deg;</span>
                 </div>
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-0.5 py-0.5 rounded text-center">
-                    <span class="text-[6.5px] text-secondary font-bold">TMRW</span>
-                    <span class="text-[7px] text-on-surface font-mono">32&deg;/24&deg;</span>
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7.5px] text-secondary font-bold">TMRW</span>
+                    <span class="text-[8px] text-on-surface font-mono font-bold">32&deg;/24&deg;</span>
                 </div>
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-0.5 py-0.5 rounded text-center">
-                    <span class="text-[6.5px] text-secondary font-bold">DAY 3</span>
-                    <span class="text-[7px] text-on-surface font-mono">33&deg;/25&deg;</span>
+                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
+                    <span class="text-[7.5px] text-secondary font-bold">DAY 3</span>
+                    <span class="text-[8px] text-on-surface font-mono font-bold">33&deg;/25&deg;</span>
                 </div>
             </div>
 
             <!-- Hardware Diagnostics -->
-            <div class="text-secondary uppercase text-[8.5px] font-headline-sm pt-0.5 flex justify-between items-center">
+            <div class="text-secondary uppercase text-[9px] font-headline-sm pt-0.5 flex justify-between items-center font-bold">
                 <span>HARDWARE METRICS</span>
-                <span class="text-primary text-[7.5px] font-bold" id="os-upgrades-badge">OPTIMIZED</span>
+                <span class="text-primary text-[8.5px] font-bold" id="os-upgrades-badge">OPTIMIZED</span>
             </div>
             <!-- CPU & RAM in 2 Cols -->
             <div class="grid grid-cols-2 gap-1.5">
-                <div class="flex flex-col gap-0.5 bg-surface-dim/60 p-1 rounded">
-                    <div class="flex justify-between text-secondary text-[8px]">
-                        <span class="flex items-center gap-0.5">CPU <span class="hidden text-[6px] bg-error text-on-error px-0.5 rounded font-bold" id="cpu-alert">HOT</span></span>
+                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
+                    <div class="flex justify-between text-secondary text-[8.5px]">
+                        <span class="flex items-center gap-0.5 font-bold">CPU <span class="hidden text-[7px] bg-error text-on-error px-0.5 rounded font-bold" id="cpu-alert">HOT</span></span>
                         <span id="cpu-val" class="text-primary font-bold">--%</span>
                     </div>
-                    <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden">
+                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
                         <div class="bg-primary h-full w-[25%] transition-all" id="cpu-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/60 p-1 rounded">
-                    <div class="flex justify-between text-secondary text-[8px]"><span>RAM</span> <span id="mem-val" class="text-tertiary font-bold">--%</span></div>
-                    <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
+                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">RAM</span> <span id="mem-val" class="text-tertiary font-bold">--%</span></div>
+                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
                         <div class="bg-tertiary h-full w-[35%] transition-all" id="mem-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/60 p-1 rounded">
-                    <div class="flex justify-between text-secondary text-[8px]"><span>TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--&deg;C</span></div>
-                    <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
+                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--&deg;C</span></div>
+                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
                         <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/60 p-1 rounded">
-                    <div class="flex justify-between text-secondary text-[8px]"><span>DISK</span> <span id="disk-val" class="text-on-surface font-bold">--%</span></div>
-                    <div class="w-full bg-surface-dim h-1 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
+                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">DISK</span> <span id="disk-val" class="text-on-surface font-bold">--%</span></div>
+                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
                         <div class="bg-secondary-container h-full w-[40%]" id="disk-bar"></div>
                     </div>
                 </div>
@@ -238,47 +238,47 @@
         </div>
 
         <!-- 5. Bottom LCARS Command Actions Cluster -->
-        <div class="px-2 mt-auto flex flex-col gap-1 font-data-mono">
+        <div class="px-2 mt-auto flex flex-col gap-1.5 font-data-mono">
             <!-- Top Action Row: Layout Mode + Pi-hole Shield -->
-            <div class="grid grid-cols-2 gap-1 mr-2 text-[9px]">
-                <button onclick="toggleLayoutMode()" class="bg-surface-container-high hover:bg-primary hover:text-black text-primary font-bold py-1.5 px-2 rounded-l-full text-left transition-all flex items-center justify-between border border-outline-variant/30 shadow-sm" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
-                    <span class="material-symbols-outlined text-[13px]">devices</span>
-                    <span class="truncate">BRIDGE</span>
+            <div class="grid grid-cols-2 gap-1.5 mr-2 text-xs">
+                <button onclick="toggleLayoutMode()" class="bg-surface-container-high hover:bg-primary hover:text-black text-primary font-bold py-2 px-2.5 rounded-l-full text-left transition-all flex items-center justify-between border border-outline-variant/30 shadow-sm active:scale-95" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
+                    <span class="material-symbols-outlined text-sm">devices</span>
+                    <span class="truncate font-bold">BRIDGE</span>
                 </button>
-                <button class="bg-lcars-orange hover:bg-lcars-gold text-black font-bold py-1.5 px-2 rounded-r text-right transition-all flex items-center justify-between shadow-sm" id="sidebar-shield-btn" onclick="openPiholeModal()" title="Manage Pi-hole Defense Shield">
-                    <span class="material-symbols-outlined text-[13px]">security</span>
-                    <span class="truncate" id="sidebar-shield-label">SHIELD</span>
+                <button class="bg-lcars-orange hover:bg-lcars-gold text-black font-bold py-2 px-2.5 rounded-r text-right transition-all flex items-center justify-between shadow-sm active:scale-95" id="sidebar-shield-btn" onclick="openPiholeModal()" title="Manage Pi-hole Defense Shield">
+                    <span class="material-symbols-outlined text-sm">security</span>
+                    <span class="truncate font-bold" id="sidebar-shield-label">SHIELD</span>
                 </button>
             </div>
 
             <!-- Middle Action Row: Voice Mic + Meena Dossier -->
-            <div class="grid grid-cols-2 gap-1 mr-2 text-[9px]">
-                <button id="sidebar-mic-toggle-btn" onclick="toggleVoiceListeningMute()" class="bg-surface-container-high hover:bg-primary hover:text-black py-1.5 px-2 rounded-l-full text-left font-bold transition-all flex items-center justify-between border border-outline-variant/30" title="Mute / Unmute Voice Listening [M]">
-                    <span class="material-symbols-outlined text-[13px] text-primary" id="sidebar-mic-icon">mic</span>
-                    <span id="sidebar-mic-label">MIC: ON</span>
+            <div class="grid grid-cols-2 gap-1.5 mr-2 text-xs">
+                <button id="sidebar-mic-toggle-btn" onclick="toggleVoiceListeningMute()" class="bg-surface-container-high hover:bg-primary hover:text-black text-primary py-2 px-2.5 rounded-l-full text-left font-bold transition-all flex items-center justify-between border border-outline-variant/30 active:scale-95" title="Mute / Unmute Voice Listening [M]">
+                    <span class="material-symbols-outlined text-sm text-primary" id="sidebar-mic-icon">mic</span>
+                    <span id="sidebar-mic-label" class="font-bold">MIC: ON</span>
                 </button>
-                <button onclick="openMeenaDossierModal()" class="bg-surface-container-high hover:bg-lcars-purple hover:text-white py-1.5 px-2 rounded-r text-right font-bold transition-all flex items-center justify-between border border-outline-variant/30" title="Open Meena AI Operation Profile Dossier [D]">
-                    <span class="material-symbols-outlined text-[13px] text-lcars-purple">neurology</span>
-                    <span class="truncate">MEENA AI</span>
+                <button onclick="openMeenaDossierModal()" class="bg-surface-container-high hover:bg-lcars-purple hover:text-white text-lcars-purple py-2 px-2.5 rounded-r text-right font-bold transition-all flex items-center justify-between border border-outline-variant/30 active:scale-95" title="Open Meena AI Operation Profile Dossier [D]">
+                    <span class="material-symbols-outlined text-sm text-lcars-purple">neurology</span>
+                    <span class="truncate font-bold">MEENA AI</span>
                 </button>
             </div>
 
             <!-- Bottom Action Row: Audio Toggle & Equalizer -->
-            <button class="bg-tertiary-container hover:bg-surface-bright text-on-tertiary-container font-label-caps text-[10px] rounded-l-full mr-2 py-1.5 px-2 text-right transition-colors flex justify-between items-center font-bold" id="audio-toggle" onclick="toggleAudio()">
-                <div class="flex items-center gap-1">
+            <button class="bg-tertiary-container hover:bg-surface-bright text-on-tertiary-container font-label-caps text-xs rounded-l-full mr-2 py-2 px-3 text-right transition-colors flex justify-between items-center font-bold active:scale-95" id="audio-toggle" onclick="toggleAudio()">
+                <div class="flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-sm" id="audio-icon">volume_up</span>
-                    <div class="flex items-end gap-0.5 h-3 ml-1">
-                        <div class="eq-bar h-1"></div><div class="eq-bar h-2"></div><div class="eq-bar h-1"></div><div class="eq-bar h-3"></div><div class="eq-bar h-1"></div>
+                    <div class="flex items-end gap-0.5 h-3.5 ml-1">
+                        <div class="eq-bar h-1"></div><div class="eq-bar h-2.5"></div><div class="eq-bar h-1.5"></div><div class="eq-bar h-3.5"></div><div class="eq-bar h-1.5"></div>
                     </div>
                 </div>
-                <span id="audio-label">AUDIO: ON</span>
+                <span id="audio-label" class="font-bold">AUDIO: ON</span>
             </button>
 
             <!-- Dev & Version Credit -->
             <a href="https://github.com/manaphassan/bmb20" target="_blank" onclick="playSound('beep2')"
-               class="text-[8px] text-secondary/60 hover:text-secondary py-0.5 px-1 mr-2 text-right flex justify-end items-center gap-1 font-mono transition-colors">
+               class="text-[9px] text-secondary/70 hover:text-primary py-0.5 px-1 mr-2 text-right flex justify-end items-center gap-1 font-mono transition-colors">
                 <span>v2.7.0 // @manaphassan</span>
-                <svg aria-hidden="true" class="h-2.5 w-2.5" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
+                <svg aria-hidden="true" class="h-3 w-3" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
             </a>
         </div>
     </div>

@@ -82,7 +82,7 @@ html, body {
 /* 100vh Locked Grid Layout */
 .grid-container {
     display: grid;
-    grid-template-columns: 210px 1fr;
+    grid-template-columns: 240px 1fr;
     grid-template-rows: 42px minmax(0, 1fr);
     height: calc(100vh - 26px);
     width: 100vw;
@@ -132,10 +132,10 @@ html, body {
     display: none !important;
 }
 
-/* Deck 1: 2-Column AI Operations Bridge */
+/* Deck 1: 2-Column AI Operations Bridge (Equal 50/50 Split) */
 #deck-1-container {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
     gap: 8px;
     height: 100%;

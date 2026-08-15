@@ -109,12 +109,21 @@ function cycleAlertCondition() {
     }
 }
 
-// Clock & Authentic Star Trek Stardate Calculator
+// Clock & Authentic Star Trek Stardate Calculator (Malaysian Standard Time MYT UTC+8)
 function updateClock() {
     const now = new Date();
     const clockElem = document.getElementById('clock');
     if (clockElem) {
-        clockElem.innerText = now.toISOString().substr(11, 8) + ' UTC';
+        try {
+            const mytStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Kuala_Lumpur', hour12: false });
+            clockElem.innerText = `${mytStr} MYT`;
+        } catch (e) {
+            const mytDate = new Date(now.getTime() + (8 * 3600 * 1000));
+            const hrs = String(mytDate.getUTCHours()).padStart(2, '0');
+            const mins = String(mytDate.getUTCMinutes()).padStart(2, '0');
+            const secs = String(mytDate.getUTCSeconds()).padStart(2, '0');
+            clockElem.innerText = `${hrs}:${mins}:${secs} MYT`;
+        }
     }
 
     const stardateElem = document.getElementById('stardate');
@@ -255,7 +264,10 @@ function switchDeck(deckNumber) {
         if (window.updateGrowthUI) window.updateGrowthUI();
         if (window.initNeuralWaveform) window.initNeuralWaveform();
     } else if (deckNumber === 2) {
-        window.dispatchEvent(new Event('resize'));
+        setTimeout(() => {
+            if (window.onWindowResize) window.onWindowResize();
+            window.dispatchEvent(new Event('resize'));
+        }, 60);
     } else if (deckNumber === 3) {
         if (window.loadCalendarFeed) window.loadCalendarFeed();
         if (window.renderSolatTimelineArc) window.renderSolatTimelineArc();

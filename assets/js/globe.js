@@ -716,5 +716,7 @@ function onWindowResize() {
 
 // Window Global Exports
 window.initEarth = initEarth;
+window.onWindowResize = onWindowResize;
 window.setGlobeAlertColor = setGlobeAlertColor;
 window.switchHologramView = switchHologramView;
+

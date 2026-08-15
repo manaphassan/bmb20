@@ -435,7 +435,7 @@ function appendSysLog(logLine) {
 }
 
 function updatePiHoleUI(pihole) {
-    if (!pihole || !pihole.queries || Number(pihole.queries) === 0) {
+    if (!pihole) {
         pihole = {
             status: 'enabled',
             queries: 28004,
@@ -449,14 +449,20 @@ function updatePiHoleUI(pihole) {
     const headerLed = document.getElementById('header-pihole-led');
     const subtext = document.getElementById('pihole-subtext');
     const led = document.getElementById('pihole-led');
+    const sidebarShield = document.getElementById('sidebar-shield-label');
 
     const status = pihole.status || 'enabled';
-    const queries = Number(pihole.queries || 28004);
-    const blocked = Number(pihole.blocked || 10520);
-    const pct = parseFloat(pihole.percent || 37.6).toFixed(1);
+    const queries = Number(pihole.queries || 0);
+    const blocked = Number(pihole.blocked || 0);
+    const pct = parseFloat(pihole.percent || (queries > 0 ? (blocked / queries) * 100 : 37.6)).toFixed(1);
 
     if (headerPct) {
         headerPct.innerText = `${pct}% BLOCKED`;
+    }
+
+    if (sidebarShield) {
+        const isEnabled = (status === 'enabled' || status === 'active');
+        sidebarShield.innerText = isEnabled ? `SHIELD: ${pct}%` : 'SHIELD: OFF';
     }
 
     if (subtext) {
