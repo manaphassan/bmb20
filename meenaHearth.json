@@ -111,6 +111,14 @@
     },
     {
       "id": "mem_007",
+      "category": "profile",
+      "fact": "Sensei (Manap Hassan) is the Supreme Commander of Takahara Academy, 39 years old, with Level 5 Supreme Command Clearance.",
+      "desc": "Supreme Commander Biographical & Biometric Ground Truth",
+      "timestamp": "2026-08-15T15:05:00Z",
+      "importance": 10
+    },
+    {
+      "id": "mem_008",
       "category": "missions",
       "fact": "Upcoming Target: SKOL Hari Dialog Akademik & RAIA Beach Resort on August 21",
       "desc": "Operations Horizon",
@@ -118,7 +126,7 @@
       "importance": 9
     },
     {
-      "id": "mem_008",
+      "id": "mem_009",
       "category": "facility",
       "fact": "Factual Grounding: Always answer with verified facts, empirical accuracy, and cited resource references. Strictly avoid hallucination or fabrication.",
       "desc": "Epistemic Truth Directive",
