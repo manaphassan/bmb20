@@ -150,6 +150,42 @@
                         <input type="range" id="pitch-slider" min="0.8" max="1.5" step="0.02" value="1.10" oninput="updatePitchSlider(this.value)" class="w-full accent-tertiary">
                     </div>
                 </div>
+
+                <!-- Sound Effects & Audio Soundstage Profile -->
+                <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-outline-variant/30">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-lcars-gold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">graphic_eq</span>
+                                <span>AUDIO SOUNDSTAGE & FX THEME</span>
+                            </span>
+                            <p class="text-[10px] text-secondary">Switch between classic Starfleet synth, sleek cyberpunk glass chimes, or discreet silent pulses.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-1">
+                        <button onclick="selectSoundTheme('starfleet')" id="btn-theme-starfleet" class="sound-theme-btn p-3 rounded-lg border border-primary/40 bg-primary/15 text-left flex flex-col gap-1 transition-all">
+                            <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">rocket_launch</span>
+                                <span>STARFLEET</span>
+                            </span>
+                            <span class="text-[9.5px] text-secondary">Classic LCARS beeps, chirps, warp drive hum, & red alert klaxons.</span>
+                        </button>
+                        <button onclick="selectSoundTheme('cyberpunk')" id="btn-theme-cyberpunk" class="sound-theme-btn p-3 rounded-lg border border-outline-variant/30 bg-surface-container-high text-left flex flex-col gap-1 transition-all">
+                            <span class="text-xs font-bold text-tertiary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">memory</span>
+                                <span>CYBERPUNK</span>
+                            </span>
+                            <span class="text-[9.5px] text-secondary">Modern high-frequency glass taps, soft synth chimes, & subtle pings.</span>
+                        </button>
+                        <button onclick="selectSoundTheme('discreet')" id="btn-theme-discreet" class="sound-theme-btn p-3 rounded-lg border border-outline-variant/30 bg-surface-container-high text-left flex flex-col gap-1 transition-all">
+                            <span class="text-xs font-bold text-secondary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">volume_off</span>
+                                <span>DISCREET</span>
+                            </span>
+                            <span class="text-[9.5px] text-secondary">Silent visual LED alerts and glowing pulses only. Zero audio FX.</span>
+                        </button>
+                    </div>
+                </div>
             </section>
 
             <!-- 2. Neural Cloud (Gemini) Settings -->

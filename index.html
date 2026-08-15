@@ -411,6 +411,15 @@
                     </div>
                 </div>
 
+                <!-- Dynamic Neural Audio Waveform Canvas HUD -->
+                <div class="neural-waveform-container h-8 my-0.5 flex items-center justify-center relative flex-shrink-0">
+                    <canvas id="neural-voice-waveform" class="neural-waveform-canvas"></canvas>
+                    <div class="absolute left-2 text-[7px] text-tertiary/80 font-mono tracking-wider flex items-center gap-1 pointer-events-none">
+                        <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                        <span>NEURAL AUDIO HUD</span>
+                    </div>
+                </div>
+
                 <!-- Quick Action Suggestion Chips -->
                 <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
                     <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
@@ -637,6 +646,50 @@
                         <span class="material-symbols-outlined text-xs">sync</span>
                         <span>REFRESH</span>
                     </button>
+                </div>
+            </div>
+
+            <!-- Visual Waktu Solat Sun & Moon Solar Arc Pod -->
+            <div class="bg-surface-container-low p-2 rounded border border-tertiary/30 shadow-sm flex flex-col gap-1.5 flex-shrink-0">
+                <div class="flex items-center justify-between text-[9px] font-mono">
+                    <span class="text-tertiary font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-tertiary">wb_twilight</span>
+                        <span>E-SOLAT JAKIM SOLAR ARC & PRAYER MATRIX</span>
+                    </span>
+                    <span id="solat-arc-status-label" class="text-secondary text-[8.5px]">Syncing prayer trajectory...</span>
+                </div>
+
+                <!-- 24-Hour Solar Orbit Track -->
+                <div class="solat-arc-track my-1 relative">
+                    <div id="solat-arc-sun-dot" class="solat-sun-indicator" style="left: 50%;"></div>
+                </div>
+
+                <!-- 6 Checkpoint Prayer Nodes -->
+                <div class="grid grid-cols-6 gap-1 text-center font-mono text-[8px]" id="solat-arc-nodes">
+                    <div id="solat-node-subuh" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">SUBUH</span>
+                        <strong id="solat-time-subuh" class="text-primary text-[9px]">05:58</strong>
+                    </div>
+                    <div id="solat-node-syuruk" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">SYURUK</span>
+                        <strong id="solat-time-syuruk" class="text-lcars-gold text-[9px]">07:11</strong>
+                    </div>
+                    <div id="solat-node-zohor" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">ZOHOR</span>
+                        <strong id="solat-time-zohor" class="text-primary text-[9px]">13:22</strong>
+                    </div>
+                    <div id="solat-node-asar" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">ASAR</span>
+                        <strong id="solat-time-asar" class="text-primary text-[9px]">16:38</strong>
+                    </div>
+                    <div id="solat-node-maghrib" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">MAGHRIB</span>
+                        <strong id="solat-time-maghrib" class="text-tertiary text-[9px]">19:28</strong>
+                    </div>
+                    <div id="solat-node-isyak" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold">ISYAK</span>
+                        <strong id="solat-time-isyak" class="text-primary text-[9px]">20:39</strong>
+                    </div>
                 </div>
             </div>
 

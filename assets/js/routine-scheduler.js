@@ -258,6 +258,51 @@ function evaluateDailyRoutines() {
 }
 
 /**
+ * Render Visual Waktu Solat Sun & Moon Timeline Arc (Deck 3)
+ */
+function renderSolatTimelineArc() {
+    if (!prayerTimesToday) return;
+
+    const sunDot = document.getElementById('solat-arc-sun-dot');
+    const statusLabel = document.getElementById('solat-arc-status-label');
+
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+
+    // Map 24-hour day to 0-100% position on the arc
+    const pct = Math.min(100, Math.max(0, (currentMins / 1440) * 100));
+
+    if (sunDot) {
+        sunDot.style.left = `${pct}%`;
+        const isDaytime = currentMins >= (6 * 60 + 30) && currentMins <= (19 * 60 + 20);
+        sunDot.style.background = isDaytime ? '#ffe253' : '#c2c1ff';
+        sunDot.style.boxShadow = isDaytime 
+            ? '0 0 12px #ffe253, 0 0 24px rgba(255, 226, 83, 0.6)' 
+            : '0 0 12px #c2c1ff, 0 0 24px rgba(194, 193, 255, 0.6)';
+    }
+
+    const info = getNextPrayerInfo();
+    if (statusLabel && info) {
+        statusLabel.innerHTML = `Waktu Semasa: <strong class="text-tertiary font-bold">${info.current}</strong> &bull; Seterusnya: <strong class="text-lcars-gold font-bold">${info.next} (${info.time})</strong> berbaki <strong class="text-primary font-bold">${info.diffStr}</strong>`;
+    }
+
+    // Highlight active checkpoint node
+    const prayerKeys = ['subuh', 'syuruk', 'zohor', 'asar', 'maghrib', 'isyak'];
+    prayerKeys.forEach(k => {
+        const elem = document.getElementById(`solat-node-${k}`);
+        const timeElem = document.getElementById(`solat-time-${k}`);
+        if (elem && prayerTimesToday[k]) {
+            if (timeElem) timeElem.innerText = prayerTimesToday[k];
+            if (info && (info.current.toLowerCase() === k || info.next.toLowerCase().startsWith(k))) {
+                elem.className = "flex flex-col items-center p-2 rounded-lg bg-tertiary/20 border border-tertiary/60 shadow-[0_0_10px_rgba(255,226,83,0.3)] scale-105 transition-all";
+            } else {
+                elem.className = "flex flex-col items-center p-2 rounded-lg bg-surface-container-low border border-outline-variant/30 transition-all";
+            }
+        }
+    });
+}
+
+/**
  * Set and persist active prayer zone
  */
 function setPrayerZone(zoneCode) {
@@ -278,6 +323,7 @@ function initRoutineScheduler() {
         evaluatePrayerTimeTriggers();
         evaluateDailyRoutines();
         updatePrayerBadgeUI();
+        renderSolatTimelineArc();
     }, 15000);
 
     // Re-fetch prayer schedule every 6 hours
@@ -290,3 +336,4 @@ window.setPrayerZone = setPrayerZone;
 window.fetchWaktuSolat = fetchWaktuSolat;
 window.PRAYER_ZONES = PRAYER_ZONES;
 window.getNextPrayerInfo = getNextPrayerInfo;
+window.renderSolatTimelineArc = renderSolatTimelineArc;

@@ -231,9 +231,11 @@ function switchDeck(deckNumber) {
     decks.forEach((deck, idx) => {
         if (deck) {
             if (idx + 1 === deckNumber) {
-                deck.classList.remove('hidden');
+                deck.classList.remove('deck-hidden', 'hidden');
+                deck.classList.add('deck-active', 'deck-view');
             } else {
-                deck.classList.add('hidden');
+                deck.classList.add('deck-hidden', 'hidden');
+                deck.classList.remove('deck-active');
             }
         }
     });
@@ -241,7 +243,7 @@ function switchDeck(deckNumber) {
     tabs.forEach((tab, idx) => {
         if (tab) {
             if (idx + 1 === deckNumber) {
-                tab.className = "px-2.5 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition";
+                tab.className = "px-2.5 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition scale-105";
             } else {
                 tab.className = "px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all";
             }
@@ -251,14 +253,49 @@ function switchDeck(deckNumber) {
     if (deckNumber === 1) {
         if (window.initKnowledgeGraph) window.initKnowledgeGraph();
         if (window.updateGrowthUI) window.updateGrowthUI();
+        if (window.initNeuralWaveform) window.initNeuralWaveform();
     } else if (deckNumber === 2) {
         window.dispatchEvent(new Event('resize'));
     } else if (deckNumber === 3) {
         if (window.loadCalendarFeed) window.loadCalendarFeed();
+        if (window.renderSolatTimelineArc) window.renderSolatTimelineArc();
     } else if (deckNumber === 4) {
         if (window.startVisualRecon && !isReconActive) window.startVisualRecon();
     }
 }
+
+// Touch Gesture Engine for Tablet & Mobile Kiosks (Swipe Left/Right between Decks)
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    if (e.changedTouches && e.changedTouches.length === 1) {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // Minimum swipe distance threshold of 60px, horizontal dominance
+        if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+            if (deltaX < 0 && currentDeck < 4) {
+                // Swipe Left -> Next Deck
+                switchDeck(currentDeck + 1);
+                if (window.playSound) window.playSound('beep2');
+            } else if (deltaX > 0 && currentDeck > 1) {
+                // Swipe Right -> Previous Deck
+                switchDeck(currentDeck - 1);
+                if (window.playSound) window.playSound('beep2');
+            }
+        }
+    }
+}, { passive: true });
 
 // Keyboard Hotkey Support (1=Deck 1 Meena, 2=Deck 2 Observatory, 3=Deck 3 Calendar, 4=Deck 4 Visual Recon, 0/!=Red Alert)
 window.addEventListener('keydown', (e) => {

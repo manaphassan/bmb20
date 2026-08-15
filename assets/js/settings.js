@@ -91,7 +91,10 @@ function loadAllSettings() {
         pitchTxt.innerText = `${parseFloat(pitch).toFixed(2)}x`;
     }
 
-    // 3. Gemini Key
+    // 3. Sound Theme
+    updateSoundThemeUI();
+
+    // 4. Gemini Key
     const key = localStorage.getItem('gemini_api_key') || '';
     const keyInput = document.getElementById('gemini-key-input');
     const keyStatus = document.getElementById('gemini-status-label');
@@ -190,6 +193,31 @@ function testCurrentVoice() {
 
 function testVoicePreview() {
     testCurrentVoice();
+}
+
+function selectSoundTheme(theme) {
+    if (window.setSoundTheme) {
+        window.setSoundTheme(theme);
+    } else {
+        localStorage.setItem('lcars_sound_theme', theme);
+    }
+    updateSoundThemeUI();
+    if (window.playSound) window.playSound('beep2');
+}
+
+function updateSoundThemeUI() {
+    const currentTheme = localStorage.getItem('lcars_sound_theme') || 'starfleet';
+    const themes = ['starfleet', 'cyberpunk', 'discreet'];
+    themes.forEach(t => {
+        const btn = document.getElementById(`btn-theme-${t}`);
+        if (btn) {
+            if (t === currentTheme) {
+                btn.className = "sound-theme-btn p-3 rounded-lg border-2 border-primary bg-primary/20 text-left flex flex-col gap-1 shadow-[0_0_12px_rgba(194,193,255,0.4)] scale-[1.02] transition-all";
+            } else {
+                btn.className = "sound-theme-btn p-3 rounded-lg border border-outline-variant/30 bg-surface-container-high text-left flex flex-col gap-1 opacity-70 hover:opacity-100 transition-all";
+            }
+        }
+    });
 }
 
 function saveGeminiKey() {
@@ -708,3 +736,6 @@ window.exportKnowledgeJSON = exportKnowledgeJSON;
 window.importKnowledgeJSON = importKnowledgeJSON;
 window.executeMaintenanceAction = executeMaintenanceAction;
 window.savePrayerZoneConfig = savePrayerZoneConfig;
+window.selectSoundTheme = selectSoundTheme;
+window.updateSoundThemeUI = updateSoundThemeUI;
+

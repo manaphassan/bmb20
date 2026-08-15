@@ -569,3 +569,82 @@ body.mode-bridge #layout-communicator {
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
 }
+
+/* ==========================================================================
+   ART DIRECTION & UX ENHANCEMENTS: DECK TRANSITIONS & NEURAL WAVEFORM
+   ========================================================================== */
+
+/* Hardware-Accelerated Smooth Deck Transitions */
+.deck-view {
+    transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1), transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    will-change: opacity, transform;
+}
+
+.deck-view.deck-hidden {
+    display: none !important;
+    opacity: 0;
+    transform: scale(0.985) translateY(6px);
+}
+
+.deck-view.deck-active {
+    display: flex !important;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    animation: deck-fade-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes deck-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Neural Voice Waveform HUD Canvas */
+.neural-waveform-container {
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(194, 193, 255, 0.08) 0%, rgba(15, 20, 28, 0.8) 75%);
+    border: 1px solid rgba(194, 193, 255, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.6);
+}
+
+.neural-waveform-canvas {
+    width: 100%;
+    height: 48px;
+    display: block;
+}
+
+/* Solat Sun/Moon Solar Arc Track */
+.solat-arc-track {
+    position: relative;
+    background: linear-gradient(90deg, #1e1b4b 0%, #0369a1 25%, #f59e0b 50%, #d97706 75%, #0f172a 100%);
+    height: 4px;
+    border-radius: 9999px;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.solat-sun-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffe253;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 12px #ffe253, 0 0 24px rgba(255, 226, 83, 0.6);
+    transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+}
+
+/* Touch Friendly Targets */
+.touch-target {
+    min-height: 44px;
+    min-width: 44px;
+}

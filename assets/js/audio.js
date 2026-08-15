@@ -369,15 +369,56 @@ function speakComputerVoice(text) {
     });
 }
 
+let soundTheme = localStorage.getItem('lcars_sound_theme') || 'starfleet'; // 'starfleet' | 'cyberpunk' | 'discreet'
+
+function setSoundTheme(theme) {
+    if (!theme) return;
+    soundTheme = theme;
+    localStorage.setItem('lcars_sound_theme', theme);
+    if (window.playSound) window.playSound('beep2');
+}
+
 /**
- * Starfleet Sound Synthesizer Engine
+ * Starfleet / Cyberpunk Sound Synthesizer Engine
  */
 function playSound(type) {
-    if (!audioActive) return;
+    if (!audioActive || soundTheme === 'discreet') return;
     try {
         unlockAudioContext();
         const now = audioCtx.currentTime;
 
+        if (soundTheme === 'cyberpunk') {
+            // Modern Cyberpunk Glass & Harmonic Frequency Profile
+            if (type === 'beep1' || type === 'beep2') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(2400, now);
+                osc.frequency.exponentialRampToValueAtTime(3200, now + 0.04);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.065);
+                return;
+            } else if (type === 'caution') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1400, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.18);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.21);
+                return;
+            }
+        }
+
+        // Starfleet Classic LCARS Profile
         if (type === 'beep1') {
             // Starfleet LCARS High-Pitch Dual Chirp
             const osc = audioCtx.createOscillator();
@@ -3795,11 +3836,87 @@ window.updateTokenMeterUI = updateTokenMeterUI;
 window.getTokenUsage = getTokenUsage;
 window.initMeenaAvatarCanvas = initMeenaAvatarCanvas;
 
+// Dynamic Neural Audio Waveform Canvas Engine
+let waveformCanvas = null;
+let waveformCtx = null;
+let waveformAnimId = null;
+let waveformPhase = 0;
+
+function initNeuralWaveform() {
+    waveformCanvas = document.getElementById('neural-voice-waveform');
+    if (!waveformCanvas) return;
+    waveformCtx = waveformCanvas.getContext('2d');
+    
+    function resizeCanvas() {
+        if (!waveformCanvas || !waveformCanvas.parentElement) return;
+        const rect = waveformCanvas.parentElement.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            waveformCanvas.width = rect.width * (window.devicePixelRatio || 1);
+            waveformCanvas.height = rect.height * (window.devicePixelRatio || 1);
+        }
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    function renderWaveform() {
+        if (!waveformCtx || !waveformCanvas) return;
+        const w = waveformCanvas.width;
+        const h = waveformCanvas.height;
+        const ctx = waveformCtx;
+        
+        ctx.clearRect(0, 0, w, h);
+        
+        const isSpeaking = isMeenaSpeaking;
+        const isListening = isVoiceListening;
+        
+        waveformPhase += isSpeaking ? 0.14 : (isListening ? 0.08 : 0.025);
+        
+        // Amplitude scaling
+        const amp = isSpeaking ? (h * 0.38) : (isListening ? (h * 0.22) : (h * 0.09));
+        
+        // 3 Harmonically tuned wave layers (Lavender, Cyan, Gold)
+        const layers = [
+            { color: 'rgba(194, 193, 255, 0.85)', speed: 1.0, freq: 0.02, lw: 2.2 },
+            { color: 'rgba(77, 208, 225, 0.70)', speed: 1.4, freq: 0.035, lw: 1.6 },
+            { color: 'rgba(255, 226, 83, 0.45)', speed: 0.65, freq: 0.015, lw: 1.2 }
+        ];
+        
+        layers.forEach(layer => {
+            ctx.beginPath();
+            ctx.strokeStyle = layer.color;
+            ctx.lineWidth = layer.lw * (window.devicePixelRatio || 1);
+            ctx.shadowBlur = isSpeaking ? 10 : 4;
+            ctx.shadowColor = layer.color;
+            
+            for (let x = 0; x < w; x += 4) {
+                // Bell curve envelope so waveforms smoothly meet zero at the edges
+                const normX = x / w;
+                const env = Math.sin(normX * Math.PI);
+                
+                const y = (h / 2) + Math.sin(x * layer.freq + waveformPhase * layer.speed) * amp * env
+                                  + Math.cos(x * layer.freq * 0.6 - waveformPhase * 0.4) * (amp * 0.4) * env;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        });
+        
+        waveformAnimId = requestAnimationFrame(renderWaveform);
+    }
+    
+    renderWaveform();
+}
+
+window.initNeuralWaveform = initNeuralWaveform;
+window.setSoundTheme = setSoundTheme;
+
 // Initial call to populate UI tokens & load calendar
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         updateTokenMeterUI();
         fetchCalendarEvents();
+        setTimeout(initNeuralWaveform, 300);
     });
 }
+
 
