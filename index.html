@@ -25,14 +25,6 @@
 
     <!-- Custom LCARS Stylesheet -->
     <link rel="stylesheet" href="assets/css/style.css"/>
-
-    <!-- Application JavaScript Modules -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/audio.js"></script>
-    <script src="assets/js/calendar.js"></script>
-    <script src="assets/js/globe.js"></script>
-    <script src="assets/js/telemetry.js"></script>
-    <script src="assets/js/main.js"></script>
 </head>
 <body class="text-on-surface bg-background">
 
@@ -1076,5 +1068,12 @@
     </div>
 </div>
 
+    <!-- Application Modular Scripts (Fault-Isolated & Deferred) -->
+    <script defer src="assets/js/config.js"></script>
+    <script defer src="assets/js/audio.js"></script>
+    <script defer src="assets/js/calendar.js"></script>
+    <script defer src="assets/js/globe.js"></script>
+    <script defer src="assets/js/telemetry.js"></script>
+    <script defer src="assets/js/main.js"></script>
 </body>
 </html>
