@@ -612,7 +612,7 @@ async function detectHeadMovement(video) {
 
 // ==============================================================================
 // 3. ANATOMICAL BIOMETRIC HUMAN DETECTION ENGINE
-// 2D Spatial Density Peak Finder (Eliminates Background False Positives)
+// Ultra-Responsive Dual-Spectrum Spatial Density & Cranial Tracker
 // ==============================================================================
 function runFallbackHeadChromaTracker(video) {
     const mw = motionAnalysisCanvas.width;
@@ -627,10 +627,10 @@ function runFallbackHeadChromaTracker(video) {
         return;
     }
 
-    // 1. Dual-Spectrum Skin & Motion Detection with 2D Histogram Binning
-    const histX = new Float32Array(mw);
-    const histY = new Float32Array(mh);
-    const candidatePoints = [];
+    let topY = mh, bottomY = 0;
+    let sumX = 0, sumY = 0, totalWeight = 0;
+    let minX = mw, maxX = 0;
+    const candidates = [];
 
     for (let i = 0; i < currData.length; i += 4) {
         const pixelIdx = i / 4;
@@ -642,92 +642,66 @@ function runFallbackHeadChromaTracker(video) {
         const normR = r / sum;
         const normG = g / sum;
         
-        // Adaptive Normalized Chrominance & YCbCr Skin Locus
-        const isNormSkin = (normR >= 0.31 && normR <= 0.63) && (normG >= 0.21 && normG <= 0.40) && (normR > normG) && (r > 30) && (Math.abs(r - g) >= 5);
+        // 1. Broad Normalized RGB & YCbCr Skin Locus (Adaptive across all skin tones & lighting)
+        const isNormSkin = (normR >= 0.29 && normR <= 0.65) && (normG >= 0.19 && normG <= 0.43) && (normR >= normG) && (r > 24);
 
         const y = 0.299 * r + 0.587 * g + 0.114 * b;
         const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
         const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
-        const isYCbCrSkin = (y > 25 && y < 245) && (cb >= 70 && cb <= 145) && (cr >= 125 && cr <= 185);
+        const isYCbCrSkin = (y > 15 && y < 252) && (cb >= 60 && cb <= 155) && (cr >= 115 && cr <= 195);
 
         const isSkin = isNormSkin || isYCbCrSkin;
 
         const diff = (Math.abs(r - prevFrameData[i]) + Math.abs(g - prevFrameData[i + 1]) + Math.abs(b - prevFrameData[i + 2])) / 3;
-        const isMoving = diff > 9;
+        const isMoving = diff > 7;
 
-        if (isSkin || (isMoving && py < mh * 0.70)) {
-            const weight = (isSkin ? 1.0 : 0) + (isMoving ? 1.5 : 0.4);
-            candidatePoints.push({ px, py, weight });
-            histX[px] += weight;
-            histY[py] += weight;
+        if (isSkin || (isMoving && py < mh * 0.80)) {
+            const weight = (isSkin ? 1.0 : 0) + (isMoving ? 1.8 : 0.5);
+            candidates.push({ px, py, weight });
+            if (py < topY) topY = py;
+            if (py > bottomY) bottomY = py;
         }
     }
 
     prevFrameData.set(currData);
 
-    if (candidatePoints.length < 8) {
-        if (performance.now() - headCentroid.lastDetectedTime > 500) {
-            headCentroid.active = false;
-            headCentroid.intensity = Math.max(0, headCentroid.intensity - 15);
-            if (headTrail.length > 0) headTrail.shift();
-        }
-        return;
-    }
+    // Isolate upper cranial region (top 55% of the detected human mass)
+    if (candidates.length >= 4) {
+        const totalHeight = Math.max(12, bottomY - topY);
+        const cranialCutoff = topY + totalHeight * 0.55;
 
-    // 2. Find Spatial Density Peak (Smoothed Gaussian Mode)
-    let bestPeakX = mw / 2, maxDensX = 0;
-    for (let x = 1; x < mw - 1; x++) {
-        const dens = histX[x - 1] * 0.25 + histX[x] * 0.5 + histX[x + 1] * 0.25;
-        if (dens > maxDensX) {
-            maxDensX = dens;
-            bestPeakX = x;
+        for (const pt of candidates) {
+            if (pt.py <= cranialCutoff) {
+                sumX += pt.px * pt.weight;
+                sumY += pt.py * pt.weight;
+                totalWeight += pt.weight;
+
+                if (pt.px < minX) minX = pt.px;
+                if (pt.px > maxX) maxX = pt.px;
+            }
         }
     }
 
-    // Upper cranial Y peak (search in upper 65% of screen)
-    let bestPeakY = mh * 0.4, maxDensY = 0;
-    for (let y = 1; y < Math.floor(mh * 0.68); y++) {
-        const dens = histY[y - 1] * 0.25 + histY[y] * 0.5 + histY[y + 1] * 0.25;
-        if (dens > maxDensY) {
-            maxDensY = dens;
-            bestPeakY = y;
-        }
-    }
-
-    // 3. Cluster filtering around Peak (Eliminates background artifacts like staircases or side curtains)
-    const radiusX = mw * 0.20; // 20% width window around face peak
-    const radiusY = mh * 0.22; // 22% height window around face peak
-
-    let headSumX = 0, headSumY = 0, headWeightSum = 0;
-    let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
-
-    for (const pt of candidatePoints) {
-        if (Math.abs(pt.px - bestPeakX) <= radiusX && Math.abs(pt.py - bestPeakY) <= radiusY) {
-            headSumX += pt.px * pt.weight;
-            headSumY += pt.py * pt.weight;
-            headWeightSum += pt.weight;
-
-            if (pt.px < minClusterX) minClusterX = pt.px;
-            if (pt.px > maxClusterX) maxClusterX = pt.px;
-            if (pt.py < minClusterY) minClusterY = pt.py;
-            if (pt.py > maxClusterY) maxClusterY = pt.py;
-        }
-    }
-
-    if (headWeightSum >= 6) {
-        const rawHeadX = (headSumX / headWeightSum) / mw;
-        const rawHeadY = (headSumY / headWeightSum) / mh;
-        const clusterW = Math.max(14, maxClusterX - minClusterX);
-        const clusterH = Math.max(18, maxClusterY - minClusterY);
-        const rawHeadW = Math.max(0.20, clusterW / mw);
-        const rawHeadH = Math.max(0.26, clusterH / mh);
+    if (totalWeight >= 3) {
+        const rawHeadX = (sumX / totalWeight) / mw;
+        const rawHeadY = (sumY / totalWeight) / mh;
+        const clusterW = Math.max(16, maxX - minX);
+        const rawHeadW = Math.max(0.22, clusterW / mw);
+        const rawHeadH = Math.max(0.28, (bottomY - topY) / mh * 0.65);
 
         updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
-            minX: Math.max(0, (minClusterX / mw) - 0.03),
-            minY: Math.max(0, (minClusterY / mh) - 0.03),
-            maxX: Math.min(1, (maxClusterX / mw) + 0.03),
-            maxY: Math.min(1, (maxClusterY / mh) + 0.03)
+            minX: Math.max(0, (minX / mw) - 0.04),
+            minY: Math.max(0, (topY / mh) - 0.04),
+            maxX: Math.min(1, (maxX / mw) + 0.04),
+            maxY: Math.min(1, (bottomY / mh) + 0.04)
         });
+    } else {
+        // Hysteresis: Keep active for 3 seconds of absence before declaring away
+        if (performance.now() - headCentroid.lastDetectedTime > 3000) {
+            headCentroid.active = false;
+            headCentroid.intensity = Math.max(0, headCentroid.intensity - 5);
+            if (headTrail.length > 0) headTrail.shift();
+        }
     }
 }
 
@@ -750,7 +724,11 @@ function startTacticalHUDLoop() {
 
         const activeVideo = getActiveReconVideo();
         if (activeVideo && isHeadTrackingEnabled) {
-            detectHeadMovement(activeVideo);
+            try {
+                detectHeadMovement(activeVideo);
+            } catch (err) {
+                console.warn("[HeadTrack] detect error:", err);
+            }
         }
 
         const canvases = [
@@ -771,8 +749,8 @@ function startTacticalHUDLoop() {
 
             // 1. Minimal Corner Viewfinder Brackets
             const bracketSize = Math.min(14, w * 0.04);
-            ctx.strokeStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.30)';
-            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.40)';
+            ctx.lineWidth = 1.4;
             ctx.setLineDash([]);
             ctx.beginPath();
             ctx.moveTo(8, 8 + bracketSize); ctx.lineTo(8, 8); ctx.lineTo(8 + bracketSize, 8);
@@ -787,8 +765,8 @@ function startTacticalHUDLoop() {
             if (isCameraFlippedH) headX = (1 - headCentroid.smoothX) * w;
             if (isCameraFlippedV) headY = (1 - headCentroid.smoothY) * h;
 
-            const headW = Math.max(48, headCentroid.smoothW * w);
-            const headH = Math.max(64, headCentroid.smoothH * h);
+            const headW = Math.max(52, headCentroid.smoothW * w);
+            const headH = Math.max(68, headCentroid.smoothH * h);
             const hx = headX - headW / 2;
             const hy = headY - headH / 2;
 
@@ -796,10 +774,10 @@ function startTacticalHUDLoop() {
             if (isHeadTrackingEnabled && headCentroid.active) {
                 ctx.save();
 
-                const hCorner = Math.min(10, headW * 0.20);
+                const hCorner = Math.min(12, headW * 0.20);
                 const reticleColor = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
                 ctx.strokeStyle = reticleColor;
-                ctx.lineWidth = 1.8;
+                ctx.lineWidth = 2.0;
                 ctx.setLineDash([]);
 
                 // Tight 4-Corner Viewfinder Brackets around Face
@@ -813,29 +791,40 @@ function startTacticalHUDLoop() {
                 // Center Anatomical Vertex Crosshair
                 ctx.fillStyle = reticleColor;
                 ctx.beginPath();
-                ctx.arc(headX, headY, 2.5, 0, Math.PI * 2);
+                ctx.arc(headX, headY, 3, 0, Math.PI * 2);
                 ctx.fill();
 
                 // Small pulsing focal ring
                 ctx.strokeStyle = reticleColor;
                 ctx.lineWidth = 1.2;
                 ctx.beginPath();
-                ctx.arc(headX, headY, 8 * pulseScale, 0, Math.PI * 2);
+                ctx.arc(headX, headY, 9 * pulseScale, 0, Math.PI * 2);
                 ctx.stroke();
 
                 ctx.restore();
             }
 
-            // 3. Top Stardate & Telemetry Status HUD Strip
-            ctx.font = '9px "Space Mono", monospace';
-            ctx.fillStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.85)';
+            // 3. Top Stardate & Telemetry Status HUD Strip (Protected with High-Contrast Glass Backdrop)
+            ctx.save();
+            const topBannerW = Math.min(420, w - 24);
+            const topBannerH = 32;
+            ctx.fillStyle = 'rgba(4, 13, 20, 0.85)';
+            ctx.fillRect(12, 10, topBannerW, topBannerH);
+            ctx.strokeStyle = 'rgba(102, 204, 255, 0.45)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(12, 10, topBannerW, topBannerH);
+
+            ctx.font = 'bold 9px "Space Mono", monospace';
+            ctx.fillStyle = isLaserScanning ? '#33ff66' : (headCentroid.active ? '#34d399' : 'rgba(102, 204, 255, 0.95)');
             ctx.fillText(
                 isLaserScanning ? `[●] SCANNING OPTICAL TARGET...` : 
                 (headCentroid.active ? `[●] STUDY SENTRY: SENSEI LOCKED // POSTURE: ${postureState} (${cervicalAngle}°)` : `OPTICAL SENSOR [${currentCameraFacing.toUpperCase()}] ${isCameraFlippedH ? '⇄ MIRRORED' : ''} ${isCameraFlippedV ? '⇅ INVERTED' : ''}`),
-                16, 20
+                18, 23
             );
-            ctx.fillStyle = headCentroid.active ? '#ffe253' : 'rgba(255, 226, 83, 0.8)';
-            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'AWAY'}`, 16, 32);
+            ctx.font = '8.5px "Space Mono", monospace';
+            ctx.fillStyle = headCentroid.active ? '#ffe253' : 'rgba(255, 226, 83, 0.85)';
+            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'SEARCHING'}`, 18, 35);
+            ctx.restore();
 
             // 4. Laser Scan Sweep (when active)
             if (isLaserScanning) {
@@ -863,16 +852,13 @@ function startTacticalHUDLoop() {
             if (isCalloutsEnabled && headCentroid.active) {
                 ctx.save();
 
-                // Smart non-overlapping leader line:
-                // If head is in left half of screen, point towards upper right.
-                // If head is in right half of screen, point towards upper left.
                 const isLeftHalf = headX < w * 0.52;
-                const leaderLen = Math.max(45, Math.min(85, w * 0.16));
+                const leaderLen = Math.max(50, Math.min(90, w * 0.18));
                 const angleRad = (isLeftHalf ? -35 : -145) * (Math.PI / 180);
                 const elbowX = headX + Math.cos(angleRad) * leaderLen;
-                const elbowY = Math.max(45, headY + Math.sin(angleRad) * leaderLen);
+                const elbowY = Math.max(55, headY + Math.sin(angleRad) * leaderLen);
 
-                const cardWidth = Math.max(180, Math.min(230, w * 0.38));
+                const cardWidth = Math.max(190, Math.min(240, w * 0.38));
                 const cardHeight = 34;
                 const endX = isLeftHalf ? (elbowX + cardWidth) : (elbowX - cardWidth);
                 const calloutColor = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
@@ -903,7 +889,7 @@ function startTacticalHUDLoop() {
                 const cardX = isLeftHalf ? elbowX : (elbowX - cardWidth);
                 const cardY = elbowY - cardHeight - 2;
 
-                ctx.fillStyle = 'rgba(4, 13, 20, 0.88)';
+                ctx.fillStyle = 'rgba(4, 13, 20, 0.90)';
                 ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
 
                 ctx.strokeStyle = calloutColor;
@@ -916,7 +902,7 @@ function startTacticalHUDLoop() {
                 ctx.fillText(`[SENSEI - HEAD LOCK]`, cardX + 6, cardY + 13);
 
                 ctx.font = '8px "Space Mono", monospace';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
                 ctx.fillText(`CERVICAL: ${cervicalAngle}° (${postureState}) // VEL: ${headCentroid.velocity}px/s`, cardX + 6, cardY + 26);
 
                 ctx.restore();
@@ -925,7 +911,7 @@ function startTacticalHUDLoop() {
             // 6. User Manual Dropped Target Pins (if any)
             if (isCalloutsEnabled) {
                 activeCallouts.forEach(callout => {
-                    if (callout.isAuto) return; // Handled by intelligent sentry above
+                    if (callout.isAuto) return;
 
                     let pinX = callout.relX * w;
                     let pinY = callout.relY * h;
