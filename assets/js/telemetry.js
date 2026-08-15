@@ -16,17 +16,23 @@ async function fetchTelemetry() {
 
     try {
         const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
         const endpoint = (window.BMB20_CONFIG && window.BMB20_CONFIG.telemetryEndpoint) ? window.BMB20_CONFIG.telemetryEndpoint : 'api/telemetry';
-        const res = await fetch(endpoint + '?t=' + Date.now(), { cache: 'no-store', signal: controller.signal })
-            .catch(() => fetch('api.json?t=' + Date.now(), { cache: 'no-store', signal: controller.signal }));
+        let res = await fetch(endpoint + '?t=' + Date.now(), { cache: 'no-store', signal: controller.signal })
+            .catch(() => null);
+        
+        if (!res || !res.ok) {
+            res = await fetch('api.json?t=' + Date.now(), { cache: 'no-store', signal: controller.signal }).catch(() => null);
+        }
         clearTimeout(timeoutId);
-        if (res.ok) {
+
+        if (res && res.ok) {
             const data = await res.json();
             if (data && data.cpu !== undefined) {
                 updateMetricsUI(data.cpu, data.memory, data.temp, data.disk, data.uptime, "REAL HARDWARE [OK]", data);
                 updateBandwidth(data.tx_rate, data.rx_rate);
                 if (data.syslog) appendSysLog(data.syslog);
-                updatePiHoleUI(data.pihole);
+                if (data.pihole) updatePiHoleUI(data.pihole);
                 if (data.weather) updateWeatherUI(data.weather);
                 if (data.lan_devices && Array.isArray(data.lan_devices)) {
                     updateLANDevicesUI(data.lan_devices);
@@ -331,6 +337,7 @@ function updateBandwidth(txBytesPerSec, rxBytesPerSec) {
 }
 
 // Live LAN Subspace Radar & Connected Node Renderer
+// Live LAN Subspace Radar & Connected Node Renderer
 function updateLANDevicesUI(devices) {
     const container = document.getElementById('lan-devices-container');
     const countElem = document.getElementById('lan-count');
@@ -338,10 +345,10 @@ function updateLANDevicesUI(devices) {
 
     if (!Array.isArray(devices) || devices.length === 0) {
         devices = [
-            { name: "GATEWAY ROUTER", ip: "192.168.0.1", dev: "eth0", status: "ACTIVE" },
-            { name: "CLIENT PC", ip: "192.168.0.10", dev: "eth0", status: "ACTIVE" },
-            { name: "MOBILE COMMS", ip: "192.168.0.105", dev: "wlan0", status: "ACTIVE" },
-            { name: "PI-HOLE CORE", ip: "127.0.0.1", dev: "lo", status: "LOCAL" }
+            { name: "GATEWAY ROUTER", ip: "192.168.0.1", mac: "0c:b6:d2:d8:c2:c4", dev: "eth0", status: "ACTIVE" },
+            { name: "HOST-192.168.0.160", ip: "192.168.0.160", mac: "e6:dd:84:f4:57:bc", dev: "eth0", status: "ACTIVE" },
+            { name: "HOST-192.168.0.124", ip: "192.168.0.124", mac: "6e:92:9e:20:d8:1c", dev: "eth0", status: "ACTIVE" },
+            { name: "HOST-192.168.0.139", ip: "192.168.0.139", mac: "74:4c:a1:94:65:53", dev: "wlan0", status: "ACTIVE" }
         ];
     }
 
@@ -352,15 +359,15 @@ function updateLANDevicesUI(devices) {
     container.innerHTML = '';
     devices.forEach((dev, idx) => {
         const row = document.createElement('div');
-        row.className = "bg-surface-container-highest/80 px-2 py-1 rounded flex items-center justify-between font-data-mono text-[9px] hover:bg-surface-bright transition-all cursor-pointer border border-outline-variant/20 hover:border-primary/40";
+        row.className = "bg-surface-container-highest/90 px-3 py-2 rounded flex items-center justify-between font-data-mono text-xs hover:bg-surface-bright transition-all cursor-pointer border border-outline-variant/20 hover:border-primary/50 shadow-sm";
         row.onclick = () => openNodeModal(dev);
 
         const leftCol = document.createElement('div');
-        leftCol.className = "flex items-center gap-1.5";
+        leftCol.className = "flex items-center gap-2";
 
         // Dynamic Subsystem Icon
         const iconSpan = document.createElement('span');
-        iconSpan.className = "material-symbols-outlined text-xs text-lcars-gold";
+        iconSpan.className = "material-symbols-outlined text-sm text-lcars-gold";
         const devName = (dev.name || dev.ip || "").toLowerCase();
         if (devName.includes('router') || dev.ip === '192.168.0.1') {
             iconSpan.textContent = "router";
@@ -373,15 +380,15 @@ function updateLANDevicesUI(devices) {
         }
 
         const textCol = document.createElement('div');
-        textCol.className = "flex flex-col";
+        textCol.className = "flex flex-col gap-0.5";
 
         const nameSpan = document.createElement('span');
-        nameSpan.className = "font-bold text-on-surface text-[9.5px]";
+        nameSpan.className = "font-bold text-on-surface text-xs";
         nameSpan.textContent = (dev.name || dev.ip || "NODE").toUpperCase();
 
         const ipSub = document.createElement('span');
-        ipSub.className = "text-[7.5px] text-secondary font-mono";
-        ipSub.textContent = `${dev.ip || "192.168.0.x"} // ${dev.dev || "eth0"}`;
+        ipSub.className = "text-[10px] text-secondary font-mono";
+        ipSub.textContent = dev.mac ? `${dev.ip} // ${dev.mac}` : `${dev.ip || "192.168.0.x"} // ${dev.dev || "eth0"}`;
 
         textCol.appendChild(nameSpan);
         textCol.appendChild(ipSub);
@@ -390,18 +397,18 @@ function updateLANDevicesUI(devices) {
         leftCol.appendChild(textCol);
 
         const rightCol = document.createElement('div');
-        rightCol.className = "flex items-center gap-1.5";
+        rightCol.className = "flex items-center gap-2";
 
         const pingSpan = document.createElement('span');
-        pingSpan.className = "text-[7.5px] text-on-surface-variant font-mono";
-        pingSpan.textContent = `${(1.2 + (idx * 0.8)).toFixed(1)}ms`;
+        pingSpan.className = "text-[10px] text-tertiary font-mono font-bold";
+        pingSpan.textContent = `${(1.2 + (idx * 0.4)).toFixed(1)}ms`;
 
         const statText = document.createElement('span');
-        statText.className = "text-[8px] text-primary font-bold";
-        statText.textContent = dev.status || "ACTIVE";
+        statText.className = "text-[10px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded border border-primary/30";
+        statText.textContent = dev.status || "OK";
 
         const led = document.createElement('div');
-        led.className = "w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_4px_#66ccff]";
+        led.className = "w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_#66ccff]";
 
         rightCol.appendChild(pingSpan);
         rightCol.appendChild(statText);
@@ -438,10 +445,10 @@ function updatePiHoleUI(pihole) {
     if (!pihole) {
         pihole = {
             status: 'enabled',
-            queries: 28004,
-            blocked: 10520,
-            percent: 37.6,
-            domains: 2490605
+            queries: 68084,
+            blocked: 18420,
+            percent: 27.1,
+            domains: 2994030
         };
     }
 
@@ -454,10 +461,10 @@ function updatePiHoleUI(pihole) {
     const status = pihole.status || 'enabled';
     const queries = Number(pihole.queries || 0);
     const blocked = Number(pihole.blocked || 0);
-    const pct = parseFloat(pihole.percent || (queries > 0 ? (blocked / queries) * 100 : 37.6)).toFixed(1);
+    const pct = parseFloat(pihole.percent || (queries > 0 ? (blocked / queries) * 100 : 27.1)).toFixed(1);
 
     if (headerPct) {
-        headerPct.innerText = `${pct}% BLOCKED`;
+        headerPct.innerText = `${pct}% (${blocked.toLocaleString()} BLK)`;
     }
 
     if (sidebarShield) {
@@ -742,6 +749,7 @@ window.fetchTelemetry = fetchTelemetry;
 window.setTelemetryActive = setTelemetryActive;
 window.drawBandwidthCanvas = drawBandwidthCanvas;
 window.updatePiHoleUI = updatePiHoleUI;
+window.updateLANDevicesUI = updateLANDevicesUI;
 window.updateWeatherUI = updateWeatherUI;
 window.fetchClientWeather = fetchClientWeather;
 window.openNodeModal = openNodeModal;
