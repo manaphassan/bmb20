@@ -5,6 +5,12 @@
  * ==========================================================================
  */
 
+// Clean Address Bar: Hide 'index.html' seamlessly from browser address bar
+if (typeof window !== 'undefined' && window.location.pathname.endsWith('/index.html')) {
+    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/') + window.location.search + window.location.hash;
+    window.history.replaceState(null, '', cleanPath);
+}
+
 let cascadeActive = true;
 let isTabFocused = true;
 let cascadeTimer = null;
