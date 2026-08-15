@@ -239,15 +239,25 @@ function resetTokenQuota() {
 
 async function loadSettingsCalendars() {
     try {
-        const res = await fetch('cal.php?action=get_calendar_config').catch(() => fetch('api.php?action=get_calendar_config'));
-        if (!res.ok) throw new Error('Network error');
-        const data = await res.json();
+        let data = null;
+        try {
+            const staticRes = await fetch('calendar_config.json?t=' + Date.now());
+            if (staticRes && staticRes.ok) {
+                data = await staticRes.json();
+            }
+        } catch(e) {}
+
+        if (!data) {
+            const res = await fetch('cal.php?action=get_calendar_config').catch(() => null);
+            if (res && res.ok) data = await res.json();
+        }
         
-        let cals = (data.calendars && data.calendars.length > 0) ? data.calendars : [...DEFAULT_CALENDARS];
+        let cals = (data && data.calendars && data.calendars.length > 0) ? data.calendars : [...DEFAULT_CALENDARS];
         settingsCalendarState.calendars = cals;
         renderSettingsCalendarsList();
     } catch(e) {
         console.warn('Failed to load settings calendar list:', e);
+        settingsCalendarState.calendars = [...DEFAULT_CALENDARS];
         renderSettingsCalendarsList();
     }
 }
