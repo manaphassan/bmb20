@@ -112,9 +112,22 @@
          ========================================== -->
     <div class="sidebar-area bg-surface-container-low lcars-hop-top-left lcars-hop-bottom-left flex flex-col pt-3 pb-3 border-r-4 border-lcars-orange rounded-l-hop">
         <!-- Okuda Top Elbow Cap with Kanji Logo Mark -->
-        <div class="bg-lcars-orange text-black font-headline-sm text-xs px-3 py-1.5 rounded-r-full font-bold tracking-widest flex items-center justify-between mb-3 mr-2 shadow-md">
+        <div class="bg-lcars-orange text-black font-headline-sm text-xs px-3 py-1.5 rounded-r-full font-bold tracking-widest flex items-center justify-between mb-2 mr-2 shadow-md">
             <span class="text-sm font-kanji font-black tracking-normal">&#x9AD8;&#x539F;&#x5B66;&#x5712;</span>
             <span>MEENA&trade; CORE</span>
+        </div>
+
+        <!-- Tactical Alert Condition Dynamic Single-Button Cycler (Moved from Header) -->
+        <div class="px-2 mb-2.5 font-data-mono">
+            <button id="status-cycle-btn" onclick="cycleAlertCondition()" 
+                    class="w-full flex items-center justify-between bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 py-1.5 px-2.5 rounded-l-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)] mr-2"
+                    title="Click to cycle Tactical Alert Condition (GREEN -> YELLOW -> RED) [Key 0]">
+                <div class="flex items-center gap-1.5 truncate">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" id="status-cycle-dot"></span>
+                    <span id="status-cycle-text" class="truncate">COND: GREEN</span>
+                </div>
+                <span class="material-symbols-outlined text-xs flex-shrink-0">sync</span>
+            </button>
         </div>
 
         <!-- Service Launcher Links -->
@@ -229,8 +242,14 @@
             </div>
         </div>
 
-        <!-- Bottom Audio & Cascade Controls -->
+        <!-- Bottom Audio, Mode & Control Switchers -->
         <div class="px-2 flex flex-col gap-1">
+            <!-- Layout Mode Switcher (Moved from Header) -->
+            <button onclick="toggleLayoutMode()" class="bg-surface-container-high hover:bg-primary hover:text-black text-primary font-headline-sm text-xs rounded-l-full mr-2 py-1.5 px-3 text-right transition-colors flex justify-between items-center font-bold border border-primary/30 shadow-sm" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
+                <span class="material-symbols-outlined text-sm">devices</span>
+                <span>MODE: BRIDGE</span>
+            </button>
+
             <!-- Voice Listening Mic Mute/Unmute & Meena AI Dossier Profile Triggers -->
             <div class="grid grid-cols-2 gap-1 mr-2 font-data-mono text-[9px]">
                 <button id="sidebar-mic-toggle-btn" onclick="toggleVoiceListeningMute()" class="bg-surface-container-high hover:bg-primary hover:text-black py-1.5 px-1.5 rounded-l-full text-center font-bold transition-all flex items-center justify-center gap-1 border border-outline-variant/40" title="Mute / Unmute Voice Listening [M]">
@@ -288,28 +307,16 @@
             </div>
         </div>
 
-        <!-- Tactical Alert Condition Dynamic Single-Button Cycler -->
-        <div class="flex items-center font-data-mono gap-2">
-            <button id="status-cycle-btn" onclick="cycleAlertCondition()" 
-                    class="flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)]"
-                    title="Click to cycle Tactical Alert Condition (GREEN -> YELLOW -> RED)">
-                <span class="w-2 h-2 rounded-full bg-primary animate-pulse" id="status-cycle-dot"></span>
-                <span id="status-cycle-text">CONDITION: GREEN // NOMINAL</span>
-                <span class="material-symbols-outlined text-xs">sync</span>
-            </button>
-
-            <!-- Waktu Solat Malaysian Prayer Time Badge -->
-            <div id="header-prayer-badge" onclick="if(window.fetchWaktuSolat) fetchWaktuSolat()" class="hidden md:flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high px-2.5 py-1 rounded-full border border-tertiary/40 font-data-mono text-[10px] text-tertiary cursor-pointer transition-all shadow-sm" title="Waktu Solat Malaysia (Klik untuk kemaskini)">
+        <!-- Center: Waktu Solat Malaysian Prayer Time Badge -->
+        <div class="flex items-center font-data-mono">
+            <div id="header-prayer-badge" onclick="if(window.fetchWaktuSolat) fetchWaktuSolat()" class="flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high px-3 py-1 rounded-full border border-tertiary/40 font-data-mono text-[10px] text-tertiary cursor-pointer transition-all shadow-sm" title="Waktu Solat Malaysia (Klik untuk kemaskini)">
                 <span class="material-symbols-outlined text-xs text-tertiary">mosque</span>
                 <span id="header-prayer-text" class="font-bold">SOLAT: SYNCING...</span>
             </div>
         </div>
 
+        <!-- Right: Status Readouts, Stardate & Chronometer -->
         <div class="flex items-center gap-3 font-data-mono text-xs text-tertiary">
-            <button onclick="toggleLayoutMode()" class="flex gap-1.5 items-center bg-surface-container-high hover:bg-primary hover:text-black px-2 py-0.5 rounded-full border border-primary/40 text-[10px] text-primary font-bold cursor-pointer transition-all shadow-sm" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
-                <span class="material-symbols-outlined text-xs">devices</span>
-                <span>MODE: BRIDGE</span>
-            </button>
             <div onclick="openPiholeModal()" class="flex gap-2 items-center bg-surface-container px-2.5 py-0.5 rounded-full border border-outline-variant/30 cursor-pointer hover:border-secondary hover:bg-surface-container-high transition-all" title="Click to control Pi-hole Defense Shield">
                 <span class="text-[10px] text-secondary font-bold">PI-HOLE:</span>
                 <span class="text-primary font-bold" id="header-pihole-pct">ACTIVE</span>

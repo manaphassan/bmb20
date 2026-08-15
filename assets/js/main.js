@@ -47,9 +47,9 @@ function setAlertCondition(condition, isManual = true) {
             badge.className = "text-error font-bold tracking-wider animate-pulse";
         }
         if (cycleBtn) {
-            cycleBtn.className = "flex items-center gap-1.5 bg-error/20 hover:bg-error/30 text-error border border-error/60 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_12px_rgba(255,84,73,0.4)] animate-pulse";
+            cycleBtn.className = "w-full flex items-center justify-between bg-error/20 hover:bg-error/30 text-error border border-error/60 py-1.5 px-2.5 rounded-l-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_12px_rgba(255,84,73,0.4)] animate-pulse mr-2";
         }
-        if (cycleText) cycleText.innerText = "CONDITION: RED // BATTLE STATIONS";
+        if (cycleText) cycleText.innerText = "COND: RED // ALERT";
         if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-error animate-ping";
 
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('red');
@@ -65,9 +65,9 @@ function setAlertCondition(condition, isManual = true) {
             badge.className = "text-tertiary font-bold tracking-wider";
         }
         if (cycleBtn) {
-            cycleBtn.className = "flex items-center gap-1.5 bg-tertiary/20 hover:bg-tertiary/30 text-tertiary border border-tertiary/60 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(255,226,83,0.3)]";
+            cycleBtn.className = "w-full flex items-center justify-between bg-tertiary/20 hover:bg-tertiary/30 text-tertiary border border-tertiary/60 py-1.5 px-2.5 rounded-l-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(255,226,83,0.3)] mr-2";
         }
-        if (cycleText) cycleText.innerText = "CONDITION: YELLOW // CAUTION";
+        if (cycleText) cycleText.innerText = "COND: YELLOW // CAUTION";
         if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-tertiary animate-pulse";
 
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('yellow');
@@ -82,9 +82,9 @@ function setAlertCondition(condition, isManual = true) {
             badge.className = "text-primary font-bold tracking-wider";
         }
         if (cycleBtn) {
-            cycleBtn.className = "flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)]";
+            cycleBtn.className = "w-full flex items-center justify-between bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 py-1.5 px-2.5 rounded-l-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)] mr-2";
         }
-        if (cycleText) cycleText.innerText = "CONDITION: GREEN // NOMINAL";
+        if (cycleText) cycleText.innerText = "COND: GREEN // NOMINAL";
         if (cycleDot) cycleDot.className = "w-2 h-2 rounded-full bg-primary animate-pulse";
 
         if (window.setGlobeAlertColor) window.setGlobeAlertColor('green');
