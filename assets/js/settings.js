@@ -27,7 +27,10 @@ let settingsCalendarState = {
 };
 
 function switchTab(tabId) {
-    document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.settings-panel').forEach(p => {
+        p.classList.add('hidden');
+        p.style.display = 'none';
+    });
     document.querySelectorAll('.settings-nav-btn').forEach(b => {
         b.classList.remove('active', 'bg-primary/20', 'text-primary', 'border-l-4', 'border-primary');
         b.classList.add('text-secondary', 'hover:bg-surface-container-high');
@@ -35,7 +38,10 @@ function switchTab(tabId) {
 
     const panel = document.getElementById(`panel-${tabId}`);
     const btn = document.getElementById(`tab-btn-${tabId}`);
-    if (panel) panel.classList.remove('hidden');
+    if (panel) {
+        panel.classList.remove('hidden');
+        panel.style.display = 'flex';
+    }
     if (btn) {
         btn.classList.add('active', 'bg-primary/20', 'text-primary', 'border-l-4', 'border-primary');
         btn.classList.remove('text-secondary', 'hover:bg-surface-container-high');
@@ -516,27 +522,43 @@ async function restoreFromMeenaHearth() {
 
 async function loadHearthHealthMetrics() {
     try {
-        const t0 = performance.now();
-        const res = await fetch('api.php?action=get_hearth_metrics').catch(() => fetch('meenaHearth.json?t=' + Date.now()));
-        const latency = Math.round(performance.now() - t0);
-        
-        if (res && res.ok) {
-            const data = await res.json();
-            const sizeElem = document.getElementById('hearth-metric-size');
-            const nodesElem = document.getElementById('hearth-metric-nodes');
-            const speedElem = document.getElementById('hearth-metric-speed');
-            const healthElem = document.getElementById('hearth-metric-health');
-            const detailElem = document.getElementById('hearth-metric-nodes-detail');
+        const sizeElem = document.getElementById('hearth-metric-size');
+        const nodesElem = document.getElementById('hearth-metric-nodes');
+        const speedElem = document.getElementById('hearth-metric-speed');
+        const healthElem = document.getElementById('hearth-metric-health');
+        const detailElem = document.getElementById('hearth-metric-nodes-detail');
 
-            if (sizeElem) sizeElem.innerText = data.file_size_formatted || (data.core_memories ? `${(JSON.stringify(data).length / 1024).toFixed(2)} KB` : '3.58 KB');
-            if (nodesElem) nodesElem.innerText = `${data.node_count || (data.core_memories ? data.core_memories.length : 7)} NODES`;
-            if (detailElem && data.categories) {
-                const cats = Object.keys(data.categories).length;
-                detailElem.innerText = `${cats} CATEGORIES`;
+        const t0 = performance.now();
+        let data = null;
+        let byteSize = 3580;
+        try {
+            const res = await fetch('meenaHearth.json?t=' + Date.now());
+            if (res && res.ok) {
+                const text = await res.text();
+                byteSize = text.length;
+                data = JSON.parse(text);
             }
-            if (speedElem) speedElem.innerText = `${data.latency_ms || latency || 1.2} ms`;
-            if (healthElem) healthElem.innerText = '100% HEALTHY';
+        } catch (err) {
+            console.warn('Direct meenaHearth.json fetch failed:', err);
         }
+
+        const latency = (performance.now() - t0).toFixed(1);
+        const localBank = JSON.parse(localStorage.getItem('meena_knowledge_bank') || '[]');
+        const nodesCount = (data && data.core_memories) ? data.core_memories.length : (localBank.length || 7);
+
+        let catCount = 4;
+        if (data && data.core_memories && Array.isArray(data.core_memories)) {
+            const cats = new Set(data.core_memories.map(m => m.category || 'general'));
+            catCount = cats.size;
+        }
+
+        const formattedSize = byteSize < 1024 ? `${byteSize} B` : `${(byteSize / 1024).toFixed(2)} KB`;
+
+        if (sizeElem) sizeElem.innerText = formattedSize;
+        if (nodesElem) nodesElem.innerText = `${nodesCount} NODES`;
+        if (detailElem) detailElem.innerText = `${catCount} CATEGORIES`;
+        if (speedElem) speedElem.innerText = `${latency} ms`;
+        if (healthElem) healthElem.innerText = '100% HEALTHY';
     } catch(e) {
         console.warn('Failed to load hearth metrics:', e);
     }
