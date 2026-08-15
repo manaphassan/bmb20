@@ -786,7 +786,7 @@ function startTacticalHUDLoop() {
                 ctx.beginPath();
                 ctx.moveTo(hx, hy + hCorner); ctx.lineTo(hx, hy); ctx.lineTo(hx + hCorner, hy);
                 ctx.moveTo(hx + headW - hCorner, hy); ctx.lineTo(hx + headW, hy); ctx.lineTo(hx + headW, hy + hCorner);
-                ctx.moveTo(hx, hy + headH - hCorner); ctx.lineTo(hx + headH); ctx.lineTo(hx + hCorner, hy + headH);
+                ctx.moveTo(hx, hy + headH - hCorner); ctx.lineTo(hx, hy + headH); ctx.lineTo(hx + hCorner, hy + headH);
                 ctx.moveTo(hx + headW - hCorner, hy + headH); ctx.lineTo(hx + headW, hy + headH); ctx.lineTo(hx + headW, hy + headH - hCorner);
                 ctx.stroke();
 
