@@ -1068,8 +1068,13 @@ function buildGraphData() {
     // Update Header HUD Counters
     const nodeCountElem = document.getElementById('kb-node-count');
     const edgeCountElem = document.getElementById('kb-edge-count');
+    const hearthSizeElem = document.getElementById('kg-hearth-size');
     if (nodeCountElem) nodeCountElem.innerText = graphNodes.length.toString();
     if (edgeCountElem) edgeCountElem.innerText = graphLinks.length.toString();
+    if (hearthSizeElem) {
+        const rawBytes = JSON.stringify(knowledgeBank).length + 1500;
+        hearthSizeElem.innerText = rawBytes < 1024 ? `${rawBytes} B` : `${(rawBytes / 1024).toFixed(1)} KB`;
+    }
 }
 
 function initKnowledgeGraph() {

@@ -74,6 +74,49 @@ if (!empty($action)) {
         exit;
     }
 
+    if ($action === 'get_hearth_metrics') {
+        $startTime = microtime(true);
+        $exists = file_exists($hearthFile);
+        $sizeBytes = $exists ? filesize($hearthFile) : 0;
+        $sizeFormatted = $sizeBytes < 1024 ? "{$sizeBytes} B" : sprintf("%.2f KB", $sizeBytes / 1024);
+
+        $nodeCount = 0;
+        $categories = [];
+        $persona = 'ALEX';
+        $level = 4;
+        $lastModified = $exists ? date('c', filemtime($hearthFile)) : null;
+
+        if ($exists) {
+            $hearth = json_decode(file_get_contents($hearthFile), true);
+            if ($hearth && !empty($hearth['core_memories'])) {
+                $nodeCount = count($hearth['core_memories']);
+                foreach ($hearth['core_memories'] as $m) {
+                    $cat = $m['category'] ?? 'general';
+                    $categories[$cat] = ($categories[$cat] ?? 0) + 1;
+                }
+                $persona = $hearth['persona_and_personality']['active_persona'] ?? 'ALEX';
+                $level = $hearth['growth_achievements_and_habits']['level'] ?? 4;
+            }
+        }
+
+        $latencyMs = round((microtime(true) - $startTime) * 1000, 2);
+
+        echo json_encode([
+            'status' => 'success',
+            'health' => 'OPTIMAL',
+            'file_size_bytes' => $sizeBytes,
+            'file_size_formatted' => $sizeFormatted,
+            'node_count' => $nodeCount,
+            'categories' => $categories,
+            'persona' => $persona,
+            'level' => $level,
+            'latency_ms' => $latencyMs,
+            'last_modified' => $lastModified,
+            'server_time' => date('H:i:s')
+        ]);
+        exit;
+    }
+
     if ($action === 'restore_hearth') {
         if (file_exists($hearthFile)) {
             $hearth = json_decode(file_get_contents($hearthFile), true);

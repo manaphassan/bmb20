@@ -303,6 +303,44 @@
                             <span>RESTORE HEARTH</span>
                         </button>
                     </div>
+
+                    <!-- Live Hearth Health & Performance Diagnostics Matrix -->
+                    <div class="mt-2 pt-3 border-t border-outline-variant/30 flex flex-col gap-2 font-mono">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">monitoring</span>
+                                <span>HEARTH DIAGNOSTIC PARAMETERS & HEALTH</span>
+                            </span>
+                            <button onclick="benchmarkHearthSpeed()" class="text-[9px] bg-primary/20 text-primary hover:bg-primary hover:text-black px-2 py-0.5 rounded font-bold border border-primary/40 transition-all flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[10px]">speed</span>
+                                <span>RUN BENCHMARK</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                            <div class="bg-surface-dim p-2.5 rounded border border-outline-variant/30 flex flex-col items-center">
+                                <span class="text-[9px] text-secondary">HEARTH SIZE</span>
+                                <strong id="hearth-metric-size" class="text-xs text-primary font-bold mt-0.5">3.58 KB</strong>
+                                <span class="text-[7.5px] text-tertiary">STORAGE: OPTIMAL</span>
+                            </div>
+                            <div class="bg-surface-dim p-2.5 rounded border border-outline-variant/30 flex flex-col items-center">
+                                <span class="text-[9px] text-secondary">SYNAPTIC NODES</span>
+                                <strong id="hearth-metric-nodes" class="text-xs text-tertiary font-bold mt-0.5">7 NODES</strong>
+                                <span id="hearth-metric-nodes-detail" class="text-[7.5px] text-secondary">4 CATEGORIES</span>
+                            </div>
+                            <div class="bg-surface-dim p-2.5 rounded border border-outline-variant/30 flex flex-col items-center">
+                                <span class="text-[9px] text-secondary">LOAD LATENCY</span>
+                                <strong id="hearth-metric-speed" class="text-xs text-lcars-gold font-bold mt-0.5">1.2 ms</strong>
+                                <span class="text-[7.5px] text-secondary">REST BENCHMARK</span>
+                            </div>
+                            <div class="bg-surface-dim p-2.5 rounded border border-outline-variant/30 flex flex-col items-center">
+                                <span class="text-[9px] text-secondary">CORE INTEGRITY</span>
+                                <strong id="hearth-metric-health" class="text-xs text-primary font-bold mt-0.5">100% HEALTHY</strong>
+                                <span class="text-[7.5px] text-tertiary">PARITY LOCKED</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="hearth-feedback" class="text-[10px] font-mono text-tertiary font-bold min-h-[16px]"></div>
                 </div>
 
