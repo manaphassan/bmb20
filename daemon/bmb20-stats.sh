@@ -266,12 +266,42 @@ while true; do
     if [ -z "$LAST_UPD_TIME" ]; then LAST_UPD_TIME=0; fi
     if [ $((CUR_TIME - LAST_UPD_TIME)) -ge 300 ] || [ -z "$UPD_JSON" ]; then
         PENDING_UPGRADES=0
-        if [ -f /var/lib/dietpi/dietpi-autostart ]; then
+        if command -v apt >/dev/null 2>&1; then
             PENDING_UPGRADES=$(apt list --upgradable 2>/dev/null | grep -v 'Listing...' | wc -l)
         fi
         PENDING_UPGRADES=${PENDING_UPGRADES:-0}
+        
+        # Read exact installed DietPi version
+        DIETPI_VER="v9.x"
+        if [ -f /boot/dietpi/.version ]; then
+            DP_CORE=$(grep 'G_DIETPI_VERSION_CORE=' /boot/dietpi/.version 2>/dev/null | cut -d= -f2)
+            DP_SUB=$(grep 'G_DIETPI_VERSION_SUB=' /boot/dietpi/.version 2>/dev/null | cut -d= -f2)
+            DP_RC=$(grep 'G_DIETPI_VERSION_RC=' /boot/dietpi/.version 2>/dev/null | cut -d= -f2)
+            if [ -n "$DP_CORE" ] && [ -n "$DP_SUB" ]; then
+                if [ -n "$DP_RC" ] && [ "$DP_RC" != "0" ]; then
+                    DIETPI_VER="v${DP_CORE}.${DP_SUB}.${DP_RC}"
+                else
+                    DIETPI_VER="v${DP_CORE}.${DP_SUB}"
+                fi
+            fi
+        fi
+
+        # Check DietPi update cache
+        DIETPI_UPDATE_AVAIL="false"
+        if [ -f /run/dietpi/dietpi-update.info ]; then
+            DP_LATEST=$(grep 'G_DIETPI_VERSION_CORE_LATEST=' /run/dietpi/dietpi-update.info 2>/dev/null | cut -d= -f2)
+            if [ -n "$DP_LATEST" ] && [ "$DP_LATEST" != "$DP_CORE" ]; then
+                DIETPI_UPDATE_AVAIL="true"
+            fi
+        fi
+
+        UPDATE_FLAG="false"
+        if [ "$PENDING_UPGRADES" -gt 0 ] || [ "$DIETPI_UPDATE_AVAIL" = "true" ]; then
+            UPDATE_FLAG="true"
+        fi
+
         KERNEL_VER=$(uname -r 2>/dev/null || echo "6.1.21-v7+")
-        UPD_JSON="{\"pending\":${PENDING_UPGRADES},\"kernel\":\"${KERNEL_VER}\",\"dietpi_version\":\"v9.x\",\"status\":\"$([ "$PENDING_UPGRADES" -eq 0 ] && echo 'OPTIMIZED' || echo 'UPDATES AVAILABLE')\"}"
+        UPD_JSON="{\"pending\":${PENDING_UPGRADES},\"kernel\":\"${KERNEL_VER}\",\"dietpi_version\":\"${DIETPI_VER}\",\"update_available\":${UPDATE_FLAG},\"status\":\"$([ "$UPDATE_FLAG" = "false" ] && echo 'OPTIMIZED' || echo 'UPDATES AVAILABLE')\"}"
         LAST_UPD_TIME=$CUR_TIME
 
         # Trigger background calendar and hearth maintenance

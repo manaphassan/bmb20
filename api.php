@@ -210,6 +210,91 @@ if (!empty($action)) {
         exit;
     }
 
+    if ($action === 'check_updates' || $action === 'os_updates') {
+        $dietpiVersion = 'v9.x';
+        $core = '';
+        $sub = '';
+        $rc = '';
+        if (file_exists('/boot/dietpi/.version')) {
+            $vLines = file('/boot/dietpi/.version', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($vLines as $vl) {
+                if (strpos($vl, 'G_DIETPI_VERSION_CORE=') === 0) $core = trim(substr($vl, 22));
+                if (strpos($vl, 'G_DIETPI_VERSION_SUB=') === 0) $sub = trim(substr($vl, 21));
+                if (strpos($vl, 'G_DIETPI_VERSION_RC=') === 0) $rc = trim(substr($vl, 20));
+            }
+            if ($core !== '' && $sub !== '') {
+                $dietpiVersion = "v{$core}.{$sub}" . ($rc !== '' && $rc !== '0' ? ".{$rc}" : "");
+            }
+        }
+
+        // Check if DietPi official update is available
+        $dietpiLatest = $dietpiVersion;
+        $dietpiUpdateAvailable = false;
+        
+        // 1. Check cached update info file from DietPi
+        if (file_exists('/run/dietpi/dietpi-update.info')) {
+            $updInfo = file_get_contents('/run/dietpi/dietpi-update.info');
+            if (preg_match('/G_DIETPI_VERSION_CORE_LATEST=(\d+)/', $updInfo, $cMatch) && preg_match('/G_DIETPI_VERSION_SUB_LATEST=(\d+)/', $updInfo, $sMatch)) {
+                $dietpiLatest = "v{$cMatch[1]}.{$sMatch[1]}";
+                if ($dietpiLatest !== $dietpiVersion) {
+                    $dietpiUpdateAvailable = true;
+                }
+            }
+        }
+        
+        // 2. Fast check: check online raw DietPi repo version (1.5s timeout)
+        if (!$dietpiUpdateAvailable) {
+            $ctx = stream_context_create(['http' => ['timeout' => 1.5]]);
+            $rawGitVer = @file_get_contents('https://raw.githubusercontent.com/MichaIng/DietPi/master/dietpi/.version', false, $ctx);
+            if ($rawGitVer) {
+                preg_match('/G_DIETPI_VERSION_CORE=(\d+)/', $rawGitVer, $gCore);
+                preg_match('/G_DIETPI_VERSION_SUB=(\d+)/', $rawGitVer, $gSub);
+                if (!empty($gCore[1]) && !empty($gSub[1])) {
+                    $dietpiLatest = "v{$gCore[1]}.{$gSub[1]}";
+                    if (version_compare(ltrim($dietpiLatest, 'v'), ltrim($dietpiVersion, 'v'), '>')) {
+                        $dietpiUpdateAvailable = true;
+                    }
+                }
+            }
+        }
+
+        // 3. Check Debian / APT package upgrades
+        $pendingPackages = 0;
+        $upgradableList = [];
+        $aptOutput = @shell_exec('apt list --upgradable 2>/dev/null');
+        if ($aptOutput) {
+            $lines = explode("\n", trim($aptOutput));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line) || strpos($line, 'Listing...') !== false) continue;
+                $pkgName = explode('/', $line)[0] ?? $line;
+                $upgradableList[] = $pkgName;
+                $pendingPackages++;
+            }
+        }
+
+        $kernelVer = trim(@shell_exec('uname -r 2>/dev/null') ?: '6.1.21-v7+');
+        $isUpdateAvailable = ($dietpiUpdateAvailable || $pendingPackages > 0);
+
+        $response = [
+            'status' => 'success',
+            'dietpi_version' => $dietpiVersion,
+            'dietpi_latest' => $dietpiLatest,
+            'dietpi_update_available' => $dietpiUpdateAvailable,
+            'pending_packages' => $pendingPackages,
+            'upgradable_list' => array_slice($upgradableList, 0, 15),
+            'update_available' => $isUpdateAvailable,
+            'kernel' => $kernelVer,
+            'summary' => $isUpdateAvailable 
+                ? "DietPi OS update available ({$dietpiVersion} -> {$dietpiLatest}) with {$pendingPackages} package upgrades pending."
+                : "DietPi OS ({$dietpiVersion}) is fully up to date with 0 pending package updates.",
+            'timestamp' => date('c')
+        ];
+
+        echo json_encode($response, JSON_PRETTY_PRINT);
+        exit;
+    }
+
     $calConfigFile = __DIR__ . '/calendar_config.json';
     if (!file_exists($calConfigFile)) {
         if (file_exists('/var/www/html/calendar_config.json')) {

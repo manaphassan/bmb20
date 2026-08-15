@@ -69,12 +69,62 @@ async function fetchTelemetry() {
 
 let lastThermalAlertTime = 0;
 let lastUndervoltageAlertTime = 0;
+let lastOsUpdateAlertTime = 0;
+
+// Update UI with DietPi OS Update Status
+function updateOsHealthUI(osHealth) {
+    if (!osHealth) return;
+    const isUpdateAvailable = !!(osHealth.update_available || (osHealth.pending && osHealth.pending > 0));
+    const pendingCount = osHealth.pending || 0;
+    const versionStr = osHealth.dietpi_version || 'DietPi';
+
+    const headerBtn = document.getElementById('header-os-update-btn');
+    const headerText = document.getElementById('header-os-update-text');
+    const commBtn = document.getElementById('comm-os-update-btn');
+    const commText = document.getElementById('comm-os-update-text');
+
+    if (isUpdateAvailable) {
+        if (headerBtn) {
+            headerBtn.classList.remove('hidden');
+            headerBtn.classList.add('flex');
+            if (headerText) headerText.innerText = pendingCount > 0 ? `OS UPD: ${pendingCount} PKGS` : `DIETPI UPD READY`;
+        }
+        if (commBtn) {
+            commBtn.classList.remove('hidden');
+            commBtn.classList.add('flex');
+            if (commText) commText.innerText = pendingCount > 0 ? `UPD: ${pendingCount}` : `OS UPD`;
+        }
+
+        // Trigger proactive alert notification (cooldown: 4 hours = 14,400,000 ms)
+        if (Date.now() - lastOsUpdateAlertTime > 14400000) {
+            lastOsUpdateAlertTime = Date.now();
+            if (window.showNotificationAlert) {
+                window.showNotificationAlert(
+                    "DIETPI OS UPDATE AVAILABLE",
+                    `DietPi ${versionStr} has ${pendingCount} package update${pendingCount === 1 ? '' : 's'} available. Type 'check updates' or tap badge.`,
+                    "warning",
+                    { duration: 10000, chime: "caution" }
+                );
+            }
+        }
+    } else {
+        if (headerBtn) {
+            headerBtn.classList.add('hidden');
+            headerBtn.classList.remove('flex');
+        }
+        if (commBtn) {
+            commBtn.classList.add('hidden');
+            commBtn.classList.remove('flex');
+        }
+    }
+}
 
 async function fetchSentinelAlerts() {
     try {
         const res = await fetch('api/telemetry?t=' + Date.now(), { cache: 'no-store' }).catch(() => fetch('api.json'));
         if (res.ok) {
             const data = await res.json();
+            if (data.os_health) updateOsHealthUI(data.os_health);
             const alertData = data.sentinel || (data.syslog && data.syslog.includes('Undervoltage') ? { level: 'YELLOW', status: 'VOLTAGE BUS ANOMALY', timestamp: data.syslog } : null);
             if (alertData && alertData.level) {
                 const badge = document.getElementById('sentinel-status-badge');
@@ -105,6 +155,7 @@ setTimeout(fetchSentinelAlerts, 2000);
 
 // Update DOM Metrics & Thermal Alert Thresholds
 function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}) {
+    if (fullData.os_health) updateOsHealthUI(fullData.os_health);
     // Proactive Thermal & Undervoltage Warning Notifications
     if (temp >= 70 && Date.now() - lastThermalAlertTime > 60000) {
         lastThermalAlertTime = Date.now();
@@ -789,3 +840,4 @@ window.executeSubsystemAction = executeSubsystemAction;
 window.openPiholeModal = openPiholeModal;
 window.closePiholeModal = closePiholeModal;
 window.executePiholeAction = executePiholeAction;
+window.updateOsHealthUI = updateOsHealthUI;

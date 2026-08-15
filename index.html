@@ -327,6 +327,11 @@
 
         <!-- Right: Status Readouts, Stardate & Chronometer -->
         <div class="flex items-center gap-3 font-data-mono text-xs text-tertiary">
+            <!-- OS Update Available Tactical Badge (Auto-revealed when updates pending) -->
+            <div id="header-os-update-btn" onclick="checkDietPiOSUpdates(true)" class="hidden items-center gap-1.5 bg-warning/20 hover:bg-warning hover:text-black text-warning px-2.5 py-0.5 rounded-full border border-warning/50 cursor-pointer transition-all animate-pulse shadow-[0_0_8px_rgba(255,170,0,0.3)]" title="DietPi OS update is available! Click to inspect and install.">
+                <span class="material-symbols-outlined text-[13px]">system_update</span>
+                <span class="text-[10px] font-bold" id="header-os-update-text">OS UPD READY</span>
+            </div>
             <div onclick="openPiholeModal()" class="flex gap-2 items-center bg-surface-container px-2.5 py-0.5 rounded-full border border-outline-variant/30 cursor-pointer hover:border-secondary hover:bg-surface-container-high transition-all" title="Click to control Pi-hole Defense Shield">
                 <span class="text-[10px] text-secondary font-bold">PI-HOLE:</span>
                 <span class="text-primary font-bold" id="header-pihole-pct">ACTIVE</span>
@@ -947,6 +952,11 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
+            <!-- Mobile OS Update Badge -->
+            <button id="comm-os-update-btn" onclick="checkDietPiOSUpdates(true)" class="hidden items-center gap-1 bg-warning/20 hover:bg-warning hover:text-black text-warning border border-warning/40 px-2 py-0.5 rounded text-[9px] font-bold animate-pulse" title="DietPi OS Update Available">
+                <span class="material-symbols-outlined text-[11px]">system_update</span>
+                <span id="comm-os-update-text">OS UPD</span>
+            </button>
             <div class="text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold" id="comm-persona-badge">ALEX Lv. 4</div>
             <button onclick="toggleLayoutMode()" class="bg-surface-bright hover:bg-primary hover:text-black text-[9px] text-tertiary px-2 py-1 rounded border border-outline-variant/40 flex items-center gap-1 font-bold shadow-sm transition-all" title="Switch to Desktop Command Bridge">
                 <span class="material-symbols-outlined text-xs">desktop_windows</span>
@@ -1891,15 +1901,15 @@
 </div>
 
     <!-- Application Modular Scripts (Fault-Isolated & Deferred) -->
-    <script defer src="assets/js/config.js?v=3.1.0"></script>
-    <script defer src="assets/js/layout-manager.js?v=3.1.0"></script>
-    <script defer src="assets/js/audio.js?v=3.1.0"></script>
-    <script defer src="assets/js/calendar.js?v=3.1.0"></script>
-    <script defer src="assets/js/routine-scheduler.js?v=3.1.0"></script>
-    <script defer src="assets/js/camera-recon.js?v=3.1.0"></script>
-    <script defer src="assets/js/globe.js?v=3.1.0"></script>
-    <script defer src="assets/js/telemetry.js?v=3.1.0"></script>
-    <script defer src="assets/js/main.js?v=3.1.0"></script>
+    <script defer src="assets/js/config.js?v=3.2.0"></script>
+    <script defer src="assets/js/layout-manager.js?v=3.2.0"></script>
+    <script defer src="assets/js/audio.js?v=3.2.0"></script>
+    <script defer src="assets/js/calendar.js?v=3.2.0"></script>
+    <script defer src="assets/js/routine-scheduler.js?v=3.2.0"></script>
+    <script defer src="assets/js/camera-recon.js?v=3.2.0"></script>
+    <script defer src="assets/js/globe.js?v=3.2.0"></script>
+    <script defer src="assets/js/telemetry.js?v=3.2.0"></script>
+    <script defer src="assets/js/main.js?v=3.2.0"></script>
 
     <!-- Progressive Web App Service Worker Registration -->
     <script>

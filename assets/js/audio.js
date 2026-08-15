@@ -1209,6 +1209,9 @@ function handleVoiceCommand(rawCmd) {
         requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver');
     } else if (cmdToEvaluate.includes('reload daemon') || cmdToEvaluate.includes('restart telemetry') || cmdToEvaluate.includes('restart daemon')) {
         requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service');
+    } else if (cmdToEvaluate.includes('check update') || cmdToEvaluate.includes('check updates') || cmdToEvaluate.includes('check os update') || cmdToEvaluate.includes('any update') || cmdToEvaluate.includes('any updates') || cmdToEvaluate.includes('semak kemaskini') || cmdToEvaluate.includes('ada kemaskini') || cmdToEvaluate.includes('ada update') || cmdToEvaluate.includes('periksa kemaskini') || cmdToEvaluate.includes('check dietpi update') || cmdToEvaluate.includes('status update')) {
+        addMeenaEXP(15, 'OS Update check');
+        checkDietPiOSUpdates(true);
     } else if (cmdToEvaluate.includes('dietpi update') || cmdToEvaluate.includes('update dietpi') || cmdToEvaluate.includes('update system') || cmdToEvaluate.includes('update os') || cmdToEvaluate.includes('system update') || cmdToEvaluate.includes('dietpi-update') || cmdToEvaluate.includes('kemaskini sistem')) {
         requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)');
     } else if (cmdToEvaluate.includes('reboot') || cmdToEvaluate.includes('restart pi') || cmdToEvaluate.includes('power cycle') || cmdToEvaluate.includes('but semula')) {
@@ -3615,6 +3618,92 @@ async function speakVerbalHardwareReport() {
     speakComputerVoice("Raspberry Pi hardware core is running at full capacity, Sensei! All thermal and voltage parameters are nominal!");
 }
 
+async function checkDietPiOSUpdates(interactive = false) {
+    if (interactive && window.playSound) window.playSound('beep');
+    
+    // Show quick thinking indicator in chat
+    if (interactive && typeof appendChatMessage === 'function') {
+        appendChatMessage("ai", "🔍 Scanning DietPi OS repositories and APT package registries for updates...");
+    }
+
+    try {
+        const res = await fetch('api/telemetry?action=check_updates&t=' + Date.now()).catch(() => fetch('api.php?action=check_updates'));
+        if (res && res.ok) {
+            const data = await res.json();
+            const currentVer = data.dietpi_version || 'v9.x';
+            const latestVer = data.dietpi_latest || currentVer;
+            const isUpd = !!(data.update_available || (data.pending_packages && data.pending_packages > 0));
+            const pendingCount = data.pending_packages || 0;
+            const pkgList = (data.upgradable_list && data.upgradable_list.length > 0) ? data.upgradable_list.slice(0, 8).join(', ') : 'None';
+
+            let reportHtml = `
+                <div class="border border-outline-variant/40 bg-surface-container-high/60 p-2.5 rounded font-mono text-xs flex flex-col gap-1.5 shadow-sm">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1">
+                        <span class="text-lcars-orange font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">system_update</span>
+                            <span>DIETPI OS HEALTH REPORT</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold ${isUpd ? 'bg-warning/20 text-warning border border-warning/40' : 'bg-primary/20 text-primary border border-primary/40'}">${isUpd ? 'UPDATES AVAILABLE' : 'SYSTEM OPTIMAL'}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 text-[11px]">
+                        <div><span class="text-secondary">INSTALLED:</span> <strong class="text-on-surface">${currentVer}</strong></div>
+                        <div><span class="text-secondary">LATEST:</span> <strong class="${data.dietpi_update_available ? 'text-warning font-bold' : 'text-primary'}">${latestVer}</strong></div>
+                        <div><span class="text-secondary">KERNEL:</span> <span class="text-tertiary">${data.kernel || 'Linux 6.1'}</span></div>
+                        <div><span class="text-secondary">PENDING PKGS:</span> <strong class="${pendingCount > 0 ? 'text-warning font-bold' : 'text-on-surface'}">${pendingCount}</strong></div>
+                    </div>
+                    ${pendingCount > 0 ? `<div class="text-[10px] text-secondary border-t border-outline-variant/20 pt-1"><span class="text-on-surface font-bold">UPGRADABLE:</span> <span class="text-on-surface-variant font-mono">${pkgList}${data.upgradable_list && data.upgradable_list.length > 8 ? '...' : ''}</span></div>` : ''}
+                    ${isUpd ? `
+                        <div class="mt-1 flex gap-2">
+                            <button onclick="requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)')" class="w-full bg-warning/20 hover:bg-warning hover:text-black text-warning border border-warning/50 font-bold py-1 px-2 rounded text-center transition-all text-xs flex items-center justify-center gap-1">
+                                <span class="material-symbols-outlined text-xs">upgrade</span>
+                                <span>INSTALL OS UPDATES NOW</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            if (typeof appendChatMessage === 'function') {
+                appendChatMessage("ai", reportHtml);
+            }
+
+            // Spoken vocal report
+            if (interactive) {
+                if (isUpd) {
+                    if (window.showNotificationAlert) {
+                        window.showNotificationAlert(
+                            "DIETPI OS UPDATE READY",
+                            `DietPi ${latestVer} is ready with ${pendingCount} package upgrades.`,
+                            "warning",
+                            { duration: 10000, chime: "caution" }
+                        );
+                    }
+                    const voiceReport = `Sensei, an operating system update for DietPi is available. Current version is ${currentVer}, upgrade to ${latestVer} is ready with ${pendingCount} package updates waiting. Type 'update system' to proceed with installation.`;
+                    speakComputerVoice(voiceReport);
+                } else {
+                    if (window.showNotificationAlert) {
+                        window.showNotificationAlert("SYSTEM UP TO DATE", `DietPi ${currentVer} is running latest build with 0 pending packages.`, "success");
+                    }
+                    const voiceReport = `Sensei, DietPi OS is fully up to date on version ${currentVer}. All system packages and kernel modules are operating nominally.`;
+                    speakComputerVoice(voiceReport);
+                }
+            }
+
+            // Sync Header UI elements
+            if (window.updateOsHealthUI) {
+                window.updateOsHealthUI(data);
+            }
+            return data;
+        }
+    } catch (e) {
+        console.warn("OS Update check error:", e);
+        if (interactive) {
+            speakComputerVoice("Sensei, I could not complete the repository update probe. System telemetry is still active.");
+        }
+    }
+    return null;
+}
+
 async function triggerMorningBriefing() {
     const temp = document.getElementById('wx-temp') ? document.getElementById('wx-temp').innerText : '31';
     const desc = document.getElementById('wx-desc') ? document.getElementById('wx-desc').innerText : 'partly cloudy';
@@ -3868,6 +3957,7 @@ window.speakVerbalStatusReport = speakVerbalStatusReport;
 window.speakVerbalWeatherReport = speakVerbalWeatherReport;
 window.speakVerbalTimeReport = speakVerbalTimeReport;
 window.speakVerbalHardwareReport = speakVerbalHardwareReport;
+window.checkDietPiOSUpdates = checkDietPiOSUpdates;
 window.setMeenaVoiceByName = setMeenaVoiceByName;
 window.testMeenaVoice = testMeenaVoice;
 window.populateVoiceSelector = populateVoiceSelector;

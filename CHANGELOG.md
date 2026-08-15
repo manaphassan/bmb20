@@ -2,6 +2,20 @@
 
 All notable changes to the BMB20 Command Center and Meena AI Bridge will be documented in this file.
 
+## [3.2.0] - 2026-08-15 — Sovereign Maintenance: DietPi OS Update Detection & Alerting Engine
+
+### Added & Enhanced
+- **Real-Time DietPi OS & Package Update Probe (`api.php?action=check_updates`)**:
+  - Real-time detection of DietPi OS version via `/boot/dietpi/.version` (`G_DIETPI_VERSION_CORE`, `G_DIETPI_VERSION_SUB`, `G_DIETPI_VERSION_RC`).
+  - Online DietPi repository release cross-reference and APT upgradable package list extraction (`apt list --upgradable`).
+- **Proactive Tactical Header Badges & Notification Dispatcher**:
+  - Auto-revealing warning badge `[⬆ OS UPD: N PKGS]` on Desktop Command Bridge and Mobile Communicator.
+  - Proactive background alert dispatcher (`showNotificationAlert`) that alerts Sensei with audio chimes when system updates are pending.
+- **Bilingual Voice & Chat Diagnostics (`checkDietPiOSUpdates`)**:
+  - Natural voice & chat commands (`"check update"`, `"semak kemaskini"`, `"os update"`, `"any update"`).
+  - Rich structured LCARS OS health card with 1-click update trigger (`dietpi-update`).
+  - Vocal audio briefings in English and Bahasa Melayu reporting installed vs latest versions and upgradable package count.
+
 ## [3.1.0] - 2026-08-15 — Optical AI: Neuromorphic Event Sentry & Multi-Subject Lock
 
 ### Added & Enhanced
