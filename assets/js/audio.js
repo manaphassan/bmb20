@@ -357,15 +357,25 @@ function speakComputerVoice(text) {
         }, 800);
     };
 
+    let hasFallbackFired = false;
+    const triggerFallback = () => {
+        if (hasFallbackFired) return;
+        hasFallbackFired = true;
+        if (currentTTSAudio) {
+            try { currentTTSAudio.pause(); } catch(e){}
+            currentTTSAudio = null;
+        }
+        fallbackBrowserTTS(text);
+    };
+
     audio.onerror = (err) => {
         console.warn("Server-side neural TTS unavailable, falling back to browser Web Speech API:", err);
-        currentTTSAudio = null;
-        fallbackBrowserTTS(text);
+        triggerFallback();
     };
 
     audio.play().catch(err => {
         console.warn("Audio autoplay blocked or failed, falling back to Web Speech API:", err);
-        fallbackBrowserTTS(text);
+        triggerFallback();
     });
 }
 
@@ -2361,10 +2371,14 @@ function resetNeuralCoreView() {
 function openNeuralCoreInspectorModal() {
     try {
         const modal = document.getElementById('neural-core-inspector-modal');
-        if (!modal) return;
+        if (!modal) {
+            console.warn('[NeuralCoreModal] #neural-core-inspector-modal not found');
+            return;
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        modal.style.display = 'flex';
 
         initNeuralCoreModalEvents();
         updateNeuralCoreHud();
@@ -2409,8 +2423,15 @@ function closeNeuralCoreInspectorModal() {
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        modal.style.display = 'none';
     }
 }
+
+window.openNeuralCoreInspectorModal = openNeuralCoreInspectorModal;
+window.closeNeuralCoreInspectorModal = closeNeuralCoreInspectorModal;
+window.toggleNeuralCoreAutoRotate = toggleNeuralCoreAutoRotate;
+window.resetNeuralCoreView = resetNeuralCoreView;
+window.pulseSynapse = pulseSynapse;
 
 function renderNeuralCoreChamberCanvas() {
     const canvas = document.getElementById('neural-core-modal-canvas');
@@ -4052,6 +4073,7 @@ async function checkDietPiOSUpdates(interactive = false) {
             }
 
             // Spoken vocal report
+            // Spoken vocal report
             if (interactive) {
                 if (isUpd) {
                     if (window.showNotificationAlert) {
@@ -4059,14 +4081,14 @@ async function checkDietPiOSUpdates(interactive = false) {
                             "DIETPI OS UPDATE READY",
                             `DietPi ${latestVer} is ready with ${pendingCount} package upgrades.`,
                             "warning",
-                            { duration: 10000, chime: "caution" }
+                            { duration: 8000, speak: false, silent: true }
                         );
                     }
                     const voiceReport = `Sensei, an operating system update for DietPi is available. Current version is ${currentVer}, upgrade to ${latestVer} is ready with ${pendingCount} package updates waiting. Type 'update system' to proceed with installation.`;
                     speakComputerVoice(voiceReport);
                 } else {
                     if (window.showNotificationAlert) {
-                        window.showNotificationAlert("SYSTEM UP TO DATE", `DietPi ${currentVer} is running latest build with 0 pending packages.`, "success");
+                        window.showNotificationAlert("SYSTEM UP TO DATE", `DietPi ${currentVer} is running latest build with 0 pending packages.`, "success", { duration: 8000, speak: false, silent: true });
                     }
                     const voiceReport = `Sensei, DietPi OS is fully up to date on version ${currentVer}. All system packages and kernel modules are operating nominally.`;
                     speakComputerVoice(voiceReport);
@@ -4075,9 +4097,9 @@ async function checkDietPiOSUpdates(interactive = false) {
 
             // Sync Header UI elements
             if (window.updateOsHealthUI) {
-                window.updateOsHealthUI(data);
+                window.updateOsHealthUI(rootData);
             }
-            return data;
+            return rootData;
         }
     } catch (e) {
         console.warn("OS Update check error:", e);
