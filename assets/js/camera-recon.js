@@ -539,6 +539,41 @@ function initSentryHeartbeatTimer() {
 }
 
 /**
+ * Update Head Tracking Centroid & Smooth State
+ */
+function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
+    const alpha = 0.35; // Smoothing factor for 60 FPS
+    
+    const dx = (rawX - headCentroid.x) * 640;
+    const dy = (rawY - headCentroid.y) * 480;
+    const currentVelocity = Math.round(Math.hypot(dx, dy) * 8);
+    
+    headCentroid.velocity = Math.round(headCentroid.velocity * 0.7 + currentVelocity * 0.3);
+    headCentroid.x = rawX;
+    headCentroid.y = rawY;
+    headCentroid.smoothX = headCentroid.smoothX * (1 - alpha) + rawX * alpha;
+    headCentroid.smoothY = headCentroid.smoothY * (1 - alpha) + rawY * alpha;
+    headCentroid.width = Math.max(0.20, Math.min(0.45, rawW));
+    headCentroid.height = Math.max(0.26, Math.min(0.55, rawH));
+    headCentroid.smoothW = headCentroid.smoothW * (1 - alpha) + headCentroid.width * alpha;
+    headCentroid.smoothH = headCentroid.smoothH * (1 - alpha) + headCentroid.height * alpha;
+    headCentroid.bbox = bbox || { minX: rawX - 0.12, minY: rawY - 0.15, maxX: rawX + 0.12, maxY: rawY + 0.15 };
+    headCentroid.active = true;
+    headCentroid.intensity = Math.min(100, headCentroid.intensity + 20);
+    headCentroid.lastDetectedTime = performance.now();
+
+    isSenseiPresent = true;
+    awayDurationSeconds = 0;
+
+    headTrail.push({
+        x: headCentroid.smoothX,
+        y: headCentroid.smoothY,
+        time: performance.now()
+    });
+    if (headTrail.length > 12) headTrail.shift();
+}
+
+/**
  * Real-Time Head Movement Tracking
  */
 async function detectHeadMovement(video) {
@@ -577,11 +612,8 @@ async function detectHeadMovement(video) {
 
 // ==============================================================================
 // 3. ANATOMICAL BIOMETRIC HUMAN DETECTION ENGINE
-// Multi-Tiered Dual-Spectrum Chrominance & Craniofacial Vector Tracker
+// Isolates Cranial Peak & Head Centroid from Torso/Background
 // ==============================================================================
-let anatomicalConfidenceFrames = 0;
-const ANATOMICAL_CONFIDENCE_THRESHOLD = 1;
-
 function runFallbackHeadChromaTracker(video) {
     const mw = motionAnalysisCanvas.width;
     const mh = motionAnalysisCanvas.height;
@@ -595,89 +627,85 @@ function runFallbackHeadChromaTracker(video) {
         return;
     }
 
-    let headSumX = 0, headSumY = 0, headPixelCount = 0;
-    let minX = mw, maxX = 0, minY = mh, maxY = 0;
+    let detectedPixels = [];
+    let topY = mh, bottomY = 0;
 
     for (let i = 0; i < currData.length; i += 4) {
         const pixelIdx = i / 4;
         const px = pixelIdx % mw;
         const py = Math.floor(pixelIdx / mw);
 
-        // Human head/cranium & shoulders lie in upper 78% of the frame
-        if (py > mh * 0.78) continue;
-
         const r = currData[i], g = currData[i + 1], b = currData[i + 2];
         const sum = r + g + b + 1;
         const normR = r / sum;
         const normG = g / sum;
         
-        // 1. Normalized RGB Chrominance Locus (Adaptive across diverse skin tones & lighting)
-        const isNormSkin = (normR >= 0.31 && normR <= 0.62) && (normG >= 0.22 && normG <= 0.40) && (normR > normG) && (r > 30) && (Math.abs(r - g) >= 6);
+        // 1. Dual-Spectrum Normalized RGB & YCbCr Skin Locus
+        const isNormSkin = (normR >= 0.30 && normR <= 0.65) && (normG >= 0.20 && normG <= 0.42) && (normR > normG) && (r > 26) && (Math.abs(r - g) >= 4);
 
-        // 2. YCbCr Chrominance Elliptical Locus
         const y = 0.299 * r + 0.587 * g + 0.114 * b;
         const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
         const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
-        const isYCbCrSkin = (y > 25 && y < 248) && (cb >= 68 && cb <= 148) && (cr >= 122 && cr <= 188);
+        const isYCbCrSkin = (y > 20 && y < 250) && (cb >= 65 && cb <= 152) && (cr >= 118 && cr <= 192);
 
-        const isHumanSkinLocus = isNormSkin || isYCbCrSkin;
+        const isSkin = isNormSkin || isYCbCrSkin;
 
-        // 3. Motion Differential
+        // 2. Optical Motion Differential
         const diff = (Math.abs(r - prevFrameData[i]) + Math.abs(g - prevFrameData[i + 1]) + Math.abs(b - prevFrameData[i + 2])) / 3;
-        const isMoving = diff > 10;
+        const isMoving = diff > 8;
 
-        if (isHumanSkinLocus || (isMoving && py < mh * 0.70)) {
-            const weight = isMoving ? 1.8 : 0.9;
-            headSumX += px * weight;
-            headSumY += py * weight;
-            headPixelCount += weight;
-
-            if (px < minX) minX = px;
-            if (px > maxX) maxX = px;
-            if (py < minY) minY = py;
-            if (py > maxY) maxY = py;
+        if (isSkin || (isMoving && py < mh * 0.75)) {
+            const weight = isMoving ? 1.5 : 1.0;
+            detectedPixels.push({ px, py, weight });
+            if (py < topY) topY = py;
+            if (py > bottomY) bottomY = py;
         }
     }
 
     prevFrameData.set(currData);
 
-    const detectedW = maxX - minX;
-    const detectedH = maxY - minY;
-    const cranialAspectRatio = detectedW > 0 ? (detectedH / detectedW) : 0;
+    // 3. Human Presence Validation Gate
+    if (detectedPixels.length >= 8) {
+        // Isolate Cranial Peak (upper 55% of the detected human mass)
+        const totalHeight = bottomY - topY;
+        const cranialCutoffY = topY + Math.max(14, totalHeight * 0.55);
 
-    // 4. Anatomical Biometric Validation Gate
-    const isValidAnatomy = (
-        headPixelCount >= 12 &&
-        detectedW >= mw * 0.05 && detectedW <= mw * 0.78 &&
-        detectedH >= mh * 0.07 && detectedH <= mh * 0.82 &&
-        cranialAspectRatio >= 0.75 && cranialAspectRatio <= 2.40
-    );
+        let headSumX = 0, headSumY = 0, headWeightSum = 0;
+        let cranialMinX = mw, cranialMaxX = 0;
 
-    if (isValidAnatomy) {
-        anatomicalConfidenceFrames = Math.min(8, anatomicalConfidenceFrames + 1);
-    } else {
-        anatomicalConfidenceFrames = Math.max(0, anatomicalConfidenceFrames - 1);
+        for (const pt of detectedPixels) {
+            if (pt.py <= cranialCutoffY) {
+                headSumX += pt.px * pt.weight;
+                headSumY += pt.py * pt.weight;
+                headWeightSum += pt.weight;
+
+                if (pt.px < cranialMinX) cranialMinX = pt.px;
+                if (pt.px > cranialMaxX) cranialMaxX = pt.px;
+            }
+        }
+
+        if (headWeightSum > 0) {
+            const rawHeadX = (headSumX / headWeightSum) / mw;
+            const rawHeadY = (headSumY / headWeightSum) / mh;
+            const cranialW = Math.max(14, cranialMaxX - cranialMinX);
+            const rawHeadW = Math.max(0.20, cranialW / mw);
+            const rawHeadH = Math.max(0.26, (cranialCutoffY - topY) / mh * 1.3);
+
+            updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
+                minX: Math.max(0, (cranialMinX / mw) - 0.04),
+                minY: Math.max(0, (topY / mh) - 0.04),
+                maxX: Math.min(1, (cranialMaxX / mw) + 0.04),
+                maxY: Math.min(1, (cranialCutoffY / mh) + 0.04)
+            });
+            return;
+        }
     }
 
-    // 5. Real-Time Responsive Centroid Update
-    if (anatomicalConfidenceFrames >= ANATOMICAL_CONFIDENCE_THRESHOLD && headPixelCount > 0) {
-        const rawHeadX = (headSumX / headPixelCount) / mw;
-        const rawHeadY = (headSumY / headPixelCount) / mh;
-        const rawHeadW = Math.max(0.18, detectedW / mw);
-        const rawHeadH = Math.max(0.24, detectedH / mh);
-
-        updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
-            minX: Math.max(0, (minX / mw) - 0.03),
-            minY: Math.max(0, (minY / mh) - 0.03),
-            maxX: Math.min(1, (maxX / mw) + 0.03),
-            maxY: Math.min(1, (maxY / mh) + 0.03)
-        });
-    } else {
-        if (performance.now() - headCentroid.lastDetectedTime > 400) {
-            headCentroid.active = false;
-            headCentroid.intensity = Math.max(0, headCentroid.intensity - 12);
-            if (headTrail.length > 0) headTrail.shift();
-        }
+    // Decay when no human is detected
+    if (performance.now() - headCentroid.lastDetectedTime > 500) {
+        headCentroid.active = false;
+        headCentroid.intensity = Math.max(0, headCentroid.intensity - 15);
+        if (headTrail.length > 0) headTrail.shift();
     }
 }
 
