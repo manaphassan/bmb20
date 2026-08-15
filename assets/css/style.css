@@ -160,24 +160,36 @@ html, body {
 #meena-chat-feed::-webkit-scrollbar,
 #knowledge-cards-container::-webkit-scrollbar,
 #lan-devices-container::-webkit-scrollbar,
-#kernel-log-container::-webkit-scrollbar {
+#kernel-log-container::-webkit-scrollbar,
+#sys-log::-webkit-scrollbar,
+#chrono-upcoming-events::-webkit-scrollbar,
+#chrono-today-events::-webkit-scrollbar {
     width: 4px;
 }
 #meena-chat-feed::-webkit-scrollbar-track,
 #knowledge-cards-container::-webkit-scrollbar-track,
 #lan-devices-container::-webkit-scrollbar-track,
-#kernel-log-container::-webkit-scrollbar-track {
+#kernel-log-container::-webkit-scrollbar-track,
+#sys-log::-webkit-scrollbar-track,
+#chrono-upcoming-events::-webkit-scrollbar-track,
+#chrono-today-events::-webkit-scrollbar-track {
     background: rgba(14, 14, 20, 0.6);
 }
 #meena-chat-feed::-webkit-scrollbar-thumb,
 #knowledge-cards-container::-webkit-scrollbar-thumb,
 #lan-devices-container::-webkit-scrollbar-thumb,
-#kernel-log-container::-webkit-scrollbar-thumb {
+#kernel-log-container::-webkit-scrollbar-thumb,
+#sys-log::-webkit-scrollbar-thumb,
+#chrono-upcoming-events::-webkit-scrollbar-thumb,
+#chrono-today-events::-webkit-scrollbar-thumb {
     background: #464552;
     border-radius: 2px;
 }
 #meena-chat-feed::-webkit-scrollbar-thumb:hover,
-#knowledge-cards-container::-webkit-scrollbar-thumb:hover {
+#knowledge-cards-container::-webkit-scrollbar-thumb:hover,
+#lan-devices-container::-webkit-scrollbar-thumb:hover,
+#sys-log::-webkit-scrollbar-thumb:hover,
+#chrono-upcoming-events::-webkit-scrollbar-thumb:hover {
     background: #66ccff;
 }
 

@@ -512,15 +512,15 @@
             </div>
 
             <!-- Subspace Network Radar (LAN Nodes) -->
-            <div class="col-span-1 row-span-1 bg-surface-container p-2.5 border-t-4 border-lcars-gold rounded-sm flex flex-col justify-between overflow-hidden font-data-mono">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
+            <div class="col-span-1 row-span-1 bg-surface-container p-2.5 border-t-4 border-lcars-gold rounded-sm flex flex-col overflow-hidden font-data-mono h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
                     <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs text-lcars-gold">radar</span>
                         <span class="font-headline-sm text-xs text-lcars-gold uppercase tracking-wider font-bold">Subspace Radar</span>
                     </div>
                     <span class="text-[9px] text-primary" id="lan-count">ACTIVE NODES</span>
                 </div>
-                <div class="grid grid-cols-1 gap-1 overflow-y-auto max-h-[145px] pr-0.5" id="lan-devices-container">
+                <div class="flex-1 overflow-y-auto min-h-0 pr-0.5 flex flex-col gap-1" id="lan-devices-container">
                     <div class="bg-surface-container-highest px-2 py-1 rounded flex items-center justify-between text-[10px]">
                         <span class="text-secondary">SCANNING ARP NODES...</span>
                         <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
@@ -529,8 +529,8 @@
             </div>
 
             <!-- Subspace Uplink & Downlink Bandwidth Graph -->
-            <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col justify-between border-t-4 border-primary rounded-sm relative overflow-hidden font-data-mono">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
+            <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col border-t-4 border-primary rounded-sm relative overflow-hidden font-data-mono h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
                     <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs text-primary">ssid_chart</span>
                         <span class="text-xs font-headline-sm text-primary font-bold uppercase tracking-wider">Subspace Bandwidth</span>
@@ -541,20 +541,20 @@
                     </div>
                 </div>
                 <div class="w-full flex-1 flex items-center justify-center min-h-0 relative">
-                    <canvas class="w-full h-full max-h-[140px]" id="bandwidth-canvas"></canvas>
+                    <canvas class="w-full h-full" id="bandwidth-canvas"></canvas>
                 </div>
             </div>
 
             <!-- System Kernel Log Stream -->
-            <div class="col-span-1 row-span-1 bg-surface p-2.5 border-t-4 border-lcars-blue font-data-mono text-[10px] text-primary flex flex-col justify-between rounded-sm relative overflow-hidden">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1">
+            <div class="col-span-1 row-span-1 bg-surface p-2.5 border-t-4 border-lcars-blue font-data-mono text-[10px] text-primary flex flex-col rounded-sm relative overflow-hidden h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
                     <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs text-lcars-blue">terminal</span>
                         <span class="text-xs font-headline-sm text-lcars-blue font-bold uppercase tracking-wider">System Kernel Log</span>
                     </div>
                     <span class="text-[9px] text-secondary font-mono">[LIVE DMESG]</span>
                 </div>
-                <div class="overflow-y-auto max-h-[145px] flex flex-col justify-end opacity-90 font-mono leading-tight gap-0.5 text-[9px]" id="sys-log">
+                <div class="flex-1 overflow-y-auto min-h-0 flex flex-col justify-start opacity-90 font-mono leading-tight gap-0.5 text-[9px] pr-0.5" id="sys-log">
                     <div>&gt; system initializing...</div>
                     <div>&gt; telemetry daemon active...</div>
                 </div>
@@ -665,14 +665,14 @@
                     </div>
 
                     <!-- Upcoming 7-Day Agenda -->
-                    <div class="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant/30 shadow-sm flex flex-col gap-2 flex-1">
-                        <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5">
+                    <div class="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant/30 shadow-sm flex flex-col gap-2 flex-1 min-h-0">
+                        <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5 flex-shrink-0">
                             <div class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-secondary text-sm">upcoming</span>
                                 <h4 class="text-[11px] font-bold text-secondary tracking-wider uppercase">UPCOMING THIS WEEK</h4>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1.5 max-h-60 overflow-y-auto" id="chrono-upcoming-events">
+                        <div class="flex flex-col gap-1.5 flex-1 overflow-y-auto min-h-0 pr-0.5" id="chrono-upcoming-events">
                             <div class="text-secondary text-xs italic p-2">No upcoming events.</div>
                         </div>
                     </div>
