@@ -358,7 +358,7 @@
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-2 mb-2 flex-shrink-0">
                     <div class="flex items-center gap-3">
                         <!-- 3D Holographic Dot-Matrix Brain Core Canvas -->
-                        <div onclick="if(window.openNeuralCoreInspectorModal) window.openNeuralCoreInspectorModal();" class="relative w-32 h-16 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)] cursor-pointer group hover:border-primary transition-all active:scale-95" title="Click to expand & inspect 3D Neural Core [360° Orbit]">
+                        <div id="meena-avatar-container" onclick="openNeuralCoreInspectorModal()" class="relative w-32 h-16 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)] cursor-pointer group hover:border-primary transition-all active:scale-95" title="Click to expand & inspect 3D Neural Core [360° Orbit]">
                             <canvas id="meena-avatar-canvas" width="128" height="64" class="w-full h-full pointer-events-none"></canvas>
                             <div class="absolute bottom-0.5 right-1.5 text-[8.5px] text-primary/80 font-mono tracking-tight font-bold flex items-center gap-0.5 pointer-events-none">
                                 <span>NEURAL CORE</span>
@@ -972,7 +972,7 @@
     <div class="bg-surface-container-lowest/80 border-b border-outline-variant/30 px-3.5 py-2.5 flex items-center justify-between flex-shrink-0 relative overflow-hidden">
         <!-- Hologram Visualizer / Meena Avatar Canvas (Clickable to open AI Dossier) -->
         <div class="flex items-center gap-3">
-            <div onclick="if(window.openNeuralCoreInspectorModal) window.openNeuralCoreInspectorModal();" class="relative w-14 h-14 rounded-full border-2 border-primary/50 flex items-center justify-center bg-surface-container-low shadow-[0_0_12px_rgba(102,204,255,0.3)] overflow-hidden flex-shrink-0 cursor-pointer active:scale-95 transition-transform group" title="Tap to inspect 3D Neural Core [360° Orbit]">
+            <div id="comm-avatar-container" onclick="openNeuralCoreInspectorModal()" class="relative w-14 h-14 rounded-full border-2 border-primary/50 flex items-center justify-center bg-surface-container-low shadow-[0_0_12px_rgba(102,204,255,0.3)] overflow-hidden flex-shrink-0 cursor-pointer active:scale-95 transition-transform group" title="Tap to inspect 3D Neural Core [360° Orbit]">
                 <canvas id="comm-avatar-canvas" width="56" height="56" class="w-full h-full pointer-events-none"></canvas>
                 <div class="absolute inset-0 rounded-full border border-primary/20 pointer-events-none holo-ring-outer"></div>
             </div>
@@ -2076,15 +2076,15 @@
 </div>
 
     <!-- Application Modular Scripts (Fault-Isolated & Deferred) -->
-    <script defer src="assets/js/config.js?v=3.3.3"></script>
-    <script defer src="assets/js/layout-manager.js?v=3.3.3"></script>
-    <script defer src="assets/js/audio.js?v=3.3.3"></script>
-    <script defer src="assets/js/calendar.js?v=3.3.3"></script>
-    <script defer src="assets/js/routine-scheduler.js?v=3.3.3"></script>
-    <script defer src="assets/js/camera-recon.js?v=3.3.3"></script>
-    <script defer src="assets/js/globe.js?v=3.3.3"></script>
-    <script defer src="assets/js/telemetry.js?v=3.3.3"></script>
-    <script defer src="assets/js/main.js?v=3.3.3"></script>
+    <script defer src="assets/js/config.js?v=3.3.4"></script>
+    <script defer src="assets/js/layout-manager.js?v=3.3.4"></script>
+    <script defer src="assets/js/audio.js?v=3.3.4"></script>
+    <script defer src="assets/js/calendar.js?v=3.3.4"></script>
+    <script defer src="assets/js/routine-scheduler.js?v=3.3.4"></script>
+    <script defer src="assets/js/camera-recon.js?v=3.3.4"></script>
+    <script defer src="assets/js/globe.js?v=3.3.4"></script>
+    <script defer src="assets/js/telemetry.js?v=3.3.4"></script>
+    <script defer src="assets/js/main.js?v=3.3.4"></script>
 
     <!-- Progressive Web App Service Worker Registration -->
     <script>

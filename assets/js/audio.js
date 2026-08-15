@@ -2444,6 +2444,24 @@ window.toggleNeuralCoreAutoRotate = toggleNeuralCoreAutoRotate;
 window.resetNeuralCoreView = resetNeuralCoreView;
 window.pulseSynapse = pulseSynapse;
 
+function bindNeuralCoreTriggers() {
+    ['meena-avatar-container', 'meena-avatar-canvas', 'comm-avatar-container', 'comm-avatar-canvas'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openNeuralCoreInspectorModal();
+            }, { passive: false });
+        }
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindNeuralCoreTriggers);
+} else {
+    bindNeuralCoreTriggers();
+}
+
 function renderNeuralCoreChamberCanvas() {
     const canvas = document.getElementById('neural-core-modal-canvas');
     if (!canvas || (canvas.offsetParent === null && canvas.clientWidth === 0 && canvas.clientHeight === 0)) return;

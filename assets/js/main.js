@@ -315,8 +315,27 @@ document.addEventListener('touchend', (e) => {
     }
 }, { passive: true });
 
-// Keyboard Hotkey Support (1=Deck 1 Meena, 2=Deck 2 Observatory, 3=Deck 3 Calendar, 4=Deck 4 Visual Recon, 0/!=Red Alert)
-window.addEventListener('keydown', (e) => {
+// Fallback global handlers for Neural Core inspection modal
+window.openNeuralCoreInspectorModal = window.openNeuralCoreInspectorModal || function() {
+    const modal = document.getElementById('neural-core-inspector-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeNeuralCoreInspectorModal = window.closeNeuralCoreInspectorModal || function() {
+    const modal = document.getElementById('neural-core-inspector-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.style.display = 'none';
+    }
+};
+
+// Global Hotkeys for Starfleet Operations
+document.addEventListener('keydown', (e) => {
     // Ignore input if focused in text fields
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 
