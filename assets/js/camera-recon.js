@@ -549,6 +549,16 @@ let lastAnalysisTime = 0;
  * Update Head Tracking Centroid & Smooth State with Adaptive 1-Euro Filter & Deadband
  */
 function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
+    // If acquiring a fresh face after being away, snap immediately without dragging
+    if (!headCentroid.active) {
+        headCentroid.smoothX = rawX;
+        headCentroid.smoothY = rawY;
+        headCentroid.smoothW = rawW;
+        headCentroid.smoothH = rawH;
+        headCentroid.x = rawX;
+        headCentroid.y = rawY;
+    }
+
     // 1. Calculate Spatial Delta
     const deltaX = rawX - headCentroid.smoothX;
     const deltaY = rawY - headCentroid.smoothY;
@@ -563,8 +573,8 @@ function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
     }
 
     // 3. Adaptive Dynamic Alpha (Rock-solid stationary damping, responsive trajectory tracking)
-    const dynamicAlpha = dist < 0.03 ? 0.09 : (dist < 0.08 ? 0.20 : 0.40);
-    const sizeAlpha = 0.08;
+    const dynamicAlpha = dist < 0.03 ? 0.12 : (dist < 0.08 ? 0.25 : 0.45);
+    const sizeAlpha = 0.10;
 
     const dx = deltaX * 640;
     const dy = deltaY * 480;
@@ -576,14 +586,14 @@ function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
     headCentroid.smoothX = headCentroid.smoothX * (1 - dynamicAlpha) + targetX * dynamicAlpha;
     headCentroid.smoothY = headCentroid.smoothY * (1 - dynamicAlpha) + targetY * dynamicAlpha;
 
-    headCentroid.width = Math.max(0.22, Math.min(0.40, rawW));
-    headCentroid.height = Math.max(0.28, Math.min(0.50, rawH));
+    headCentroid.width = Math.max(0.20, Math.min(0.38, rawW));
+    headCentroid.height = Math.max(0.24, Math.min(0.46, rawH));
     headCentroid.smoothW = headCentroid.smoothW * (1 - sizeAlpha) + headCentroid.width * sizeAlpha;
     headCentroid.smoothH = headCentroid.smoothH * (1 - sizeAlpha) + headCentroid.height * sizeAlpha;
 
     headCentroid.bbox = bbox || { minX: targetX - 0.12, minY: targetY - 0.15, maxX: targetX + 0.12, maxY: targetY + 0.15 };
     headCentroid.active = true;
-    headCentroid.intensity = Math.min(100, headCentroid.intensity + 15);
+    headCentroid.intensity = Math.min(100, headCentroid.intensity + 20);
     headCentroid.lastDetectedTime = performance.now();
 
     isSenseiPresent = true;
@@ -604,7 +614,7 @@ async function detectHeadMovement(video) {
     if (!isHeadTrackingEnabled || !video || video.readyState < 2 || !motionAnalysisCtx) return;
 
     const now = performance.now();
-    if (now - lastAnalysisTime < 35) return; // 28 FPS cadence for ultra-stable, smooth analysis
+    if (now - lastAnalysisTime < 32) return; // ~30 FPS analysis cadence
     lastAnalysisTime = now;
 
     const vw = video.videoWidth || 640;
@@ -705,11 +715,9 @@ function runFallbackHeadChromaTracker(video) {
     prevFrameData.set(currData);
 
     // Require minimum facial candidate density
-    if (candidatePoints.length < 20) {
-        if (performance.now() - headCentroid.lastDetectedTime > 500) {
-            headCentroid.active = false;
-            isSenseiPresent = false;
-        }
+    if (candidatePoints.length < 18) {
+        headCentroid.active = false;
+        isSenseiPresent = false;
         return;
     }
 
@@ -733,30 +741,41 @@ function runFallbackHeadChromaTracker(video) {
     }
 
     // Require strong cluster density to reject background room shadows/curtains
-    if (maxDensX < 14 || maxDensY < 14) {
-        if (performance.now() - headCentroid.lastDetectedTime > 500) {
-            headCentroid.active = false;
-            isSenseiPresent = false;
-        }
+    if (maxDensX < 12 || maxDensY < 12) {
+        headCentroid.active = false;
+        isSenseiPresent = false;
         return;
     }
 
-    // Cluster filtering strictly within head radius of peak
-    const radiusX = mw * 0.18;
-    const radiusY = mh * 0.22;
-
-    let headSumX = 0, headSumY = 0, headWeightSum = 0;
-    let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
+    // First pass: find full human bounding envelope around the peak
+    const radiusX = mw * 0.20;
+    const radiusY = mh * 0.30;
+    let envMinY = mh, envMaxY = 0, envMinX = mw, envMaxX = 0;
     let skinCount = 0, darkCount = 0;
 
     for (const pt of candidatePoints) {
         if (Math.abs(pt.px - bestPeakX) <= radiusX && Math.abs(pt.py - bestPeakY) <= radiusY) {
+            if (pt.isSkin) skinCount++;
+            if (pt.isDark) darkCount++;
+            if (pt.py < envMinY) envMinY = pt.py;
+            if (pt.py > envMaxY) envMaxY = pt.py;
+            if (pt.px < envMinX) envMinX = pt.px;
+            if (pt.px > envMaxX) envMaxX = pt.px;
+        }
+    }
+
+    const envHeight = Math.max(12, envMaxY - envMinY);
+    // Isolate upper cranial region (top 45% of the human envelope) to stay locked on eyes/forehead and ignore bare chest
+    const cranialCutoffY = envMinY + envHeight * 0.45;
+
+    let headSumX = 0, headSumY = 0, headWeightSum = 0;
+    let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
+
+    for (const pt of candidatePoints) {
+        if (Math.abs(pt.px - bestPeakX) <= radiusX && pt.py <= cranialCutoffY && pt.py >= envMinY) {
             headSumX += pt.px * pt.weight;
             headSumY += pt.py * pt.weight;
             headWeightSum += pt.weight;
-
-            if (pt.isSkin) skinCount++;
-            if (pt.isDark) darkCount++;
 
             if (pt.px < minClusterX) minClusterX = pt.px;
             if (pt.px > maxClusterX) maxClusterX = pt.px;
@@ -766,13 +785,13 @@ function runFallbackHeadChromaTracker(video) {
     }
 
     // Must be a valid biological human cluster with significant weight and both skin + facial features
-    if (headWeightSum >= 28 && (skinCount >= 8 || darkCount >= 6)) {
+    if (headWeightSum >= 16 && (skinCount >= 6 || darkCount >= 5)) {
         const rawHeadX = (headSumX / headWeightSum) / mw;
         const rawHeadY = (headSumY / headWeightSum) / mh;
         const clusterW = Math.max(14, maxClusterX - minClusterX);
-        const clusterH = Math.max(18, maxClusterY - minClusterY);
-        const rawHeadW = Math.max(0.20, Math.min(0.38, clusterW / mw));
-        const rawHeadH = Math.max(0.26, Math.min(0.48, clusterH / mh));
+        const clusterH = Math.max(16, maxClusterY - minClusterY);
+        const rawHeadW = Math.max(0.20, Math.min(0.36, clusterW / mw));
+        const rawHeadH = Math.max(0.24, Math.min(0.44, clusterH / mh * 1.3));
 
         updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
             minX: Math.max(0, (minClusterX / mw) - 0.03),
@@ -781,10 +800,8 @@ function runFallbackHeadChromaTracker(video) {
             maxY: Math.min(1, (maxClusterY / mh) + 0.03)
         });
     } else {
-        if (performance.now() - headCentroid.lastDetectedTime > 500) {
-            headCentroid.active = false;
-            isSenseiPresent = false;
-        }
+        headCentroid.active = false;
+        isSenseiPresent = false;
     }
 }
 
