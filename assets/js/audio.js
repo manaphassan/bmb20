@@ -653,9 +653,8 @@ function initVoiceRecognition() {
                 console.warn("Microphone access blocked or restricted.");
                 isListening = false;
                 isPTTHolding = false;
-                updateVoiceHUD("MIC BLOCKED", false);
-                openVoiceModal();
-            } else if (event.error !== 'no-speech') {
+                updateVoiceHUD("MIC RESTRICTED", false);
+            } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
                 console.warn("Speech recognition error:", event.error);
             }
         };
@@ -679,20 +678,19 @@ function startPTTListening() {
     
     if (!recognition) initVoiceRecognition();
     if (!recognition) {
-        // Fallback: prompt text input
         const inp = document.getElementById('comm-text-input');
         if (inp) {
             inp.focus();
-            inp.placeholder = "Type your voice message here...";
+            inp.placeholder = "Type tactical command...";
         }
         return;
     }
 
+    isListening = true;
     try {
-        isListening = true;
         recognition.start();
     } catch (e) {
-        // Already active
+        // If already active, ignore safely
     }
 
     updateVoiceHUD("TRANSMITTING...", true);
@@ -726,14 +724,15 @@ function stopPTTListening() {
 function toggleVoiceRecognition() {
     if (!recognition) initVoiceRecognition();
     if (!recognition) {
-        openVoiceModal();
+        const commInp = document.getElementById('comm-text-input');
+        if (commInp) commInp.focus();
         return;
     }
 
     if (isListening) {
         isListening = false;
         isPTTHolding = false;
-        recognition.stop();
+        try { recognition.stop(); } catch (e) {}
         updateVoiceHUD("MIC OFF", false);
         if (playSound) playSound('beep1');
         if (speakComputerVoice) speakComputerVoice("Voice listening deactivated. Meena standing by.");
@@ -749,8 +748,9 @@ function toggleVoiceRecognition() {
             else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Meena is listening.";
             if (speakComputerVoice) speakComputerVoice(promptGreeting);
         } catch (e) {
-            console.warn("Voice recognition start error:", e);
-            openVoiceModal();
+            if (e.name !== 'InvalidStateError') {
+                console.warn("Voice recognition start error:", e);
+            }
         }
     }
 }
