@@ -153,19 +153,19 @@ function renderCalendarFeedsList() {
     if (!listElem) return;
 
     if (calendarState.calendars.length === 0) {
-        listElem.innerHTML = `<span class="text-secondary text-[9px] italic">No active Google Calendar feeds. Add your first private iCal link below.</span>`;
+        listElem.innerHTML = `<span class="text-secondary text-xs italic">No active Google Calendar feeds. Add your first private iCal link below.</span>`;
         return;
     }
 
     listElem.innerHTML = calendarState.calendars.map(cal => `
-        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-high border text-[9px] font-bold font-mono transition-all ${cal.enabled ? 'border-outline-variant/40 text-on-surface' : 'opacity-40 border-outline-variant/20 line-through'}">
-            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${cal.color}; box-shadow: 0 0 6px ${cal.color};"></span>
-            <span class="truncate max-w-[120px]">${cal.name}</span>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border text-xs font-bold font-mono transition-all ${cal.enabled ? 'border-outline-variant/40 text-on-surface' : 'opacity-40 border-outline-variant/20 line-through'}">
+            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${cal.color}; box-shadow: 0 0 6px ${cal.color};"></span>
+            <span class="truncate max-w-[140px]">${cal.name}</span>
             <button onclick="toggleGoogleCalendarFeed('${cal.id}')" class="text-secondary hover:text-primary ml-1" title="Toggle On/Off">
-                <span class="material-symbols-outlined text-[11px]">${cal.enabled ? 'check_circle' : 'cancel'}</span>
+                <span class="material-symbols-outlined text-xs">${cal.enabled ? 'check_circle' : 'cancel'}</span>
             </button>
             <button onclick="removeGoogleCalendarFeed('${cal.id}')" class="text-secondary hover:text-error ml-0.5" title="Remove Feed">
-                <span class="material-symbols-outlined text-[11px]">delete</span>
+                <span class="material-symbols-outlined text-xs">delete</span>
             </button>
         </div>
     `).join('');
@@ -192,7 +192,7 @@ function renderMonthGrid(year, month) {
     const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     daysOfWeek.forEach(d => {
         const h = document.createElement('div');
-        h.className = "text-[9px] text-secondary font-bold text-center py-0.5 border-b border-outline-variant/30";
+        h.className = "text-xs text-secondary font-bold text-center py-1 border-b border-outline-variant/30";
         h.innerText = d;
         gridElem.appendChild(h);
     });
@@ -200,7 +200,7 @@ function renderMonthGrid(year, month) {
     // Blank cells before month start
     for (let i = 0; i < firstDay; i++) {
         const blank = document.createElement('div');
-        blank.className = "p-1 opacity-20 h-full min-h-0";
+        blank.className = "p-1.5 opacity-20 h-full min-h-0";
         gridElem.appendChild(blank);
     }
 
@@ -210,7 +210,7 @@ function renderMonthGrid(year, month) {
         const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day);
         const isSelected = (calendarState.selectedDate && calendarState.selectedDate.getFullYear() === year && calendarState.selectedDate.getMonth() === month && calendarState.selectedDate.getDate() === day);
         
-        cell.className = `p-1 h-full min-h-0 rounded border transition-all cursor-pointer flex flex-col justify-between ${
+        cell.className = `p-1.5 h-full min-h-0 rounded border transition-all cursor-pointer flex flex-col justify-between ${
             isSelected
                 ? 'bg-secondary/20 border-secondary shadow-[0_0_8px_rgba(120,228,165,0.4)]'
                 : (isToday 
@@ -220,10 +220,10 @@ function renderMonthGrid(year, month) {
 
         cell.innerHTML = `
             <div class="flex justify-between items-center">
-                <span class="text-xs font-mono font-bold ${isToday ? 'text-primary' : (isSelected ? 'text-secondary' : 'text-on-surface')}">${day}</span>
-                ${isToday ? '<span class="text-[7px] bg-primary text-black font-bold px-1 rounded">TODAY</span>' : ''}
+                <span class="text-sm font-mono font-bold ${isToday ? 'text-primary' : (isSelected ? 'text-secondary' : 'text-on-surface')}">${day}</span>
+                ${isToday ? '<span class="text-[9px] bg-primary text-black font-bold px-1.5 py-0.5 rounded">TODAY</span>' : ''}
             </div>
-            <div class="day-events-container flex flex-col gap-0.5 mt-0.5 overflow-hidden"></div>
+            <div class="day-events-container flex flex-col gap-1 mt-1 overflow-hidden"></div>
         `;
 
         // Find events on this specific day from all parsed feeds
@@ -237,8 +237,8 @@ function renderMonthGrid(year, month) {
             const evBox = cell.querySelector('.day-events-container');
             if (evBox) {
                 evBox.innerHTML = dayEvents.slice(0, 2).map(ev => `
-                    <span class="text-[7px] px-1 rounded truncate block font-bold text-black leading-tight" style="background-color: ${ev.color || '#c2c1ff'};" title="${ev.summary} (${ev.time})">${ev.summary}</span>
-                `).join('') + (dayEvents.length > 2 ? `<span class="text-[6.5px] text-tertiary font-bold">+${dayEvents.length - 2} more</span>` : '');
+                    <span class="text-[9px] px-1.5 py-0.5 rounded truncate block font-bold text-black leading-tight shadow-sm" style="background-color: ${ev.color || '#c2c1ff'};" title="${ev.summary} (${ev.time})">${ev.summary}</span>
+                `).join('') + (dayEvents.length > 2 ? `<span class="text-[9px] text-tertiary font-bold">+${dayEvents.length - 2} more</span>` : '');
             }
         }
 
@@ -268,7 +268,9 @@ function renderAgendaTimeline() {
         if (!ev.timestamp) return false;
         const d = new Date(ev.timestamp * 1000);
         return (d.getFullYear() === selDate.getFullYear() && d.getMonth() === selDate.getMonth() && d.getDate() === selDate.getDate());
-    });    if (todayCount) {
+    });
+
+    if (todayCount) {
         todayCount.innerText = `${activeListEvents.length} EVENTS`;
     }
     const commTodayCount = document.getElementById('comm-chrono-today-count');
@@ -279,38 +281,38 @@ function renderAgendaTimeline() {
     let todayHtml = '';
     if (!calendarState.isSynced) {
         todayHtml = `
-            <div class="p-3 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-xs leading-relaxed flex flex-col gap-1.5">
-                <span class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">info</span><span>NO GOOGLE CALENDARS SYNCED</span></span>
-                <span class="text-[10px]">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
+            <div class="p-3.5 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-sm leading-relaxed flex flex-col gap-1.5">
+                <span class="font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-base">info</span><span>NO GOOGLE CALENDARS SYNCED</span></span>
+                <span class="text-xs">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
             </div>
         `;
     } else if (activeListEvents.length === 0) {
         const nextEvent = calendarState.eventsUpcoming[0];
         todayHtml = `
-            <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs flex flex-col gap-1.5">
+            <div class="p-3.5 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-sm flex flex-col gap-1.5">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-base">event_available</span>
+                    <span class="material-symbols-outlined text-primary text-lg">event_available</span>
                     <span>No scheduled events for <strong>${selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</strong>.</span>
                 </div>
                 ${nextEvent ? `
-                    <div class="mt-1 pt-1.5 border-t border-outline-variant/20 flex items-center justify-between text-[10px]">
+                    <div class="mt-1 pt-1.5 border-t border-outline-variant/20 flex items-center justify-between text-xs">
                         <span class="text-tertiary font-bold">NEXT OPERATION:</span>
-                        <span class="font-semibold text-on-surface truncate max-w-[200px]">${nextEvent.date} @ ${nextEvent.summary}</span>
+                        <span class="font-bold text-on-surface truncate max-w-[240px]">${nextEvent.date} @ ${nextEvent.summary}</span>
                     </div>
                 ` : ''}
             </div>
         `;
     } else {
         todayHtml = activeListEvents.map(ev => `
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
-                <div class="flex flex-col gap-0.5">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[8px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#c2c1ff'};">${ev.calendar || 'Main'}</span>
-                        <span class="text-xs font-bold text-on-surface">${ev.summary}</span>
+            <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] px-1.5 py-0.5 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#c2c1ff'};">${ev.calendar || 'Main'}</span>
+                        <span class="text-sm font-bold text-on-surface">${ev.summary}</span>
                     </div>
-                    ${ev.location ? `<span class="text-[8.5px] text-tertiary flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">location_on</span><span>${ev.location}</span></span>` : ''}
+                    ${ev.location ? `<span class="text-xs text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span><span>${ev.location}</span></span>` : ''}
                 </div>
-                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded border" style="color: ${ev.color || '#c2c1ff'}; border-color: ${ev.color || '#c2c1ff'}40; background-color: ${ev.color || '#c2c1ff'}15;">${ev.time}</span>
+                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded border shadow-sm" style="color: ${ev.color || '#c2c1ff'}; border-color: ${ev.color || '#c2c1ff'}40; background-color: ${ev.color || '#c2c1ff'}15;">${ev.time}</span>
             </div>
         `).join('');
     }
@@ -321,13 +323,21 @@ function renderAgendaTimeline() {
 
     let upcomingHtml = '';
     if (calendarState.eventsUpcoming.length === 0) {
-        upcomingHtml = `<div class="text-secondary text-xs italic p-3">No upcoming events found in active horizon.</div>`;
+        upcomingHtml = `<div class="text-secondary text-sm italic p-3">No upcoming events found in active horizon.</div>`;
     } else {
         upcomingHtml = calendarState.eventsUpcoming.map(ev => `
-            <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high border-l-2 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-1">
-                        <span class="text-[7.5px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
+                <div class="flex flex-col gap-0.5">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] px-1.5 py-0.5 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
+                        <span class="text-sm font-bold text-on-surface">${ev.summary}</span>
+                    </div>
+                    ${ev.location ? `<span class="text-xs text-secondary truncate max-w-[240px]">${ev.location}</span>` : ''}
+                </div>
+                <span class="font-mono text-xs font-bold text-tertiary whitespace-nowrap ml-2">${ev.date} @ ${ev.time}</span>
+            </div>
+        `).join('');
+    }
                         <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
                     </div>
                     ${ev.location ? `<span class="text-[8px] text-tertiary truncate max-w-[280px]">${ev.location}</span>` : ''}

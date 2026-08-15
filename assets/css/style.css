@@ -587,10 +587,25 @@ body.mode-bridge #layout-communicator {
 }
 
 .deck-view.deck-active {
-    display: flex !important;
     opacity: 1;
     transform: scale(1) translateY(0);
     animation: deck-fade-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#deck-1-container.deck-active {
+    display: grid !important;
+}
+
+#deck-2-container.deck-active {
+    display: grid !important;
+}
+
+#deck-3-container.deck-active {
+    display: flex !important;
+}
+
+#deck-4-container.deck-active {
+    display: flex !important;
 }
 
 @keyframes deck-fade-in {

@@ -342,119 +342,119 @@
         <div id="deck-1-container" class="deck-view">
 
             <!-- Left Main Column: 3D Holographic Dot-Matrix Brain Core & Live Dialogue Console -->
-            <div class="bg-surface-container-low p-3 flex flex-col justify-between border-t-4 border-primary rounded-sm overflow-hidden font-data-mono relative h-full">
+            <div class="bg-surface-container-low p-3.5 flex flex-col justify-between border-t-4 border-primary rounded-sm overflow-hidden font-data-mono relative h-full">
                 <!-- Meena Persona Header Bar -->
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-2 mb-2 flex-shrink-0">
                     <div class="flex items-center gap-3">
                         <!-- 3D Holographic Dot-Matrix Brain Core Canvas -->
-                        <div class="relative w-28 h-14 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)]">
-                            <canvas id="meena-avatar-canvas" width="112" height="56" class="w-full h-full"></canvas>
-                            <div class="absolute bottom-0.5 right-1 text-[7px] text-primary/70 font-mono tracking-tighter">AI NEURAL CORE</div>
+                        <div class="relative w-32 h-16 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)]">
+                            <canvas id="meena-avatar-canvas" width="128" height="64" class="w-full h-full"></canvas>
+                            <div class="absolute bottom-0.5 right-1.5 text-[8.5px] text-primary/80 font-mono tracking-tight font-bold">NEURAL CORE</div>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-headline-sm text-sm text-primary uppercase font-bold tracking-wider">M.E.E.N.A. AI BRIDGE</span>
-                                <span class="text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40 font-mono" id="meena-persona-badge">ALEX</span>
-                                <span class="text-[9px] bg-surface-dim text-secondary px-1.5 py-0.5 rounded font-bold border border-outline-variant/30 font-mono" id="token-meter-badge" title="Live AI Tokens Consumed">TOKENS: 0</span>
+                                <span class="font-headline-sm text-base text-primary uppercase font-bold tracking-wider">M.E.E.N.A. AI BRIDGE</span>
+                                <span class="text-xs bg-lcars-purple/20 text-lcars-purple px-2 py-0.5 rounded font-bold border border-lcars-purple/40 font-mono" id="meena-persona-badge">ALEX</span>
+                                <span class="text-xs bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/30 font-mono" id="token-meter-badge" title="Live AI Tokens Consumed">TOKENS: 0</span>
                             </div>
                             <!-- Neural Sync EXP Progress Bar -->
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[8px] text-secondary font-bold">SYNC: <strong class="text-on-surface" id="meena-sync-level">Lv. 14</strong></span>
-                                <div class="w-36 bg-surface-dim h-1.5 rounded-full overflow-hidden border border-outline-variant/30">
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="text-xs text-secondary font-bold">SYNC: <strong class="text-on-surface" id="meena-sync-level">Lv. 14</strong></span>
+                                <div class="w-40 bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
                                     <div class="bg-primary h-full w-[65%] transition-all duration-500 shadow-[0_0_8px_#c2c1ff]" id="meena-exp-bar"></div>
                                 </div>
-                                <span class="text-[8px] text-on-surface-variant font-mono" id="meena-exp-text">840 / 1000 EXP</span>
+                                <span class="text-xs text-on-surface-variant font-mono" id="meena-exp-text">840 / 1000 EXP</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Live State Readout (Clean Standby Status Only) -->
                     <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-1.5 bg-surface-container px-2.5 py-1 rounded-full border border-outline-variant/30">
-                            <span class="w-2 h-2 rounded-full bg-secondary animate-pulse" id="meena-status-dot"></span>
-                            <span class="text-[10px] text-secondary font-bold font-mono tracking-wider" id="meena-status-indicator">STANDBY [LISTENING]</span>
+                        <div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/30">
+                            <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse" id="meena-status-dot"></span>
+                            <span class="text-xs text-secondary font-bold font-mono tracking-wider" id="meena-status-indicator">STANDBY [LISTENING]</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Live Conversation Dialogue Stream (Maximized Height) -->
-                <div class="flex-1 overflow-y-auto bg-surface-container-lowest p-3 rounded border border-outline-variant/30 flex flex-col gap-2 text-[10px] my-1 font-mono min-h-0" id="meena-chat-feed">
-                    <div class="flex items-start gap-1.5 text-primary">
+                <!-- Live Conversation Dialogue Stream (Maximized Height & High Legibility) -->
+                <div class="flex-1 overflow-y-auto bg-surface-container-lowest p-3.5 rounded border border-outline-variant/30 flex flex-col gap-2.5 text-xs sm:text-sm my-1.5 font-mono min-h-0 leading-relaxed" id="meena-chat-feed">
+                    <div class="flex items-start gap-2 text-primary">
                         <span class="text-tertiary font-bold">[MEENA]:</span>
                         <span>Ohayou, Sensei! All Takahara Academy tactical pathways nominal. How can I assist you today?</span>
                     </div>
                 </div>
 
                 <!-- AI Agent Skills Executor Tray -->
-                <div class="flex items-center justify-between bg-surface-container-high/80 px-2 py-1 rounded border border-outline-variant/30 text-[9px] font-mono flex-shrink-0">
-                    <span class="text-lcars-gold font-bold flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs">smart_toy</span>
+                <div class="flex items-center justify-between bg-surface-container-high/80 px-2.5 py-1.5 rounded border border-outline-variant/30 text-xs font-mono flex-shrink-0">
+                    <span class="text-lcars-gold font-bold flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">smart_toy</span>
                         <span>AGENT SKILLS:</span>
                     </span>
-                    <div class="flex gap-1 flex-wrap">
-                        <button onclick="executeSkillDeepResearchPrompt()" class="bg-primary/20 hover:bg-primary hover:text-black text-primary px-1.5 py-0.5 rounded border border-primary/40 transition-all font-bold flex items-center gap-0.5">
-                            <span class="material-symbols-outlined text-[11px]">science</span>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <button onclick="executeSkillDeepResearchPrompt()" class="bg-primary/20 hover:bg-primary hover:text-black text-primary px-2 py-1 rounded border border-primary/40 transition-all font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">science</span>
                             <span>DEEP RESEARCH</span>
                         </button>
-                        <button onclick="executeSkillReportAnalysis()" class="bg-tertiary/20 hover:bg-tertiary hover:text-black text-tertiary px-1.5 py-0.5 rounded border border-tertiary/40 transition-all font-bold flex items-center gap-0.5">
-                            <span class="material-symbols-outlined text-[11px]">query_stats</span>
+                        <button onclick="executeSkillReportAnalysis()" class="bg-tertiary/20 hover:bg-tertiary hover:text-black text-tertiary px-2 py-1 rounded border border-tertiary/40 transition-all font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">query_stats</span>
                             <span>REPORT AUDIT</span>
                         </button>
-                        <button onclick="executeSkillMoraleBoost()" class="bg-secondary/20 hover:bg-secondary hover:text-black text-secondary px-1.5 py-0.5 rounded border border-secondary/40 transition-all font-bold flex items-center gap-0.5">
-                            <span class="material-symbols-outlined text-[11px]">sentiment_satisfied</span>
+                        <button onclick="executeSkillMoraleBoost()" class="bg-secondary/20 hover:bg-secondary hover:text-black text-secondary px-2 py-1 rounded border border-secondary/40 transition-all font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">sentiment_satisfied</span>
                             <span>MORALE BOOST</span>
                         </button>
-                        <button onclick="executeSkillFactVerifyPrompt()" class="bg-lcars-purple/20 hover:bg-lcars-purple hover:text-white text-lcars-purple px-1.5 py-0.5 rounded border border-lcars-purple/40 transition-all font-bold flex items-center gap-0.5">
-                            <span class="material-symbols-outlined text-[11px]">verified</span>
+                        <button onclick="executeSkillFactVerifyPrompt()" class="bg-lcars-purple/20 hover:bg-lcars-purple hover:text-white text-lcars-purple px-2 py-1 rounded border border-lcars-purple/40 transition-all font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">verified</span>
                             <span>FACT CHECK</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Dynamic Neural Audio Waveform Canvas HUD -->
-                <div class="neural-waveform-container h-8 my-0.5 flex items-center justify-center relative flex-shrink-0">
+                <div class="neural-waveform-container h-8 my-1 flex items-center justify-center relative flex-shrink-0">
                     <canvas id="neural-voice-waveform" class="neural-waveform-canvas"></canvas>
-                    <div class="absolute left-2 text-[7px] text-tertiary/80 font-mono tracking-wider flex items-center gap-1 pointer-events-none">
-                        <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                    <div class="absolute left-2 text-[8.5px] text-tertiary/90 font-mono tracking-wider flex items-center gap-1.5 pointer-events-none font-bold">
+                        <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
                         <span>NEURAL AUDIO HUD</span>
                     </div>
                 </div>
 
                 <!-- Quick Action Suggestion Chips -->
-                <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
-                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
-                        <span class="material-symbols-outlined text-[12px] text-primary">analytics</span>
+                <div class="grid grid-cols-5 gap-1.5 text-xs font-bold my-1 flex-shrink-0">
+                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-2 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-sm text-primary">analytics</span>
                         <span>STATUS</span>
                     </button>
-                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
-                        <span class="material-symbols-outlined text-[12px] text-lcars-orange">shield</span>
+                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1.5 px-2 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-sm text-lcars-orange">shield</span>
                         <span>PI-HOLE</span>
                     </button>
-                    <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
-                        <span class="material-symbols-outlined text-[12px] text-primary">memory</span>
+                    <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-2 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-sm text-primary">memory</span>
                         <span>HARDWARE</span>
                     </button>
-                    <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
-                        <span class="material-symbols-outlined text-[12px] text-error">cleaning_services</span>
+                    <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1.5 px-2 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-sm text-error">cleaning_services</span>
                         <span>PURGE RAM</span>
                     </button>
-                    <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
-                        <span class="material-symbols-outlined text-[12px] text-tertiary">wb_sunny</span>
+                    <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-2 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-sm text-tertiary">wb_sunny</span>
                         <span>BRIEFING</span>
                     </button>
                 </div>
 
                 <!-- Unified Chat & Voice Command Input Form -->
-                <div class="flex gap-1.5 flex-shrink-0 pt-0.5">
-                    <button onclick="toggleVoiceRecognition()" id="btn-voice-mic-dash" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface font-bold px-2.5 py-1.5 rounded text-xs transition-colors flex items-center justify-center gap-1 shadow-sm border border-outline-variant/30" title="Toggle Hands-Free Voice Mic">
-                        <span class="material-symbols-outlined text-xs">mic</span>
+                <div class="flex gap-2 flex-shrink-0 pt-1">
+                    <button onclick="toggleVoiceRecognition()" id="btn-voice-mic-dash" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface font-bold px-3 py-2 rounded text-xs transition-colors flex items-center justify-center gap-1 shadow-sm border border-outline-variant/30" title="Toggle Hands-Free Voice Mic">
+                        <span class="material-symbols-outlined text-sm">mic</span>
                     </button>
                     <input type="text" id="meena-dash-input" placeholder="Ask, search the web, or give orders (e.g. 'Who is Albert Einstein?', 'Purge RAM')..."
-                           class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
+                           class="flex-1 bg-surface-dim border border-outline-variant px-3.5 py-2 rounded text-xs sm:text-sm text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
                            onkeydown="if (event.key === 'Enter') { event.preventDefault(); const val = this.value.trim(); if (val) { this.value = ''; sendChatMessage(val); } }"/>
                     <button onclick="const inp = document.getElementById('meena-dash-input'); if (inp && inp.value.trim()) { const val = inp.value.trim(); inp.value = ''; sendChatMessage(val); }"
-                            class="bg-primary text-black font-bold px-4 py-1.5 rounded text-xs hover:bg-primary/80 transition-colors flex items-center gap-1 shadow-sm">
-                        <span class="material-symbols-outlined text-xs">send</span>
+                            class="bg-primary text-black font-bold px-5 py-2 rounded text-xs sm:text-sm hover:bg-primary/80 transition-colors flex items-center gap-1.5 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">send</span>
                         <span>TRANSMIT</span>
                     </button>
                 </div>
@@ -464,20 +464,20 @@
             <div class="flex flex-col gap-2 h-full min-h-0 overflow-hidden font-data-mono">
 
                 <!-- Module: Obsidian-Style Force-Directed Neural Knowledge Graph -->
-                <div class="bg-surface-container p-2.5 flex flex-col justify-between border-t-4 border-lcars-gold rounded-sm flex-1 min-h-0 overflow-hidden relative">
-                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1 flex-shrink-0">
+                <div class="bg-surface-container p-3 flex flex-col justify-between border-t-4 border-lcars-gold rounded-sm flex-1 min-h-0 overflow-hidden relative">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
                         <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-sm text-lcars-gold">hub</span>
+                            <span class="material-symbols-outlined text-base text-lcars-gold">hub</span>
                             <span class="font-headline-sm text-xs text-lcars-gold uppercase font-bold tracking-wider">NEURAL KNOWLEDGE GRAPH</span>
                         </div>
                         <!-- Graph HUD Controls & Stats -->
-                        <div class="flex items-center gap-2 text-[8px] font-mono">
+                        <div class="flex items-center gap-2.5 text-xs font-mono">
                             <span class="text-secondary">HEARTH: <strong class="text-lcars-gold" id="kg-hearth-size">3.5 KB</strong></span>
-                            <div class="h-3 w-px bg-outline-variant/40"></div>
+                            <div class="h-3.5 w-px bg-outline-variant/40"></div>
                             <span class="text-secondary">NODES: <strong class="text-primary" id="kb-node-count">0</strong></span>
-                            <div class="h-3 w-px bg-outline-variant/40"></div>
+                            <div class="h-3.5 w-px bg-outline-variant/40"></div>
                             <span class="text-secondary">SYNAPSES: <strong class="text-tertiary" id="kb-edge-count">0</strong></span>
-                            <button onclick="clearMemories()" class="px-1.5 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1 transition-colors" title="Reset Neural Memory">RESET</button>
+                            <button onclick="clearMemories()" class="px-2 py-0.5 rounded bg-surface-bright text-error hover:bg-error hover:text-white font-bold ml-1 transition-colors" title="Reset Neural Memory">RESET</button>
                         </div>
                     </div>
 
@@ -486,33 +486,33 @@
                         <canvas id="knowledge-graph-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
                         
                         <!-- Floating Node Inspector Tooltip -->
-                        <div id="knowledge-graph-tooltip" class="absolute hidden pointer-events-none bg-surface-container-highest/95 border border-primary/60 text-[9px] p-2 rounded shadow-2xl font-mono max-w-[200px] z-30 backdrop-blur-sm transition-opacity duration-150">
-                            <div class="flex justify-between items-center text-primary font-bold border-b border-outline-variant/30 pb-0.5 mb-1" id="kg-tip-header">NODE</div>
-                            <div class="text-on-surface leading-tight text-[8.5px]" id="kg-tip-body">Fact text</div>
+                        <div id="knowledge-graph-tooltip" class="absolute hidden pointer-events-none bg-surface-container-highest/95 border border-primary/60 text-xs p-2.5 rounded shadow-2xl font-mono max-w-[220px] z-30 backdrop-blur-sm transition-opacity duration-150">
+                            <div class="flex justify-between items-center text-primary font-bold border-b border-outline-variant/30 pb-0.5 mb-1 text-xs" id="kg-tip-header">NODE</div>
+                            <div class="text-on-surface leading-normal text-xs" id="kg-tip-body">Fact text</div>
                         </div>
 
                         <!-- Graph Legend Overlay (Bottom-Right) -->
-                        <div class="absolute bottom-1 right-1.5 flex items-center gap-2 text-[7.5px] font-mono text-secondary bg-surface-dim/80 backdrop-blur-sm px-1.5 py-0.5 rounded border border-outline-variant/20 pointer-events-none">
-                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#ffe253]"></span>FACILITY</span>
-                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#c2c1ff]"></span>SENSEI</span>
-                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#78e4a5]"></span>ROUTINE</span>
-                            <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-[#ff7b72]"></span>MISSION</span>
+                        <div class="absolute bottom-1.5 right-2 flex items-center gap-2.5 text-[8.5px] font-mono text-secondary bg-surface-dim/80 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/20 pointer-events-none">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ffe253]"></span>FACILITY</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#c2c1ff]"></span>SENSEI</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#78e4a5]"></span>ROUTINE</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ff7b72]"></span>MISSION</span>
                         </div>
                     </div>
 
                     <!-- Quick Teach Note Bar -->
-                    <div class="flex gap-1.5 pt-1 border-t border-outline-variant/20 flex-shrink-0">
-                        <select id="teach-category" class="bg-surface-dim border border-outline-variant px-2 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer">
+                    <div class="flex gap-2 pt-1.5 border-t border-outline-variant/20 flex-shrink-0">
+                        <select id="teach-category" class="bg-surface-dim border border-outline-variant px-2.5 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono cursor-pointer font-bold">
                             <option value="facility">Facility</option>
                             <option value="profile">Sensei</option>
                             <option value="routines">Routine</option>
                             <option value="missions">Mission</option>
                         </select>
                         <input type="text" id="teach-note-input" placeholder="Teach memory node (e.g. 'Living room switch is 01')..."
-                               class="flex-1 bg-surface-dim border border-outline-variant px-2.5 py-1 rounded text-[9px] text-on-surface focus:outline-none focus:border-primary font-mono"
+                               class="flex-1 bg-surface-dim border border-outline-variant px-3 py-1.5 rounded text-xs text-on-surface focus:outline-none focus:border-primary font-mono"
                                onkeydown="if (event.key === 'Enter') executeTeachNote();"/>
-                        <button onclick="executeTeachNote()" class="bg-tertiary text-black font-bold px-2.5 py-1 rounded text-[9px] hover:bg-tertiary/80 transition-colors flex items-center gap-0.5 shadow-sm">
-                            <span class="material-symbols-outlined text-[11px]">add_circle</span>
+                        <button onclick="executeTeachNote()" class="bg-tertiary text-black font-bold px-3.5 py-1.5 rounded text-xs hover:bg-tertiary/80 transition-colors flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">add_circle</span>
                             <span>TEACH (+25 EXP)</span>
                         </button>
                     </div>
@@ -530,21 +530,21 @@
             <!-- Full 3D Planetary Observation Stage (Row 1 Full-Width 3 Cols) -->
             <div class="col-span-3 row-span-1 bg-surface-container-lowest border border-outline-variant/40 relative overflow-hidden flex items-center justify-center glitch-effect rounded-sm">
                 <div class="absolute top-0 left-0 flex items-center gap-2 z-30">
-                    <div class="bg-lcars-orange text-black font-label-caps text-[10px] px-2 py-0.5 font-bold tracking-wider rounded-br">
+                    <div class="bg-lcars-orange text-black font-label-caps text-xs px-3 py-1 font-bold tracking-wider rounded-br">
                         TAKAHARA OBSERVATORY STAGE
                     </div>
                     <!-- Live ISS Subspace Tracker Badge -->
-                    <div class="bg-surface-container-high/90 backdrop-blur-sm border border-lcars-gold/40 px-2 py-0.5 rounded text-[9px] font-data-mono text-lcars-gold flex items-center gap-1" id="iss-hud-badge">
-                        <span class="w-1.5 h-1.5 rounded-full bg-lcars-gold animate-pulse"></span>
+                    <div class="bg-surface-container-high/90 backdrop-blur-sm border border-lcars-gold/40 px-2.5 py-1 rounded text-xs font-data-mono text-lcars-gold flex items-center gap-1.5" id="iss-hud-badge">
+                        <span class="w-2 h-2 rounded-full bg-lcars-gold animate-pulse"></span>
                         <span>ISS: 28.5&deg;N, 80.5&deg;W // 27,580 KM/H</span>
                     </div>
                 </div>
 
                 <!-- 3D Stage Multi-View Mode Switcher -->
-                <div class="absolute top-2 right-2 z-30 flex items-center gap-1 bg-surface-dim/80 backdrop-blur-sm px-1.5 py-1 rounded border border-outline-variant/40 font-data-mono text-[9px]">
-                    <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-2 py-0.5 rounded font-bold bg-primary text-black active-condition transition-all shadow-sm">TERRA / ISS</button>
-                    <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">SOLAR ORBIT</button>
-                    <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-2 py-0.5 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">MILKY WAY</button>
+                <div class="absolute top-2 right-2 z-30 flex items-center gap-1.5 bg-surface-dim/80 backdrop-blur-sm px-2 py-1 rounded border border-outline-variant/40 font-data-mono text-xs">
+                    <button id="holo-btn-planet" onclick="switchHologramView('earth')" class="px-3 py-1 rounded font-bold bg-primary text-black active-condition transition-all shadow-sm">TERRA / ISS</button>
+                    <button id="holo-btn-system" onclick="switchHologramView('solar')" class="px-3 py-1 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">SOLAR ORBIT</button>
+                    <button id="holo-btn-galaxy" onclick="switchHologramView('galaxy')" class="px-3 py-1 rounded font-bold bg-surface-bright text-on-surface-variant hover:text-primary transition-all shadow-sm">MILKY WAY</button>
                 </div>
 
                 <!-- 3D Tactical Line Callouts Overlay Layer -->
@@ -552,9 +552,9 @@
                 <div id="holo-callout-dom" class="absolute inset-0 w-full h-full pointer-events-none z-20 overflow-hidden"></div>
 
                 <!-- Overlay Telemetry Data (Bottom-Left) -->
-                <div class="absolute bottom-3 left-3 bg-surface-container/90 backdrop-blur-sm px-2.5 py-1.5 border border-primary/40 font-data-mono text-[11px] text-secondary z-30 rounded">
-                    <div class="text-primary font-bold" id="hero-subtitle">TARGET: TERRA [SECTOR 001]</div>
-                    <div class="text-[10px] text-on-surface-variant font-mono" id="hero-coords">GEO-COORD: 02&deg; 48' N, 101&deg; 30' E // INCL: 23.4&deg;</div>
+                <div class="absolute bottom-3 left-3 bg-surface-container/90 backdrop-blur-sm px-3 py-2 border border-primary/40 font-data-mono text-xs text-secondary z-30 rounded shadow-md">
+                    <div class="text-primary font-bold text-xs sm:text-sm" id="hero-subtitle">TARGET: TERRA [SECTOR 001]</div>
+                    <div class="text-xs text-on-surface-variant font-mono mt-0.5" id="hero-coords">GEO-COORD: 02&deg; 48' N, 101&deg; 30' E // INCL: 23.4&deg;</div>
                 </div>
 
                 <!-- 3D Earth Container -->
@@ -562,30 +562,30 @@
             </div>
 
             <!-- Subspace Network Radar (LAN Nodes) -->
-            <div class="col-span-1 row-span-1 bg-surface-container p-2.5 border-t-4 border-lcars-gold rounded-sm flex flex-col overflow-hidden font-data-mono h-full min-h-0">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs text-lcars-gold">radar</span>
+            <div class="col-span-1 row-span-1 bg-surface-container p-3 border-t-4 border-lcars-gold rounded-sm flex flex-col overflow-hidden font-data-mono h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-lcars-gold">radar</span>
                         <span class="font-headline-sm text-xs text-lcars-gold uppercase tracking-wider font-bold">Subspace Radar</span>
                     </div>
-                    <span class="text-[9px] text-primary" id="lan-count">ACTIVE NODES</span>
+                    <span class="text-xs text-primary font-bold" id="lan-count">ACTIVE NODES</span>
                 </div>
-                <div class="flex-1 overflow-y-auto min-h-0 pr-0.5 flex flex-col gap-1" id="lan-devices-container">
-                    <div class="bg-surface-container-highest px-2 py-1 rounded flex items-center justify-between text-[10px]">
+                <div class="flex-1 overflow-y-auto min-h-0 pr-0.5 flex flex-col gap-1.5 text-xs" id="lan-devices-container">
+                    <div class="bg-surface-container-highest px-2.5 py-1.5 rounded flex items-center justify-between text-xs font-mono">
                         <span class="text-secondary">SCANNING ARP NODES...</span>
-                        <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-tertiary animate-pulse"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Subspace Uplink & Downlink Bandwidth Graph -->
-            <div class="col-span-1 row-span-1 bg-surface-container-low p-2.5 flex flex-col border-t-4 border-primary rounded-sm relative overflow-hidden font-data-mono h-full min-h-0">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs text-primary">ssid_chart</span>
+            <div class="col-span-1 row-span-1 bg-surface-container-low p-3 flex flex-col border-t-4 border-primary rounded-sm relative overflow-hidden font-data-mono h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-primary">ssid_chart</span>
                         <span class="text-xs font-headline-sm text-primary font-bold uppercase tracking-wider">Subspace Bandwidth</span>
                     </div>
-                    <div class="flex gap-2 text-[10px] font-bold">
+                    <div class="flex gap-2.5 text-xs font-bold font-mono">
                         <span class="text-primary" id="tx-rate">TX: 0.0 KB/s</span>
                         <span class="text-tertiary" id="rx-rate">RX: 0.0 KB/s</span>
                     </div>
@@ -596,15 +596,15 @@
             </div>
 
             <!-- System Kernel Log Stream -->
-            <div class="col-span-1 row-span-1 bg-surface p-2.5 border-t-4 border-lcars-blue font-data-mono text-[10px] text-primary flex flex-col rounded-sm relative overflow-hidden h-full min-h-0">
-                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1 mb-1.5 flex-shrink-0">
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs text-lcars-blue">terminal</span>
+            <div class="col-span-1 row-span-1 bg-surface p-3 border-t-4 border-lcars-blue font-data-mono text-xs text-primary flex flex-col rounded-sm relative overflow-hidden h-full min-h-0">
+                <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1.5 mb-1.5 flex-shrink-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-lcars-blue">terminal</span>
                         <span class="text-xs font-headline-sm text-lcars-blue font-bold uppercase tracking-wider">System Kernel Log</span>
                     </div>
-                    <span class="text-[9px] text-secondary font-mono">[LIVE DMESG]</span>
+                    <span class="text-xs text-secondary font-mono">[LIVE DMESG]</span>
                 </div>
-                <div class="flex-1 overflow-y-auto min-h-0 flex flex-col justify-start opacity-90 font-mono leading-tight gap-0.5 text-[9px] pr-0.5" id="sys-log">
+                <div class="flex-1 overflow-y-auto min-h-0 flex flex-col justify-start opacity-90 font-mono leading-relaxed gap-1 text-xs pr-0.5" id="sys-log">
                     <div>&gt; [0.000000] Linux version 6.1.21-v7+ (DietPi SBC Core)</div>
                     <div>&gt; [0.000000] CPU: ARMv7 Processor [410fd034] revision 4</div>
                     <div>&gt; [0.000000] Machine model: Raspberry Pi 3 Model B Rev 1.2</div>
@@ -624,39 +624,39 @@
              ====================================================================== -->
         <div id="deck-3-container" class="deck-view hidden p-2 flex flex-col gap-2 w-full font-data-mono h-full min-h-0 overflow-hidden">
             <!-- Chrono Header Strip -->
-            <div class="flex justify-between items-center bg-surface-container-low px-3 py-1.5 rounded border-l-4 border-tertiary shadow-sm flex-shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shadow-[0_0_8px_rgba(77,208,225,0.3)]">
-                        <span class="material-symbols-outlined text-lg">calendar_month</span>
+            <div class="flex justify-between items-center bg-surface-container-low px-3.5 py-2 rounded border-l-4 border-tertiary shadow-sm flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded bg-tertiary/10 border border-tertiary flex items-center justify-center text-tertiary shadow-[0_0_8px_rgba(77,208,225,0.3)]">
+                        <span class="material-symbols-outlined text-xl">calendar_month</span>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xs font-bold tracking-wider text-tertiary font-headline">CHRONO CALENDAR & OPERATIONS AGENDA</h2>
-                            <span id="chrono-sync-status" class="text-[8.5px] bg-tertiary/20 text-tertiary px-1.5 py-0.2 rounded font-bold border border-tertiary/40">SYNCED</span>
+                            <h2 class="text-sm font-bold tracking-wider text-tertiary font-headline">CHRONO CALENDAR & OPERATIONS AGENDA</h2>
+                            <span id="chrono-sync-status" class="text-xs bg-tertiary/20 text-tertiary px-2 py-0.5 rounded font-bold border border-tertiary/40">SYNCED</span>
                         </div>
-                        <p class="text-[9.5px] text-secondary">Takahara Academy Tactical Schedule & Google Calendar Feeds</p>
+                        <p class="text-xs text-secondary mt-0.5">Takahara Academy Tactical Schedule & Google Calendar Feeds</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="speakCalendarSpokenSummary()" class="bg-primary text-black hover:bg-primary/80 font-bold px-2 py-1 rounded text-[9.5px] flex items-center gap-1 shadow-sm transition-all">
-                        <span class="material-symbols-outlined text-xs">volume_up</span>
+                    <button onclick="speakCalendarSpokenSummary()" class="bg-primary text-black hover:bg-primary/80 font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-sm">volume_up</span>
                         <span>READ AGENDA</span>
                     </button>
-                    <button onclick="loadCalendarFeed(true)" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2 py-1 rounded font-bold text-[9.5px] flex items-center gap-1 border border-outline-variant/30 transition-all">
-                        <span class="material-symbols-outlined text-xs">sync</span>
+                    <button onclick="loadCalendarFeed(true)" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-3 py-1.5 rounded font-bold text-xs flex items-center gap-1.5 border border-outline-variant/30 transition-all">
+                        <span class="material-symbols-outlined text-sm">sync</span>
                         <span>REFRESH</span>
                     </button>
                 </div>
             </div>
 
             <!-- Visual Waktu Solat Sun & Moon Solar Arc Pod -->
-            <div class="bg-surface-container-low p-2 rounded border border-tertiary/30 shadow-sm flex flex-col gap-1.5 flex-shrink-0">
-                <div class="flex items-center justify-between text-[9px] font-mono">
-                    <span class="text-tertiary font-bold flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs text-tertiary">wb_twilight</span>
+            <div class="bg-surface-container-low p-2.5 rounded border border-tertiary/30 shadow-sm flex flex-col gap-1.5 flex-shrink-0">
+                <div class="flex items-center justify-between text-xs font-mono">
+                    <span class="text-tertiary font-bold flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-tertiary">wb_twilight</span>
                         <span>E-SOLAT JAKIM SOLAR ARC & PRAYER MATRIX</span>
                     </span>
-                    <span id="solat-arc-status-label" class="text-secondary text-[8.5px]">Syncing prayer trajectory...</span>
+                    <span id="solat-arc-status-label" class="text-secondary text-xs">Syncing prayer trajectory...</span>
                 </div>
 
                 <!-- 24-Hour Solar Orbit Track -->
@@ -665,30 +665,30 @@
                 </div>
 
                 <!-- 6 Checkpoint Prayer Nodes -->
-                <div class="grid grid-cols-6 gap-1 text-center font-mono text-[8px]" id="solat-arc-nodes">
-                    <div id="solat-node-subuh" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">SUBUH</span>
-                        <strong id="solat-time-subuh" class="text-primary text-[9px]">05:58</strong>
+                <div class="grid grid-cols-6 gap-2 text-center font-mono" id="solat-arc-nodes">
+                    <div id="solat-node-subuh" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">SUBUH</span>
+                        <strong id="solat-time-subuh" class="text-primary text-sm font-bold mt-0.5">05:58</strong>
                     </div>
-                    <div id="solat-node-syuruk" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">SYURUK</span>
-                        <strong id="solat-time-syuruk" class="text-lcars-gold text-[9px]">07:11</strong>
+                    <div id="solat-node-syuruk" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">SYURUK</span>
+                        <strong id="solat-time-syuruk" class="text-lcars-gold text-sm font-bold mt-0.5">07:11</strong>
                     </div>
-                    <div id="solat-node-zohor" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">ZOHOR</span>
-                        <strong id="solat-time-zohor" class="text-primary text-[9px]">13:22</strong>
+                    <div id="solat-node-zohor" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">ZOHOR</span>
+                        <strong id="solat-time-zohor" class="text-primary text-sm font-bold mt-0.5">13:22</strong>
                     </div>
-                    <div id="solat-node-asar" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">ASAR</span>
-                        <strong id="solat-time-asar" class="text-primary text-[9px]">16:38</strong>
+                    <div id="solat-node-asar" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">ASAR</span>
+                        <strong id="solat-time-asar" class="text-primary text-sm font-bold mt-0.5">16:38</strong>
                     </div>
-                    <div id="solat-node-maghrib" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">MAGHRIB</span>
-                        <strong id="solat-time-maghrib" class="text-tertiary text-[9px]">19:28</strong>
+                    <div id="solat-node-maghrib" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">MAGHRIB</span>
+                        <strong id="solat-time-maghrib" class="text-tertiary text-sm font-bold mt-0.5">19:28</strong>
                     </div>
-                    <div id="solat-node-isyak" class="flex flex-col items-center p-1 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
-                        <span class="text-secondary font-bold">ISYAK</span>
-                        <strong id="solat-time-isyak" class="text-primary text-[9px]">20:39</strong>
+                    <div id="solat-node-isyak" class="flex flex-col items-center p-1.5 rounded bg-surface-container-high border border-outline-variant/30 transition-all">
+                        <span class="text-secondary font-bold text-xs">ISYAK</span>
+                        <strong id="solat-time-isyak" class="text-primary text-sm font-bold mt-0.5">20:39</strong>
                     </div>
                 </div>
             </div>
@@ -696,53 +696,53 @@
             <!-- Main Full-Height 2-Column Grid -->
             <div class="grid grid-cols-12 gap-2 flex-1 min-h-0 h-full overflow-hidden">
                 <!-- Left Column: Interactive Month Grid & Feed Management (7 Cols) -->
-                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm justify-between">
-                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1 flex-shrink-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-tertiary text-xs">date_range</span>
-                            <h3 class="text-[11px] font-bold text-on-surface font-headline tracking-wide" id="calendar-month-label">CALENDAR GRID</h3>
+                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-low p-3 rounded border border-outline-variant/30 shadow-sm justify-between">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5 flex-shrink-0">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-tertiary text-base">date_range</span>
+                            <h3 class="text-xs sm:text-sm font-bold text-on-surface font-headline tracking-wide" id="calendar-month-label">CALENDAR GRID</h3>
                         </div>
-                        <div class="flex items-center gap-1">
-                            <button onclick="prevCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-1.5 py-0.5 rounded text-[9px] font-bold border border-outline-variant/30 transition-all">
-                                <span class="material-symbols-outlined text-[10px]">chevron_left</span>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="prevCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1 rounded text-xs font-bold border border-outline-variant/30 transition-all">
+                                <span class="material-symbols-outlined text-xs">chevron_left</span>
                             </button>
-                            <button onclick="nextCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-1.5 py-0.5 rounded text-[9px] font-bold border border-outline-variant/30 transition-all">
-                                <span class="material-symbols-outlined text-[10px]">chevron_right</span>
+                            <button onclick="nextCalendarMonth()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1 rounded text-xs font-bold border border-outline-variant/30 transition-all">
+                                <span class="material-symbols-outlined text-xs">chevron_right</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Month Calendar Days Grid (Expanded to fill vertical height evenly) -->
-                    <div class="grid grid-cols-7 gap-1 flex-1 min-h-0 my-1 auto-rows-fr" id="calendar-month-grid">
+                    <div class="grid grid-cols-7 gap-1.5 flex-1 min-h-0 my-1.5 auto-rows-fr" id="calendar-month-grid">
                         <!-- Dynamically generated by assets/js/calendar.js -->
                     </div>
 
                     <!-- Active Multi-Calendar Feeds Strip & Add Bar -->
-                    <div class="pt-1.5 border-t border-outline-variant/30 flex flex-col gap-1 flex-shrink-0">
+                    <div class="pt-2 border-t border-outline-variant/30 flex flex-col gap-1.5 flex-shrink-0">
                         <div class="flex items-center justify-between">
-                            <span class="text-[8.5px] text-tertiary font-bold flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[10px]">calendar_month</span>
+                            <span class="text-xs text-tertiary font-bold flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-xs">calendar_month</span>
                                 <span>ACTIVE GOOGLE CALENDARS:</span>
                             </span>
-                            <span class="text-[8px] text-secondary">Click status to toggle on/off</span>
+                            <span class="text-xs text-secondary">Click status to toggle on/off</span>
                         </div>
-                        <div class="flex flex-wrap gap-1 min-h-[20px]" id="chrono-feeds-list">
+                        <div class="flex flex-wrap gap-1.5 min-h-[24px]" id="chrono-feeds-list">
                             <!-- Populated dynamically by assets/js/calendar.js -->
                         </div>
                         
                         <!-- Add New Calendar Feed Input Row -->
-                        <div class="flex gap-1 items-center mt-0.5">
-                            <input type="text" id="add-cal-name" placeholder="Label (e.g. Work, Personal)" class="w-28 bg-surface-container-high border border-outline-variant/40 rounded px-2 py-0.5 text-[9px] font-mono text-on-surface focus:border-tertiary focus:outline-none">
-                            <input type="text" id="add-cal-url" placeholder="Paste Google Calendar secret .ics link..." class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded px-2 py-0.5 text-[9px] font-mono text-on-surface focus:border-tertiary focus:outline-none">
-                            <select id="add-cal-color" class="bg-surface-container-high border border-outline-variant/40 rounded px-1 py-0.5 text-[9px] font-mono text-on-surface focus:border-tertiary focus:outline-none cursor-pointer">
+                        <div class="flex gap-1.5 items-center mt-1">
+                            <input type="text" id="add-cal-name" placeholder="Label (e.g. Work, Personal)" class="w-32 bg-surface-container-high border border-outline-variant/40 rounded px-2.5 py-1 text-xs font-mono text-on-surface focus:border-tertiary focus:outline-none">
+                            <input type="text" id="add-cal-url" placeholder="Paste Google Calendar secret .ics link..." class="flex-1 bg-surface-container-high border border-outline-variant/40 rounded px-3 py-1 text-xs font-mono text-on-surface focus:border-tertiary focus:outline-none">
+                            <select id="add-cal-color" class="bg-surface-container-high border border-outline-variant/40 rounded px-2 py-1 text-xs font-mono text-on-surface focus:border-tertiary focus:outline-none cursor-pointer font-bold">
                                 <option value="#c2c1ff">Cyan</option>
                                 <option value="#ffe253">Gold</option>
                                 <option value="#78e4a5">Green</option>
                                 <option value="#ff7b72">Coral</option>
                                 <option value="#d494ff">Purple</option>
                             </select>
-                            <button onclick="const name = document.getElementById('add-cal-name').value; const url = document.getElementById('add-cal-url').value; const col = document.getElementById('add-cal-color').value; addGoogleCalendarFeed(name, url, col); document.getElementById('add-cal-url').value = '';" class="bg-tertiary hover:bg-tertiary/80 text-black font-bold px-2 py-0.5 rounded text-[9px] font-mono transition-all flex items-center gap-0.5 shadow-sm">
-                                <span class="material-symbols-outlined text-[10px]">add</span>
+                            <button onclick="const name = document.getElementById('add-cal-name').value; const url = document.getElementById('add-cal-url').value; const col = document.getElementById('add-cal-color').value; addGoogleCalendarFeed(name, url, col); document.getElementById('add-cal-url').value = '';" class="bg-tertiary hover:bg-tertiary/80 text-black font-bold px-3 py-1 rounded text-xs font-mono transition-all flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-xs">add</span>
                                 <span>ADD</span>
                             </button>
                         </div>
@@ -752,29 +752,30 @@
                 <!-- Right Column: Today & Upcoming Agenda Timeline (5 Cols) -->
                 <div class="col-span-5 flex flex-col h-full min-h-0 gap-2">
                     <!-- Today's Operations -->
-                    <div class="bg-surface-container-low p-2.5 rounded border border-primary/40 shadow-sm flex flex-col gap-1.5 max-h-[38%] min-h-0 flex-shrink-0">
-                        <div class="flex items-center justify-between border-b border-primary/30 pb-1 flex-shrink-0">
-                            <div class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-primary text-xs">today</span>
-                                <h4 class="text-[10px] font-bold text-primary tracking-wider uppercase">TODAY'S OPERATIONS</h4>
+                    <div class="bg-surface-container-low p-3 rounded border border-primary/40 shadow-sm flex flex-col gap-2 max-h-[42%] min-h-0 flex-shrink-0">
+                        <div class="flex items-center justify-between border-b border-primary/30 pb-1.5 flex-shrink-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-primary text-sm">today</span>
+                                <h4 class="text-xs font-bold text-primary tracking-wider uppercase">TODAY'S OPERATIONS</h4>
                             </div>
-                            <span id="chrono-today-count" class="text-[8.5px] bg-primary/20 text-primary px-1.5 py-0.2 rounded font-bold font-mono">0 EVENTS</span>
+                            <span class="text-xs font-bold text-on-surface bg-primary/20 px-2 py-0.5 rounded border border-primary/30 font-mono" id="chrono-today-count">0 EVENTS</span>
                         </div>
-                        <div class="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0 pr-0.5" id="chrono-today-events">
-                            <div class="text-secondary text-xs italic p-1">Loading today's agenda...</div>
+                        <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1.5 pr-0.5 text-xs" id="chrono-today-events">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
 
-                    <!-- Upcoming 7-Day Agenda Timeline -->
-                    <div class="bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm flex flex-col gap-1.5 flex-1 min-h-0">
-                        <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1 flex-shrink-0">
-                            <div class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-secondary text-xs">upcoming</span>
-                                <h4 class="text-[10px] font-bold text-secondary tracking-wider uppercase">UPCOMING THIS WEEK</h4>
+                    <!-- Upcoming Operations Horizon -->
+                    <div class="bg-surface-container-low p-3 rounded border border-outline-variant/30 shadow-sm flex flex-col gap-2 flex-1 min-h-0">
+                        <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5 flex-shrink-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-tertiary text-sm">upcoming</span>
+                                <h4 class="text-xs font-bold text-tertiary tracking-wider uppercase">UPCOMING THIS WEEK</h4>
                             </div>
+                            <span class="text-xs text-secondary font-mono">NEXT 7 DAYS</span>
                         </div>
-                        <div class="flex flex-col gap-1 flex-1 overflow-y-auto min-h-0 pr-0.5" id="chrono-upcoming-events">
-                            <div class="text-secondary text-xs italic p-1">No upcoming events.</div>
+                        <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1.5 pr-0.5 text-xs" id="chrono-upcoming-events">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
                 </div>
@@ -786,26 +787,26 @@
              ====================================================================== -->
         <div id="deck-4-container" class="deck-view hidden p-2 flex flex-col gap-2 w-full font-data-mono h-full min-h-0 overflow-hidden">
             <!-- Recon Header Strip -->
-            <div class="flex justify-between items-center bg-surface-container-low px-3 py-1.5 rounded border-l-4 border-lcars-cyan shadow-sm flex-shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded bg-lcars-cyan/10 border border-lcars-cyan flex items-center justify-center text-lcars-cyan shadow-[0_0_8px_rgba(77,208,225,0.3)]">
-                        <span class="material-symbols-outlined text-lg">visibility</span>
+            <div class="flex justify-between items-center bg-surface-container-low px-3.5 py-2 rounded border-l-4 border-lcars-cyan shadow-sm flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded bg-lcars-cyan/10 border border-lcars-cyan flex items-center justify-center text-lcars-cyan shadow-[0_0_8px_rgba(77,208,225,0.3)]">
+                        <span class="material-symbols-outlined text-xl">visibility</span>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xs font-bold tracking-wider text-lcars-cyan font-headline">DECK 4: VISUAL RECON & OPTICAL AI</h2>
-                            <span id="recon-status-badge" class="text-[8.5px] bg-surface-dim text-secondary px-1.5 py-0.2 rounded font-bold border border-outline-variant/40">OPTICAL FEED: STANDBY</span>
+                            <h2 class="text-sm font-bold tracking-wider text-lcars-cyan font-headline">DECK 4: VISUAL RECON & OPTICAL AI</h2>
+                            <span id="recon-status-badge" class="text-xs bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/40">OPTICAL FEED: STANDBY</span>
                         </div>
-                        <p class="text-[9.5px] text-secondary">Tactical Video Stream, Real-Time HUD Reticles & Multimodal Gemini Vision AI</p>
+                        <p class="text-xs text-secondary mt-0.5">Tactical Video Stream, Real-Time HUD Reticles & Multimodal Gemini Vision AI</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold px-2.5 py-1 rounded text-[9.5px] flex items-center gap-1 shadow-sm transition-all">
-                        <span class="material-symbols-outlined text-xs">videocam</span>
+                    <button id="recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold px-3.5 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-sm">videocam</span>
                         <span>ENGAGE OPTICAL RECON</span>
                     </button>
-                    <button onclick="switchCameraFacing()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2 py-1 rounded font-bold text-[9.5px] flex items-center gap-1 border border-outline-variant/30 transition-all" title="Switch Camera (Front/Back/USB)">
-                        <span class="material-symbols-outlined text-xs">flip_camera_ios</span>
+                    <button onclick="switchCameraFacing()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-3 py-1.5 rounded font-bold text-xs flex items-center gap-1.5 border border-outline-variant/30 transition-all" title="Switch Camera (Front/Back/USB)">
+                        <span class="material-symbols-outlined text-sm">flip_camera_ios</span>
                         <span>SWITCH LENS</span>
                     </button>
                 </div>
@@ -814,49 +815,49 @@
             <!-- Main Full-Height 2-Column Grid -->
             <div class="grid grid-cols-12 gap-2 flex-1 min-h-0 h-full overflow-hidden">
                 <!-- Left Column: Tactical Video Feed & HUD Overlay (7 Cols) -->
-                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-lowest p-2 rounded border border-outline-variant/30 shadow-sm relative overflow-hidden justify-between">
+                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 shadow-sm relative overflow-hidden justify-between">
                     <div class="relative w-full flex-1 min-h-0 bg-black rounded overflow-hidden flex items-center justify-center border border-outline-variant/40">
                         <video id="recon-video-stream" autoplay playsinline muted class="w-full h-full object-contain"></video>
                         <canvas id="recon-hud-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
                         
                         <!-- Standby Screen Prompt when camera offline -->
-                        <div id="recon-standby-screen" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-secondary z-0 pointer-events-none">
-                            <span class="material-symbols-outlined text-4xl text-outline-variant animate-pulse">videocam_off</span>
-                            <span class="text-xs font-mono font-bold tracking-widest text-outline-variant">OPTICAL FEED STANDBY</span>
-                            <span class="text-[9px] text-secondary/60">Click 'ENGAGE OPTICAL RECON' or say 'Meena, open camera'</span>
+                        <div id="recon-standby-screen" class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-secondary z-0 pointer-events-none">
+                            <span class="material-symbols-outlined text-5xl text-outline-variant animate-pulse">videocam_off</span>
+                            <span class="text-sm font-mono font-bold tracking-widest text-outline-variant">OPTICAL FEED STANDBY</span>
+                            <span class="text-xs text-secondary/70">Click 'ENGAGE OPTICAL RECON' or say 'Meena, open camera'</span>
                         </div>
                     </div>
 
                     <!-- Tactical Action Controls Toolbar -->
-                    <div class="pt-2 flex items-center justify-between gap-2 flex-shrink-0 font-data-mono">
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="analyzeVisualRecon()" class="bg-lcars-cyan hover:bg-lcars-cyan/80 text-black font-bold px-3 py-1.5 rounded text-[10px] flex items-center gap-1.5 shadow-md transition-all">
-                                <span class="material-symbols-outlined text-xs">center_focus_strong</span>
+                    <div class="pt-2.5 flex items-center justify-between gap-2 flex-shrink-0 font-data-mono">
+                        <div class="flex items-center gap-2">
+                            <button onclick="analyzeVisualRecon()" class="bg-lcars-cyan hover:bg-lcars-cyan/80 text-black font-bold px-3.5 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-md transition-all">
+                                <span class="material-symbols-outlined text-sm">center_focus_strong</span>
                                 <span>ANALYZE SCENE</span>
                             </button>
-                            <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-2.5 py-1.5 rounded text-[10px] font-bold border border-outline-variant/30 flex items-center gap-1 transition-all">
-                                <span class="material-symbols-outlined text-xs">quiz</span>
+                            <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-3 py-1.5 rounded text-xs font-bold border border-outline-variant/30 flex items-center gap-1.5 transition-all">
+                                <span class="material-symbols-outlined text-sm">quiz</span>
                                 <span>ASK VISUAL QUESTION</span>
                             </button>
                         </div>
-                        <div id="recon-analyzing-badge" class="hidden items-center gap-1.5 text-[9px] text-lcars-gold font-bold animate-pulse font-mono">
-                            <div class="w-2 h-2 rounded-full bg-lcars-gold animate-ping"></div>
+                        <div id="recon-analyzing-badge" class="hidden items-center gap-2 text-xs text-lcars-gold font-bold animate-pulse font-mono">
+                            <div class="w-2.5 h-2.5 rounded-full bg-lcars-gold animate-ping"></div>
                             <span>GEMINI VISION REASONING...</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column: Visual Recon Dialogue & Detection Cards (5 Cols) -->
-                <div class="col-span-5 flex flex-col h-full min-h-0 bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm gap-2">
-                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1 flex-shrink-0">
+                <div class="col-span-5 flex flex-col h-full min-h-0 bg-surface-container-low p-3 rounded border border-outline-variant/30 shadow-sm gap-2">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5 flex-shrink-0">
                         <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-lcars-cyan text-xs">auto_awesome</span>
-                            <h3 class="text-[11px] font-bold text-on-surface font-headline tracking-wide">VISUAL RECON DIALOGUE</h3>
+                            <span class="material-symbols-outlined text-lcars-cyan text-sm">auto_awesome</span>
+                            <h3 class="text-xs sm:text-sm font-bold text-on-surface font-headline tracking-wide">VISUAL RECON DIALOGUE</h3>
                         </div>
-                        <span class="text-[8px] text-secondary">Multimodal Optical Intelligence</span>
+                        <span class="text-xs text-secondary font-mono">Multimodal Optical Intelligence</span>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2 pr-0.5" id="recon-analysis-log">
+                    <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2 pr-0.5 text-xs sm:text-sm" id="recon-analysis-log">
                         <div class="p-3 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-secondary text-xs flex flex-col gap-1">
                             <div class="flex items-center gap-1 text-primary font-bold text-[10px]">
                                 <span class="material-symbols-outlined text-xs">info</span>

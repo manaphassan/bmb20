@@ -644,10 +644,19 @@ function animate() {
     requestAnimationFrame(animate);
 
     if (document.hidden) return;
-    const deck2 = document.getElementById('deck-2');
-    if (deck2 && (deck2.classList.contains('hidden') || deck2.style.display === 'none')) return;
+    const deck2 = document.getElementById('deck-2-container');
+    if (deck2 && (deck2.classList.contains('hidden') || deck2.classList.contains('deck-hidden') || deck2.style.display === 'none')) return;
 
     if (!scene || !camera || !renderer) return;
+
+    // Auto-sync WebGL viewport size to actual container dimensions
+    const container = document.getElementById('earth-container');
+    if (container && container.clientWidth > 0 && container.clientHeight > 0) {
+        if (Math.abs(renderer.domElement.clientWidth - container.clientWidth) > 4 ||
+            Math.abs(renderer.domElement.clientHeight - container.clientHeight) > 4) {
+            onWindowResize();
+        }
+    }
 
     // Smooth User Drag & Inertial Damping
     userRotation.x += (targetRotation.x - userRotation.x) * 0.08;
