@@ -578,6 +578,7 @@ function toggleAudio() {
  */
 let recognition = null;
 let isListening = false;
+let isContinuousListening = false;
 let isPTTHolding = false;
 let capturedPTTText = '';
 
@@ -596,7 +597,7 @@ function initVoiceRecognition() {
 
         recognition.onstart = () => {
             isListening = true;
-            updateVoiceHUD(isPTTHolding ? "TRANSMITTING..." : "LISTENING...", true);
+            updateVoiceHUD(isPTTHolding ? "TRANSMITTING..." : (isContinuousListening ? "ALWAYS LISTENING" : "LISTENING..."), true);
         };
 
         recognition.onresult = (event) => {
@@ -633,14 +634,14 @@ function initVoiceRecognition() {
                 const pttLabel = document.getElementById('comm-ptt-label');
                 const commInput = document.getElementById('comm-text-input');
                 if (pttLabel && isPTTHolding) {
-                    pttLabel.innerText = `"${currentSpeech.substring(0, 22)}..."`;
+                    pttLabel.innerText = `"${currentSpeech.substring(0, 20)}..."`;
                 }
                 if (commInput && isPTTHolding) {
                     commInput.value = currentSpeech;
                 }
 
-                // If in tap/continuous mode and speech sentence finished, dispatch immediately
-                if (!isPTTHolding && finalStr) {
+                // If in continuous listening mode and sentence is finalized, send command
+                if (isContinuousListening && !isPTTHolding && finalStr) {
                     const cleanCmd = finalStr.trim();
                     capturedPTTText = '';
                     handleVoiceCommand(cleanCmd);
@@ -652,6 +653,7 @@ function initVoiceRecognition() {
             if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                 console.warn("Microphone access blocked or restricted.");
                 isListening = false;
+                isContinuousListening = false;
                 isPTTHolding = false;
                 updateVoiceHUD("MIC RESTRICTED", false);
             } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
@@ -660,10 +662,11 @@ function initVoiceRecognition() {
         };
 
         recognition.onend = () => {
-            if (isListening && !isPTTHolding) {
-                // Auto-restart if user wanted continuous mic on
+            if (isContinuousListening && !isMeenaSpeaking) {
+                // Auto-restart if user has always-listening ON
                 try { recognition.start(); } catch (e) {}
-            } else {
+            } else if (!isPTTHolding) {
+                isListening = false;
                 updateVoiceHUD("MIC OFF", false);
             }
         };
@@ -690,8 +693,13 @@ function startPTTListening() {
     try {
         recognition.start();
     } catch (e) {
-        // If already active, ignore safely
+        // If already running (e.g. InvalidStateError), safely proceed
     }
+
+    const pttLabel = document.getElementById('comm-ptt-label');
+    const pttBtn = document.getElementById('comm-ptt-button');
+    if (pttBtn) pttBtn.classList.add('recording-active');
+    if (pttLabel) pttLabel.innerText = 'HOLDING... SPEAK NOW';
 
     updateVoiceHUD("TRANSMITTING...", true);
     if (window.playSound) window.playSound('beep2');
@@ -701,17 +709,23 @@ function startPTTListening() {
 function stopPTTListening() {
     const wasHolding = isPTTHolding;
     isPTTHolding = false;
+
+    const pttBtn = document.getElementById('comm-ptt-button');
+    const pttLabel = document.getElementById('comm-ptt-label');
+    if (pttBtn) pttBtn.classList.remove('recording-active');
+    if (pttLabel) pttLabel.innerText = 'PUSH TO TRANSMIT';
     
-    if (recognition) {
+    // If not in continuous listening mode, stop recognition on PTT release
+    if (!isContinuousListening && recognition) {
         try { recognition.stop(); } catch (e) {}
+        isListening = false;
+        updateVoiceHUD("MIC OFF", false);
     }
-    isListening = false;
-    updateVoiceHUD("MIC OFF", false);
 
     if (window.playSound) window.playSound('beep1');
     if (navigator.vibrate) navigator.vibrate(30);
 
-    // If text was captured during PTT hold, send to Meena immediately
+    // Send captured message to Meena immediately on release
     if (capturedPTTText && capturedPTTText.trim()) {
         const textToSend = capturedPTTText.trim();
         capturedPTTText = '';
@@ -719,6 +733,11 @@ function stopPTTListening() {
         if (commInput) commInput.value = '';
         handleVoiceCommand(textToSend);
     }
+}
+
+// Dedicated Continuous Always-Listening Toggle Button (Desktop Sidebar & Mobile Header)
+function toggleVoiceListeningMute() {
+    toggleVoiceRecognition();
 }
 
 function toggleVoiceRecognition() {
@@ -729,23 +748,27 @@ function toggleVoiceRecognition() {
         return;
     }
 
-    if (isListening) {
+    if (isContinuousListening) {
+        // Turn Always-Listening OFF
+        isContinuousListening = false;
         isListening = false;
         isPTTHolding = false;
         try { recognition.stop(); } catch (e) {}
         updateVoiceHUD("MIC OFF", false);
         if (playSound) playSound('beep1');
-        if (speakComputerVoice) speakComputerVoice("Voice listening deactivated. Meena standing by.");
+        if (speakComputerVoice) speakComputerVoice("Always-listening deactivated. Meena standing by.");
     } else {
+        // Turn Always-Listening ON
+        isContinuousListening = true;
         isListening = true;
         try {
             recognition.start();
-            updateVoiceHUD("LISTENING...", true);
+            updateVoiceHUD("ALWAYS LISTENING", true);
             if (playSound) playSound('beep2');
             const hour = new Date().getHours();
-            let promptGreeting = "Hai, Sensei! Meena is listening.";
-            if (hour >= 5 && hour < 12) promptGreeting = "Good morning, Sensei! Meena is listening.";
-            else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Meena is listening.";
+            let promptGreeting = "Always-listening active, Sensei! Meena is ready.";
+            if (hour >= 5 && hour < 12) promptGreeting = "Good morning, Sensei! Always-listening active.";
+            else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Always-listening active.";
             if (speakComputerVoice) speakComputerVoice(promptGreeting);
         } catch (e) {
             if (e.name !== 'InvalidStateError') {

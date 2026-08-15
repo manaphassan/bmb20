@@ -153,26 +153,22 @@ function toggleLayoutMode() {
     selectLayoutMode(nextMode, true);
 }
 
-// 6. Mobile Push-To-Talk (PTT) Communicator Button Handling
+// 6. Mobile Push-To-Talk (PTT) Communicator Button Handling (Strict Hold-To-Talk)
 function initCommunicatorPTT() {
     const pttBtn = document.getElementById('comm-ptt-button');
     if (!pttBtn) return;
 
     let pressStartTime = 0;
     let isHoldingPTT = false;
-    let longPressTriggered = false;
 
     const handlePointerDown = (e) => {
         e.preventDefault();
         pressStartTime = Date.now();
         isHoldingPTT = true;
-        longPressTriggered = false;
 
         // Start PTT transmission
         if (window.startPTTListening) {
             window.startPTTListening();
-        } else if (window.toggleVoiceRecognition) {
-            window.toggleVoiceRecognition();
         }
     };
 
@@ -182,20 +178,24 @@ function initCommunicatorPTT() {
         const duration = Date.now() - pressStartTime;
         isHoldingPTT = false;
 
-        if (duration < 300) {
-            // Quick tap: keep listening toggled on until finished speaking
-            longPressTriggered = false;
-            return;
-        }
-
-        // True hold release: stop listening & send message to Meena
-        longPressTriggered = true;
+        // Stop PTT transmission and dispatch speech to Meena
         if (window.stopPTTListening) {
             window.stopPTTListening();
         }
+
+        // If tap was too brief (< 180ms), show helpful reminder
+        if (duration < 180) {
+            const pttLabel = document.getElementById('comm-ptt-label');
+            if (pttLabel) {
+                pttLabel.innerText = 'HOLD TO TALK';
+                setTimeout(() => {
+                    if (!isHoldingPTT && pttLabel) pttLabel.innerText = 'PUSH TO TRANSMIT';
+                }, 1200);
+            }
+        }
     };
 
-    // Mobile Touch Listeners (prevent standard mobile scroll delays)
+    // Mobile Touch Listeners (Immediate responsive touch)
     pttBtn.addEventListener('touchstart', handlePointerDown, { passive: false });
     pttBtn.addEventListener('touchend', handlePointerUp, { passive: false });
     pttBtn.addEventListener('touchcancel', handlePointerUp, { passive: false });
