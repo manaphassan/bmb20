@@ -1056,67 +1056,67 @@ function handleVoiceCommand(rawCmd) {
         requestSudoAuthorization('pihole_enable', 'Enable Pi-hole Defense Shield');
     } else if (cmdToEvaluate.includes('update gravity') || cmdToEvaluate.includes('update blocklist') || cmdToEvaluate.includes('reload gravity')) {
         requestSudoAuthorization('pihole_update_gravity', 'Rebuild Pi-hole Gravity Blocklists');
-    } else if (cmdToEvaluate.includes('purge ram') || cmdToEvaluate.includes('clean memory') || cmdToEvaluate.includes('free ram') || cmdToEvaluate.includes('drop caches')) {
+    } else if (cmdToEvaluate.includes('purge ram') || cmdToEvaluate.includes('clean memory') || cmdToEvaluate.includes('free ram') || cmdToEvaluate.includes('drop caches') || cmdToEvaluate.includes('padam cache') || cmdToEvaluate.includes('bersihkan ram') || cmdToEvaluate.includes('kosongkan ram')) {
         requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)');
-    } else if (cmdToEvaluate.includes('flush dns') || cmdToEvaluate.includes('restart dns') || cmdToEvaluate.includes('clear dns')) {
+    } else if (cmdToEvaluate.includes('flush dns') || cmdToEvaluate.includes('restart dns') || cmdToEvaluate.includes('clear dns') || cmdToEvaluate.includes('padam dns')) {
         requestSudoAuthorization('flush_dns', 'Flush and Restart Pi-hole DNS Resolver');
     } else if (cmdToEvaluate.includes('reload daemon') || cmdToEvaluate.includes('restart telemetry') || cmdToEvaluate.includes('restart daemon')) {
         requestSudoAuthorization('reload_daemon', 'Restart Telemetry Daemon Service');
-    } else if (cmdToEvaluate.includes('dietpi update') || cmdToEvaluate.includes('update dietpi') || cmdToEvaluate.includes('update system') || cmdToEvaluate.includes('update os') || cmdToEvaluate.includes('system update') || cmdToEvaluate.includes('dietpi-update')) {
+    } else if (cmdToEvaluate.includes('dietpi update') || cmdToEvaluate.includes('update dietpi') || cmdToEvaluate.includes('update system') || cmdToEvaluate.includes('update os') || cmdToEvaluate.includes('system update') || cmdToEvaluate.includes('dietpi-update') || cmdToEvaluate.includes('kemaskini sistem')) {
         requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)');
-    } else if (cmdToEvaluate.includes('reboot') || cmdToEvaluate.includes('restart pi') || cmdToEvaluate.includes('power cycle')) {
+    } else if (cmdToEvaluate.includes('reboot') || cmdToEvaluate.includes('restart pi') || cmdToEvaluate.includes('power cycle') || cmdToEvaluate.includes('but semula')) {
         requestSudoAuthorization('system_reboot', 'Power Cycle & Reboot Raspberry Pi Host');
-    } else if (cmdToEvaluate.includes('authorize') || cmdToEvaluate.includes('confirm') || cmdToEvaluate.includes('proceed') || cmdToEvaluate.includes('yes do it') || cmdToEvaluate.includes('approved')) {
+    } else if (cmdToEvaluate.includes('authorize') || cmdToEvaluate.includes('confirm') || cmdToEvaluate.includes('proceed') || cmdToEvaluate.includes('yes do it') || cmdToEvaluate.includes('approved') || cmdToEvaluate.includes('sahkan') || cmdToEvaluate.includes('teruskan')) {
         if (pendingSudoAction) {
             confirmSudoAuthorization(true);
         } else {
             speakComputerVoice("No pending authorization requests on the bridge, Sensei.");
         }
-    } else if (cmdToEvaluate.includes('abort') || cmdToEvaluate.includes('cancel') || cmdToEvaluate.includes('stand down') || cmdToEvaluate.includes('stop')) {
+    } else if (cmdToEvaluate.includes('abort') || cmdToEvaluate.includes('cancel') || cmdToEvaluate.includes('stand down') || cmdToEvaluate.includes('stop') || cmdToEvaluate.includes('batal') || cmdToEvaluate.includes('berhenti')) {
         if (pendingSudoAction) {
             confirmSudoAuthorization(false);
         } else {
             speakComputerVoice("All systems nominal, Sensei.");
         }
-    } else if (cmdToEvaluate.includes('morale boost') || cmdToEvaluate.includes('encourage') || cmdToEvaluate.includes('cheer me up') || cmdToEvaluate.includes('mental health') || cmdToEvaluate.includes('stress')) {
+    } else if (cmdToEvaluate.includes('morale boost') || cmdToEvaluate.includes('encourage') || cmdToEvaluate.includes('cheer me up') || cmdToEvaluate.includes('mental health') || cmdToEvaluate.includes('stress') || cmdToEvaluate.includes('semangat') || cmdToEvaluate.includes('motivasi')) {
         addMeenaEXP(20, 'Agent Skill: Morale Boost');
         executeSkillMoraleBoost();
-    } else if (cmdToEvaluate.includes('report analysis') || cmdToEvaluate.includes('audit report') || cmdToEvaluate.includes('system audit') || cmdToEvaluate.includes('executive report')) {
+    } else if (cmdToEvaluate.includes('report analysis') || cmdToEvaluate.includes('audit report') || cmdToEvaluate.includes('system audit') || cmdToEvaluate.includes('executive report') || cmdToEvaluate.includes('laporan audit') || cmdToEvaluate.includes('analisis sistem')) {
         addMeenaEXP(25, 'Agent Skill: Report Audit');
         executeSkillReportAnalysis();
-    } else if (cmdToEvaluate.includes('fact check') || cmdToEvaluate.includes('verify claim') || cmdToEvaluate.includes('is it true that')) {
-        const claim = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(fact check|verify claim|is it true that)\s*/i, '').trim();
+    } else if (cmdToEvaluate.includes('fact check') || cmdToEvaluate.includes('verify claim') || cmdToEvaluate.includes('is it true that') || cmdToEvaluate.includes('semak fakta') || cmdToEvaluate.includes('sahkan fakta')) {
+        const claim = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(fact check|verify claim|is it true that|semak fakta|sahkan fakta)\s*/i, '').trim();
         addMeenaEXP(25, 'Agent Skill: Fact Provenance');
         executeSkillFactVerify(claim);
-    } else if (cmdToEvaluate.includes('deep research') || cmdToEvaluate.includes('research topic') || cmdToEvaluate.includes('analytic thinking on')) {
-        const topic = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(deep research|research topic|analytic thinking on|research)\s*/i, '').trim();
+    } else if (cmdToEvaluate.includes('deep research') || cmdToEvaluate.includes('research topic') || cmdToEvaluate.includes('analytic thinking on') || cmdToEvaluate.includes('kajian mendalam') || cmdToEvaluate.includes('penyelidikan')) {
+        const topic = rawCmd.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)?(deep research|research topic|analytic thinking on|research|kajian mendalam|penyelidikan)\s*/i, '').trim();
         addMeenaEXP(35, 'Agent Skill: Deep Research');
         executeSkillDeepResearch(topic);
-    } else if (cmdToEvaluate.includes('time') || cmdToEvaluate.includes('date') || cmdToEvaluate.includes('today') || cmdToEvaluate.includes('day is it') || cmdToEvaluate.includes('what time') || cmdToEvaluate.includes('stardate') || cmdToEvaluate.includes('current time')) {
+    } else if (cmdToEvaluate.includes('time') || cmdToEvaluate.includes('date') || cmdToEvaluate.includes('today') || cmdToEvaluate.includes('day is it') || cmdToEvaluate.includes('what time') || cmdToEvaluate.includes('stardate') || cmdToEvaluate.includes('current time') || cmdToEvaluate.includes('pukul berapa') || cmdToEvaluate.includes('jam berapa') || cmdToEvaluate.includes('tarikh hari ini') || cmdToEvaluate.includes('hari apa')) {
         addMeenaEXP(10, 'Time & Chrono check');
         speakVerbalTimeReport();
-    } else if (cmdToEvaluate.includes('hardware') || cmdToEvaluate.includes('cpu clock') || cmdToEvaluate.includes('undervoltage') || cmdToEvaluate.includes('voltage') || cmdToEvaluate.includes('throttle')) {
+    } else if (cmdToEvaluate.includes('hardware') || cmdToEvaluate.includes('cpu clock') || cmdToEvaluate.includes('undervoltage') || cmdToEvaluate.includes('voltage') || cmdToEvaluate.includes('throttle') || cmdToEvaluate.includes('suhu cpu') || cmdToEvaluate.includes('suhu pi') || cmdToEvaluate.includes('perkakasan')) {
         addMeenaEXP(20, 'Hardware diagnostics');
         speakVerbalHardwareReport();
-    } else if (cmdToEvaluate.includes('calendar') || cmdToEvaluate.includes('schedule') || cmdToEvaluate.includes('agenda') || cmdToEvaluate.includes('events today') || cmdToEvaluate.includes('my events') || cmdToEvaluate.includes('appointments') || cmdToEvaluate.includes('meetings') || cmdToEvaluate.includes('what do i have today') || cmdToEvaluate.includes('what is my schedule')) {
+    } else if (cmdToEvaluate.includes('calendar') || cmdToEvaluate.includes('schedule') || cmdToEvaluate.includes('agenda') || cmdToEvaluate.includes('events today') || cmdToEvaluate.includes('my events') || cmdToEvaluate.includes('appointments') || cmdToEvaluate.includes('meetings') || cmdToEvaluate.includes('what do i have today') || cmdToEvaluate.includes('what is my schedule') || cmdToEvaluate.includes('jadual') || cmdToEvaluate.includes('temujanji') || cmdToEvaluate.includes('ada apa hari ini') || cmdToEvaluate.includes('kalendar')) {
         addMeenaEXP(15, 'Chrono Calendar check');
         speakCalendarSchedule();
-    } else if (cmdToEvaluate.includes('briefing') || cmdToEvaluate.includes('morning report') || cmdToEvaluate.includes('daily briefing')) {
+    } else if (cmdToEvaluate.includes('briefing') || cmdToEvaluate.includes('morning report') || cmdToEvaluate.includes('daily briefing') || cmdToEvaluate.includes('taklimat pagi') || cmdToEvaluate.includes('laporan pagi')) {
         triggerMorningBriefing();
-    } else if (cmdToEvaluate.includes('profile') || cmdToEvaluate.includes('dossier') || cmdToEvaluate.includes('who are you') || cmdToEvaluate.includes('designation')) {
+    } else if (cmdToEvaluate.includes('profile') || cmdToEvaluate.includes('dossier') || cmdToEvaluate.includes('who are you') || cmdToEvaluate.includes('designation') || cmdToEvaluate.includes('siapa awak') || cmdToEvaluate.includes('siapa kamu') || cmdToEvaluate.includes('siapa anda') || cmdToEvaluate.includes('profil meena')) {
         addMeenaEXP(15, 'AI Profile check');
         openMeenaProfileModal();
         speakComputerVoice("I am M.E.E.N.A., Master Electronic Executive Neural Assistant of Takahara Academy! Running on our dedicated DietPi single-board computer with Level-4 administrative authorization protocols, ready to serve Sensei!");
-    } else if (cmdToEvaluate.includes('weather') || cmdToEvaluate.includes('forecast') || cmdToEvaluate.includes('atmospheric') || cmdToEvaluate.includes('meteo')) {
+    } else if (cmdToEvaluate.includes('weather') || cmdToEvaluate.includes('forecast') || cmdToEvaluate.includes('atmospheric') || cmdToEvaluate.includes('meteo') || cmdToEvaluate.includes('cuaca') || cmdToEvaluate.includes('ramalan cuaca')) {
         addMeenaEXP(10, 'Weather inquiry');
         speakVerbalWeatherReport();
-    } else if (cmdToEvaluate.includes('when finish') || cmdToEvaluate.includes('when done') || cmdToEvaluate.includes('after update') || cmdToEvaluate.includes('when you finish') || cmdToEvaluate.includes('notify when done') || cmdToEvaluate.includes('tell me when done')) {
+    } else if (cmdToEvaluate.includes('when finish') || cmdToEvaluate.includes('when done') || cmdToEvaluate.includes('after update') || cmdToEvaluate.includes('when you finish') || cmdToEvaluate.includes('notify when done') || cmdToEvaluate.includes('tell me when done') || cmdToEvaluate.includes('beritahu bila siap')) {
         notifyOnCompletion = true;
         speakComputerVoice("Understood, Sensei. I will notify you with a full report as soon as the background task finishes.");
-    } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics)$/i.test(cmdToEvaluate))) {
+    } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics|status sistem|keadaan sistem)$/i.test(cmdToEvaluate))) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
-    } else if (/\b(who|what|when|where|why|how|which|tell me|search|lookup|look up|google|cast|maincast|actor|actors|movie|film|explain|define|meaning|synopsis)\b/i.test(cmdToEvaluate) || cmdToEvaluate.endsWith('?')) {
+    } else if (/\b(who|what|when|where|why|how|which|tell me|search|lookup|look up|google|cast|maincast|actor|actors|movie|film|explain|define|meaning|synopsis|siapa|siapakah|apa|apakah|apa itu|bila|bilakah|mana|kat mana|di mana|dimana|kenapa|mengapa|macam mana|bagaimana|bagaimanakah|berapa|berapakah|tolong|carikan|cari|pelakon|barisan pelakon|watak|sinopsis|tentang|maksud|definisi|terangkan|jelaskan|ceritakan)\b/i.test(cmdToEvaluate) || cmdToEvaluate.endsWith('?')) {
         addMeenaEXP(25, 'Live web intelligence');
         searchLiveWebInfo(rawCmd);
     } else if (cmdToEvaluate.startsWith('remember ') || cmdToEvaluate.includes('remember that ')) {
@@ -2141,69 +2141,112 @@ function renderThinkingStream(thoughtSteps, onComplete) {
 
 /**
  * ==========================================================================
- * LIVE WEB SEARCH & FACTUAL INTELLIGENCE PIPELINE
- * Multi-Stage Encyclopedic & Global Network Retrieval (Wikipedia + DuckDuckGo)
+ * BILINGUAL (ENGLISH & MALAY) NATURAL INTENT & QUERY ANALYZER
+ * Parses queries, extracts clean entity terms, and detects intent & language
+ * ==========================================================================
+ */
+function analyzeBilingualQuery(raw) {
+    if (!raw) return { cleanTopic: "Albert Einstein", isMalay: false, isCast: false, original: "" };
+    const text = raw.trim();
+    const lower = text.toLowerCase();
+
+    // Detect if user query is in Bahasa Melayu / Malay
+    const isMalay = /\b(siapa|siapakah|apa|apakah|apa itu|apatah|bila|bilakah|mana|kat mana|di mana|dimana|kenapa|mengapa|macam mana|bagaimana|bagaimanakah|berapa|berapakah|tolong|carikan|cari|pelakon|pelakon utama|barisan pelakon|watak|sinopsis|tentang|maksud|definisi|cuaca|pukul berapa|jam berapa|hari ini|tarikh|jadual|bersihkan|padam|kemaskini|filem|terangkan|jelaskan|ceritakan)\b/i.test(lower);
+
+    // Clean conversational prefixes (English & Malay)
+    let cleanTopic = text.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*|alex\s*,?\s*|hey alex\s*,?\s*)/i, '').trim();
+    
+    // Remove Malay search command prefixes
+    cleanTopic = cleanTopic.replace(/^(tolong\s+)?(carikan|cari(\s+maklumat)?|ceritakan\s+tentang|terangkan|jelaskan|siapakah|siapa|apakah|apa\s+itu|apa|bagaimanakah|bagaimana|macam\s+mana|kenapakah|kenapa|mengapakah|mengapa|dimanakah|di\s+mana|kat\s+mana|bilakah|bila|berapakah|berapa)\s+/i, '').trim();
+
+    // Remove English search command prefixes
+    cleanTopic = cleanTopic.replace(/^(search(\s+for|\s+the\s+web\s+for|\s+online\s+for)?|look\s*up|google|who\s+(is|was|are|the)|what\s+(is|was|are|the)|tell\s+me\s+about|find\s+info\s+on|explain|define|meaning\s+of)\s+/i, '').trim();
+
+    // Detect and strip cast / actor inquiry wrappers in English and Malay
+    const isCast = /\b(cast|maincast|main cast|actor|actors|starring|character|characters|role|roles|pelakon|barisan pelakon|pelakon utama|watak|bintang filem)\b/i.test(lower);
+
+    cleanTopic = cleanTopic.replace(/^(barisan\s+pelakon|pelakon\s+utama(\s+bagi|\s+filem|\s+untuk)?|pelakon(\s+bagi|\s+filem|\s+untuk)?|watak(\s+utama)?|the\s+maincast(\s+for|\s+of)?|the\s+main\s+cast(\s+for|\s+of)?|the\s+cast(\s+for|\s+of)?|actors\s+(of|in|for)|cast\s+(of|in|for))\s+/i, '').trim();
+
+    // Strip trailing category keywords e.g. "movie", "filem" if at the very end
+    cleanTopic = cleanTopic.replace(/\s+(filem|movie|drama|series)$/i, '').trim();
+    cleanTopic = cleanTopic.replace(/[?.!]+$/, '').trim();
+
+    if (!cleanTopic) cleanTopic = text.replace(/[?.!]+$/, '').trim();
+
+    return { cleanTopic, isMalay, isCast, original: text };
+}
+
+/**
+ * ==========================================================================
+ * LIVE WEB SEARCH & BILINGUAL FACTUAL INTELLIGENCE PIPELINE
+ * Multi-Stage Encyclopedic Retrieval across English & Malay Wikipedia + DuckDuckGo
  * ==========================================================================
  */
 async function searchLiveWebInfo(rawQuery) {
     lastUserInteractionTime = Date.now();
     const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
-    
-    // Clean search terms
-    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*|alex\s*,?\s*)/i, '').trim();
-    cleanTopic = cleanTopic.replace(/^(search(\s+for|\s+the\s+web\s+for|\s+online\s+for)?|look\s*up|google|who\s+(is|was|are|the)|what\s+(is|was|are|the)|tell\s+me\s+about|find\s+info\s+on|explain)\s+/i, '').trim();
-    cleanTopic = cleanTopic.replace(/[?.!]+$/, '').trim();
+    const parsed = analyzeBilingualQuery(rawQuery);
+    const { cleanTopic, isMalay, isCast } = parsed;
 
-    if (!cleanTopic) cleanTopic = rawQuery.replace(/[?.!]+$/, '').trim();
-
-    const thoughts = [
+    const thoughts = isMalay ? [
+        `🌐 Menyambung ke indeks rangkaian maklumat global...`,
+        `🔍 Menjalankan carian ensiklopedia dwibahasa untuk: "${cleanTopic}"`,
+        `📚 Mengekstrak fakta rasmi, watak & barisan pelakon`,
+        `🎭 Menyintesis taklimat intelektual (${cfg.name})`
+    ] : [
         `🌐 Uplinking to live global internet index...`,
-        `🔍 Querying encyclopedic search APIs for: "${cleanTopic}"`,
-        `📚 Extracting verified facts, cast list & entity attributes`,
+        `🔍 Querying bilingual encyclopedic search APIs for: "${cleanTopic}"`,
+        `📚 Extracting verified facts, entity attributes & cast roster`,
         `🎭 Synthesizing intellectual briefing (${cfg.name})`
     ];
 
     renderThinkingStream(thoughts, async () => {
         try {
-            // Stage 1: Query Wikipedia Search API to find the exact matching Wikipedia article title
-            const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTopic)}&utf8=&format=json&origin=*`;
-            const searchRes = await fetch(searchUrl);
+            // Determine search endpoints: if Malay, search ms.wikipedia.org then en.wikipedia.org; else en then ms
+            const wikiLangs = isMalay ? ['ms', 'en'] : ['en', 'ms'];
             let wikiTitle = null;
+            let matchedLang = 'en';
             let snippetText = "";
 
-            if (searchRes.ok) {
-                const searchData = await searchRes.json();
-                if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
-                    const topResult = searchData.query.search[0];
-                    wikiTitle = topResult.title;
-                    snippetText = (topResult.snippet || '').replace(/<[^>]+>/g, '').trim();
-                }
+            for (const lang of wikiLangs) {
+                try {
+                    const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTopic)}&utf8=&format=json&origin=*`;
+                    const searchRes = await fetch(searchUrl);
+                    if (searchRes.ok) {
+                        const searchData = await searchRes.json();
+                        if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+                            const topResult = searchData.query.search[0];
+                            wikiTitle = topResult.title;
+                            matchedLang = lang;
+                            snippetText = (topResult.snippet || '').replace(/<[^>]+>/g, '').trim();
+                            break;
+                        }
+                    }
+                } catch (e) {}
             }
 
             // Stage 2: Fetch the full summary extract of the matched page
             if (wikiTitle) {
-                const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`;
+                const summaryUrl = `https://${matchedLang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`;
                 const sumRes = await fetch(summaryUrl);
                 if (sumRes.ok) {
                     const sumData = await sumRes.json();
                     if (sumData.extract && sumData.type !== 'disambiguation') {
                         let fullExtract = sumData.extract;
-                        
-                        // If user specifically asked for cast/actors/maincast, fetch page text for Cast details
-                        const isCastQuery = /\b(cast|maincast|actor|actors|starring|character|characters|role|roles)\b/i.test(rawQuery);
                         let castInfo = "";
 
-                        if (isCastQuery) {
+                        // If user specifically asked for cast/actors/pelakon, parse page text for Cast details
+                        if (isCast) {
                             try {
-                                const parseUrl = `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(wikiTitle)}&prop=text&format=json&origin=*`;
+                                const parseUrl = `https://${matchedLang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(wikiTitle)}&prop=text&format=json&origin=*`;
                                 const parseRes = await fetch(parseUrl);
                                 if (parseRes.ok) {
                                     const parseData = await parseRes.json();
                                     const pageHtml = parseData.parse?.text?.['*'] || '';
                                     const doc = new DOMParser().parseFromString(pageHtml, 'text/html');
                                     
-                                    // Look for Cast section or Infobox Starring
-                                    const castHeader = Array.from(doc.querySelectorAll('h2, h3, .infobox')).find(el => /cast|starring/i.test(el.textContent));
+                                    // Look for Cast / Pelakon / Watak section or Infobox Starring
+                                    const castHeader = Array.from(doc.querySelectorAll('h2, h3, .infobox')).find(el => /cast|starring|pelakon|barisan pelakon|watak/i.test(el.textContent));
                                     if (castHeader) {
                                         let next = castHeader.nextElementSibling;
                                         while (next && !['H2', 'H3'].includes(next.tagName)) {
@@ -2218,8 +2261,8 @@ async function searchLiveWebInfo(rawQuery) {
                                         }
                                     }
                                     if (!castInfo) {
-                                        // Try Infobox starring
-                                        const starringRow = Array.from(doc.querySelectorAll('tr')).find(r => /starring/i.test(r.textContent));
+                                        // Try Infobox starring / Pelakon
+                                        const starringRow = Array.from(doc.querySelectorAll('tr')).find(r => /starring|pelakon/i.test(r.textContent));
                                         if (starringRow) {
                                             const val = starringRow.querySelector('td');
                                             if (val) castInfo = val.textContent.replace(/\[\d+\]/g, '').replace(/\n+/g, ', ').trim();
@@ -2232,17 +2275,24 @@ async function searchLiveWebInfo(rawQuery) {
                         }
 
                         let reply = "";
-                        if (castInfo) {
-                            reply = `According to verified records for ${sumData.title}, the main cast includes: ${castInfo}.`;
-                        } else {
-                            const sentences = fullExtract.match(/[^.!?]+[.!?]+/g) || [fullExtract];
-                            const cleanSentences = sentences.slice(0, 3).join(' ');
-                            if (currentPersona === 'ALEX') {
-                                reply = `According to verified records on ${sumData.title}: ${cleanSentences} Empirical information confirmed from global sources, Sensei.`;
-                            } else if (currentPersona === 'TACTICAL') {
-                                reply = `Tactical intelligence retrieved on ${sumData.title}: ${cleanSentences}`;
+                        if (isMalay) {
+                            if (castInfo) {
+                                reply = `Berdasarkan maklumat rasmi bagi ${sumData.title}, barisan pelakon utama termasuklah: ${castInfo}.`;
                             } else {
-                                reply = `I retrieved live information on ${sumData.title} for you, Sensei! ${cleanSentences}`;
+                                const sentences = fullExtract.match(/[^.!?]+[.!?]+/g) || [fullExtract];
+                                const cleanSentences = sentences.slice(0, 3).join(' ');
+                                reply = `Berdasarkan maklumat rasmi mengenai ${sumData.title}: ${cleanSentences}`;
+                            }
+                        } else {
+                            if (castInfo) {
+                                reply = `According to verified records for ${sumData.title}, the main cast includes: ${castInfo}.`;
+                            } else {
+                                const sentences = fullExtract.match(/[^.!?]+[.!?]+/g) || [fullExtract];
+                                const cleanSentences = sentences.slice(0, 3).join(' ');
+                                reply = `According to verified records on ${sumData.title}: ${cleanSentences}`;
+                                if (currentPersona === 'ALEX') {
+                                    reply += ` Empirical information confirmed from global sources, Sensei.`;
+                                }
                             }
                         }
 
@@ -2259,9 +2309,11 @@ async function searchLiveWebInfo(rawQuery) {
             if (ddgRes.ok) {
                 const ddg = await ddgRes.json();
                 if (ddg.AbstractText) {
-                    const reply = currentPersona === 'ALEX'
-                        ? `According to global search index for ${cleanTopic}: ${ddg.AbstractText} You're welcome, Sensei.`
-                        : `Live search intelligence: ${ddg.AbstractText}`;
+                    const reply = isMalay
+                        ? `Maklumat carian global bagi ${cleanTopic}: ${ddg.AbstractText}`
+                        : (currentPersona === 'ALEX'
+                            ? `According to global search index for ${cleanTopic}: ${ddg.AbstractText} You're welcome, Sensei.`
+                            : `Live search intelligence: ${ddg.AbstractText}`);
                     addMeenaEXP(25, `Web search: ${cleanTopic}`);
                     outputMeenaDialogue(reply);
                     return;
@@ -2270,7 +2322,9 @@ async function searchLiveWebInfo(rawQuery) {
 
             // Stage 4: Fallback to Wikipedia search snippet if available
             if (snippetText) {
-                const reply = `I located verified records on "${cleanTopic}": ${snippetText}.`;
+                const reply = isMalay
+                    ? `Saya menjumpai maklumat rasmi mengenai "${cleanTopic}": ${snippetText}.`
+                    : `I located verified records on "${cleanTopic}": ${snippetText}.`;
                 addMeenaEXP(20, `Web search snippet: ${cleanTopic}`);
                 outputMeenaDialogue(reply);
                 return;
@@ -2281,9 +2335,11 @@ async function searchLiveWebInfo(rawQuery) {
         }
 
         // Fallback if topic not found
-        const fallbackReply = currentPersona === 'ALEX'
-            ? `I searched global records for "${cleanTopic}", Sensei, but couldn't retrieve a definitive summary. Try giving me a more specific title or query.`
-            : `I searched the live network for "${cleanTopic}", Sensei, but couldn't retrieve a clear summary.`;
+        const fallbackReply = isMalay
+            ? `Maaf Sensei, saya telah mencari maklumat mengenai "${cleanTopic}", tetapi tiada ringkasan rasmi ditemui. Sila cuba dengan kata kunci yang lebih khusus.`
+            : (currentPersona === 'ALEX'
+                ? `I searched global records for "${cleanTopic}", Sensei, but couldn't retrieve a definitive summary. Try giving me a more specific title or query.`
+                : `I searched the live network for "${cleanTopic}", Sensei, but couldn't retrieve a clear summary.`);
         outputMeenaDialogue(fallbackReply);
     });
 }
