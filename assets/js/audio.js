@@ -3627,14 +3627,16 @@ async function checkDietPiOSUpdates(interactive = false) {
     }
 
     try {
-        const res = await fetch('api/telemetry?action=check_updates&t=' + Date.now()).catch(() => fetch('api.php?action=check_updates'));
+        const res = await fetch('api/telemetry?t=' + Date.now()).catch(() => fetch('api.json'));
         if (res && res.ok) {
-            const data = await res.json();
-            const currentVer = data.dietpi_version || 'v9.x';
-            const latestVer = data.dietpi_latest || currentVer;
-            const isUpd = !!(data.update_available || (data.pending_packages && data.pending_packages > 0));
-            const pendingCount = data.pending_packages || 0;
-            const pkgList = (data.upgradable_list && data.upgradable_list.length > 0) ? data.upgradable_list.slice(0, 8).join(', ') : 'None';
+            const rootData = await res.json();
+            const os = rootData.os_health || rootData;
+            const currentVer = os.dietpi_version || rootData.dietpi_version || 'v10.6.2';
+            const latestVer = os.dietpi_latest || rootData.dietpi_latest || currentVer;
+            const pendingCount = os.pending !== undefined ? os.pending : (rootData.pending_packages || 0);
+            const isUpd = !!(os.update_available || rootData.update_available || pendingCount > 0);
+            const kernelVer = os.kernel || rootData.kernel || 'Linux 6.18';
+            const pkgList = (os.upgradable_list && os.upgradable_list.length > 0) ? os.upgradable_list.slice(0, 8).join(', ') : (pendingCount > 0 ? `${pendingCount} system packages` : 'None');
 
             let reportHtml = `
                 <div class="border border-outline-variant/40 bg-surface-container-high/60 p-2.5 rounded font-mono text-xs flex flex-col gap-1.5 shadow-sm">
@@ -3647,11 +3649,11 @@ async function checkDietPiOSUpdates(interactive = false) {
                     </div>
                     <div class="grid grid-cols-2 gap-1 text-[11px]">
                         <div><span class="text-secondary">INSTALLED:</span> <strong class="text-on-surface">${currentVer}</strong></div>
-                        <div><span class="text-secondary">LATEST:</span> <strong class="${data.dietpi_update_available ? 'text-warning font-bold' : 'text-primary'}">${latestVer}</strong></div>
-                        <div><span class="text-secondary">KERNEL:</span> <span class="text-tertiary">${data.kernel || 'Linux 6.1'}</span></div>
+                        <div><span class="text-secondary">LATEST:</span> <strong class="${isUpd ? 'text-warning font-bold' : 'text-primary'}">${latestVer}</strong></div>
+                        <div><span class="text-secondary">KERNEL:</span> <span class="text-tertiary">${kernelVer}</span></div>
                         <div><span class="text-secondary">PENDING PKGS:</span> <strong class="${pendingCount > 0 ? 'text-warning font-bold' : 'text-on-surface'}">${pendingCount}</strong></div>
                     </div>
-                    ${pendingCount > 0 ? `<div class="text-[10px] text-secondary border-t border-outline-variant/20 pt-1"><span class="text-on-surface font-bold">UPGRADABLE:</span> <span class="text-on-surface-variant font-mono">${pkgList}${data.upgradable_list && data.upgradable_list.length > 8 ? '...' : ''}</span></div>` : ''}
+                    ${pendingCount > 0 ? `<div class="text-[10px] text-secondary border-t border-outline-variant/20 pt-1"><span class="text-on-surface font-bold">STATUS:</span> <span class="text-warning font-mono">${pendingCount} packages ready for installation</span></div>` : ''}
                     ${isUpd ? `
                         <div class="mt-1 flex gap-2">
                             <button onclick="requestSudoAuthorization('dietpi_update', 'Execute DietPi OS & Package Update Routine (dietpi-update)')" class="w-full bg-warning/20 hover:bg-warning hover:text-black text-warning border border-warning/50 font-bold py-1 px-2 rounded text-center transition-all text-xs flex items-center justify-center gap-1">
