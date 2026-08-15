@@ -1,0 +1,26 @@
+{
+  "name": "MEENA // Takahara Academy (高原学園)",
+  "short_name": "MEENA",
+  "description": "Next-Generation Bilingual Intelligent AI Voice Assistant & Multi-Deck Operations Hub",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f17",
+  "theme_color": "#0f141c",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/assets/images/screen.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/screen.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

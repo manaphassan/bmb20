@@ -133,6 +133,68 @@ try {
     }
 }
 
+# 8. PWA Manifest & Service Worker Validation
+Write-Host "[...] Testing PWA Manifest (http://$TargetHost/manifest.json)..." -NoNewline
+try {
+    $r = Invoke-WebRequest -Uri "http://$TargetHost/manifest.json" -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+    if ($r.StatusCode -eq 200 -and $r.Content.Contains("MEENA")) {
+        Write-Host " [PASS]" -ForegroundColor Green
+        $Passed++
+    } else {
+        Write-Host " [FAIL]" -ForegroundColor Red
+        $Failed++
+    }
+} catch {
+    Write-Host " [FAIL - $($_.Exception.Message)]" -ForegroundColor Red
+    $Failed++
+}
+
+Write-Host "[...] Testing PWA Service Worker (http://$TargetHost/sw.js)..." -NoNewline
+try {
+    $r = Invoke-WebRequest -Uri "http://$TargetHost/sw.js" -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+    if ($r.StatusCode -eq 200 -and $r.Content.Contains("CACHE_NAME")) {
+        Write-Host " [PASS]" -ForegroundColor Green
+        $Passed++
+    } else {
+        Write-Host " [FAIL]" -ForegroundColor Red
+        $Failed++
+    }
+} catch {
+    Write-Host " [FAIL - $($_.Exception.Message)]" -ForegroundColor Red
+    $Failed++
+}
+
+# 9. Optical Recon & Routine Scheduler Modules
+Write-Host "[...] Testing Camera Recon Module (http://$TargetHost/assets/js/camera-recon.js)..." -NoNewline
+try {
+    $r = Invoke-WebRequest -Uri "http://$TargetHost/assets/js/camera-recon.js" -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+    if ($r.StatusCode -eq 200 -and $r.Content.Contains("analyzeVisualRecon")) {
+        Write-Host " [PASS]" -ForegroundColor Green
+        $Passed++
+    } else {
+        Write-Host " [FAIL]" -ForegroundColor Red
+        $Failed++
+    }
+} catch {
+    Write-Host " [FAIL - $($_.Exception.Message)]" -ForegroundColor Red
+    $Failed++
+}
+
+Write-Host "[...] Testing Waktu Solat & Routine Module (http://$TargetHost/assets/js/routine-scheduler.js)..." -NoNewline
+try {
+    $r = Invoke-WebRequest -Uri "http://$TargetHost/assets/js/routine-scheduler.js" -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+    if ($r.StatusCode -eq 200 -and $r.Content.Contains("fetchWaktuSolat")) {
+        Write-Host " [PASS]" -ForegroundColor Green
+        $Passed++
+    } else {
+        Write-Host " [FAIL]" -ForegroundColor Red
+        $Failed++
+    }
+} catch {
+    Write-Host " [FAIL - $($_.Exception.Message)]" -ForegroundColor Red
+    $Failed++
+}
+
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host " Test Summary: $Passed Passed, $Failed Failed" -ForegroundColor $(if ($Failed -eq 0) { "Green" } else { "Yellow" })
 Write-Host "==================================================" -ForegroundColor Cyan

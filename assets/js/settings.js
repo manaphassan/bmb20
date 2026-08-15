@@ -645,6 +645,44 @@ async function executeMaintenanceAction(action) {
     }
 }
 
+function savePrayerZoneConfig(zone) {
+    if (!zone) return;
+    localStorage.setItem('meena_prayer_zone', zone);
+    const label = document.getElementById('solat-current-zone-label');
+    if (label) label.innerText = `ZONE: ${zone}`;
+    if (window.setPrayerZone) window.setPrayerZone(zone);
+    alert(`Waktu Solat zone updated to: ${zone}`);
+}
+
+function initPrayerSettingsUI() {
+    const zoneSelect = document.getElementById('settings-solat-zone');
+    const savedZone = localStorage.getItem('meena_prayer_zone') || 'WLY01';
+    if (zoneSelect) zoneSelect.value = savedZone;
+
+    const label = document.getElementById('solat-current-zone-label');
+    if (label) label.innerText = `ZONE: ${savedZone}`;
+
+    const prayerNotif = document.getElementById('settings-solat-notif');
+    if (prayerNotif) prayerNotif.checked = localStorage.getItem('meena_prayer_notif') !== 'false';
+
+    const autoBriefing = document.getElementById('settings-auto-briefing');
+    if (autoBriefing) autoBriefing.checked = localStorage.getItem('meena_auto_briefing') !== 'false';
+
+    const hourlyChime = document.getElementById('settings-hourly-chime');
+    if (hourlyChime) hourlyChime.checked = localStorage.getItem('meena_hourly_chime') !== 'false';
+
+    const briefingTime = document.getElementById('settings-briefing-time');
+    if (briefingTime) {
+        const h = localStorage.getItem('meena_briefing_hour') || '07';
+        const m = localStorage.getItem('meena_briefing_min') || '30';
+        briefingTime.value = `${h.padStart(2,'0')}:${m.padStart(2,'0')}`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initPrayerSettingsUI();
+});
+
 // Window Exports
 window.switchTab = switchTab;
 window.savePersona = savePersona;
@@ -669,3 +707,4 @@ window.benchmarkHearthSpeed = benchmarkHearthSpeed;
 window.exportKnowledgeJSON = exportKnowledgeJSON;
 window.importKnowledgeJSON = importKnowledgeJSON;
 window.executeMaintenanceAction = executeMaintenanceAction;
+window.savePrayerZoneConfig = savePrayerZoneConfig;

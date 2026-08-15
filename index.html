@@ -9,6 +9,15 @@
     <meta http-equiv="Expires" content="0"/>
     <title>Meena&trade; - Takahara Academy (&#x9AD8;&#x539F;&#x5B66;&#x5712;) - Neural Operations Command Hub</title>
 
+    <!-- Progressive Web App (PWA) Manifest & Meta Tags -->
+    <link rel="manifest" href="/manifest.json"/>
+    <meta name="theme-color" content="#0f141c"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-title" content="MEENA"/>
+    <link rel="apple-touch-icon" href="assets/images/screen.png"/>
+
     <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -262,22 +271,25 @@
             </div>
             <div class="h-4 w-px bg-outline-variant"></div>
             
-            <!-- 3-Deck Mode Switcher (Numbers only: 1, 2, 3) -->
+            <!-- 4-Deck Mode Switcher (Numbers only: 1, 2, 3, 4) -->
             <div class="flex items-center gap-1 bg-surface-dim px-2 py-0.5 rounded-full border border-primary/40 font-data-mono">
-                <button id="deck-tab-1" onclick="switchDeck(1)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition" title="Deck 1: Meena AI Bridge (Key 1)">
+                <button id="deck-tab-1" onclick="switchDeck(1)" class="px-2 py-0.5 rounded font-bold text-xs bg-primary text-black transition-all shadow-[0_0_8px_#c2c1ff] active-condition" title="Deck 1: Meena AI Bridge (Key 1)">
                     1
                 </button>
-                <button id="deck-tab-2" onclick="switchDeck(2)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 2: 3D Observatory NOC (Key 2)">
+                <button id="deck-tab-2" onclick="switchDeck(2)" class="px-2 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 2: 3D Observatory NOC (Key 2)">
                     2
                 </button>
-                <button id="deck-tab-3" onclick="switchDeck(3)" class="px-2.5 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 3: Chrono Calendar (Key 3)">
+                <button id="deck-tab-3" onclick="switchDeck(3)" class="px-2 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 3: Chrono Calendar (Key 3)">
                     3
+                </button>
+                <button id="deck-tab-4" onclick="switchDeck(4)" class="px-2 py-0.5 rounded font-bold text-xs bg-surface-bright text-on-surface-variant hover:text-primary transition-all" title="Deck 4: Visual Recon & Optical AI (Key 4)">
+                    4
                 </button>
             </div>
         </div>
 
         <!-- Tactical Alert Condition Dynamic Single-Button Cycler -->
-        <div class="flex items-center font-data-mono">
+        <div class="flex items-center font-data-mono gap-2">
             <button id="status-cycle-btn" onclick="cycleAlertCondition()" 
                     class="flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1 rounded-full font-data-mono text-[10px] font-bold transition-all shadow-[0_0_8px_rgba(102,204,255,0.2)]"
                     title="Click to cycle Tactical Alert Condition (GREEN -> YELLOW -> RED)">
@@ -285,6 +297,12 @@
                 <span id="status-cycle-text">CONDITION: GREEN // NOMINAL</span>
                 <span class="material-symbols-outlined text-xs">sync</span>
             </button>
+
+            <!-- Waktu Solat Malaysian Prayer Time Badge -->
+            <div id="header-prayer-badge" onclick="if(window.fetchWaktuSolat) fetchWaktuSolat()" class="hidden md:flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high px-2.5 py-1 rounded-full border border-tertiary/40 font-data-mono text-[10px] text-tertiary cursor-pointer transition-all shadow-sm" title="Waktu Solat Malaysia (Klik untuk kemaskini)">
+                <span class="material-symbols-outlined text-xs text-tertiary">mosque</span>
+                <span id="header-prayer-text" class="font-bold">SOLAT: SYNCING...</span>
+            </div>
         </div>
 
         <div class="flex items-center gap-3 font-data-mono text-xs text-tertiary">
@@ -693,6 +711,94 @@
                         </div>
                         <div class="flex flex-col gap-1 flex-1 overflow-y-auto min-h-0 pr-0.5" id="chrono-upcoming-events">
                             <div class="text-secondary text-xs italic p-1">No upcoming events.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================================
+             DECK 4: VISUAL RECON & GEMINI MULTIMODAL VISION AI
+             ====================================================================== -->
+        <div id="deck-4-container" class="deck-view hidden p-2 flex flex-col gap-2 w-full font-data-mono h-full min-h-0 overflow-hidden">
+            <!-- Recon Header Strip -->
+            <div class="flex justify-between items-center bg-surface-container-low px-3 py-1.5 rounded border-l-4 border-lcars-cyan shadow-sm flex-shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded bg-lcars-cyan/10 border border-lcars-cyan flex items-center justify-center text-lcars-cyan shadow-[0_0_8px_rgba(77,208,225,0.3)]">
+                        <span class="material-symbols-outlined text-lg">visibility</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xs font-bold tracking-wider text-lcars-cyan font-headline">DECK 4: VISUAL RECON & OPTICAL AI</h2>
+                            <span id="recon-status-badge" class="text-[8.5px] bg-surface-dim text-secondary px-1.5 py-0.2 rounded font-bold border border-outline-variant/40">OPTICAL FEED: STANDBY</span>
+                        </div>
+                        <p class="text-[9.5px] text-secondary">Tactical Video Stream, Real-Time HUD Reticles & Multimodal Gemini Vision AI</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold px-2.5 py-1 rounded text-[9.5px] flex items-center gap-1 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-xs">videocam</span>
+                        <span>ENGAGE OPTICAL RECON</span>
+                    </button>
+                    <button onclick="switchCameraFacing()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2 py-1 rounded font-bold text-[9.5px] flex items-center gap-1 border border-outline-variant/30 transition-all" title="Switch Camera (Front/Back/USB)">
+                        <span class="material-symbols-outlined text-xs">flip_camera_ios</span>
+                        <span>SWITCH LENS</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Full-Height 2-Column Grid -->
+            <div class="grid grid-cols-12 gap-2 flex-1 min-h-0 h-full overflow-hidden">
+                <!-- Left Column: Tactical Video Feed & HUD Overlay (7 Cols) -->
+                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-lowest p-2 rounded border border-outline-variant/30 shadow-sm relative overflow-hidden justify-between">
+                    <div class="relative w-full flex-1 min-h-0 bg-black rounded overflow-hidden flex items-center justify-center border border-outline-variant/40">
+                        <video id="recon-video-stream" autoplay playsinline muted class="w-full h-full object-contain"></video>
+                        <canvas id="recon-hud-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+                        
+                        <!-- Standby Screen Prompt when camera offline -->
+                        <div id="recon-standby-screen" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-secondary z-0 pointer-events-none">
+                            <span class="material-symbols-outlined text-4xl text-outline-variant animate-pulse">videocam_off</span>
+                            <span class="text-xs font-mono font-bold tracking-widest text-outline-variant">OPTICAL FEED STANDBY</span>
+                            <span class="text-[9px] text-secondary/60">Click 'ENGAGE OPTICAL RECON' or say 'Meena, open camera'</span>
+                        </div>
+                    </div>
+
+                    <!-- Tactical Action Controls Toolbar -->
+                    <div class="pt-2 flex items-center justify-between gap-2 flex-shrink-0 font-data-mono">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="analyzeVisualRecon()" class="bg-lcars-cyan hover:bg-lcars-cyan/80 text-black font-bold px-3 py-1.5 rounded text-[10px] flex items-center gap-1.5 shadow-md transition-all">
+                                <span class="material-symbols-outlined text-xs">center_focus_strong</span>
+                                <span>ANALYZE SCENE</span>
+                            </button>
+                            <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-2.5 py-1.5 rounded text-[10px] font-bold border border-outline-variant/30 flex items-center gap-1 transition-all">
+                                <span class="material-symbols-outlined text-xs">quiz</span>
+                                <span>ASK VISUAL QUESTION</span>
+                            </button>
+                        </div>
+                        <div id="recon-analyzing-badge" class="hidden items-center gap-1.5 text-[9px] text-lcars-gold font-bold animate-pulse font-mono">
+                            <div class="w-2 h-2 rounded-full bg-lcars-gold animate-ping"></div>
+                            <span>GEMINI VISION REASONING...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Visual Recon Dialogue & Detection Cards (5 Cols) -->
+                <div class="col-span-5 flex flex-col h-full min-h-0 bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm gap-2">
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1 flex-shrink-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-lcars-cyan text-xs">auto_awesome</span>
+                            <h3 class="text-[11px] font-bold text-on-surface font-headline tracking-wide">VISUAL RECON DIALOGUE</h3>
+                        </div>
+                        <span class="text-[8px] text-secondary">Multimodal Optical Intelligence</span>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2 pr-0.5" id="recon-analysis-log">
+                        <div class="p-3 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-secondary text-xs flex flex-col gap-1">
+                            <div class="flex items-center gap-1 text-primary font-bold text-[10px]">
+                                <span class="material-symbols-outlined text-xs">info</span>
+                                <span>STANDBY READY</span>
+                            </div>
+                            <p class="text-[10px] leading-relaxed">Engage optical recon to inspect ambient physical objects, documents, device LEDs, or anomalies via Gemini Vision AI.</p>
                         </div>
                     </div>
                 </div>
@@ -1535,8 +1641,21 @@
     <script defer src="assets/js/layout-manager.js"></script>
     <script defer src="assets/js/audio.js"></script>
     <script defer src="assets/js/calendar.js"></script>
+    <script defer src="assets/js/routine-scheduler.js"></script>
+    <script defer src="assets/js/camera-recon.js"></script>
     <script defer src="assets/js/globe.js"></script>
     <script defer src="assets/js/telemetry.js"></script>
     <script defer src="assets/js/main.js"></script>
+
+    <!-- Progressive Web App Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registered with scope:', reg.scope))
+                    .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>

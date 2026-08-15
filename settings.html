@@ -65,6 +65,11 @@
                 <span>Google Calendar Sync</span>
             </button>
 
+            <button onclick="switchTab('routines-solat')" id="tab-btn-routines-solat" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
+                <span class="material-symbols-outlined text-sm">mosque</span>
+                <span>Waktu Solat & Routines</span>
+            </button>
+
             <button onclick="switchTab('memory-graph')" id="tab-btn-memory-graph" class="settings-nav-btn flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold transition-all text-left">
                 <span class="material-symbols-outlined text-sm">hub</span>
                 <span>Knowledge Graph Backup</span>
@@ -366,7 +371,87 @@
                 </div>
             </section>
 
-            <!-- 5. DietPi System & Sudo Controls -->
+            <!-- 5. Autonomous Routines & Waktu Solat Malaysia -->
+            <section id="panel-routines-solat" class="settings-panel hidden flex flex-col gap-5 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
+                <div class="border-b border-outline-variant/30 pb-2">
+                    <h2 class="text-sm font-bold text-tertiary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">mosque</span>
+                        <span>WAKTU SOLAT MALAYSIA & AUTONOMOUS ROUTINES</span>
+                    </h2>
+                    <p class="text-[11px] text-secondary">Integrated E-Solat JAKIM schedule, automated morning briefings, and chronometer chimes.</p>
+                </div>
+
+                <!-- Waktu Solat Zone Selector Card -->
+                <div class="bg-surface-container-high p-4 rounded-lg border border-tertiary/30 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-tertiary font-headline tracking-wide">MALAYSIAN PRAYER ZONE (ZON SOLAT)</span>
+                        <span class="text-[9px] text-primary font-mono" id="solat-current-zone-label">ZONE: WLY01</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] text-secondary">Select Your Geographic Zone:</label>
+                        <select id="settings-solat-zone" onchange="savePrayerZoneConfig(this.value)" class="bg-surface-container-lowest border border-outline-variant/50 rounded px-2.5 py-2 text-xs text-on-surface font-mono focus:border-tertiary focus:outline-none">
+                            <option value="WLY01">WLY01 - Kuala Lumpur, Putrajaya</option>
+                            <option value="SGR01">SGR01 - Gombak, Petaling, Sepang, Hulu Langat, Hulu Selangor</option>
+                            <option value="SGR02">SGR02 - Klang, Kuala Langat</option>
+                            <option value="SGR03">SGR03 - Kuala Selangor, Sabak Bernam</option>
+                            <option value="JHR02">JHR02 - Johor Bahru, Kulai, Kota Tinggi</option>
+                            <option value="PNG01">PNG01 - Pulau Pinang</option>
+                            <option value="PRK02">PRK02 - Ipoh, Batu Gajah, Kampar</option>
+                            <option value="MLK01">MLK01 - Melaka</option>
+                            <option value="NSN01">NSN01 - Seremban, Port Dickson</option>
+                            <option value="KDH01">KDH01 - Kota Setar, Kubang Pasu, Pokok Sena</option>
+                            <option value="KTN01">KTN01 - Kota Bharu, Bachok, Pasir Puteh, Tumpat</option>
+                            <option value="TRG01">TRG01 - Kuala Terengganu, Marang, Kuala Nerus</option>
+                            <option value="SBH01">SBH01 - Kota Kinabalu, Penampang, Tuaran</option>
+                            <option value="SWK08">SWK08 - Kuching, Bau, Lundu, Samarahan</option>
+                        </select>
+                    </div>
+
+                    <!-- Notification Toggles -->
+                    <div class="flex flex-col gap-2 pt-2 border-t border-outline-variant/20">
+                        <label class="flex items-center justify-between text-xs text-secondary cursor-pointer">
+                            <span>Enable Waktu Solat Spoken Voice & Toast Alerts:</span>
+                            <input type="checkbox" id="settings-solat-notif" onchange="localStorage.setItem('meena_prayer_notif', this.checked); if(this.checked) alert('Waktu Solat notifications enabled!');" class="rounded border-outline-variant text-tertiary focus:ring-0" checked>
+                        </label>
+                        <button onclick="if(window.showNotificationAlert) window.showNotificationAlert('TEST WAKTU SOLAT', 'Telah masuk waktu solat Zohor bagi kawasan Kuala Lumpur, Putrajaya.', 'task', { speak: true });" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface px-3 py-1.5 rounded text-[10px] font-bold border border-outline-variant/30 flex items-center justify-center gap-1 transition-all mt-1">
+                            <span class="material-symbols-outlined text-xs">volume_up</span>
+                            <span>TEST PRAYER ANNOUNCEMENT CHIME</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Daily Automation Schedules -->
+                <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-3">
+                    <span class="text-xs font-bold text-primary font-headline tracking-wide">AUTONOMOUS DAILY SCHEDULES</span>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <!-- Morning Briefing -->
+                        <div class="bg-surface-container-lowest p-3 rounded border border-outline-variant/30 flex flex-col gap-2">
+                            <label class="flex items-center justify-between font-bold text-tertiary">
+                                <span>Morning Briefing Routine</span>
+                                <input type="checkbox" id="settings-auto-briefing" onchange="localStorage.setItem('meena_auto_briefing', this.checked)" class="rounded border-outline-variant text-primary focus:ring-0" checked>
+                            </label>
+                            <p class="text-[10px] text-secondary leading-snug">Auto-delivers weather, today's schedule, and system health status in the morning.</p>
+                            <div class="flex items-center gap-2 mt-auto">
+                                <span class="text-[9px] text-secondary">Target Time:</span>
+                                <input type="time" id="settings-briefing-time" value="07:30" onchange="const [h,m] = this.value.split(':'); localStorage.setItem('meena_briefing_hour', h); localStorage.setItem('meena_briefing_min', m);" class="bg-surface-dim border border-outline-variant/40 rounded px-2 py-1 text-xs text-primary font-mono">
+                            </div>
+                        </div>
+
+                        <!-- Hourly Tactical Chime -->
+                        <div class="bg-surface-container-lowest p-3 rounded border border-outline-variant/30 flex flex-col gap-2">
+                            <label class="flex items-center justify-between font-bold text-primary">
+                                <span>Hourly Stardate Ping</span>
+                                <input type="checkbox" id="settings-hourly-chime" onchange="localStorage.setItem('meena_hourly_chime', this.checked)" class="rounded border-outline-variant text-primary focus:ring-0" checked>
+                            </label>
+                            <p class="text-[10px] text-secondary leading-snug">Gentle tactical Starfleet chronometer ping at the top of each hour (08:00 - 22:00).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. DietPi System & Sudo Controls -->
             <section id="panel-system-maintenance" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
                 <div class="border-b border-outline-variant/30 pb-2">
                     <h2 class="text-sm font-bold text-lcars-gold flex items-center gap-2">
@@ -415,6 +500,7 @@
     </div>
 
     <!-- External Modular Settings Controller -->
+    <script src="assets/js/routine-scheduler.js"></script>
     <script src="assets/js/settings.js"></script>
 </body>
 </html>

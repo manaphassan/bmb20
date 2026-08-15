@@ -62,6 +62,20 @@ if [ -f "${SCRIPT_DIR}/meenaHearth.json" ]; then
     chmod 0664 "${TARGET_DIR}/meenaHearth.json" 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/manifest.json" ]; then
+    echo "[+] Deploying PWA manifest.json..."
+    cp -fv "${SCRIPT_DIR}/manifest.json" "${TARGET_DIR}/manifest.json"
+    cp -fv "${SCRIPT_DIR}/manifest.json" "/var/www/manifest.json" 2>/dev/null || true
+    chmod 0644 "${TARGET_DIR}/manifest.json" 2>/dev/null || true
+fi
+
+if [ -f "${SCRIPT_DIR}/sw.js" ]; then
+    echo "[+] Deploying PWA Service Worker (sw.js)..."
+    cp -fv "${SCRIPT_DIR}/sw.js" "${TARGET_DIR}/sw.js"
+    cp -fv "${SCRIPT_DIR}/sw.js" "/var/www/sw.js" 2>/dev/null || true
+    chmod 0644 "${TARGET_DIR}/sw.js" 2>/dev/null || true
+fi
+
 if [ -d "${SCRIPT_DIR}/assets" ]; then
     echo "[+] Deploying unified assets directory..."
     mkdir -p "${TARGET_DIR}/assets" "/var/www/assets"

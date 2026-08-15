@@ -256,11 +256,11 @@ function switchDeck(deckNumber) {
     } else if (deckNumber === 3) {
         if (window.loadCalendarFeed) window.loadCalendarFeed();
     } else if (deckNumber === 4) {
-        if (window.loadAllSettings) window.loadAllSettings();
+        if (window.startVisualRecon && !isReconActive) window.startVisualRecon();
     }
 }
 
-// Keyboard Hotkey Support (1=Deck 1 Meena AI, 2=Deck 2 Observatory NOC, 3=Red Alert, 4/P=Planet, 5/S=System, 6/G=Galaxy, W=Warp, C=Chime, B=Beam, R=CRT Toggle, V=Voice Mic, M/A=Audio)
+// Keyboard Hotkey Support (1=Deck 1 Meena, 2=Deck 2 Observatory, 3=Deck 3 Calendar, 4=Deck 4 Visual Recon, 0/!=Red Alert)
 window.addEventListener('keydown', (e) => {
     // Ignore input if focused in text fields
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
@@ -278,12 +278,16 @@ window.addEventListener('keydown', (e) => {
     } else if (e.key === '2') {
         switchDeck(2);
     } else if (e.key === '3') {
+        switchDeck(3);
+    } else if (e.key === '4') {
+        switchDeck(4);
+    } else if (e.key === '0' || e.key === '!') {
         setAlertCondition('red', true);
-    } else if (e.key === '4' || k === 'p') {
+    } else if (k === 'p') {
         if (window.switchHologramView) window.switchHologramView('earth');
-    } else if (e.key === '5' || k === 's') {
+    } else if (k === 's') {
         if (window.switchHologramView) window.switchHologramView('solar');
-    } else if (e.key === '6' || k === 'g') {
+    } else if (k === 'g') {
         if (window.switchHologramView) window.switchHologramView('galaxy');
     } else if (k === 'w') {
         if (window.playWarpSequence) window.playWarpSequence();
@@ -320,6 +324,11 @@ window.addEventListener('DOMContentLoaded', () => {
             window.drawBandwidthCanvas();
         }
     } catch (e) { console.warn("[Telemetry] Init error:", e); }
+
+    // 3. Initialize Autonomous Routine & Waktu Solat Scheduler
+    try {
+        if (window.initRoutineScheduler) window.initRoutineScheduler();
+    } catch (e) { console.warn("[RoutineScheduler] Init error:", e); }
 
     // 3. Initialize CRT Scanline Display Preference
     try {

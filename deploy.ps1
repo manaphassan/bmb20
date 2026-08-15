@@ -67,6 +67,12 @@ if (Test-Path "$LocalDir\calendar_events.json") {
 if (Test-Path "$LocalDir\meenaHearth.json") {
     Send-SSHFile "$LocalDir\meenaHearth.json" "${RemoteStaging}/meenaHearth.json"
 }
+if (Test-Path "$LocalDir\manifest.json") {
+    Send-SSHFile "$LocalDir\manifest.json" "${RemoteStaging}/manifest.json"
+}
+if (Test-Path "$LocalDir\sw.js") {
+    Send-SSHFile "$LocalDir\sw.js" "${RemoteStaging}/sw.js"
+}
 Send-SSHFile "$LocalDir\deploy-dietpi.sh" "${RemoteStaging}/deploy-dietpi.sh"
 
 # Upload Assets recursively

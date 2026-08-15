@@ -1184,6 +1184,29 @@ function handleVoiceCommand(rawCmd) {
             window.showNotificationAlert("NOTIFICATIONS ENGAGED", "Meena will notify you when background operations conclude.", "task");
         }
         speakComputerVoice("Understood, Sensei. I will notify you with a full report as soon as the background task finishes.");
+    } else if (cmdToEvaluate.includes('solat') || cmdToEvaluate.includes('prayer') || cmdToEvaluate.includes('waktu solat') || cmdToEvaluate.includes('azan') || cmdToEvaluate.includes('subuh') || cmdToEvaluate.includes('zohor') || cmdToEvaluate.includes('maghrib')) {
+        addMeenaEXP(15, 'Prayer Time Check');
+        const info = window.getNextPrayerInfo ? window.getNextPrayerInfo() : null;
+        if (info) {
+            const reply = `Waktu solat seterusnya ialah ${info.next} pada pukul ${info.time}, berbaki ${info.diffStr.replace('-', '')}.`;
+            speakComputerVoice(reply);
+        } else {
+            speakComputerVoice("Jadual waktu solat sedang diselaraskan bersama server JAKIM.");
+        }
+    } else if (cmdToEvaluate.includes('camera') || cmdToEvaluate.includes('kamera') || cmdToEvaluate.includes('recon') || cmdToEvaluate.includes('visual') || cmdToEvaluate.includes('what do you see') || cmdToEvaluate.includes('analyze scene') || cmdToEvaluate.includes('apa di depan') || cmdToEvaluate.includes('ambil gambar') || cmdToEvaluate.includes('buka kamera')) {
+        addMeenaEXP(25, 'Visual Recon AI');
+        if (window.switchDeck) window.switchDeck(4);
+        if (cmdToEvaluate.includes('close camera') || cmdToEvaluate.includes('tutup kamera') || cmdToEvaluate.includes('stand down camera')) {
+            if (window.stopVisualRecon) window.stopVisualRecon();
+            speakComputerVoice("Optical feed stood down, Sensei.");
+        } else if (cmdToEvaluate.includes('what do you see') || cmdToEvaluate.includes('analyze') || cmdToEvaluate.includes('apa di depan') || cmdToEvaluate.includes('lihat')) {
+            if (window.analyzeVisualRecon) {
+                window.analyzeVisualRecon(rawCmd);
+            }
+        } else {
+            if (window.startVisualRecon) window.startVisualRecon();
+            speakComputerVoice("Deck 4 Optical Recon online, Sensei. Ready for visual analysis.");
+        }
     } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics|status sistem|keadaan sistem)$/i.test(cmdToEvaluate))) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
