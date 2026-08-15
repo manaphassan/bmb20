@@ -1,42 +1,59 @@
-# Release v2.6.0 — Meena™ // Takahara Academy (高原学園)
+# Release v3.0.0 — MEENA™ Sovereign Horizon // Takahara Academy (高原学園)
 
-## 🌟 What's New in v2.6.0
+## 🌟 Major Release Announcement: MEENA™ v3.0.0
 
-### 1. 🌐 Bilingual English & Bahasa Melayu Natural Intelligence
-* **Dual-Language Query Optimization**: `analyzeBilingualQuery(raw)` dynamically analyzes query intent, removes Malay/English question prefixes (e.g., `siapa pelakon filem polis evo` -> `Polis Evo`), and extracts entities.
-* **Dual Wikipedia Knowledge Pipeline**: Seamless queries across `ms.wikipedia.org` and `en.wikipedia.org` with automatic cast list and synopsis extraction.
-* **Bilingual Spoken Commands**: Full voice command support for Malay triggers (`padam cache`, `bersihkan ram`, `suhu cpu`, `jadual`, `cuaca`, `taklimat pagi`, `profil meena`, `semak fakta`, `kajian mendalam`).
-
-### 2. 🎙️ Studio Neural Speech (TTS) Microservice Pipeline
-* **DietPi Server Daemon**: Created asynchronous `edge-tts` daemon `bmb20-tts.py` running on port `8088` with systemd unit `bmb20-tts.service`.
-* **Neural Voices**: Studio quality voices for English (`Jenny`, `Aria`, `Sonia`, `Guy`) and Bahasa Melayu (`Yasmin`, `Osman`).
-* **MD5 Hashed Audio Caching**: Instant sub-millisecond audio responses from `/tmp/bmb20_tts/` disk cache.
-* **Dynamic Language Voice Switching**: Auto-speaks Malay queries using `ms-MY-YasminNeural` and English queries with `en-US-JennyNeural`.
-
-### 3. 🛡️ Server Hardening & Security Lockdown
-* **Block Direct Access to Sensitive Files**: Strictly blocks `.sh`, `.py`, `.service`, `.md`, `.env`, `.git`, `.bak`, `.log`, `.sql`, `.conf`, `.ini` with `404/403 Forbidden`.
-* **HTTP Defense Headers**: Injected `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 1; mode=block`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: microphone=(self)`.
-* **Server Footprint Protection**: Hidden server tokens and disabled directory listing (`autoindex off`).
-
-### 4. 🎭 Clean Masked Semantic URL Routing
-* **Zero Raw File Exposure**: Rewrote direct `.json` and `.php` requests to clean semantic endpoints:
-  - `/api/telemetry` &rarr; Host hardware & metrics stream
-  - `/api/calendar` &rarr; Chrono calendar events
-  - `/api/calendar/config` &rarr; Calendar subscription configs
-  - `/api/hearth` &rarr; Synaptic Master Vault
-  - `/api/tts` &rarr; Neural TTS Reverse Proxy
-  - `/dashboard`, `/settings`, `/bridge` &rarr; Direct clean routes
-
-### 5. 🔔 Universal LCARS Tactical Notification & Alert Dispatcher
-* **Visual Glassmorphic Toasts**: High-contrast, sci-fi toast notifications slide into the viewport with status icons, timestamps, and audio chimes.
-* **Proactive Host Health Alarms**: Real-time alerts for CPU thermal spikes ($>70^\circ\text{C}$), undervoltage throttles, and Sentinel patrol anomalies.
-* **Background Task Notifications**: Spoken announcements and native OS desktop/mobile push when background tasks complete.
-
-### 6. 📱 Responsive Layout & UI Enhancements
-* **Full-Height Displays**: Kernel Log stream and Tactical Calendar expanded to full available viewport height.
-* **3D Holo-Brain Avatar**: Rotating 3D neural brain rendered inside the avatar container.
-* **Mobile Starfleet Communicator**: Dedicated PTT drawer and full calendar modal.
+**MEENA™ v3.0.0 ("Sovereign Horizon")** marks a monumental milestone, transforming the platform into a 100% self-hosted, enterprise-grade **Sovereign Home AI & Tactical Operations Center** tailored for Single-Board Computers (DietPi / Raspberry Pi 3, 4, 5).
 
 ---
 
-**Full Changelog**: [v2.5.0...v2.6.0](https://github.com/manaphassan/bmb20/compare/master)
+## 🚀 What's New in v3.0.0
+
+### 1. 👁️ Deck 4: Multimodal Camera Vision Recon & Optical OCR
+* **Live Camera Stream Analytics**: Full WebRTC / USB camera integration with dynamic frame freezing and real-time visual inspection.
+* **Gemini 1.5 Flash Vision OCR**: Optical document scanning, whiteboard transcription, component inspection, and home perimeter monitoring with zero-lag telemetry feedback.
+
+### 2. 🛡️ Real-Time Pi-hole v6 SQLite Database Engine
+* **Direct Embedded Database Queries**: Queries `/etc/pihole/pihole-FTL.db` directly via `pihole-FTL sqlite3 -ni` for zero-lag blocking metrics.
+* **Live Telemetry & Gravity Counts**: Monitors 2,994,000+ gravity blocked domains, query volume today (23,000+), and real-time block percentages (`45.6% BLK`).
+* **1-Tap Defense Management**: Instant temporary shield disable (10s, 30s, 5m) or toggle directly from the tactical interface.
+
+### 3. 📡 Subspace Network Radar 2.0 (LAN Topology)
+* **Real-Time ARP Table Inspection**: Continuous `/proc/net/arp` polling across `eth0` and `wlan0`.
+* **Hardware Device Fingerprinting**: Categorizes connected devices into Routers, Phones, Workstations, IoT Sensors, and Gaming Consoles with live ping round-trip times and MAC vendors.
+
+### 4. 📅 Chrono Calendar & Automated Waktu Solat Scheduler
+* **Private Multi-Source iCal Parser (`cal.php`)**: Synchronizes multiple Google/Apple/Outlook ICS feeds with local JSON storage, multi-line folding repair, and `Asia/Kuala_Lumpur` timezone formatting.
+* **Waktu Solat Engine (`routine-scheduler.js`)**: Sub-second Malaysian prayer time calculation with automated audio Adhan alerts, countdown timers, and daily morning mission briefings.
+
+### 5. 📱 Starfleet Dual-Layout System (Desktop Bridge & PADD Communicator)
+* **Desktop Command Bridge**: High-density 4-Deck LCARS operations layout with Three.js 3D WebGL globe, ISS orbital tracking ($27,580\text{ km/h}$), and dynamic obsidian force-directed knowledge graph.
+* **Handheld PADD Communicator**: Ultra-ergonomic mobile interface featuring touch Hold-To-Talk Push-To-Talk (PTT), real-time chat stream, horizontal quick chips, and slide-up hardware diagnostics drawer.
+
+### 6. 🌐 Bilingual Neural Voice & Studio TTS
+* **Bilingual English & Bahasa Melayu Intelligence**: Natural question handling, Malay keyword detection, prefix stripping, and dual-endpoint Wikipedia search (`ms.wikipedia.org` + `en.wikipedia.org`).
+* **Studio Server-Side Neural Speech (TTS)**: Dedicated asynchronous `edge-tts` microservice daemon on DietPi with MD5 disk caching and studio neural voice profiles (`Jenny`, `Aria`, `Sonia`, `Yasmin`, `Osman`, `Guy`).
+
+### 7. 🔒 Hardened Server Security & URL Masking
+* **Nginx Defense Lockdown**: Strict protection blocking direct access to `.sh`, `.py`, `.service`, `.md`, `.env`, `.git`.
+* **Semantic Clean REST Endpoints**: `/api/telemetry`, `/api/calendar`, `/api/hearth`, `/api/tts`, `/dashboard`, `/settings`.
+
+---
+
+## 📦 Installation & Upgrade
+
+### Remote Deployment (PowerShell)
+```powershell
+git pull origin master
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1 -TargetHost "dietpi.local"
+```
+
+### Direct SBC Deployment (Bash)
+```bash
+sudo git pull origin master
+sudo bash deploy-dietpi.sh
+```
+
+---
+
+## 📜 Full Commit Comparison
+[v2.6.0...v3.0.0](https://github.com/manaphassan/bmb20/compare/master)

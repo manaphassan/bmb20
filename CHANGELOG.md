@@ -2,6 +2,25 @@
 
 All notable changes to the BMB20 Command Center and Meena AI Bridge will be documented in this file.
 
+## [3.0.0] - 2026-08-15 — Major Release: Sovereign Horizon
+
+### Added
+- **Deck 4 Multimodal Camera Vision Recon**:
+  - Live WebRTC / USB camera feed capture with frame freeze and real-time optical inspection.
+  - Optical OCR and document scanning powered by Gemini 1.5 Flash Vision.
+- **Real-Time Pi-hole v6 SQLite Database Integration**:
+  - Direct database querying via `pihole-FTL sqlite3 -ni /etc/pihole/pihole-FTL.db`.
+  - Zero-latency query tracking (23k+ queries), live blocking percentage (`45.6% BLK`), and 2.99M+ gravity domain reporting.
+- **Subspace Network Radar 2.0 (LAN Device Topology)**:
+  - Continuous ARP scanning across `eth0` and `wlan0` with automatic device classification (Routers, Workstations, Mobile, IoT).
+- **Chrono Calendar & Waktu Solat Routine Scheduler**:
+  - Private multi-feed iCal parser (`cal.php`) with multi-line ICS unfolding and `Asia/Kuala_Lumpur` timezone formatting.
+  - Waktu Solat astronomical prayer engine with automated audio Adhan alerts and daily mission briefings.
+- **Starfleet Dual-Layout System**:
+  - 4-Deck High-density Desktop Command Bridge + Handheld PADD Communicator with Push-To-Talk (PTT) Hold-To-Talk touch control.
+- **GitHub Showcase Landing Page**:
+  - High-converting product showcase in `docs/index.html` for GitHub Pages.
+
 ## [2.6.0] - 2026-08-15
 
 ### Added
