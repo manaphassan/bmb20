@@ -15,6 +15,19 @@ let lfoOsc = null;
 let redAlertInterval = null;
 let isRedAlertPlaying = false;
 let audioInitialized = false;
+let currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
+let meenaCurrentMood = localStorage.getItem('meena_mood') || 'ALEX';
+
+function setMeenaMood(mood) {
+    if (!mood) return;
+    meenaCurrentMood = mood;
+    localStorage.setItem('meena_mood', mood);
+    if (typeof setPersonaArchetype === 'function') {
+        setPersonaArchetype(mood);
+    }
+    if (window.playSound) window.playSound('beep2');
+}
+window.setMeenaMood = setMeenaMood;
 
 // Auto-resume AudioContext on first user interaction and start default audio
 function unlockAudioContext() {
@@ -2653,8 +2666,8 @@ function animateAvatar() {
  * ==========================================================================
  */
 let pendingSudoAction = null;
-let currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
-let lastUserInteractionTime = Date.now();
+currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
+lastUserInteractionTime = Date.now();
 
 const PERSONA_CONFIGS = {
     ALEX: {
@@ -2697,7 +2710,9 @@ const PERSONA_CONFIGS = {
 function setPersonaArchetype(archetype) {
     if (!PERSONA_CONFIGS[archetype]) archetype = 'ALEX';
     currentPersona = archetype;
+    meenaCurrentMood = archetype;
     localStorage.setItem('meena_persona', archetype);
+    localStorage.setItem('meena_mood', archetype);
 
     const cfg = PERSONA_CONFIGS[archetype];
     setMeenaPitch(cfg.pitch);
