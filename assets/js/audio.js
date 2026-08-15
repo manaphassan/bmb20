@@ -17,6 +17,7 @@ let isRedAlertPlaying = false;
 let audioInitialized = false;
 let currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
 let meenaCurrentMood = localStorage.getItem('meena_mood') || 'CHEERFUL';
+let lastUserInteractionTime = Date.now();
 
 // Auto-resume AudioContext on first user interaction and start default audio
 function unlockAudioContext() {

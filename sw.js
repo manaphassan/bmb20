@@ -5,7 +5,7 @@
  * ==============================================================================
  */
 
-const CACHE_NAME = 'meena-lcars-v3.3.5';
+const CACHE_NAME = 'meena-lcars-v3.3.6';
 const ASSETS_TO_CACHE = [
   '/',
   '/dashboard',

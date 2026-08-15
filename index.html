@@ -2108,18 +2108,54 @@
 </div>
 
     <!-- Application Modular Scripts (Fault-Isolated & Deferred) -->
-    <script defer src="assets/js/config.js?v=3.3.5"></script>
-    <script defer src="assets/js/layout-manager.js?v=3.3.5"></script>
-    <script defer src="assets/js/audio.js?v=3.3.5"></script>
-    <script defer src="assets/js/calendar.js?v=3.3.5"></script>
-    <script defer src="assets/js/routine-scheduler.js?v=3.3.5"></script>
-    <script defer src="assets/js/camera-recon.js?v=3.3.5"></script>
-    <script defer src="assets/js/globe.js?v=3.3.5"></script>
-    <script defer src="assets/js/telemetry.js?v=3.3.5"></script>
-    <script defer src="assets/js/main.js?v=3.3.5"></script>
+    <script defer src="assets/js/config.js?v=3.3.6"></script>
+    <script defer src="assets/js/layout-manager.js?v=3.3.6"></script>
+    <script defer src="assets/js/audio.js?v=3.3.6"></script>
+    <script defer src="assets/js/calendar.js?v=3.3.6"></script>
+    <script defer src="assets/js/routine-scheduler.js?v=3.3.6"></script>
+    <script defer src="assets/js/camera-recon.js?v=3.3.6"></script>
+    <script defer src="assets/js/globe.js?v=3.3.6"></script>
+    <script defer src="assets/js/telemetry.js?v=3.3.6"></script>
+    <script defer src="assets/js/main.js?v=3.3.6"></script>
 
-    <!-- Progressive Web App Service Worker Registration -->
+    <!-- Progressive Web App Service Worker Registration & Direct Neural Core Binder -->
     <script>
+        // Bulletproof Early Trigger & Modal Controller for Neural Core
+        window.openNeuralCoreInspectorModal = function() {
+            const modal = document.getElementById('neural-core-inspector-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modal.style.display = 'flex';
+            }
+            if (window.initNeuralCoreModalEvents) window.initNeuralCoreModalEvents();
+            if (window.updateNeuralCoreHud) window.updateNeuralCoreHud();
+            if (window.playSound) window.playSound('beep');
+        };
+
+        window.closeNeuralCoreInspectorModal = function() {
+            const modal = document.getElementById('neural-core-inspector-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modal.style.display = 'none';
+            }
+        };
+
+        // Attach direct DOM click listeners immediately
+        document.addEventListener('DOMContentLoaded', () => {
+            ['meena-avatar-container', 'meena-avatar-canvas', 'comm-avatar-container', 'comm-avatar-canvas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.cursor = 'pointer';
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        window.openNeuralCoreInspectorModal();
+                    };
+                }
+            });
+        });
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
