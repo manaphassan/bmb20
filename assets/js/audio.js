@@ -646,14 +646,147 @@ function closeVoiceModal() {
     if (playSound) playSound('beep1');
 }
 
+function toggleVoiceListeningMute() {
+    toggleVoiceRecognition();
+}
+
+function openMeenaDossierModal() {
+    const modal = document.getElementById('meena-dossier-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if (window.playSound) window.playSound('beep2');
+
+    updateDossierUI();
+    drawDossierAvatar();
+}
+
+function closeMeenaDossierModal() {
+    const modal = document.getElementById('meena-dossier-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (window.playSound) window.playSound('beep1');
+}
+
+function updateDossierUI() {
+    const pAlex = document.getElementById('dossier-persona-alex');
+    const pTac = document.getElementById('dossier-persona-tactical');
+    const pEng = document.getElementById('dossier-persona-engineer');
+    const pSen = document.getElementById('dossier-persona-sentry');
+
+    const defaultClass = "p-1.5 rounded bg-surface-bright text-on-surface border border-outline-variant/30 hover:bg-surface-container-high transition-all";
+    if (pAlex) pAlex.className = defaultClass;
+    if (pTac) pTac.className = defaultClass;
+    if (pEng) pEng.className = defaultClass;
+    if (pSen) pSen.className = defaultClass;
+
+    if (currentPersona === 'ALEX' && pAlex) pAlex.className = "p-1.5 rounded bg-primary text-black font-bold border border-primary shadow-sm";
+    else if (currentPersona === 'TACTICAL' && pTac) pTac.className = "p-1.5 rounded bg-tertiary text-black font-bold border border-tertiary shadow-sm";
+    else if (currentPersona === 'ENGINEER' && pEng) pEng.className = "p-1.5 rounded bg-lcars-gold text-black font-bold border border-lcars-gold shadow-sm";
+    else if (currentPersona === 'SENTRY' && pSen) pSen.className = "p-1.5 rounded bg-secondary text-black font-bold border border-secondary shadow-sm";
+
+    const pSlider = document.getElementById('dossier-pitch-slider');
+    const pLabel = document.getElementById('dossier-pitch-label');
+    if (pSlider) pSlider.value = meenaPitch;
+    if (pLabel) pLabel.innerText = meenaPitch.toFixed(2);
+
+    const rSlider = document.getElementById('dossier-rate-slider');
+    const rLabel = document.getElementById('dossier-rate-label');
+    if (rSlider) rSlider.value = meenaRate;
+    if (rLabel) rLabel.innerText = meenaRate.toFixed(2);
+
+    const memCount = document.getElementById('dossier-memory-count');
+    const count = (typeof knowledgeBank !== 'undefined' && Array.isArray(knowledgeBank)) ? knowledgeBank.length : 18;
+    if (memCount) memCount.innerText = `${count} MEMORY NODES`;
+}
+
+function drawDossierAvatar() {
+    const canvas = document.getElementById('dossier-avatar-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const grad = ctx.createRadialGradient(w/2, h/2, 4, w/2, h/2, w/2);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.3, '#cc66ff');
+    grad.addColorStop(0.8, '#660099');
+    grad.addColorStop(1, 'transparent');
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, w/2 - 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, w/2 - 8, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function testMeenaDossierVoice() {
+    if (window.playSound) window.playSound('beep2');
+    speakComputerVoice("All systems nominal, Sensei! Master Electronic Executive Neural Assistant is operating with zero cognitive faults.");
+}
+
 function updateVoiceHUD(text, active) {
     const micBtn = document.getElementById('voice-mic-btn');
     const micIcon = document.getElementById('voice-mic-icon');
     const micLabel = document.getElementById('voice-mic-label');
     const hudBadge = document.getElementById('voice-hud-badge');
 
+    // Desktop Sidebar Mic
+    const sideMicBtn = document.getElementById('sidebar-mic-toggle-btn');
+    const sideMicIcon = document.getElementById('sidebar-mic-icon');
+    const sideMicLabel = document.getElementById('sidebar-mic-label');
+
+    // Mobile Communicator Center Mic
+    const commMicBtn = document.getElementById('comm-mic-toggle-btn');
+    const commMicIcon = document.getElementById('comm-mic-icon');
+    const commMicLabel = document.getElementById('comm-mic-label');
+
+    // Mobile Communicator PTT Button
+    const commPttBtn = document.getElementById('comm-ptt-button');
+    const commPttLabel = document.getElementById('comm-ptt-label');
+    const commPttMicIcon = document.getElementById('comm-ptt-mic-icon');
+
     if (micIcon) micIcon.innerText = active ? 'mic' : 'mic_off';
     if (micLabel) micLabel.innerText = active ? 'VOICE: ON' : 'VOICE: OFF';
+
+    if (sideMicIcon) sideMicIcon.innerText = active ? 'mic' : 'mic_off';
+    if (sideMicLabel) sideMicLabel.innerText = active ? 'MIC: ON' : 'MIC: OFF';
+    if (sideMicBtn) {
+        if (active) {
+            sideMicBtn.className = "bg-primary text-black py-1.5 px-1.5 rounded-l-full text-center font-bold transition-all flex items-center justify-center gap-1 border border-primary shadow-[0_0_8px_#66ccff]";
+        } else {
+            sideMicBtn.className = "bg-surface-container-high text-secondary hover:text-on-surface py-1.5 px-1.5 rounded-l-full text-center font-bold transition-all flex items-center justify-center gap-1 border border-outline-variant/40";
+        }
+    }
+
+    if (commMicIcon) commMicIcon.innerText = active ? 'mic' : 'mic_off';
+    if (commMicLabel) commMicLabel.innerText = active ? 'MIC: ON' : 'MIC: OFF';
+    if (commMicBtn) {
+        if (active) {
+            commMicBtn.className = "text-[9px] bg-primary text-black px-2 py-0.5 rounded font-bold border border-primary transition-all flex items-center gap-1 shadow-[0_0_8px_#66ccff]";
+        } else {
+            commMicBtn.className = "text-[9px] bg-surface-bright text-secondary hover:text-on-surface px-2 py-0.5 rounded font-bold border border-outline-variant/30 transition-all flex items-center gap-1";
+        }
+    }
+
+    if (commPttBtn) {
+        if (active) {
+            commPttBtn.classList.add('recording-active');
+            if (commPttLabel) commPttLabel.innerText = 'TRANSMITTING VOICE...';
+            if (commPttMicIcon) commPttMicIcon.innerText = 'graphic_eq';
+        } else {
+            commPttBtn.classList.remove('recording-active');
+            if (commPttLabel) commPttLabel.innerText = 'PUSH TO TRANSMIT';
+            if (commPttMicIcon) commPttMicIcon.innerText = 'mic';
+        }
+    }
+
     if (micBtn) {
         if (active) {
             micBtn.classList.add('bg-primary', 'text-black', 'active-condition');
@@ -3181,6 +3314,11 @@ async function speakCalendarSchedule() {
 window.playSound = playSound;
 window.toggleAudio = toggleAudio;
 window.toggleVoiceRecognition = toggleVoiceRecognition;
+window.toggleVoiceListeningMute = toggleVoiceListeningMute;
+window.openMeenaDossierModal = openMeenaDossierModal;
+window.closeMeenaDossierModal = closeMeenaDossierModal;
+window.updateDossierUI = updateDossierUI;
+window.testMeenaDossierVoice = testMeenaDossierVoice;
 window.openVoiceModal = openVoiceModal;
 window.closeVoiceModal = closeVoiceModal;
 window.openMeenaProfileModal = openMeenaProfileModal;

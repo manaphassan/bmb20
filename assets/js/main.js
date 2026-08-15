@@ -257,7 +257,13 @@ window.addEventListener('keydown', (e) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
 
     const k = e.key.toLowerCase();
-    if (e.key === '1') {
+    if (e.key === 'Escape') {
+        if (window.closeMeenaDossierModal) window.closeMeenaDossierModal();
+        if (window.closeNodeModal) window.closeNodeModal();
+        if (window.closePiholeModal) window.closePiholeModal();
+        if (window.closeVoiceModal) window.closeVoiceModal();
+        if (window.closeCalendarModal) window.closeCalendarModal();
+    } else if (e.key === '1') {
         switchDeck(1);
     } else if (e.key === '2') {
         switchDeck(2);
@@ -277,9 +283,11 @@ window.addEventListener('keydown', (e) => {
         if (window.playTransporterChime) window.playTransporterChime();
     } else if (k === 'r') {
         toggleScanlines();
-    } else if (k === 'v') {
-        if (window.openVoiceModal) window.openVoiceModal();
-    } else if (k === 'm' || k === 'a') {
+    } else if (k === 'v' || k === 'm') {
+        if (window.toggleVoiceListeningMute) window.toggleVoiceListeningMute();
+    } else if (k === 'd') {
+        if (window.openMeenaDossierModal) window.openMeenaDossierModal();
+    } else if (k === 'a') {
         if (window.toggleAudio) window.toggleAudio();
     }
 });
