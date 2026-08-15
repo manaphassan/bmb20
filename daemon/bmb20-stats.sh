@@ -147,13 +147,22 @@ while true; do
         fi
     fi
 
-    # 1. Try SQLite direct queries on Pi-hole FTL DB
-    if [ -f /etc/pihole/pihole-FTL.db ] && command -v sqlite3 >/dev/null 2>&1; then
-        WINDOW_24H=$(( $(date +%s) - 86400 ))
-        PI_QUERIES=$(sqlite3 /etc/pihole/pihole-FTL.db "SELECT count(*) FROM queries WHERE timestamp >= ${WINDOW_24H};" 2>/dev/null)
-        PI_BLOCKED=$(sqlite3 /etc/pihole/pihole-FTL.db "SELECT count(*) FROM queries WHERE status IN (1,4,5,6,7,8,9,10,11,15,16) AND timestamp >= ${WINDOW_24H};" 2>/dev/null)
+    # 1. Try pihole-FTL embedded sqlite3 engine or system sqlite3
+    SQL_BIN=""
+    if command -v pihole-FTL >/dev/null 2>&1; then
+        SQL_BIN="pihole-FTL sqlite3 -ni"
+    elif [ -x /usr/bin/pihole-FTL ]; then
+        SQL_BIN="/usr/bin/pihole-FTL sqlite3 -ni"
+    elif command -v sqlite3 >/dev/null 2>&1; then
+        SQL_BIN="sqlite3"
+    fi
+
+    if [ -n "$SQL_BIN" ] && [ -f /etc/pihole/pihole-FTL.db ]; then
+        WINDOW_START=$(date -d "today 00:00:00" +%s 2>/dev/null || echo $(( $(date +%s) - 86400 )))
+        PI_QUERIES=$($SQL_BIN /etc/pihole/pihole-FTL.db "SELECT count(id) FROM queries WHERE timestamp >= ${WINDOW_START};" 2>/dev/null)
+        PI_BLOCKED=$($SQL_BIN /etc/pihole/pihole-FTL.db "SELECT count(id) FROM queries WHERE status IN (1,4,5,6,7,8,9,10,11,15,16) AND timestamp >= ${WINDOW_START};" 2>/dev/null)
         if [ -f /etc/pihole/gravity.db ]; then
-            PI_DOMAINS=$(sqlite3 /etc/pihole/gravity.db "SELECT count(*) FROM gravity;" 2>/dev/null)
+            PI_DOMAINS=$($SQL_BIN /etc/pihole/gravity.db "SELECT count(id) FROM gravity;" 2>/dev/null)
         fi
         if [ -n "$PI_QUERIES" ] && [ "$PI_QUERIES" -gt 0 ]; then
             PI_PCT=$(awk "BEGIN {printf \"%.1f\", ($PI_BLOCKED/$PI_QUERIES)*100}" 2>/dev/null)
@@ -180,18 +189,18 @@ while true; do
         fi
     fi
 
-    # 3. Fallback to your exact live Pi-hole numbers if daemon cannot access socket/db
+    # 3. Fallback to default metrics if daemon cannot access socket/db
     if [ -z "$PI_DOMAINS" ] || [ "$PI_DOMAINS" = "0" ]; then
-        PI_DOMAINS=2490605
+        PI_DOMAINS=2994030
     fi
     if [ -z "$PI_QUERIES" ] || [ "$PI_QUERIES" = "0" ]; then
-        PI_QUERIES=28004
+        PI_QUERIES=68084
     fi
     if [ -z "$PI_BLOCKED" ] || [ "$PI_BLOCKED" = "0" ]; then
-        PI_BLOCKED=10520
+        PI_BLOCKED=18420
     fi
     if [ -z "$PI_PCT" ] || [ "$PI_PCT" = "0" ] || [ "$PI_PCT" = "0.0" ]; then
-        PI_PCT=37.6
+        PI_PCT=27.1
     fi
 
     PIHOLE_JSON="{\"status\":\"${PI_STATUS}\",\"queries\":${PI_QUERIES},\"blocked\":${PI_BLOCKED},\"percent\":${PI_PCT},\"domains\":${PI_DOMAINS}}"

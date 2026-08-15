@@ -1,9 +1,10 @@
 <?php
 // High-Speed Non-Regex Chrono Calendar Engine for MEENA™
+date_default_timezone_set('Asia/Kuala_Lumpur');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
-@set_time_limit(10);
+@set_time_limit(15);
 @ini_set('memory_limit', '64M');
 
 $action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? 'get_calendar_events';
@@ -12,6 +13,7 @@ if (empty($action) && !empty($_SERVER['QUERY_STRING'])) {
     $action = $qs['action'] ?? 'get_calendar_events';
 }
 $action = trim($action);
+$force = !empty($_GET['force']) || !empty($_GET['refresh']) || !empty($_REQUEST['refresh']);
 
 $calConfigFile = __DIR__ . '/calendar_config.json';
 if (!file_exists($calConfigFile)) {
@@ -107,7 +109,7 @@ foreach ($calendarList as $cal) {
     $cacheFile = '/tmp/bmb20_cal_' . md5($url) . '.ics';
     $icsData = '';
 
-    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 600 && filesize($cacheFile) > 100) {
+    if (!$force && file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 300 && filesize($cacheFile) > 100) {
         $icsData = @file_get_contents($cacheFile);
     }
 
@@ -141,6 +143,9 @@ foreach ($calendarList as $cal) {
     }
 
     if (empty($icsData)) continue;
+
+    // Unfold multi-line folded ICS properties per RFC 5545
+    $icsData = preg_replace("/\r\n[ \t]|\r[ \t]|\n[ \t]/", '', $icsData);
 
     // Fast Line-by-Line Parser (Zero Regex Backtracking)
     $lines = preg_split("/\r\n|\n|\r/", $icsData);
@@ -268,7 +273,7 @@ foreach ($allEvents as $ev) {
     }
 }
 
-echo json_encode([
+$resultPayload = [
     'status' => 'success',
     'active_calendars' => count($calendarList),
     'calendars' => $calendarList,
@@ -279,4 +284,12 @@ echo json_encode([
     'events_upcoming' => array_slice($eventsUpcoming, 0, 20),
     'all_events' => $eventsFormatted,
     'last_sync' => date('H:i:s')
-]);
+];
+
+$jsonStr = json_encode($resultPayload, JSON_PRETTY_PRINT);
+@file_put_contents(__DIR__ . '/calendar_events.json', $jsonStr);
+@file_put_contents('/var/www/html/calendar_events.json', $jsonStr);
+@file_put_contents('/var/www/calendar_events.json', $jsonStr);
+
+echo $jsonStr;
+exit;

@@ -39,12 +39,15 @@ let calendarState = {
  */
 async function loadCalendarFeed(forceRefresh = false) {
     try {
-        // First try static pre-rendered events file for instantaneous 1ms load
         let data = null;
         try {
-            const staticRes = await fetch('api/calendar?t=' + Date.now()).catch(() => fetch('calendar_events.json?t=' + Date.now()));
-            if (staticRes && staticRes.ok) {
-                data = await staticRes.json();
+            const url = forceRefresh ? 'cal.php?action=get_calendar_events&force=1&t=' + Date.now() : 'api/calendar?t=' + Date.now();
+            let res = await fetch(url).catch(() => null);
+            if (!res || !res.ok) {
+                res = await fetch('cal.php?t=' + Date.now()).catch(() => fetch('calendar_events.json?t=' + Date.now()));
+            }
+            if (res && res.ok) {
+                data = await res.json();
             }
         } catch(e) {}
 
@@ -55,7 +58,7 @@ async function loadCalendarFeed(forceRefresh = false) {
             if (data.calendars) calendarState.calendars = data.calendars;
             calendarState.isSynced = true;
             calendarState.lastSyncTime = data.last_sync || new Date().toLocaleTimeString();
-        } else if (data.status === 'unconfigured') {
+        } else if (data && data.status === 'unconfigured') {
             calendarState.isSynced = false;
             calendarState.eventsToday = [];
             calendarState.eventsUpcoming = [];
@@ -264,6 +267,11 @@ function renderAgendaTimeline() {
     const selDate = calendarState.selectedDate || new Date();
     const isTodaySelected = (selDate.toDateString() === new Date().toDateString());
 
+    const todayTitle = document.getElementById('chrono-today-title');
+    if (todayTitle) {
+        todayTitle.innerText = isTodaySelected ? "TODAY'S OPERATIONS" : `AGENDA: ${selDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}`;
+    }
+
     const activeListEvents = calendarState.allEvents.filter(ev => {
         if (!ev.timestamp) return false;
         const d = new Date(ev.timestamp * 1000);
@@ -326,7 +334,7 @@ function renderAgendaTimeline() {
         upcomingHtml = `<div class="text-secondary text-sm italic p-3">No upcoming events found in active horizon.</div>`;
     } else {
         upcomingHtml = calendarState.eventsUpcoming.map(ev => `
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
+            <div onclick="selectDateByTimestamp(${ev.timestamp})" class="cursor-pointer flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 text-xs hover:border-tertiary hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#78e4a5'};" title="Click to view ${ev.date}">
                 <div class="flex flex-col gap-0.5">
                     <div class="flex items-center gap-1.5">
                         <span class="text-[10px] px-1.5 py-0.5 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
@@ -338,18 +346,19 @@ function renderAgendaTimeline() {
             </div>
         `).join('');
     }
-                        <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
-                    </div>
-                    ${ev.location ? `<span class="text-[8px] text-tertiary truncate max-w-[280px]">${ev.location}</span>` : ''}
-                </div>
-                <span class="text-secondary font-mono text-[9.5px] flex-shrink-0">${ev.date} @ ${ev.time}</span>
-            </div>
-        `).join('');
-    }
 
     if (upcomingList) upcomingList.innerHTML = upcomingHtml;
     const commUpcomingList = document.getElementById('comm-chrono-upcoming-events');
     if (commUpcomingList) commUpcomingList.innerHTML = upcomingHtml;
+}
+
+function selectDateByTimestamp(ts) {
+    if (!ts) return;
+    calendarState.selectedDate = new Date(ts * 1000);
+    calendarState.currentYear = calendarState.selectedDate.getFullYear();
+    calendarState.currentMonth = calendarState.selectedDate.getMonth();
+    if (window.playSound) window.playSound('beep2');
+    renderCalendarUI();
 }
 
 function updateSyncStatusBadge() {

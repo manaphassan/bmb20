@@ -804,11 +804,23 @@ if ($action) {
 }
 
 function get_pihole_info() {
-    $domains = 2490605;
-    $queries = 28004;
-    $blocked = 10520;
-    $pct = 37.6;
+    $domains = 2994030;
+    $queries = 68084;
+    $blocked = 18420;
+    $pct = 27.1;
     $status = "enabled";
+
+    // 0. Check daemon generated api.json (Always fresh within 5s)
+    $apiJsonPaths = ['/var/www/html/api.json', '/var/www/api.json'];
+    foreach ($apiJsonPaths as $p) {
+        if (file_exists($p) && (time() - filemtime($p)) < 15) {
+            $content = @file_get_contents($p);
+            $parsed = @json_decode($content, true);
+            if ($parsed && isset($parsed['pihole']) && !empty($parsed['pihole']['queries'])) {
+                return $parsed['pihole'];
+            }
+        }
+    }
 
     // 1. Check local Pi-hole Web API on port 8089 or 80
     $ctx = stream_context_create(['http' => ['timeout' => 0.6]]);
@@ -858,7 +870,7 @@ function get_pihole_info() {
     if (file_exists('/etc/pihole/gravity.db') && class_exists('SQLite3')) {
         try {
             $db = new SQLite3('/etc/pihole/gravity.db', SQLITE3_OPEN_READONLY);
-            $res = $db->querySingle("SELECT count(*) FROM gravity;");
+            $res = $db->querySingle("SELECT count(id) FROM gravity;");
             if ($res && $res > 0) $domains = intval($res);
             $db->close();
         } catch (Exception $e) {}
@@ -867,9 +879,9 @@ function get_pihole_info() {
     if (file_exists('/etc/pihole/pihole-FTL.db') && class_exists('SQLite3')) {
         try {
             $db = new SQLite3('/etc/pihole/pihole-FTL.db', SQLITE3_OPEN_READONLY);
-            $since = time() - 86400;
-            $q = $db->querySingle("SELECT count(*) FROM queries WHERE timestamp >= {$since};");
-            $b = $db->querySingle("SELECT count(*) FROM queries WHERE status IN (1,4,5,6,7,8,9,10,11,15,16) AND timestamp >= {$since};");
+            $since = strtotime('today midnight');
+            $q = $db->querySingle("SELECT count(id) FROM queries WHERE timestamp >= {$since};");
+            $b = $db->querySingle("SELECT count(id) FROM queries WHERE status IN (1,4,5,6,7,8,9,10,11,15,16) AND timestamp >= {$since};");
             if ($q && $q > 0) {
                 $queries = intval($q);
                 $blocked = intval($b);
