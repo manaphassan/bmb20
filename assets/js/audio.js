@@ -207,6 +207,10 @@ if ('speechSynthesis' in window) {
     loadMeenaVoice();
 }
 
+let isMeenaSpeaking = false;
+let meenaSpeechCooldownTimer = null;
+let recentMeenaPhrases = [];
+
 function speakComputerVoice(text) {
     appendMeenaChat('MEENA', text, true);
     const status = document.getElementById('meena-status-indicator');
@@ -215,9 +219,21 @@ function speakComputerVoice(text) {
     if (status) status.innerText = 'TRANSMITTING VOICE';
     if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span><span>TRANSMITTING VOICE</span>';
 
+    // Store in echo-suppression buffer
+    const cleanLower = text.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    recentMeenaPhrases.push(cleanLower);
+    if (recentMeenaPhrases.length > 5) recentMeenaPhrases.shift();
+
+    // Lock microphone from self-hearing speaker audio
+    isMeenaSpeaking = true;
+    if (meenaSpeechCooldownTimer) clearTimeout(meenaSpeechCooldownTimer);
+
     if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) {
-        if (status) setTimeout(() => { status.innerText = 'STANDBY [LISTENING]'; }, 1500);
-        if (commStatus) setTimeout(() => { commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>'; }, 1500);
+        meenaSpeechCooldownTimer = setTimeout(() => {
+            isMeenaSpeaking = false;
+            if (status) status.innerText = 'STANDBY [LISTENING]';
+            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+        }, 1200);
         return;
     }
 
@@ -235,18 +251,31 @@ function speakComputerVoice(text) {
             utterance.voice = meenaVoice;
         }
 
-        utterance.onend = () => {
-            if (status) status.innerText = 'STANDBY [LISTENING]';
-            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+        utterance.onstart = () => {
+            isMeenaSpeaking = true;
         };
+
+        utterance.onend = () => {
+            // 800ms cooldown for room reverberation/speaker audio to decay
+            meenaSpeechCooldownTimer = setTimeout(() => {
+                isMeenaSpeaking = false;
+                if (status) status.innerText = 'STANDBY [LISTENING]';
+                if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+            }, 800);
+        };
+
         utterance.onerror = () => {
-            if (status) status.innerText = 'STANDBY [LISTENING]';
-            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+            meenaSpeechCooldownTimer = setTimeout(() => {
+                isMeenaSpeaking = false;
+                if (status) status.innerText = 'STANDBY [LISTENING]';
+                if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+            }, 500);
         };
 
         window.speechSynthesis.speak(utterance);
     } catch (e) {
         console.warn("M.E.E.N.A. speech synthesis skipped:", e);
+        isMeenaSpeaking = false;
         if (status) status.innerText = 'STANDBY [LISTENING]';
         if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
     }
@@ -571,6 +600,11 @@ function initVoiceRecognition() {
         };
 
         recognition.onresult = (event) => {
+            // Echo cancellation: If Meena is currently speaking, ignore audio completely
+            if (isMeenaSpeaking) {
+                return;
+            }
+
             let interim = '';
             let finalStr = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -583,6 +617,16 @@ function initVoiceRecognition() {
 
             const currentSpeech = (finalStr || interim).trim();
             if (currentSpeech) {
+                // Secondary Echo Check: Verify it is not an echo of Meena's recent spoken phrases
+                const cleanInput = currentSpeech.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+                const isEcho = recentMeenaPhrases.some(phrase => {
+                    return phrase.includes(cleanInput) || (cleanInput.length > 15 && phrase.startsWith(cleanInput.substring(0, 15)));
+                });
+
+                if (isEcho) {
+                    return; // Suppress echo from speaker
+                }
+
                 capturedPTTText = currentSpeech;
                 
                 // Show live preview in mobile PTT label or text input
