@@ -92,6 +92,12 @@ Invoke-SSH "sed -i 's/\r$//' ${RemoteStaging}/deploy-dietpi.sh && chmod +x ${Rem
 Write-Host "[4/4] Restarting web server service..." -ForegroundColor Yellow
 Invoke-SSH "sudo systemctl restart nginx 2>/dev/null || sudo systemctl restart lighttpd 2>/dev/null || sudo systemctl restart apache2 2>/dev/null || true"
 
+# 5. Execute Automated Modular Verification Gate
+if (Test-Path "$LocalDir\scripts\smoketest-modules.ps1") {
+    Write-Host "[5/5] Executing Pre-Flight Smoke Test Gate..." -ForegroundColor Yellow
+    powershell -ExecutionPolicy Bypass -File "$LocalDir\scripts\smoketest-modules.ps1" -TargetHost $TargetHost
+}
+
 Write-Host "==================================================" -ForegroundColor Green
 Write-Host " Deployment Complete! Please Hard Refresh Browser:" -ForegroundColor Green
 Write-Host " Press Ctrl + F5 or Ctrl + Shift + R on http://$TargetHost" -ForegroundColor Green

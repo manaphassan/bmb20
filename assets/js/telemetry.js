@@ -15,7 +15,7 @@ async function fetchTelemetry() {
     if (!isTelemetryActive) return;
 
     try {
-        const res = await fetch('api.json', { cache: 'no-store' });
+        const res = await fetch('api.json?t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
             const data = await res.json();
             if (data && data.cpu !== undefined) {
