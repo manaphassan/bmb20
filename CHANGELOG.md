@@ -2,6 +2,34 @@
 
 All notable changes to the BMB20 Command Center and Meena AI Bridge will be documented in this file.
 
+## [2.6.0] - 2026-08-15
+
+### Added
+- **Bilingual English & Bahasa Melayu Natural Query Engine**:
+  - `analyzeBilingualQuery(raw)` with intelligent language detection, prefix cleaning (e.g. `siapa pelakon filem polis evo` -> `Polis Evo`), and entity extraction.
+  - Multi-endpoint Wikipedia query fallback across `ms.wikipedia.org` and `en.wikipedia.org` with cast and synopsis extraction.
+  - Bilingual voice command dictionary (`padam cache`, `bersihkan ram`, `suhu cpu`, `jadual`, `cuaca`, `taklimat pagi`, `profil meena`, `semak fakta`, `kajian mendalam`).
+- **Server-Side Neural Speech (TTS) Microservice**:
+  - Asynchronous `edge-tts` daemon `bmb20-tts.py` running on DietPi port `8088` with systemd unit `bmb20-tts.service`.
+  - Studio Neural Voice profiles: `en-US-JennyNeural`, `en-US-AriaNeural`, `en-GB-SoniaNeural`, `ms-MY-YasminNeural`, `ms-MY-OsmanNeural`, `en-US-GuyNeural`.
+  - MD5 disk caching in `/tmp/bmb20_tts/` for instant zero-latency audio playback.
+  - Dynamic language-aware voice routing with fallback to browser Web Speech API.
+- **Hardened Nginx Server Security**:
+  - Blocked direct access to sensitive files (`.sh`, `.py`, `.service`, `.md`, `.env`, `.git`, `.bak`, `.log`, `.sql`, `.conf`, `.ini`).
+  - Added HTTP defense headers: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 1; mode=block`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: microphone=(self)`.
+  - Disabled server tokens and directory indexing (`autoindex off`).
+- **Clean Masked URL Architecture**:
+  - Masked raw `.json` and `.php` files behind semantic REST routes: `/api/telemetry`, `/api/calendar`, `/api/calendar/config`, `/api/hearth`, `/api/tts`, `/dashboard`, `/settings`, `/bridge`.
+- **Universal LCARS Tactical Notification & Alert Dispatcher**:
+  - `showNotificationAlert(title, message, type, options)`: Sci-Fi glassmorphic toast notification cards with audio chimes (`alert`, `caution`, `beep2`, `chime`), timestamps, and auto-dismiss.
+  - Proactive thermal monitoring (>70°C) and power bus undervoltage alerts.
+  - Sentinel patrol subnet anomaly notifications.
+  - Background task completion alerts (`notifyOnCompletion` with voice + OS desktop push).
+- **UI & Layout Optimizations**:
+  - Full-height Kernel Log and Full-height Tactical Calendar views.
+  - 3D Holographic Brain avatar rendering in both desktop and mobile views.
+  - Mobile Starfleet Communicator with dedicated PTT (Push-To-Transmit) drawer and calendar modal.
+
 ## [2.5.0] - 2026-08-15
 
 ### Added
