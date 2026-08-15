@@ -2359,34 +2359,49 @@ function resetNeuralCoreView() {
 }
 
 function openNeuralCoreInspectorModal() {
-    const modal = document.getElementById('neural-core-inspector-modal');
-    if (!modal) return;
+    try {
+        const modal = document.getElementById('neural-core-inspector-modal');
+        if (!modal) return;
 
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
 
-    initNeuralCoreModalEvents();
-    updateNeuralCoreHud();
+        initNeuralCoreModalEvents();
+        updateNeuralCoreHud();
 
-    // Sync persona and growth stats to sidebar
-    const growth = getMeenaGrowthStatus();
-    const personaPill = document.getElementById('nc-modal-persona-pill');
-    const sidePersona = document.getElementById('nc-sidebar-persona');
-    const sideRank = document.getElementById('nc-sidebar-rank');
-    const sideExp = document.getElementById('nc-sidebar-exp');
+        // Sync persona and stats to sidebar
+        const persona = (typeof currentPersona !== 'undefined' && currentPersona) ? currentPersona : (localStorage.getItem('meena_persona') || 'ALEX');
+        const level = localStorage.getItem('meena_level') || 14;
+        const exp = localStorage.getItem('meena_exp') || 840;
+        
+        const personaPill = document.getElementById('nc-modal-persona-pill');
+        const sidePersona = document.getElementById('nc-sidebar-persona');
+        const sideRank = document.getElementById('nc-sidebar-rank');
+        const sideExp = document.getElementById('nc-sidebar-exp');
 
-    if (personaPill) personaPill.innerText = `${currentPersona} Lv. ${growth.level}`;
-    if (sidePersona) sidePersona.innerText = currentPersona;
-    if (sideRank) sideRank.innerText = growth.rank;
-    if (sideExp) sideExp.innerText = `${growth.totalExp} / ${growth.level * 100} EXP`;
+        if (personaPill) personaPill.innerText = `${persona} Lv. ${level}`;
+        if (sidePersona) sidePersona.innerText = persona;
+        if (sideRank) sideRank.innerText = 'RANK C: OPERATOR';
+        if (sideExp) sideExp.innerText = `${exp} / 1000 EXP`;
 
-    // Sync live hardware telemetry from DOM
-    const tempVal = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52°C';
-    const hwTemp = document.getElementById('nc-hw-temp');
-    if (hwTemp) hwTemp.innerText = tempVal;
+        // Sync live hardware telemetry from DOM
+        const tempVal = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52°C';
+        const hwTemp = document.getElementById('nc-hw-temp');
+        if (hwTemp) hwTemp.innerText = tempVal;
 
-    if (window.playDoorChime) window.playDoorChime();
-    else if (window.playSound) window.playSound('beep');
+        const clockVal = document.getElementById('clock-val') ? document.getElementById('clock-val').innerText : '1200 MHz';
+        const hwClock = document.getElementById('nc-hw-clock');
+        if (hwClock) hwClock.innerText = clockVal;
+
+        const voltsVal = document.getElementById('volts-val') ? document.getElementById('volts-val').innerText : '1.20 V';
+        const hwVolts = document.getElementById('nc-hw-volts');
+        if (hwVolts) hwVolts.innerText = voltsVal;
+
+        if (window.playDoorChime) window.playDoorChime();
+        else if (window.playSound) window.playSound('beep');
+    } catch(err) {
+        console.error('[NeuralCoreModal] Error opening modal:', err);
+    }
 }
 
 function closeNeuralCoreInspectorModal() {
