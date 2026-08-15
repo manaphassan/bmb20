@@ -128,68 +128,96 @@ function appendMeenaChat(sender, message, isMeena = true) {
     }
 }
 
+const SERVER_NEURAL_VOICES = [
+    { id: 'en-US-JennyNeural', name: 'Jenny Neural [US English - Studio Quality]', lang: 'en-US' },
+    { id: 'en-US-AriaNeural', name: 'Aria Neural [US English - Dynamic]', lang: 'en-US' },
+    { id: 'en-GB-SoniaNeural', name: 'Sonia Neural [UK English - Formal]', lang: 'en-GB' },
+    { id: 'ms-MY-YasminNeural', name: 'Yasmin Neural [Bahasa Melayu - Semulajadi]', lang: 'ms-MY' },
+    { id: 'ms-MY-OsmanNeural', name: 'Osman Neural [Bahasa Melayu - Suara Lelaki]', lang: 'ms-MY' },
+    { id: 'en-US-GuyNeural', name: 'Guy Neural [US English - Male]', lang: 'en-US' }
+];
+
 function populateVoiceSelector() {
-    if (!('speechSynthesis' in window)) return;
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices || voices.length === 0) return;
-
     const selectIds = ['meena-voice-select', 'dossier-voice-select'];
-
-    // Filter to female voices and sort best multilingual voices first
-    const femaleOnly = voices.filter(isFemaleVoice);
-    const displayList = femaleOnly.length > 0 ? femaleOnly : voices;
-
-    const sorted = [...displayList].sort((a, b) => {
-        const aScore = (a.name.includes('Jenny') || a.name.includes('Aria') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Yasmin') || a.name.includes('Luna') || a.name.includes('Google') || a.name.includes('Natural')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
-        const bScore = (b.name.includes('Jenny') || b.name.includes('Aria') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Yasmin') || b.name.includes('Luna') || b.name.includes('Google') || b.name.includes('Natural')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
-        return bScore - aScore;
-    });
+    const currentSelected = localStorage.getItem('meena_neural_voice') || localStorage.getItem('lcars_meena_voice') || 'en-US-JennyNeural';
 
     selectIds.forEach(id => {
         const select = document.getElementById(id);
         if (!select) return;
         select.innerHTML = '';
 
-        sorted.forEach(v => {
+        // 1. Server Neural Voices (Highest Studio Quality)
+        const serverGroup = document.createElement('optgroup');
+        serverGroup.label = '⚡ DIETPI SERVER NEURAL (STUDIO HD)';
+        SERVER_NEURAL_VOICES.forEach(v => {
             const opt = document.createElement('option');
-            opt.value = v.name;
-            opt.innerText = `${v.name} [${v.lang}]`;
-            if (meenaVoice && v.name === meenaVoice.name) {
-                opt.selected = true;
-            }
-            select.appendChild(opt);
+            opt.value = v.id;
+            opt.innerText = v.name;
+            if (currentSelected === v.id) opt.selected = true;
+            serverGroup.appendChild(opt);
         });
+        select.appendChild(serverGroup);
+
+        // 2. Browser Local Voices (Fallback)
+        if ('speechSynthesis' in window) {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices && voices.length > 0) {
+                const browserGroup = document.createElement('optgroup');
+                browserGroup.label = '🌐 BROWSER LOCAL SYNTHESIZER';
+                const femaleOnly = voices.filter(isFemaleVoice);
+                const displayList = femaleOnly.length > 0 ? femaleOnly : voices;
+
+                displayList.slice(0, 15).forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.name;
+                    opt.innerText = `${v.name} [${v.lang}]`;
+                    if (currentSelected === v.name) opt.selected = true;
+                    browserGroup.appendChild(opt);
+                });
+                select.appendChild(browserGroup);
+            }
+        }
     });
 
     const vStatus = document.getElementById('dossier-voice-status');
-    if (vStatus && meenaVoice) {
-        vStatus.innerText = meenaVoice.lang ? meenaVoice.lang.toUpperCase() : 'ACTIVE';
+    if (vStatus) {
+        vStatus.innerText = currentSelected.includes('ms-MY') ? 'MS-MY (NEURAL)' : (currentSelected.includes('Neural') ? 'EN-US (NEURAL)' : 'ACTIVE');
     }
 }
 
 function setMeenaVoiceByName(voiceName) {
-    if (!('speechSynthesis' in window)) return;
-    const voices = window.speechSynthesis.getVoices();
-    const found = voices.find(v => v.name === voiceName);
-    if (found) {
-        meenaVoice = found;
-        localStorage.setItem('lcars_meena_voice', voiceName);
-        
-        // Sync all select elements
-        ['meena-voice-select', 'dossier-voice-select'].forEach(id => {
-            const s = document.getElementById(id);
-            if (s && s.value !== voiceName) s.value = voiceName;
-        });
+    if (!voiceName) return;
+    localStorage.setItem('meena_neural_voice', voiceName);
+    localStorage.setItem('lcars_meena_voice', voiceName);
 
-        const vStatus = document.getElementById('dossier-voice-status');
-        if (vStatus) vStatus.innerText = found.lang ? found.lang.toUpperCase() : 'ACTIVE';
-
-        speakComputerVoice("Neural voice updated to " + found.name + ", Sensei!");
+    // If matches browser voice, set meenaVoice reference
+    if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        const found = voices.find(v => v.name === voiceName);
+        if (found) meenaVoice = found;
     }
+
+    // Sync all select elements
+    ['meena-voice-select', 'dossier-voice-select'].forEach(id => {
+        const s = document.getElementById(id);
+        if (s && s.value !== voiceName) s.value = voiceName;
+    });
+
+    const vStatus = document.getElementById('dossier-voice-status');
+    if (vStatus) {
+        vStatus.innerText = voiceName.includes('ms-MY') ? 'MS-MY (NEURAL)' : (voiceName.includes('Neural') ? 'EN-US (NEURAL)' : 'ACTIVE');
+    }
+
+    speakComputerVoice("Neural voice updated to " + voiceName + ", Sensei!");
 }
 
 function testMeenaVoice() {
-    speakComputerVoice("All systems green, Sensei! Takahara Academy tactical operations center online and ready for deployment!");
+    const isMalay = (localStorage.getItem('meena_neural_voice') || '').includes('ms-MY');
+    if (isMalay) {
+        speakComputerVoice("Semua sistem beroperasi pada tahap optimum, Sensei! Pusat operasi taktikal Akademi Takahara sedia berkhidmat!");
+    } else {
+        speakComputerVoice("All systems green, Sensei! Takahara Academy tactical operations center online and ready for deployment!");
+    }
 }
 
 function getMeenaTimeGreeting() {
@@ -230,6 +258,42 @@ if ('speechSynthesis' in window) {
 let isMeenaSpeaking = false;
 let meenaSpeechCooldownTimer = null;
 let recentMeenaPhrases = [];
+let currentTTSAudio = null;
+
+function fallbackBrowserTTS(text) {
+    const status = document.getElementById('meena-status-indicator');
+    const commStatus = document.getElementById('comm-voice-status');
+    if (!('speechSynthesis' in window)) {
+        isMeenaSpeaking = false;
+        return;
+    }
+    try {
+        if (!meenaVoice) loadMeenaVoice();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = meenaRate;
+        utterance.pitch = meenaPitch;
+        utterance.volume = 1.0;
+        utterance.lang = (meenaVoice && meenaVoice.lang) ? meenaVoice.lang : 'en-US';
+        if (meenaVoice) utterance.voice = meenaVoice;
+
+        utterance.onstart = () => { isMeenaSpeaking = true; };
+        utterance.onend = () => {
+            meenaSpeechCooldownTimer = setTimeout(() => {
+                isMeenaSpeaking = false;
+                if (status) status.innerText = 'STANDBY [LISTENING]';
+                if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+            }, 800);
+        };
+        utterance.onerror = () => {
+            isMeenaSpeaking = false;
+            if (status) status.innerText = 'STANDBY [LISTENING]';
+            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+        };
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {
+        isMeenaSpeaking = false;
+    }
+}
 
 function speakComputerVoice(text) {
     appendMeenaChat('MEENA', text, true);
@@ -248,7 +312,7 @@ function speakComputerVoice(text) {
     isMeenaSpeaking = true;
     if (meenaSpeechCooldownTimer) clearTimeout(meenaSpeechCooldownTimer);
 
-    if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) {
+    if (!audioActive || !voiceEnabled) {
         meenaSpeechCooldownTimer = setTimeout(() => {
             isMeenaSpeaking = false;
             if (status) status.innerText = 'STANDBY [LISTENING]';
@@ -257,48 +321,52 @@ function speakComputerVoice(text) {
         return;
     }
 
-    try {
-        window.speechSynthesis.cancel(); // Stop overlapping speech
-        if (!meenaVoice) loadMeenaVoice();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = meenaRate;   // Natural anime conversational tempo
-        utterance.pitch = meenaPitch; // Natural teenage girl pitch
-        utterance.volume = 1.0;
-        utterance.lang = (meenaVoice && meenaVoice.lang) ? meenaVoice.lang : 'en-US';
-
-        if (meenaVoice) {
-            utterance.voice = meenaVoice;
-        }
-
-        utterance.onstart = () => {
-            isMeenaSpeaking = true;
-        };
-
-        utterance.onend = () => {
-            // 800ms cooldown for room reverberation/speaker audio to decay
-            meenaSpeechCooldownTimer = setTimeout(() => {
-                isMeenaSpeaking = false;
-                if (status) status.innerText = 'STANDBY [LISTENING]';
-                if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
-            }, 800);
-        };
-
-        utterance.onerror = () => {
-            meenaSpeechCooldownTimer = setTimeout(() => {
-                isMeenaSpeaking = false;
-                if (status) status.innerText = 'STANDBY [LISTENING]';
-                if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
-            }, 500);
-        };
-
-        window.speechSynthesis.speak(utterance);
-    } catch (e) {
-        console.warn("M.E.E.N.A. speech synthesis skipped:", e);
-        isMeenaSpeaking = false;
-        if (status) status.innerText = 'STANDBY [LISTENING]';
-        if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+    // Stop any existing TTS audio or speech synthesis
+    if (currentTTSAudio) {
+        try {
+            currentTTSAudio.pause();
+            currentTTSAudio.currentTime = 0;
+        } catch (e) {}
+        currentTTSAudio = null;
     }
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+
+    // Determine voice based on language detection
+    const isMalay = /\b(siapa|siapakah|apa|apakah|apa itu|bila|bilakah|mana|kat mana|di mana|dimana|kenapa|mengapa|macam mana|bagaimana|bagaimanakah|berapa|berapakah|tolong|carikan|cari|pelakon|barisan pelakon|watak|sinopsis|tentang|maksud|definisi|cuaca|pukul berapa|jam berapa|hari ini|tarikh|jadual|bersihkan|padam|kemaskini|filem|terangkan|jelaskan|ceritakan|berdasarkan|maklumat|rasmi|termasuklah|sebagai|adalah|saya|awak|kamu|anda)\b/i.test(text);
+
+    const preferredVoice = localStorage.getItem('meena_neural_voice') || 'en-US-JennyNeural';
+    const voiceToUse = isMalay ? 'ms-MY-YasminNeural' : preferredVoice;
+
+    // Use Server-Side Neural TTS (edge-tts daemon on DietPi)
+    const ttsUrl = `/tts?voice=${encodeURIComponent(voiceToUse)}&text=${encodeURIComponent(text)}`;
+    const audio = new Audio(ttsUrl);
+    currentTTSAudio = audio;
+
+    audio.onplay = () => {
+        isMeenaSpeaking = true;
+    };
+
+    audio.onended = () => {
+        currentTTSAudio = null;
+        meenaSpeechCooldownTimer = setTimeout(() => {
+            isMeenaSpeaking = false;
+            if (status) status.innerText = 'STANDBY [LISTENING]';
+            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
+        }, 800);
+    };
+
+    audio.onerror = (err) => {
+        console.warn("Server-side neural TTS unavailable, falling back to browser Web Speech API:", err);
+        currentTTSAudio = null;
+        fallbackBrowserTTS(text);
+    };
+
+    audio.play().catch(err => {
+        console.warn("Audio autoplay blocked or failed, falling back to Web Speech API:", err);
+        fallbackBrowserTTS(text);
+    });
 }
 
 /**

@@ -81,8 +81,11 @@ if (Test-Path "$LocalDir\assets") {
     }
 }
 
-Send-SSHFile "$LocalDir\daemon\bmb20-stats.sh" "${RemoteStaging}/daemon/bmb20-stats.sh"
-Send-SSHFile "$LocalDir\daemon\bmb20-stats.service" "${RemoteStaging}/daemon/bmb20-stats.service"
+if (Test-Path "$LocalDir\daemon") {
+    Get-ChildItem -Path "$LocalDir\daemon" -File | ForEach-Object {
+        Send-SSHFile $_.FullName "${RemoteStaging}/daemon/$($_.Name)"
+    }
+}
 
 # 3. Execute remote deployment script with sudo
 Write-Host "[3/4] Executing remote deployment script with sudo..." -ForegroundColor Yellow

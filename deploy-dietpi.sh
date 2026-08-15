@@ -75,13 +75,18 @@ if [ -d "/etc/sudoers.d" ]; then
     chmod 0440 /etc/sudoers.d/dietpi-bmb20
 fi
 
-# 2. Deploy Background Telemetry Daemon & Sentinel Patrol
-echo "[+] Installing telemetry & sentinel daemon services..."
+# 2. Deploy Background Telemetry Daemon, Sentinel Patrol & Neural TTS Daemon
+echo "[+] Installing telemetry & neural speech daemon services..."
 if [ -f "${SCRIPT_DIR}/daemon/bmb20-stats.sh" ]; then
     cp -fv "${SCRIPT_DIR}/daemon/bmb20-stats.sh" /usr/local/bin/bmb20-stats.sh
     chmod +x /usr/local/bin/bmb20-stats.sh
 elif [ -f "/usr/local/bin/bmb20-stats.sh" ]; then
     chmod +x /usr/local/bin/bmb20-stats.sh
+fi
+
+if [ -f "${SCRIPT_DIR}/daemon/bmb20-tts.py" ]; then
+    cp -fv "${SCRIPT_DIR}/daemon/bmb20-tts.py" /usr/local/bin/bmb20-tts.py
+    chmod +x /usr/local/bin/bmb20-tts.py
 fi
 
 if [ -f "${SCRIPT_DIR}/daemon/bmb20-patrol.sh" ]; then
@@ -96,6 +101,13 @@ if [ -f "${SCRIPT_DIR}/daemon/bmb20-stats.service" ]; then
     systemctl restart bmb20-stats.service 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/daemon/bmb20-tts.service" ]; then
+    cp -fv "${SCRIPT_DIR}/daemon/bmb20-tts.service" /etc/systemd/system/bmb20-tts.service
+    systemctl daemon-reload 2>/dev/null || true
+    systemctl enable bmb20-tts.service 2>/dev/null || true
+    systemctl restart bmb20-tts.service 2>/dev/null || true
+fi
+
 # Fallback background execution if systemd service is inactive
 if ! systemctl is-active --quiet bmb20-stats 2>/dev/null; then
     echo "[!] Starting daemon via nohup fallback..."
@@ -103,11 +115,20 @@ if ! systemctl is-active --quiet bmb20-stats 2>/dev/null; then
     nohup /usr/local/bin/bmb20-stats.sh >/dev/null 2>&1 &
 fi
 
-# 3. Add Nginx static routing if available
+if ! systemctl is-active --quiet bmb20-tts 2>/dev/null; then
+    pkill -f bmb20-tts.py 2>/dev/null || true
+    nohup /usr/bin/python3 /usr/local/bin/bmb20-tts.py >/dev/null 2>&1 &
+fi
+
+# 3. Add Nginx static routing & TTS reverse proxy if available
 if [ -f "/etc/nginx/sites-available/default" ]; then
     if ! grep -q "location = /api.php" /etc/nginx/sites-available/default; then
         echo "[+] Adding Nginx static route for /api.php..."
         sed -i '/server_name/a \	location = /api.php {\n\t\tdefault_type application/json;\n\t\talias /var/www/html/api.json;\n\t}' /etc/nginx/sites-available/default 2>/dev/null || true
+    fi
+    if ! grep -q "location /tts" /etc/nginx/sites-available/default; then
+        echo "[+] Adding Nginx reverse proxy route for /tts..."
+        sed -i '/server_name/a \	location /tts {\n\t\tproxy_pass http://127.0.0.1:8088/tts;\n\t\tproxy_set_header Host $host;\n\t\tproxy_set_header X-Real-IP $remote_addr;\n\t}' /etc/nginx/sites-available/default 2>/dev/null || true
     fi
 fi
 

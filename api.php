@@ -15,6 +15,76 @@ if (!empty($action)) {
 
     $hearthFile = file_exists('/var/www/html/meenaHearth.json') ? '/var/www/html/meenaHearth.json' : (file_exists('/var/www/meenaHearth.json') ? '/var/www/meenaHearth.json' : (__DIR__ . '/meenaHearth.json'));
 
+    if ($action === 'tts') {
+        $text = trim($_GET['text'] ?? $_POST['text'] ?? '');
+        if (empty($text)) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Empty text parameter']);
+            exit;
+        }
+
+        // Voice selection: Jenny (default English), Aria, Sonia (UK), Guy (US male), Yasmin (Malay female), Osman (Malay male)
+        $voice = trim($_GET['voice'] ?? $_POST['voice'] ?? '');
+        
+        // Auto language detect if voice not provided
+        if (empty($voice)) {
+            $isMalay = preg_match('/\b(siapa|siapakah|apa|apakah|apa itu|bila|bilakah|mana|kat mana|di mana|dimana|kenapa|mengapa|macam mana|bagaimana|bagaimanakah|berapa|berapakah|tolong|carikan|cari|pelakon|barisan pelakon|watak|sinopsis|tentang|maksud|definisi|cuaca|pukul berapa|jam berapa|hari ini|tarikh|jadual|bersihkan|padam|kemaskini|filem|terangkan|jelaskan|ceritakan|berdasarkan|maklumat|rasmi|termasuklah|sebagai|adalah|saya|awak|kamu|anda)\b/i', $text);
+            $voice = $isMalay ? 'ms-MY-YasminNeural' : 'en-US-JennyNeural';
+        } else {
+            $voiceMap = [
+                'jenny' => 'en-US-JennyNeural',
+                'aria' => 'en-US-AriaNeural',
+                'guy' => 'en-US-GuyNeural',
+                'sonia' => 'en-GB-SoniaNeural',
+                'yasmin' => 'ms-MY-YasminNeural',
+                'osman' => 'ms-MY-OsmanNeural'
+            ];
+            $voice = $voiceMap[strtolower($voice)] ?? $voice;
+        }
+
+        $rate = trim($_GET['rate'] ?? '+0%');
+        $pitch = trim($_GET['pitch'] ?? '+0Hz');
+
+        $cacheDir = '/tmp/bmb20_tts';
+        if (!is_dir($cacheDir)) {
+            @mkdir($cacheDir, 0777, true);
+        }
+
+        $hash = md5($voice . '_' . $rate . '_' . $pitch . '_' . $text);
+        $audioPath = $cacheDir . '/' . $hash . '.mp3';
+
+        if (!file_exists($audioPath) || filesize($audioPath) < 100) {
+            // Strip formatting symbols for clean synthesis
+            $cleanText = preg_replace('/[#*_`~]/', '', $text);
+            $cleanText = preg_replace('/\s+/', ' ', $cleanText);
+            
+            $cmd = sprintf(
+                'edge-tts --voice %s --text %s --rate=%s --pitch=%s --write-media %s 2>&1',
+                escapeshellarg($voice),
+                escapeshellarg($cleanText),
+                escapeshellarg($rate),
+                escapeshellarg($pitch),
+                escapeshellarg($audioPath)
+            );
+            $out = shell_exec($cmd);
+        }
+
+        if (file_exists($audioPath) && filesize($audioPath) > 100) {
+            header_remove('Content-Type');
+            header('Content-Type: audio/mpeg');
+            header('Content-Length: ' . filesize($audioPath));
+            header('Accept-Ranges: bytes');
+            header('Cache-Control: public, max-age=86400');
+            readfile($audioPath);
+            exit;
+        } else {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'TTS generation failed', 'cmd_output' => $out ?? '']);
+            exit;
+        }
+    }
+
     if ($action === 'get_memories') {
         if (file_exists($memFile)) {
             $content = file_get_contents($memFile);
