@@ -1116,7 +1116,7 @@ function handleVoiceCommand(rawCmd) {
     } else if (cmdToEvaluate.includes('system status') || cmdToEvaluate.includes('status report') || cmdToEvaluate.includes('give status') || (/^(status|report|diagnostics)$/i.test(cmdToEvaluate))) {
         addMeenaEXP(15, 'System status report');
         speakVerbalStatusReport();
-    } else if (cmdToEvaluate.includes('who is') || cmdToEvaluate.includes('who was') || cmdToEvaluate.includes('what is') || cmdToEvaluate.includes('what was') || cmdToEvaluate.includes('search') || cmdToEvaluate.includes('lookup') || cmdToEvaluate.includes('look up') || cmdToEvaluate.includes('google') || cmdToEvaluate.includes('tell me about') || cmdToEvaluate.includes('explain')) {
+    } else if (/\b(who|what|when|where|why|how|which|tell me|search|lookup|look up|google|cast|maincast|actor|actors|movie|film|explain|define|meaning|synopsis)\b/i.test(cmdToEvaluate) || cmdToEvaluate.endsWith('?')) {
         addMeenaEXP(25, 'Live web intelligence');
         searchLiveWebInfo(rawCmd);
     } else if (cmdToEvaluate.startsWith('remember ') || cmdToEvaluate.includes('remember that ')) {
@@ -2141,7 +2141,8 @@ function renderThinkingStream(thoughtSteps, onComplete) {
 
 /**
  * ==========================================================================
- * REAL-TIME LIVE WEB SEARCH ENGINE (Wikipedia + DuckDuckGo Zero-Key APIs)
+ * LIVE WEB SEARCH & FACTUAL INTELLIGENCE PIPELINE
+ * Multi-Stage Encyclopedic & Global Network Retrieval (Wikipedia + DuckDuckGo)
  * ==========================================================================
  */
 async function searchLiveWebInfo(rawQuery) {
@@ -2149,71 +2150,139 @@ async function searchLiveWebInfo(rawQuery) {
     const cfg = PERSONA_CONFIGS[currentPersona] || PERSONA_CONFIGS.ALEX;
     
     // Clean search terms
-    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*)?(search(\s+for|\s+the\s+web\s+for|\s+online\s+for)?|look\s*up|google|who\s+(is|was)|what\s+(is|was)|tell\s+me\s+about|find\s+info\s+on|explain)\s+/i, '').trim();
+    let cleanTopic = rawQuery.replace(/^(meena\s*,?\s*|hey meena\s*,?\s*|mina\s*,?\s*|computer\s*,?\s*|alex\s*,?\s*)/i, '').trim();
+    cleanTopic = cleanTopic.replace(/^(search(\s+for|\s+the\s+web\s+for|\s+online\s+for)?|look\s*up|google|who\s+(is|was|are|the)|what\s+(is|was|are|the)|tell\s+me\s+about|find\s+info\s+on|explain)\s+/i, '').trim();
     cleanTopic = cleanTopic.replace(/[?.!]+$/, '').trim();
 
-    if (!cleanTopic) cleanTopic = "Albert Einstein";
-
-    // Title case for Wikipedia summary endpoint
-    const formattedTopic = cleanTopic.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
+    if (!cleanTopic) cleanTopic = rawQuery.replace(/[?.!]+$/, '').trim();
 
     const thoughts = [
         `🌐 Uplinking to live global internet index...`,
-        `🔍 Querying encyclopedic REST API for: "${cleanTopic}"`,
-        `📚 Extracting peer-reviewed abstract & parsing syntax`,
-        `🎭 Persona Matrix: ${cfg.name} // Formulating intellectual breakdown`
+        `🔍 Querying encyclopedic search APIs for: "${cleanTopic}"`,
+        `📚 Extracting verified facts, cast list & entity attributes`,
+        `🎭 Synthesizing intellectual briefing (${cfg.name})`
     ];
 
     renderThinkingStream(thoughts, async () => {
         try {
-            // 1. Try Wikipedia Summary API (with formatted topic)
-            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(formattedTopic)}`, {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (wikiRes.ok) {
-                const data = await wikiRes.json();
-                if (data.extract && data.type !== 'disambiguation') {
-                    let summary = data.extract;
-                    // Truncate to first 2 concise sentences for speech
-                    const sentences = summary.match(/[^.!?]+[.!?]+/g) || [summary];
-                    const shortSummary = sentences.slice(0, 2).join(' ');
+            // Stage 1: Query Wikipedia Search API to find the exact matching Wikipedia article title
+            const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTopic)}&utf8=&format=json&origin=*`;
+            const searchRes = await fetch(searchUrl);
+            let wikiTitle = null;
+            let snippetText = "";
 
-                    let reply = "";
-                    if (currentPersona === 'ALEX') {
-                        reply = `According to verified academic records, ${shortSummary} Honestly, it's pretty fundamental once you analyze the literature, Sensei.`;
-                    } else if (currentPersona === 'TACTICAL') {
-                        reply = `Tactical intelligence retrieved on ${data.title}: ${shortSummary}`;
-                    } else {
-                        reply = `I looked that up on the web for you, Sensei! ${shortSummary}`;
-                    }
-
-                    addMeenaEXP(25, `Web search: ${cleanTopic}`);
-                    rememberCategorizedFact('missions', `${data.title}: ${shortSummary}`, true);
-                    outputMeenaDialogue(reply);
-                    return;
+            if (searchRes.ok) {
+                const searchData = await searchRes.json();
+                if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+                    const topResult = searchData.query.search[0];
+                    wikiTitle = topResult.title;
+                    snippetText = (topResult.snippet || '').replace(/<[^>]+>/g, '').trim();
                 }
             }
 
-            // 2. Fallback to DuckDuckGo Instant API
+            // Stage 2: Fetch the full summary extract of the matched page
+            if (wikiTitle) {
+                const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`;
+                const sumRes = await fetch(summaryUrl);
+                if (sumRes.ok) {
+                    const sumData = await sumRes.json();
+                    if (sumData.extract && sumData.type !== 'disambiguation') {
+                        let fullExtract = sumData.extract;
+                        
+                        // If user specifically asked for cast/actors/maincast, fetch page text for Cast details
+                        const isCastQuery = /\b(cast|maincast|actor|actors|starring|character|characters|role|roles)\b/i.test(rawQuery);
+                        let castInfo = "";
+
+                        if (isCastQuery) {
+                            try {
+                                const parseUrl = `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(wikiTitle)}&prop=text&format=json&origin=*`;
+                                const parseRes = await fetch(parseUrl);
+                                if (parseRes.ok) {
+                                    const parseData = await parseRes.json();
+                                    const pageHtml = parseData.parse?.text?.['*'] || '';
+                                    const doc = new DOMParser().parseFromString(pageHtml, 'text/html');
+                                    
+                                    // Look for Cast section or Infobox Starring
+                                    const castHeader = Array.from(doc.querySelectorAll('h2, h3, .infobox')).find(el => /cast|starring/i.test(el.textContent));
+                                    if (castHeader) {
+                                        let next = castHeader.nextElementSibling;
+                                        while (next && !['H2', 'H3'].includes(next.tagName)) {
+                                            if (next.tagName === 'UL') {
+                                                const items = Array.from(next.querySelectorAll('li')).map(li => li.textContent.replace(/\[\d+\]/g, '').trim()).filter(t => t.length > 2);
+                                                if (items.length > 0) {
+                                                    castInfo = items.slice(0, 5).join('; ');
+                                                    break;
+                                                }
+                                            }
+                                            next = next.nextElementSibling;
+                                        }
+                                    }
+                                    if (!castInfo) {
+                                        // Try Infobox starring
+                                        const starringRow = Array.from(doc.querySelectorAll('tr')).find(r => /starring/i.test(r.textContent));
+                                        if (starringRow) {
+                                            const val = starringRow.querySelector('td');
+                                            if (val) castInfo = val.textContent.replace(/\[\d+\]/g, '').replace(/\n+/g, ', ').trim();
+                                        }
+                                    }
+                                }
+                            } catch (pe) {
+                                console.warn("Cast parse error:", pe);
+                            }
+                        }
+
+                        let reply = "";
+                        if (castInfo) {
+                            reply = `According to verified records for ${sumData.title}, the main cast includes: ${castInfo}.`;
+                        } else {
+                            const sentences = fullExtract.match(/[^.!?]+[.!?]+/g) || [fullExtract];
+                            const cleanSentences = sentences.slice(0, 3).join(' ');
+                            if (currentPersona === 'ALEX') {
+                                reply = `According to verified records on ${sumData.title}: ${cleanSentences} Empirical information confirmed from global sources, Sensei.`;
+                            } else if (currentPersona === 'TACTICAL') {
+                                reply = `Tactical intelligence retrieved on ${sumData.title}: ${cleanSentences}`;
+                            } else {
+                                reply = `I retrieved live information on ${sumData.title} for you, Sensei! ${cleanSentences}`;
+                            }
+                        }
+
+                        addMeenaEXP(30, `Web intelligence: ${cleanTopic}`);
+                        rememberCategorizedFact('missions', `${sumData.title}: ${fullExtract.slice(0, 120)}...`, true);
+                        outputMeenaDialogue(reply);
+                        return;
+                    }
+                }
+            }
+
+            // Stage 3: Fallback to DuckDuckGo Instant API
             const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(cleanTopic)}&format=json&no_html=1&skip_disambig=1`);
             if (ddgRes.ok) {
                 const ddg = await ddgRes.json();
                 if (ddg.AbstractText) {
                     const reply = currentPersona === 'ALEX'
-                        ? `According to global search index, ${ddg.AbstractText} You're welcome, Sensei.`
+                        ? `According to global search index for ${cleanTopic}: ${ddg.AbstractText} You're welcome, Sensei.`
                         : `Live search intelligence: ${ddg.AbstractText}`;
                     addMeenaEXP(25, `Web search: ${cleanTopic}`);
                     outputMeenaDialogue(reply);
                     return;
                 }
             }
+
+            // Stage 4: Fallback to Wikipedia search snippet if available
+            if (snippetText) {
+                const reply = `I located verified records on "${cleanTopic}": ${snippetText}.`;
+                addMeenaEXP(20, `Web search snippet: ${cleanTopic}`);
+                outputMeenaDialogue(reply);
+                return;
+            }
+
         } catch (e) {
             console.warn("Live web search fetch failed:", e);
         }
 
         // Fallback if topic not found
         const fallbackReply = currentPersona === 'ALEX'
-            ? `I searched the web for "${cleanTopic}", Sensei, but the query lacked empirical precision. Try giving me a more specific term.`
+            ? `I searched global records for "${cleanTopic}", Sensei, but couldn't retrieve a definitive summary. Try giving me a more specific title or query.`
             : `I searched the live network for "${cleanTopic}", Sensei, but couldn't retrieve a clear summary.`;
         outputMeenaDialogue(fallbackReply);
     });
@@ -2559,7 +2628,14 @@ ${memoryContext}`;
             return;
         }
 
-        // 2. Run Organic Natural Cognition Synthesizer (Spontaneous, Adaptive & Non-scripted)
+        // 2. If question or informational query, automatically execute web search retrieval
+        const isQuestionOrInquiry = /\b(who|what|when|where|why|how|which|cast|maincast|actor|actors|movie|film|explain|define|meaning|tell me|search|lookup|director|founder|author|history|president|capital|song|album|release)\b/i.test(cleanQ) || cleanQ.endsWith('?');
+        if (isQuestionOrInquiry) {
+            searchLiveWebInfo(cleanQ);
+            return;
+        }
+
+        // 3. Run Organic Natural Cognition Synthesizer (Spontaneous, Adaptive & Non-scripted)
         const organicReply = synthesizeOrganicThought(cleanQ, bank, cfg, dialogueMemory);
         recordDialogueTurn('meena', organicReply);
         outputMeenaDialogue(organicReply);
@@ -3092,7 +3168,7 @@ function appendSkillExecutionCard(title, icon, colorClass, items, conclusion) {
         <div class="flex flex-col gap-1 my-1">
             ${rowsHtml}
         </div>
-        ${conclusion ? `<div class="text-[9px] text-primary font-bold border-t border-outline-variant/30 pt-1">💡 ${conclusion}</div>` : ''}
+        ${conclusion ? `<div class="text-[9px] text-primary font-bold border-t border-outline-variant/30 pt-1 flex items-center gap-1"><span class="material-symbols-outlined text-xs text-lcars-gold">lightbulb</span><span>${conclusion}</span></div>` : ''}
     `;
 
     feed.appendChild(card);
