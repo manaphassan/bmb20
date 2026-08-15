@@ -15,7 +15,10 @@ async function fetchTelemetry() {
     if (!isTelemetryActive) return;
 
     try {
-        const res = await fetch('api.json?t=' + Date.now(), { cache: 'no-store' });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const res = await fetch('api.json?t=' + Date.now(), { cache: 'no-store', signal: controller.signal });
+        clearTimeout(timeoutId);
         if (res.ok) {
             const data = await res.json();
             if (data && data.cpu !== undefined) {

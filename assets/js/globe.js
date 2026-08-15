@@ -643,6 +643,10 @@ function updateCallouts() {
 function animate() {
     requestAnimationFrame(animate);
 
+    if (document.hidden) return;
+    const deck2 = document.getElementById('deck-2');
+    if (deck2 && (deck2.classList.contains('hidden') || deck2.style.display === 'none')) return;
+
     if (!scene || !camera || !renderer) return;
 
     // Smooth User Drag & Inertial Damping

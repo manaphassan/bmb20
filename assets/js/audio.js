@@ -1203,6 +1203,16 @@ function setupGraphInteractions() {
 
 function animateKnowledgeGraph() {
     if (!graphCtx || !graphCanvas) return;
+    if (document.hidden) {
+        requestAnimationFrame(animateKnowledgeGraph);
+        return;
+    }
+    const deck1 = document.getElementById('deck-1');
+    if (deck1 && (deck1.classList.contains('hidden') || deck1.style.display === 'none')) {
+        requestAnimationFrame(animateKnowledgeGraph);
+        return;
+    }
+
     const ctx = graphCtx;
     const w = graphCanvas.width;
     const h = graphCanvas.height;
@@ -1551,6 +1561,16 @@ function initMeenaAvatarCanvas() {
 
 function animateAvatar() {
     if (!avatarCtx || !avatarCanvas) return;
+    if (document.hidden) {
+        requestAnimationFrame(animateAvatar);
+        return;
+    }
+    const deck1 = document.getElementById('deck-1');
+    if (deck1 && (deck1.classList.contains('hidden') || deck1.style.display === 'none')) {
+        requestAnimationFrame(animateAvatar);
+        return;
+    }
+
     const ctx = avatarCtx;
     const w = avatarCanvas.width;
     const h = avatarCanvas.height;
