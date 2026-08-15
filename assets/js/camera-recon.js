@@ -432,6 +432,9 @@ function initInteractiveCanvasCallouts() {
         const handlePointer = (e) => {
             if (!isReconActive) return;
             const rect = cont.getBoundingClientRect();
+            const activeVideo = getActiveReconVideo();
+            const box = getVideoRenderBox(activeVideo, rect.width, rect.height);
+
             let clientX = e.clientX;
             let clientY = e.clientY;
 
@@ -440,10 +443,10 @@ function initInteractiveCanvasCallouts() {
                 clientY = e.touches[0].clientY;
             }
 
-            const x = clientX - rect.left;
-            const y = clientY - rect.top;
-            let relX = x / rect.width;
-            let relY = y / rect.height;
+            const x = clientX - rect.left - box.offsetX;
+            const y = clientY - rect.top - box.offsetY;
+            let relX = Math.max(0, Math.min(1, x / box.renderW));
+            let relY = Math.max(0, Math.min(1, y / box.renderH));
 
             if (isCameraFlippedH) relX = 1 - relX;
             if (isCameraFlippedV) relY = 1 - relY;
@@ -708,6 +711,35 @@ function runFallbackHeadChromaTracker(video) {
 }
 
 /**
+ * Compute the exact visible video rectangle inside an object-contain container
+ */
+function getVideoRenderBox(video, containerW, containerH) {
+    if (!video || !video.videoWidth || !video.videoHeight) {
+        return { renderW: containerW, renderH: containerH, offsetX: 0, offsetY: 0 };
+    }
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const videoAspect = vw / vh;
+    const containerAspect = containerW / containerH;
+
+    let renderW, renderH, offsetX, offsetY;
+    if (containerAspect > videoAspect) {
+        // Pillarboxed (letterbox bars on left & right)
+        renderH = containerH;
+        renderW = containerH * videoAspect;
+        offsetX = (containerW - renderW) / 2;
+        offsetY = 0;
+    } else {
+        // Letterboxed (letterbox bars on top & bottom)
+        renderW = containerW;
+        renderH = containerW / videoAspect;
+        offsetX = 0;
+        offsetY = (containerH - renderH) / 2;
+    }
+    return { renderW, renderH, offsetX, offsetY };
+}
+
+/**
  * Tactical Canvas HUD Rendering Loop with Ergonomics Halo & Sentry Gauges
  */
 function startTacticalHUDLoop() {
@@ -749,26 +781,33 @@ function startTacticalHUDLoop() {
 
             ctx.clearRect(0, 0, w, h);
 
-            // 1. Minimal Corner Viewfinder Brackets
-            const bracketSize = Math.min(14, w * 0.04);
+            const box = getVideoRenderBox(activeVideo, w, h);
+
+            // 1. Minimal Corner Viewfinder Brackets around the actual visible video
+            const bracketSize = Math.min(14, box.renderW * 0.04);
+            const bx = box.offsetX + 8;
+            const by = box.offsetY + 8;
+            const bw = box.renderW - 16;
+            const bh = box.renderH - 16;
+
             ctx.strokeStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.40)';
             ctx.lineWidth = 1.4;
             ctx.setLineDash([]);
             ctx.beginPath();
-            ctx.moveTo(8, 8 + bracketSize); ctx.lineTo(8, 8); ctx.lineTo(8 + bracketSize, 8);
-            ctx.moveTo(w - 8 - bracketSize, 8); ctx.lineTo(w - 8, 8); ctx.lineTo(w - 8, 8 + bracketSize);
-            ctx.moveTo(8, h - 8 - bracketSize); ctx.lineTo(8, h - 8); ctx.lineTo(8 + bracketSize, h - 8);
-            ctx.moveTo(w - 8 - bracketSize, h - 8); ctx.lineTo(w - 8, h - 8); ctx.lineTo(w - 8, h - 8 - bracketSize);
+            ctx.moveTo(bx, by + bracketSize); ctx.lineTo(bx, by); ctx.lineTo(bx + bracketSize, by);
+            ctx.moveTo(bx + bw - bracketSize, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + bracketSize);
+            ctx.moveTo(bx, by + bh - bracketSize); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + bracketSize, by + bh);
+            ctx.moveTo(bx + bw - bracketSize, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - bracketSize);
             ctx.stroke();
 
-            // Compute Mirrored/Flipped Head Coordinates
-            let headX = headCentroid.smoothX * w;
-            let headY = headCentroid.smoothY * h;
-            if (isCameraFlippedH) headX = (1 - headCentroid.smoothX) * w;
-            if (isCameraFlippedV) headY = (1 - headCentroid.smoothY) * h;
+            // Compute Exact Head Coordinates mapped to rendered video viewport
+            const normX = isCameraFlippedH ? (1 - headCentroid.smoothX) : headCentroid.smoothX;
+            const normY = isCameraFlippedV ? (1 - headCentroid.smoothY) : headCentroid.smoothY;
 
-            const headW = Math.max(52, headCentroid.smoothW * w);
-            const headH = Math.max(68, headCentroid.smoothH * h);
+            const headX = box.offsetX + normX * box.renderW;
+            const headY = box.offsetY + normY * box.renderH;
+            const headW = Math.max(52, headCentroid.smoothW * box.renderW);
+            const headH = Math.max(68, headCentroid.smoothH * box.renderH);
             const hx = headX - headW / 2;
             const hy = headY - headH / 2;
 
@@ -806,46 +845,50 @@ function startTacticalHUDLoop() {
                 ctx.restore();
             }
 
-            // 3. Top Stardate & Telemetry Status HUD Strip (Protected with High-Contrast Glass Backdrop)
+            // 3. Top Stardate & Telemetry Status HUD Strip (Positioned inside Video Viewport)
             ctx.save();
-            const topBannerW = Math.min(420, w - 24);
+            const topBannerW = Math.min(420, box.renderW - 24);
             const topBannerH = 32;
+            const topBannerX = box.offsetX + 12;
+            const topBannerY = box.offsetY + 10;
+
             ctx.fillStyle = 'rgba(4, 13, 20, 0.85)';
-            ctx.fillRect(12, 10, topBannerW, topBannerH);
+            ctx.fillRect(topBannerX, topBannerY, topBannerW, topBannerH);
             ctx.strokeStyle = 'rgba(102, 204, 255, 0.45)';
             ctx.lineWidth = 1;
-            ctx.strokeRect(12, 10, topBannerW, topBannerH);
+            ctx.strokeRect(topBannerX, topBannerY, topBannerW, topBannerH);
 
             ctx.font = 'bold 9px "Space Mono", monospace';
             ctx.fillStyle = isLaserScanning ? '#33ff66' : (headCentroid.active ? '#34d399' : 'rgba(102, 204, 255, 0.95)');
             ctx.fillText(
                 isLaserScanning ? `[●] SCANNING OPTICAL TARGET...` : 
                 (headCentroid.active ? `[●] STUDY SENTRY: SENSEI LOCKED // POSTURE: ${postureState} (${cervicalAngle}°)` : `OPTICAL SENSOR [${currentCameraFacing.toUpperCase()}] ${isCameraFlippedH ? '⇄ MIRRORED' : ''} ${isCameraFlippedV ? '⇅ INVERTED' : ''}`),
-                18, 23
+                topBannerX + 6, topBannerY + 13
             );
             ctx.font = '8.5px "Space Mono", monospace';
             ctx.fillStyle = headCentroid.active ? '#ffe253' : 'rgba(255, 226, 83, 0.85)';
-            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'SEARCHING'}`, 18, 35);
+            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'SEARCHING'}`, topBannerX + 6, topBannerY + 25);
             ctx.restore();
 
             // 4. Laser Scan Sweep (when active)
             if (isLaserScanning) {
-                laserScanY = (laserScanY + 4) % h;
+                laserScanY = (laserScanY + 4) % box.renderH;
+                const actualLaserY = box.offsetY + laserScanY;
                 ctx.save();
-                const grad = ctx.createLinearGradient(0, laserScanY - 15, 0, laserScanY + 15);
+                const grad = ctx.createLinearGradient(0, actualLaserY - 15, 0, actualLaserY + 15);
                 grad.addColorStop(0, 'rgba(51, 255, 102, 0)');
                 grad.addColorStop(0.5, 'rgba(51, 255, 102, 0.6)');
                 grad.addColorStop(1, 'rgba(51, 255, 102, 0)');
                 ctx.fillStyle = grad;
-                ctx.fillRect(0, laserScanY - 15, w, 30);
+                ctx.fillRect(box.offsetX, actualLaserY - 15, box.renderW, 30);
 
                 ctx.strokeStyle = '#33ff66';
                 ctx.lineWidth = 2;
                 ctx.shadowColor = '#33ff66';
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
-                ctx.moveTo(0, laserScanY);
-                ctx.lineTo(w, laserScanY);
+                ctx.moveTo(box.offsetX, actualLaserY);
+                ctx.lineTo(box.offsetX + box.renderW, actualLaserY);
                 ctx.stroke();
                 ctx.restore();
             }
@@ -854,13 +897,13 @@ function startTacticalHUDLoop() {
             if (isCalloutsEnabled && headCentroid.active) {
                 ctx.save();
 
-                const isLeftHalf = headX < w * 0.52;
-                const leaderLen = Math.max(50, Math.min(90, w * 0.18));
+                const isLeftHalf = headX < (box.offsetX + box.renderW * 0.52);
+                const leaderLen = Math.max(50, Math.min(90, box.renderW * 0.18));
                 const angleRad = (isLeftHalf ? -35 : -145) * (Math.PI / 180);
                 const elbowX = headX + Math.cos(angleRad) * leaderLen;
-                const elbowY = Math.max(55, headY + Math.sin(angleRad) * leaderLen);
+                const elbowY = Math.max(box.offsetY + 55, headY + Math.sin(angleRad) * leaderLen);
 
-                const cardWidth = Math.max(190, Math.min(240, w * 0.38));
+                const cardWidth = Math.max(190, Math.min(240, box.renderW * 0.38));
                 const cardHeight = 34;
                 const endX = isLeftHalf ? (elbowX + cardWidth) : (elbowX - cardWidth);
                 const calloutColor = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
@@ -915,10 +958,10 @@ function startTacticalHUDLoop() {
                 activeCallouts.forEach(callout => {
                     if (callout.isAuto) return;
 
-                    let pinX = callout.relX * w;
-                    let pinY = callout.relY * h;
-                    if (isCameraFlippedH) pinX = (1 - callout.relX) * w;
-                    if (isCameraFlippedV) pinY = (1 - callout.relY) * h;
+                    const pinNormX = isCameraFlippedH ? (1 - callout.relX) : callout.relX;
+                    const pinNormY = isCameraFlippedV ? (1 - callout.relY) : callout.relY;
+                    let pinX = box.offsetX + pinNormX * box.renderW;
+                    let pinY = box.offsetY + pinNormY * box.renderH;
 
                     ctx.save();
                     ctx.fillStyle = callout.color || '#33ffff';
