@@ -2,6 +2,26 @@
 
 All notable changes to the BMB20 Command Center and Meena AI Bridge will be documented in this file.
 
+## [3.1.0] - 2026-08-15 — Optical AI: Neuromorphic Event Sentry & Multi-Subject Lock
+
+### Added & Enhanced
+- **UZH-RPG Neuromorphic Log-Intensity Event Surface (`SAE`)**:
+  - Continuous logarithmic temporal intensity delta engine ($\Delta \ln(I_t) > \theta$) inspired by University of Zurich Robotics and Perception Group (UZH-RPG) neuromorphic event camera research.
+  - Exponential decay surface ($380\text{ms}$ half-life) that drops static background walls, curtains, staircases, and room clutter to pure zero black while dynamically highlighting human eye/head movements and breathing.
+- **Claude Pageau's Connected Spatial Moments Engine ($M_{00}, M_{10}, M_{01}$)**:
+  - Adapted Claude Pageau's `cam-track` OpenCV algorithm into pure client-side JavaScript for exact center-of-mass centroid calculations.
+  - Dominant 1D Gaussian density peak segmentation with `MIN_AREA` gating ($M_{00} \ge 16$) to eliminate ghost locks on background artifacts.
+- **Multi-Subject Dominant Cluster Segmentation**:
+  - Distinct individual human peak clustering that isolates the primary commander (Sensei) without averaging coordinates across other personnel (cadets/family members) in the camera frame.
+- **Upper Cranial Biometric Isolation**:
+  - Restricts the centroid calculation strictly to the upper $30\%$ of the human cluster envelope, ensuring the tactical reticle and leader lines lock directly onto the **forehead and eyes**, completely immune to bare chest/shoulder contours.
+- **Dynamic Viewport Pillarbox/Letterbox Transformation (`getVideoRenderBox`)**:
+  - Mathematical viewport adapter that accurately transforms video aspect ratios ($4:3$, $16:9$) inside responsive CSS `object-contain` containers, ensuring sub-pixel coordinate alignment on the user's face.
+- **Velocity-Adaptive 1-Euro Smoothing & Jitter Deadband Filter**:
+  - Damps stationary micro-sensor noise with a $1.2\%$ deadband and adaptive low-pass filter ($\alpha = 0.12 \rightarrow 0.45$) for rock-solid stability and zero-drag dynamic tracking.
+- **Biometric Personnel Dossier & Chronological Calibration**:
+  - Calibrated Sensei's chronological profile to **Age 39 (Manap Hassan, Takahara Supreme Commander)** across `meenaHearth.json`, offline fallbacks, and Gemini 1.5 Flash multimodal vision analysis.
+
 ## [3.0.0] - 2026-08-15 — Major Release: Sovereign Horizon
 
 ### Added

@@ -1,3 +1,29 @@
+# Release v3.1.0 — MEENA™ Optical AI // Takahara Academy (高原学園)
+
+## 🌟 Optical AI Release: Neuromorphic Event Sentry & Multi-Subject Precision
+
+**MEENA™ v3.1.0** upgrades the Deck 4 Visual Recon subsystem with cutting-edge **Neuromorphic Event Surface Simulation (UZH-RPG)**, **Claude Pageau Connected Spatial Moments**, **Multi-Subject Peak Density Clustering**, and **Adaptive 1-Euro Jitter Damping**.
+
+---
+
+## 🚀 What's New in v3.1.0
+
+### 1. 👁️ Neuromorphic Event Surface (`SAE`) & Temporal Gradients (UZH-RPG)
+* **Logarithmic Intensity Deltas ($\Delta \ln I_t > \theta$)**: Simulates biological neuromorphic event cameras (Dynamic Vision Sensors) in pure JavaScript.
+* **$380\text{ms}$ Exponential Decay Surface**: Static walls, curtains, doorframes, and staircases rapidly decay to absolute zero black, keeping active human eye movements, head turns, and breathing crisply illuminated.
+
+### 2. 🎯 Claude Pageau Spatial Moments ($M_{00}, M_{10}, M_{01}$) & Cluster Peak Isolation
+* **Connected-Component Moments Engine**: Pure JS implementation of Claude Pageau's `cam-track` OpenCV algorithm for exact center-of-mass centroid tracking.
+* **Multi-Person Dominant Peak Isolation**: Separates the primary commander (Sensei) from cadets or family members in the room, eliminating midpoint drift in multi-person environments.
+
+### 3. 🛡️ Cranial Biometric Isolation & Zero-Ghost Presence Disconnect
+* **Top 30% Cranial Envelope**: Anchors tactical reticles strictly on the forehead and eyes, completely immune to bare chest/shoulder contours.
+* **Instant Ghost Deactivation ($\le 300\text{ms}$)**: When Sensei leaves the frame, the reticle cleanly vanishes with zero wall clinging, instantly re-snapping on return.
+* **Aspect-Ratio Viewport Transformation**: `getVideoRenderBox` maps coordinates accurately across $4:3$ and $16:9$ webcams inside responsive `object-contain` viewports.
+* **Biometric Calibration**: Calibrated Sensei's chronological profile to **Age 39 (Manap Hassan, Takahara Supreme Commander)**.
+
+---
+
 # Release v3.0.0 — MEENA™ Sovereign Horizon // Takahara Academy (高原学園)
 
 ## 🌟 Major Release Announcement: MEENA™ v3.0.0

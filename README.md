@@ -3,7 +3,7 @@
 # 🌟 MEENA™ — Autonomous Sovereign Home AI & Tactical Operations Center
 ### *Takahara Academy (高原学園) // Enterprise-Grade, Self-Hosted SBC Command Engine*
 
-[![Major Release](https://img.shields.io/badge/Release-v3.0.0--Sovereign%20Horizon-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
+[![Major Release](https://img.shields.io/badge/Release-v3.1.0--Optical%20AI-00F0FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/manaphassan/bmb20/releases)
 [![Platform](https://img.shields.io/badge/Platform-DietPi%20%7C%20Raspberry%20Pi%203%2F4%2F5%20%7C%20Debian-C51A4A?style=for-the-badge&logo=raspberry-pi&logoColor=white)](https://dietpi.com)
 [![Bilingual Intelligence](https://img.shields.io/badge/AI%20Core-Bilingual%20(EN%20%2B%20BM)%20%7C%20Gemini%20Flash-00E676?style=for-the-badge&logo=google-gemini&logoColor=black)](https://github.com/manaphassan/bmb20)
 [![Neural Speech](https://img.shields.io/badge/Neural%20TTS-Edge--TTS%20Studio%20Voices-FFAA00?style=for-the-badge&logo=google-chrome&logoColor=black)](https://github.com/manaphassan/bmb20)
