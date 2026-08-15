@@ -77,11 +77,20 @@ function loadMeenaVoice() {
         }
     }
 
-    // Priority 1: Verified Female Multilingual & Japanese / Asian English Voices
-    const match = candidateList.find(v => v.name.includes('Jenny') || v.name.includes('Aria') || v.name.includes('Nanami') || v.name.includes('Aoi') || v.name.includes('Keiko'))
-        || candidateList.find(v => v.name.includes('Yasmin') || v.name.includes('Luna') || v.name.includes('HiuMaan') || v.name.includes('Xiaoxiao') || v.name.includes('Shiori') || v.name.includes('Mayu'))
-        || candidateList.find(v => v.name.includes('Kyoko') || v.name.includes('Ayumi') || v.name.includes('Haruka') || v.name.includes('Sayaka') || v.name.includes('Google 日本語'))
-        || candidateList.find(v => v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Google US English'))
+    // Priority 1: High-Definition Natural Female Voices across Windows, Android, iOS, ChromeOS & macOS
+    const match = 
+        // Modern Windows 11 Natural Neural Voices
+        candidateList.find(v => /jenny|aria|sonia|libby|natasha|clara/i.test(v.name))
+        // High-Quality Android / Chrome Google Natural Voices
+        || candidateList.find(v => /google.*(female|us english|uk english|australian)/i.test(v.name))
+        || candidateList.find(v => /en-us-x-(sfg|tpf|iob|iol|network)/i.test(v.name))
+        // High-Quality Apple iOS / iPadOS / macOS Voices (Samantha, Karen, Moira, Tessa, Ava, Siri)
+        || candidateList.find(v => /samantha|karen|moira|tessa|ava|allison|susan|victoria|serena/i.test(v.name))
+        // Japanese English / Multilingual Asian voices
+        || candidateList.find(v => /nanami|aoi|keiko|yasmin|luna|shiori|mayu|kyoko|ayumi|haruka|sayaka/i.test(v.name))
+        // Standard Desktop Voices
+        || candidateList.find(v => /zira|hazel|catherine|stephanie/i.test(v.name))
+        // Any verified English or Japanese female voice
         || candidateList.find(v => isFemaleVoice(v) && (v.lang.startsWith('en') || v.lang.startsWith('ja') || v.lang.startsWith('ms')))
         || candidateList[0];
 
@@ -176,11 +185,11 @@ function getMeenaTimeGreeting() {
     }
 }
 
-let meenaPitch = parseFloat(localStorage.getItem('lcars_meena_pitch') || '1.24');
+let meenaPitch = parseFloat(localStorage.getItem('lcars_meena_pitch') || '1.10');
 let meenaRate = parseFloat(localStorage.getItem('lcars_meena_rate') || '1.08');
 
 function setMeenaPitch(val) {
-    meenaPitch = parseFloat(val) || 1.24;
+    meenaPitch = parseFloat(val) || 1.10;
     localStorage.setItem('lcars_meena_pitch', meenaPitch);
     const label = document.getElementById('pitch-val-label');
     if (label) label.innerText = meenaPitch.toFixed(2);
