@@ -884,26 +884,7 @@ function updateDossierUI() {
 function drawDossierAvatar() {
     const canvas = document.getElementById('dossier-avatar-canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-
-    const grad = ctx.createRadialGradient(w/2, h/2, 4, w/2, h/2, w/2);
-    grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.3, '#cc66ff');
-    grad.addColorStop(0.8, '#660099');
-    grad.addColorStop(1, 'transparent');
-
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(w/2, h/2, w/2 - 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(w/2, h/2, w/2 - 8, 0, Math.PI * 2);
-    ctx.stroke();
+    renderBrainOnTargetCanvas(canvas, false);
 }
 
 function testMeenaDossierVoice() {
@@ -1898,35 +1879,23 @@ function generateBrainModel() {
 }
 
 function initMeenaAvatarCanvas() {
-    avatarCanvas = document.getElementById('meena-avatar-canvas');
-    if (!avatarCanvas) return;
-    avatarCtx = avatarCanvas.getContext('2d');
     generateBrainModel();
     animateAvatar();
 }
 
-function animateAvatar() {
-    if (!avatarCtx || !avatarCanvas) return;
-    if (document.hidden) {
-        requestAnimationFrame(animateAvatar);
-        return;
-    }
-    const deck1 = document.getElementById('deck-1');
-    if (deck1 && (deck1.classList.contains('hidden') || deck1.style.display === 'none')) {
-        requestAnimationFrame(animateAvatar);
-        return;
-    }
+function renderBrainOnTargetCanvas(canvas, showBrackets = false) {
+    if (!canvas || canvas.offsetParent === null && canvas.clientWidth === 0 && canvas.clientHeight === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const ctx = avatarCtx;
-    const w = avatarCanvas.width;
-    const h = avatarCanvas.height;
+    const w = canvas.width;
+    const h = canvas.height;
     const cx = w / 2;
     const cy = h / 2;
 
     ctx.clearRect(0, 0, w, h);
 
     const isSpeaking = ('speechSynthesis' in window && window.speechSynthesis.speaking);
-    avatarAngle += isSpeaking ? 0.035 : 0.018;
     const pitch = Math.sin(avatarAngle * 0.6) * 0.15 + 0.1;
 
     // Mood-specific color palette
@@ -1948,8 +1917,8 @@ function animateAvatar() {
     const cosX = Math.cos(pitch);
     const sinX = Math.sin(pitch);
 
-    const fov = 110;
-    const distance = 55;
+    const fov = w * 1.8;
+    const distance = 58;
 
     // Excitation multiplier during vocal speech
     const pulseFactor = isSpeaking ? (1 + Math.sin(avatarAngle * 8) * 0.14) : 1.0;
@@ -1968,21 +1937,21 @@ function animateAvatar() {
         const scale = fov / (z2 + distance);
         const px = cx + x1 * scale;
         const py = cy - y2 * scale; // Invert Y for canvas
-        const depthAlpha = Math.max(0.15, Math.min(1.0, (z2 + 25) / 50));
+        const depthAlpha = Math.max(0.18, Math.min(1.0, (z2 + 25) / 50));
 
         return { px, py, z: z2, scale, depthAlpha, idx };
     });
 
     // 2. Draw Synaptic Connective Lines
-    ctx.lineWidth = 0.7;
+    ctx.lineWidth = 0.65;
     brainEdges.forEach(edge => {
         const p1 = projected[edge.from];
         const p2 = projected[edge.to];
         if (!p1 || !p2) return;
 
-        const avgAlpha = (p1.depthAlpha + p2.depthAlpha) * 0.5 * 0.35;
+        const avgAlpha = (p1.depthAlpha + p2.depthAlpha) * 0.5 * 0.38;
         ctx.strokeStyle = primaryColor;
-        ctx.globalAlpha = isSpeaking ? avgAlpha * 1.8 : avgAlpha;
+        ctx.globalAlpha = isSpeaking ? Math.min(1.0, avgAlpha * 2.0) : avgAlpha;
         ctx.beginPath();
         ctx.moveTo(p1.px, p1.py);
         ctx.lineTo(p2.px, p2.py);
@@ -1991,11 +1960,6 @@ function animateAvatar() {
 
     // 3. Draw Traveling Neural Synapse Sparks
     neuralSparks.forEach(sp => {
-        sp.progress += isSpeaking ? sp.speed * 2.2 : sp.speed;
-        if (sp.progress > 1.0) {
-            sp.progress = 0;
-            sp.edgeIdx = Math.floor(Math.random() * brainEdges.length);
-        }
         const edge = brainEdges[sp.edgeIdx];
         if (!edge) return;
         const p1 = projected[edge.from];
@@ -2005,12 +1969,12 @@ function animateAvatar() {
         const sx = p1.px + (p2.px - p1.px) * sp.progress;
         const sy = p1.py + (p2.py - p1.py) * sp.progress;
 
-        ctx.globalAlpha = 0.9;
+        ctx.globalAlpha = 0.95;
         ctx.fillStyle = sparkColor;
         ctx.shadowColor = sparkColor;
         ctx.shadowBlur = 4;
         ctx.beginPath();
-        ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
+        ctx.arc(sx, sy, Math.max(0.8, w * 0.02), 0, Math.PI * 2);
         ctx.fill();
     });
     ctx.shadowBlur = 0;
@@ -2020,33 +1984,67 @@ function animateAvatar() {
     projected.forEach(p => {
         ctx.globalAlpha = p.depthAlpha;
         ctx.fillStyle = primaryColor;
-        const rad = Math.max(0.6, (p.scale * 0.9));
+        const rad = Math.max(0.5, (p.scale * 0.85));
         
         ctx.beginPath();
         ctx.arc(p.px, p.py, rad, 0, Math.PI * 2);
         ctx.fill();
     });
 
-    // 5. Draw Sci-Fi HUD Framing Brackets
-    ctx.globalAlpha = 0.4;
-    ctx.strokeStyle = primaryColor;
-    ctx.lineWidth = 1;
-    // Left bracket [
-    ctx.beginPath();
-    ctx.moveTo(8, 6);
-    ctx.lineTo(3, 6);
-    ctx.lineTo(3, h - 6);
-    ctx.lineTo(8, h - 6);
-    ctx.stroke();
-    // Right bracket ]
-    ctx.beginPath();
-    ctx.moveTo(w - 8, 6);
-    ctx.lineTo(w - 3, 6);
-    ctx.lineTo(w - 3, h - 6);
-    ctx.lineTo(w - 8, h - 6);
-    ctx.stroke();
+    // 5. Draw Sci-Fi HUD Framing Brackets if enabled
+    if (showBrackets) {
+        ctx.globalAlpha = 0.4;
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 1;
+        // Left bracket [
+        ctx.beginPath();
+        ctx.moveTo(8, 6);
+        ctx.lineTo(3, 6);
+        ctx.lineTo(3, h - 6);
+        ctx.lineTo(8, h - 6);
+        ctx.stroke();
+        // Right bracket ]
+        ctx.beginPath();
+        ctx.moveTo(w - 8, 6);
+        ctx.lineTo(w - 3, 6);
+        ctx.lineTo(w - 3, h - 6);
+        ctx.lineTo(w - 8, h - 6);
+        ctx.stroke();
+    }
 
     ctx.globalAlpha = 1.0;
+}
+
+function animateAvatar() {
+    if (document.hidden) {
+        requestAnimationFrame(animateAvatar);
+        return;
+    }
+
+    const isSpeaking = ('speechSynthesis' in window && window.speechSynthesis.speaking);
+    avatarAngle += isSpeaking ? 0.035 : 0.018;
+
+    // Advance neural spark positions
+    neuralSparks.forEach(sp => {
+        sp.progress += isSpeaking ? sp.speed * 2.2 : sp.speed;
+        if (sp.progress > 1.0) {
+            sp.progress = 0;
+            sp.edgeIdx = Math.floor(Math.random() * brainEdges.length);
+        }
+    });
+
+    // 1. Render Desktop Deck 1 Brain Canvas
+    const deskCanvas = document.getElementById('meena-avatar-canvas');
+    if (deskCanvas) renderBrainOnTargetCanvas(deskCanvas, true);
+
+    // 2. Render Mobile Communicator Brain Canvas
+    const commCanvas = document.getElementById('comm-avatar-canvas');
+    if (commCanvas) renderBrainOnTargetCanvas(commCanvas, false);
+
+    // 3. Render Meena Dossier Popup Brain Canvas
+    const dosCanvas = document.getElementById('dossier-avatar-canvas');
+    if (dosCanvas) renderBrainOnTargetCanvas(dosCanvas, false);
+
     requestAnimationFrame(animateAvatar);
 }
 

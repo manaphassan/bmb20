@@ -734,7 +734,11 @@
                 <span class="text-[9px] text-secondary font-mono">LINK: 142.85 MHz // ACTIVE</span>
             </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
+            <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black text-[9px] text-tertiary px-2 py-1 rounded border border-outline-variant/40 flex items-center gap-1 font-bold shadow-sm transition-all" title="View Tactical Calendar & Agenda">
+                <span class="material-symbols-outlined text-xs">calendar_month</span>
+                <span>CAL</span>
+            </button>
             <div class="text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold" id="comm-persona-badge">ALEX Lv. 4</div>
             <button onclick="toggleLayoutMode()" class="bg-surface-bright hover:bg-primary hover:text-black text-[9px] text-tertiary px-2 py-1 rounded border border-outline-variant/40 flex items-center gap-1 font-bold shadow-sm transition-all" title="Switch to Desktop Command Bridge">
                 <span class="material-symbols-outlined text-xs">desktop_windows</span>
@@ -796,6 +800,10 @@
 
     <!-- Quick Action Comms Chips (Horizontal Touch Slider) -->
     <div class="bg-surface-container/60 border-t border-outline-variant/30 px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar flex-shrink-0 text-[9px] font-bold">
+        <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30 text-tertiary">
+            <span class="material-symbols-outlined text-[11px] text-tertiary">calendar_month</span>
+            <span>CALENDAR</span>
+        </button>
         <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
             <span class="material-symbols-outlined text-[11px] text-primary">analytics</span>
             <span>STATUS</span>
@@ -995,6 +1003,72 @@
             <button onclick="testMeenaDossierVoice()" class="w-full bg-primary hover:bg-primary/80 text-black font-bold py-1.5 px-3 rounded text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm">
                 <span class="material-symbols-outlined text-sm">record_voice_over</span>
                 <span>TEST NEURAL VOICE SYNTHESIS</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MOBILE STARFLEET COMMUNICATOR CALENDAR MODAL
+     ========================================== -->
+<div id="comm-calendar-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4 overflow-y-auto font-data-mono">
+    <div class="bg-surface-container border-2 border-tertiary rounded-tl-2xl rounded-br-2xl p-3.5 max-w-lg w-full shadow-2xl flex flex-col gap-3 my-auto max-h-[92vh]">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded bg-tertiary/15 border border-tertiary flex items-center justify-center text-tertiary shadow-[0_0_8px_rgba(77,208,225,0.4)]">
+                    <span class="material-symbols-outlined text-base">calendar_month</span>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-tertiary font-headline tracking-wider">TACTICAL CALENDAR & AGENDA</h3>
+                    <span id="comm-chrono-sync-status" class="text-[8px] bg-tertiary/20 text-tertiary px-1 py-0.2 rounded font-bold border border-tertiary/40">SYNCED</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button onclick="speakCalendarSpokenSummary()" class="bg-primary text-black hover:bg-primary/80 font-bold px-2 py-0.5 rounded text-[9px] flex items-center gap-0.5 shadow-sm transition-all" title="Read Today's Agenda Aloud">
+                    <span class="material-symbols-outlined text-xs">volume_up</span>
+                    <span>READ</span>
+                </button>
+                <button onclick="loadCalendarFeed(true)" class="bg-surface-bright hover:bg-tertiary hover:text-black text-on-surface px-2 py-0.5 rounded text-[9px] font-bold border border-outline-variant/30 flex items-center gap-0.5" title="Refresh Calendar Feed">
+                    <span class="material-symbols-outlined text-xs">sync</span>
+                </button>
+                <button onclick="closeCommCalendarModal()" class="text-on-surface-variant hover:text-error text-xs font-bold px-2 py-0.5 rounded bg-surface-bright border border-outline-variant/30">✕</button>
+            </div>
+        </div>
+
+        <!-- Today's Operations Section -->
+        <div class="bg-surface-container-low p-2.5 rounded border border-primary/40 shadow-sm flex flex-col gap-1.5 flex-shrink-0">
+            <div class="flex items-center justify-between border-b border-primary/30 pb-1">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-primary text-xs">today</span>
+                    <h4 class="text-[10px] font-bold text-primary tracking-wider uppercase">TODAY'S OPERATIONS</h4>
+                </div>
+                <span id="comm-chrono-today-count" class="text-[8.5px] bg-primary/20 text-primary px-1.5 py-0.2 rounded font-bold font-mono">0 EVENTS</span>
+            </div>
+            <div class="flex flex-col gap-1 max-h-40 overflow-y-auto pr-0.5" id="comm-chrono-today-events">
+                <div class="text-secondary text-xs italic p-1">Loading today's schedule...</div>
+            </div>
+        </div>
+
+        <!-- Upcoming 7-Day Agenda Section -->
+        <div class="bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm flex flex-col gap-1.5 flex-1 min-h-[140px] overflow-hidden">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1 flex-shrink-0">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-secondary text-xs">upcoming</span>
+                    <h4 class="text-[10px] font-bold text-secondary tracking-wider uppercase">UPCOMING THIS WEEK</h4>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1 flex-1 overflow-y-auto pr-0.5" id="comm-chrono-upcoming-events">
+                <div class="text-secondary text-xs italic p-1">No upcoming events.</div>
+            </div>
+        </div>
+
+        <!-- Footer Action Strip -->
+        <div class="flex justify-between items-center pt-1 border-t border-outline-variant/30 text-[9px] flex-shrink-0">
+            <span class="text-secondary">Synced with Takahara Academy Chrono Engine</span>
+            <button onclick="closeCommCalendarModal(); if (typeof showDeck === 'function') { toggleLayoutMode(); showDeck(3); }" class="text-tertiary hover:underline font-bold flex items-center gap-0.5">
+                <span>OPEN FULL MONTH GRID</span>
+                <span class="material-symbols-outlined text-[11px]">arrow_forward</span>
             </button>
         </div>
     </div>

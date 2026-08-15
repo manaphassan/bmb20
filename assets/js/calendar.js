@@ -276,83 +276,93 @@ function renderAgendaTimeline() {
         if (!ev.timestamp) return false;
         const d = new Date(ev.timestamp * 1000);
         return (d.getFullYear() === selDate.getFullYear() && d.getMonth() === selDate.getMonth() && d.getDate() === selDate.getDate());
-    });
-
-    if (todayCount) {
+    });    if (todayCount) {
         todayCount.innerText = `${activeListEvents.length} EVENTS`;
     }
-
-    if (todayList) {
-        if (!calendarState.isSynced) {
-            todayList.innerHTML = `
-                <div class="p-3 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-xs leading-relaxed flex flex-col gap-1.5">
-                    <span class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">info</span><span>NO GOOGLE CALENDARS SYNCED</span></span>
-                    <span class="text-[10px]">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
-                </div>
-            `;
-        } else if (activeListEvents.length === 0) {
-            const nextEvent = calendarState.eventsUpcoming[0];
-            todayList.innerHTML = `
-                <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs flex flex-col gap-1.5">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-base">event_available</span>
-                        <span>No scheduled events for <strong>${selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</strong>.</span>
-                    </div>
-                    ${nextEvent ? `
-                        <div class="mt-1 pt-1.5 border-t border-outline-variant/20 flex items-center justify-between text-[10px]">
-                            <span class="text-tertiary font-bold">NEXT OPERATION:</span>
-                            <span class="font-semibold text-on-surface truncate max-w-[200px]">${nextEvent.date} @ ${nextEvent.summary}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        } else {
-            todayList.innerHTML = activeListEvents.map(ev => `
-                <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
-                    <div class="flex flex-col gap-0.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[8px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#c2c1ff'};">${ev.calendar || 'Main'}</span>
-                            <span class="text-xs font-bold text-on-surface">${ev.summary}</span>
-                        </div>
-                        ${ev.location ? `<span class="text-[8.5px] text-tertiary flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">location_on</span><span>${ev.location}</span></span>` : ''}
-                    </div>
-                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded border" style="color: ${ev.color || '#c2c1ff'}; border-color: ${ev.color || '#c2c1ff'}40; background-color: ${ev.color || '#c2c1ff'}15;">${ev.time}</span>
-                </div>
-            `).join('');
-        }
+    const commTodayCount = document.getElementById('comm-chrono-today-count');
+    if (commTodayCount) {
+        commTodayCount.innerText = `${activeListEvents.length} EVENTS`;
     }
 
-    if (upcomingList) {
-        if (calendarState.eventsUpcoming.length === 0) {
-            upcomingList.innerHTML = `<div class="text-secondary text-xs italic p-3">No upcoming events found in active horizon.</div>`;
-        } else {
-            upcomingList.innerHTML = calendarState.eventsUpcoming.map(ev => `
-                <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high border-l-2 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-1">
-                            <span class="text-[7.5px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
-                            <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
-                        </div>
-                        ${ev.location ? `<span class="text-[8px] text-tertiary truncate max-w-[280px]">${ev.location}</span>` : ''}
-                    </div>
-                    <span class="text-secondary font-mono text-[9.5px] flex-shrink-0">${ev.date} @ ${ev.time}</span>
+    let todayHtml = '';
+    if (!calendarState.isSynced) {
+        todayHtml = `
+            <div class="p-3 rounded-lg bg-surface-container-high border border-lcars-gold/40 text-lcars-gold text-xs leading-relaxed flex flex-col gap-1.5">
+                <span class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">info</span><span>NO GOOGLE CALENDARS SYNCED</span></span>
+                <span class="text-[10px]">Add your Google Calendar secret iCal (.ics) addresses in the panel below to aggregate your schedule.</span>
+            </div>
+        `;
+    } else if (activeListEvents.length === 0) {
+        const nextEvent = calendarState.eventsUpcoming[0];
+        todayHtml = `
+            <div class="p-3 rounded-lg bg-surface-container-high border border-outline-variant/30 text-secondary text-xs flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-base">event_available</span>
+                    <span>No scheduled events for <strong>${selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</strong>.</span>
                 </div>
-            `).join('');
-        }
+                ${nextEvent ? `
+                    <div class="mt-1 pt-1.5 border-t border-outline-variant/20 flex items-center justify-between text-[10px]">
+                        <span class="text-tertiary font-bold">NEXT OPERATION:</span>
+                        <span class="font-semibold text-on-surface truncate max-w-[200px]">${nextEvent.date} @ ${nextEvent.summary}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    } else {
+        todayHtml = activeListEvents.map(ev => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high border-l-4 hover:bg-surface-bright transition-all" style="border-left-color: ${ev.color || '#c2c1ff'};">
+                <div class="flex flex-col gap-0.5">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[8px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#c2c1ff'};">${ev.calendar || 'Main'}</span>
+                        <span class="text-xs font-bold text-on-surface">${ev.summary}</span>
+                    </div>
+                    ${ev.location ? `<span class="text-[8.5px] text-tertiary flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">location_on</span><span>${ev.location}</span></span>` : ''}
+                </div>
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded border" style="color: ${ev.color || '#c2c1ff'}; border-color: ${ev.color || '#c2c1ff'}40; background-color: ${ev.color || '#c2c1ff'}15;">${ev.time}</span>
+            </div>
+        `).join('');
     }
+
+    if (todayList) todayList.innerHTML = todayHtml;
+    const commTodayList = document.getElementById('comm-chrono-today-events');
+    if (commTodayList) commTodayList.innerHTML = todayHtml;
+
+    let upcomingHtml = '';
+    if (calendarState.eventsUpcoming.length === 0) {
+        upcomingHtml = `<div class="text-secondary text-xs italic p-3">No upcoming events found in active horizon.</div>`;
+    } else {
+        upcomingHtml = calendarState.eventsUpcoming.map(ev => `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-high border-l-2 text-xs hover:border-tertiary transition-all" style="border-left-color: ${ev.color || '#78e4a5'};">
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1">
+                        <span class="text-[7.5px] px-1 rounded font-bold font-mono text-black" style="background-color: ${ev.color || '#78e4a5'};">${ev.calendar || 'Main'}</span>
+                        <span class="text-on-surface font-semibold text-[11px]">${ev.summary}</span>
+                    </div>
+                    ${ev.location ? `<span class="text-[8px] text-tertiary truncate max-w-[280px]">${ev.location}</span>` : ''}
+                </div>
+                <span class="text-secondary font-mono text-[9.5px] flex-shrink-0">${ev.date} @ ${ev.time}</span>
+            </div>
+        `).join('');
+    }
+
+    if (upcomingList) upcomingList.innerHTML = upcomingHtml;
+    const commUpcomingList = document.getElementById('comm-chrono-upcoming-events');
+    if (commUpcomingList) commUpcomingList.innerHTML = upcomingHtml;
 }
 
 function updateSyncStatusBadge() {
     const badge = document.getElementById('chrono-sync-status');
+    const commBadge = document.getElementById('comm-chrono-sync-status');
+    const count = calendarState.calendars.length;
+    const text = calendarState.isSynced ? `${count} CALENDAR${count === 1 ? '' : 'S'} SYNCED (${calendarState.lastSyncTime})` : `OFFLINE / UNCONFIGURED`;
+    const css = calendarState.isSynced ? "text-[8.5px] bg-primary/20 text-primary px-1.5 py-0.2 rounded font-bold border border-primary/40" : "text-[8.5px] bg-lcars-gold/20 text-lcars-gold px-1.5 py-0.2 rounded font-bold border border-lcars-gold/40";
     if (badge) {
-        const count = calendarState.calendars.length;
-        if (calendarState.isSynced) {
-            badge.innerText = `${count} CALENDAR${count === 1 ? '' : 'S'} SYNCED (${calendarState.lastSyncTime})`;
-            badge.className = "text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40";
-        } else {
-            badge.innerText = `OFFLINE / UNCONFIGURED`;
-            badge.className = "text-[9px] bg-lcars-gold/20 text-lcars-gold px-1.5 py-0.5 rounded font-bold border border-lcars-gold/40";
-        }
+        badge.innerText = text;
+        badge.className = css;
+    }
+    if (commBadge) {
+        commBadge.innerText = text;
+        commBadge.className = css;
     }
 }
 
@@ -374,25 +384,37 @@ function nextCalendarMonth() {
     renderMonthGrid(calendarState.currentYear, calendarState.currentMonth);
 }
 
+function openCommCalendarModal() {
+    const modal = document.getElementById('comm-calendar-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    renderCalendarUI();
+    if (window.playSound) window.playSound('beep2');
+}
+
+function closeCommCalendarModal() {
+    const modal = document.getElementById('comm-calendar-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (window.playSound) window.playSound('beep1');
+}
+
+/**
+ * Text-to-Speech Verbal Briefing of Today's Calendar Schedule
+ */
 function speakCalendarSpokenSummary() {
-    let msg = "";
     if (!calendarState.isSynced || calendarState.eventsToday.length === 0) {
-        msg = "Sensei, your calendar schedule is completely clear for today across all calendars. All operational pathways are ready.";
-    } else {
-        const count = calendarState.eventsToday.length;
-        const summaries = calendarState.eventsToday.map(e => `${e.summary} from ${e.calendar} at ${e.time}`).join(", and ");
-        msg = `Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${summaries}.`;
+        const msg = "Sensei, your tactical calendar schedule is completely clear for today across all active feeds.";
+        if (window.speakComputerVoice) window.speakComputerVoice(msg);
+        return;
     }
 
-    if (window.speakComputerVoice) {
-        window.speakComputerVoice(msg);
-    } else if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(msg);
-        u.rate = 1.14;
-        u.pitch = 1.10;
-        window.speechSynthesis.speak(u);
-    }
+    const count = calendarState.eventsToday.length;
+    const summaries = calendarState.eventsToday.map(e => `${e.summary} from ${e.calendar} at ${e.time}`).join(", and ");
+    const msg = `Sensei, you have ${count} ${count === 1 ? 'event' : 'events'} scheduled for today: ${summaries}.`;
+    if (window.speakComputerVoice) window.speakComputerVoice(msg);
 }
 
 // Window Exports
@@ -404,6 +426,8 @@ window.renderCalendarUI = renderCalendarUI;
 window.prevCalendarMonth = prevCalendarMonth;
 window.nextCalendarMonth = nextCalendarMonth;
 window.speakCalendarSpokenSummary = speakCalendarSpokenSummary;
+window.openCommCalendarModal = openCommCalendarModal;
+window.closeCommCalendarModal = closeCommCalendarModal;
 window.calendarState = calendarState;
 
 // Auto-initialize if DOM is ready

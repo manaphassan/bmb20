@@ -263,6 +263,7 @@ window.addEventListener('keydown', (e) => {
         if (window.closePiholeModal) window.closePiholeModal();
         if (window.closeVoiceModal) window.closeVoiceModal();
         if (window.closeCalendarModal) window.closeCalendarModal();
+        if (window.closeCommCalendarModal) window.closeCommCalendarModal();
     } else if (e.key === '1') {
         switchDeck(1);
     } else if (e.key === '2') {
