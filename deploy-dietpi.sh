@@ -120,15 +120,11 @@ if ! systemctl is-active --quiet bmb20-tts 2>/dev/null; then
     nohup /usr/bin/python3 /usr/local/bin/bmb20-tts.py >/dev/null 2>&1 &
 fi
 
-# 3. Add Nginx static routing & TTS reverse proxy if available
+# 3. Apply Hardened Nginx Site Configuration with Masked URLs
 if [ -f "/etc/nginx/sites-available/default" ]; then
-    if ! grep -q "location = /api.php" /etc/nginx/sites-available/default; then
-        echo "[+] Adding Nginx static route for /api.php..."
-        sed -i '/server_name/a \	location = /api.php {\n\t\tdefault_type application/json;\n\t\talias /var/www/html/api.json;\n\t}' /etc/nginx/sites-available/default 2>/dev/null || true
-    fi
-    if ! grep -q "location /tts" /etc/nginx/sites-available/default; then
-        echo "[+] Adding Nginx reverse proxy route for /tts..."
-        sed -i '/server_name/a \	location /tts {\n\t\tproxy_pass http://127.0.0.1:8088/tts;\n\t\tproxy_set_header Host $host;\n\t\tproxy_set_header X-Real-IP $remote_addr;\n\t}' /etc/nginx/sites-available/default 2>/dev/null || true
+    echo "[+] Applying Hardened Nginx Security & Masked URL Configuration..."
+    if [ -f "${SCRIPT_DIR}/daemon/nginx-hardened.conf" ]; then
+        cp -fv "${SCRIPT_DIR}/daemon/nginx-hardened.conf" /etc/nginx/sites-available/default
     fi
 fi
 

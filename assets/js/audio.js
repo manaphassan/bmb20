@@ -340,7 +340,7 @@ function speakComputerVoice(text) {
     const voiceToUse = isMalay ? 'ms-MY-YasminNeural' : preferredVoice;
 
     // Use Server-Side Neural TTS (edge-tts daemon on DietPi)
-    const ttsUrl = `/tts?voice=${encodeURIComponent(voiceToUse)}&text=${encodeURIComponent(text)}`;
+    const ttsUrl = `/api/tts?voice=${encodeURIComponent(voiceToUse)}&text=${encodeURIComponent(text)}`;
     const audio = new Audio(ttsUrl);
     currentTTSAudio = audio;
 

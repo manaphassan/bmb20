@@ -42,19 +42,11 @@ async function loadCalendarFeed(forceRefresh = false) {
         // First try static pre-rendered events file for instantaneous 1ms load
         let data = null;
         try {
-            const staticRes = await fetch('calendar_events.json?t=' + Date.now());
-            if (staticRes.ok) {
+            const staticRes = await fetch('api/calendar?t=' + Date.now()).catch(() => fetch('calendar_events.json?t=' + Date.now()));
+            if (staticRes && staticRes.ok) {
                 data = await staticRes.json();
             }
         } catch(e) {}
-
-        // Fallback to dynamic endpoint if needed
-        if (!data || !data.events_upcoming) {
-            const res = await fetch('cal.php?action=get_calendar_events').catch(() => fetch('api.php?action=get_calendar_events'));
-            if (res && res.ok) {
-                data = await res.json();
-            }
-        }
 
         if (data && data.status === 'success') {
             calendarState.eventsToday = data.events_today || [];

@@ -65,7 +65,7 @@ tailwind.config = {
 window.BMB20_CONFIG = {
     host: "dietpi.local",
     hostname: "dietpi.local",
-    telemetryEndpoint: "api.json",
+    telemetryEndpoint: "api/telemetry",
     pollIntervalMs: 1000,
     services: {
         pihole: "http://dietpi.local:8089/admin/login",

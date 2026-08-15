@@ -16,8 +16,9 @@ async function fetchTelemetry() {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
-        const res = await fetch('api.json?t=' + Date.now(), { cache: 'no-store', signal: controller.signal });
+        const endpoint = (window.BMB20_CONFIG && window.BMB20_CONFIG.telemetryEndpoint) ? window.BMB20_CONFIG.telemetryEndpoint : 'api/telemetry';
+        const res = await fetch(endpoint + '?t=' + Date.now(), { cache: 'no-store', signal: controller.signal })
+            .catch(() => fetch('api.json?t=' + Date.now(), { cache: 'no-store', signal: controller.signal }));
         clearTimeout(timeoutId);
         if (res.ok) {
             const data = await res.json();

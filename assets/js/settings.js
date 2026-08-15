@@ -241,16 +241,11 @@ async function loadSettingsCalendars() {
     try {
         let data = null;
         try {
-            const staticRes = await fetch('calendar_config.json?t=' + Date.now());
+            const staticRes = await fetch('api/calendar/config?t=' + Date.now()).catch(() => fetch('calendar_config.json?t=' + Date.now()));
             if (staticRes && staticRes.ok) {
                 data = await staticRes.json();
             }
         } catch(e) {}
-
-        if (!data) {
-            const res = await fetch('cal.php?action=get_calendar_config').catch(() => null);
-            if (res && res.ok) data = await res.json();
-        }
         
         let cals = (data && data.calendars && data.calendars.length > 0) ? data.calendars : [...DEFAULT_CALENDARS];
         settingsCalendarState.calendars = cals;
@@ -468,7 +463,7 @@ async function saveMeenaHearth() {
 
 async function downloadMeenaHearth() {
     try {
-        const res = await fetch('meenaHearth.json?t=' + Date.now()).catch(() => fetch('api.php?action=get_hearth'));
+        const res = await fetch('api/hearth?t=' + Date.now()).catch(() => fetch('meenaHearth.json?t=' + Date.now()));
         let data = null;
         if (res && res.ok) {
             data = await res.json();
@@ -483,25 +478,21 @@ async function downloadMeenaHearth() {
         a.href = url;
         a.download = `meenaHearth.json`;
         a.click();
+        URL.revokeObjectURL(url);
     } catch(e) {
-        alert('Failed to download meenaHearth: ' + e.message);
+        alert('Failed to export meenaHearth: ' + e.message);
     }
 }
 
-async function restoreFromMeenaHearth() {
+async function restoreMeenaHearth() {
     if (!confirm('Restore core memories, personality, and growth profile from meenaHearth.json?')) return;
-    const feedback = document.getElementById('hearth-feedback');
-    if (feedback) {
-        feedback.innerText = 'Restoring core memories from meenaHearth...';
-        feedback.className = 'text-[10px] font-mono text-lcars-gold font-bold animate-pulse';
-    }
-
+    const feedback = document.getElementById('hearth-action-feedback');
     try {
         const res = await fetch('api.php?action=restore_hearth', { method: 'POST' });
         if (res.ok) {
             const data = await res.json();
             // Sync local storage as well
-            const hearthRes = await fetch('meenaHearth.json?t=' + Date.now()).catch(() => fetch('api.php?action=get_hearth'));
+            const hearthRes = await fetch('api/hearth?t=' + Date.now()).catch(() => fetch('meenaHearth.json?t=' + Date.now()));
             if (hearthRes && hearthRes.ok) {
                 const hearth = await hearthRes.json();
                 if (hearth.core_memories) {
@@ -542,14 +533,14 @@ async function loadHearthHealthMetrics() {
         let data = null;
         let byteSize = 3580;
         try {
-            const res = await fetch('meenaHearth.json?t=' + Date.now());
+            const res = await fetch('api/hearth?t=' + Date.now()).catch(() => fetch('meenaHearth.json?t=' + Date.now()));
             if (res && res.ok) {
                 const text = await res.text();
                 byteSize = text.length;
                 data = JSON.parse(text);
             }
         } catch (err) {
-            console.warn('Direct meenaHearth.json fetch failed:', err);
+            console.warn('Direct meenaHearth fetch failed:', err);
         }
 
         const latency = (performance.now() - t0).toFixed(1);
