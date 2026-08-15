@@ -549,6 +549,8 @@ function toggleAudio() {
  */
 let recognition = null;
 let isListening = false;
+let isPTTHolding = false;
+let capturedPTTText = '';
 
 function initVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -560,24 +562,53 @@ function initVoiceRecognition() {
     try {
         recognition = new SpeechRecognition();
         recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.interimResults = true;
         recognition.lang = 'en-US';
 
         recognition.onstart = () => {
             isListening = true;
-            updateVoiceHUD("LISTENING...", true);
+            updateVoiceHUD(isPTTHolding ? "TRANSMITTING..." : "LISTENING...", true);
         };
 
         recognition.onresult = (event) => {
-            const last = event.results.length - 1;
-            const command = event.results[last][0].transcript.trim().toLowerCase();
-            handleVoiceCommand(command);
+            let interim = '';
+            let finalStr = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalStr += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
+            }
+
+            const currentSpeech = (finalStr || interim).trim();
+            if (currentSpeech) {
+                capturedPTTText = currentSpeech;
+                
+                // Show live preview in mobile PTT label or text input
+                const pttLabel = document.getElementById('comm-ptt-label');
+                const commInput = document.getElementById('comm-text-input');
+                if (pttLabel && isPTTHolding) {
+                    pttLabel.innerText = `"${currentSpeech.substring(0, 22)}..."`;
+                }
+                if (commInput && isPTTHolding) {
+                    commInput.value = currentSpeech;
+                }
+
+                // If in tap/continuous mode and speech sentence finished, dispatch immediately
+                if (!isPTTHolding && finalStr) {
+                    const cleanCmd = finalStr.trim();
+                    capturedPTTText = '';
+                    handleVoiceCommand(cleanCmd);
+                }
+            }
         };
 
         recognition.onerror = (event) => {
             if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                console.warn("Microphone access blocked on insecure HTTP origin.");
+                console.warn("Microphone access blocked or restricted.");
                 isListening = false;
+                isPTTHolding = false;
                 updateVoiceHUD("MIC BLOCKED", false);
                 openVoiceModal();
             } else if (event.error !== 'no-speech') {
@@ -586,8 +617,8 @@ function initVoiceRecognition() {
         };
 
         recognition.onend = () => {
-            if (isListening) {
-                // Auto-restart if user still wants mic on
+            if (isListening && !isPTTHolding) {
+                // Auto-restart if user wanted continuous mic on
                 try { recognition.start(); } catch (e) {}
             } else {
                 updateVoiceHUD("MIC OFF", false);
@@ -595,6 +626,56 @@ function initVoiceRecognition() {
         };
     } catch (e) {
         console.warn("Speech recognition init failed:", e);
+    }
+}
+
+function startPTTListening() {
+    isPTTHolding = true;
+    capturedPTTText = '';
+    
+    if (!recognition) initVoiceRecognition();
+    if (!recognition) {
+        // Fallback: prompt text input
+        const inp = document.getElementById('comm-text-input');
+        if (inp) {
+            inp.focus();
+            inp.placeholder = "Type your voice message here...";
+        }
+        return;
+    }
+
+    try {
+        isListening = true;
+        recognition.start();
+    } catch (e) {
+        // Already active
+    }
+
+    updateVoiceHUD("TRANSMITTING...", true);
+    if (window.playSound) window.playSound('beep2');
+    if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+}
+
+function stopPTTListening() {
+    const wasHolding = isPTTHolding;
+    isPTTHolding = false;
+    
+    if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+    }
+    isListening = false;
+    updateVoiceHUD("MIC OFF", false);
+
+    if (window.playSound) window.playSound('beep1');
+    if (navigator.vibrate) navigator.vibrate(30);
+
+    // If text was captured during PTT hold, send to Meena immediately
+    if (capturedPTTText && capturedPTTText.trim()) {
+        const textToSend = capturedPTTText.trim();
+        capturedPTTText = '';
+        const commInput = document.getElementById('comm-text-input');
+        if (commInput) commInput.value = '';
+        handleVoiceCommand(textToSend);
     }
 }
 
@@ -607,6 +688,7 @@ function toggleVoiceRecognition() {
 
     if (isListening) {
         isListening = false;
+        isPTTHolding = false;
         recognition.stop();
         updateVoiceHUD("MIC OFF", false);
         if (playSound) playSound('beep1');
@@ -3315,6 +3397,8 @@ window.playSound = playSound;
 window.toggleAudio = toggleAudio;
 window.toggleVoiceRecognition = toggleVoiceRecognition;
 window.toggleVoiceListeningMute = toggleVoiceListeningMute;
+window.startPTTListening = startPTTListening;
+window.stopPTTListening = stopPTTListening;
 window.openMeenaDossierModal = openMeenaDossierModal;
 window.closeMeenaDossierModal = closeMeenaDossierModal;
 window.updateDossierUI = updateDossierUI;

@@ -158,12 +158,53 @@ function initCommunicatorPTT() {
     const pttBtn = document.getElementById('comm-ptt-button');
     if (!pttBtn) return;
 
-    pttBtn.addEventListener('click', (e) => {
+    let pressStartTime = 0;
+    let isHoldingPTT = false;
+    let longPressTriggered = false;
+
+    const handlePointerDown = (e) => {
         e.preventDefault();
-        if (window.playDoorChime) window.playDoorChime();
-        if (window.toggleVoiceRecognition) {
+        pressStartTime = Date.now();
+        isHoldingPTT = true;
+        longPressTriggered = false;
+
+        // Start PTT transmission
+        if (window.startPTTListening) {
+            window.startPTTListening();
+        } else if (window.toggleVoiceRecognition) {
             window.toggleVoiceRecognition();
         }
+    };
+
+    const handlePointerUp = (e) => {
+        if (!isHoldingPTT) return;
+        e.preventDefault();
+        const duration = Date.now() - pressStartTime;
+        isHoldingPTT = false;
+
+        if (duration < 300) {
+            // Quick tap: keep listening toggled on until finished speaking
+            longPressTriggered = false;
+            return;
+        }
+
+        // True hold release: stop listening & send message to Meena
+        longPressTriggered = true;
+        if (window.stopPTTListening) {
+            window.stopPTTListening();
+        }
+    };
+
+    // Mobile Touch Listeners (prevent standard mobile scroll delays)
+    pttBtn.addEventListener('touchstart', handlePointerDown, { passive: false });
+    pttBtn.addEventListener('touchend', handlePointerUp, { passive: false });
+    pttBtn.addEventListener('touchcancel', handlePointerUp, { passive: false });
+
+    // Desktop Mouse Listeners
+    pttBtn.addEventListener('mousedown', handlePointerDown);
+    pttBtn.addEventListener('mouseup', handlePointerUp);
+    pttBtn.addEventListener('mouseleave', (e) => {
+        if (isHoldingPTT) handlePointerUp(e);
     });
 }
 
