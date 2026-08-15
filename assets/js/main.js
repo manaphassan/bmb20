@@ -316,6 +316,7 @@ window.addEventListener('keydown', (e) => {
 
     const k = e.key.toLowerCase();
     if (e.key === 'Escape') {
+        if (window.closeNeuralCoreInspectorModal) window.closeNeuralCoreInspectorModal();
         if (window.closeMeenaDossierModal) window.closeMeenaDossierModal();
         if (window.closeNodeModal) window.closeNodeModal();
         if (window.closePiholeModal) window.closePiholeModal();
@@ -332,6 +333,8 @@ window.addEventListener('keydown', (e) => {
         switchDeck(4);
     } else if (e.key === '0' || e.key === '!') {
         setAlertCondition('red', true);
+    } else if (k === 'n') {
+        if (window.openNeuralCoreInspectorModal) window.openNeuralCoreInspectorModal();
     } else if (k === 'p') {
         if (window.switchHologramView) window.switchHologramView('earth');
     } else if (k === 's') {

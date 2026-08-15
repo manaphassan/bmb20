@@ -2,6 +2,22 @@
 
 All notable changes to the BMB20 Command Center and Meena AI Bridge will be documented in this file.
 
+## [3.3.0] - 2026-08-15 — Interactive 3D Neural Core Sensory Chamber & Orbit Controls
+
+### Added & Enhanced
+- **3D Neural Core Maximize & Sensory Inspection Chamber (`#neural-core-inspector-modal`)**:
+  - Double-clicking the 3D Neural Core in Deck 1 or Mobile Communicator expands into a full-screen high-tech Starfleet LCARS inspection chamber.
+  - **Full 360° Orbit & Zoom Controls**:
+    - Mouse / Touch dragging to smoothly rotate the 3D neural cortex in pitch & yaw.
+    - Mouse wheel / Pinch-to-zoom scaling ($0.4\times \rightarrow 3.5\times$).
+    - Auto-rotation orbit toggle with live pitch/yaw/zoom HUD coordinate readouts.
+  - **High-Energy Synaptic Shockwave Surges (`pulseSynapse()`)**:
+    - Interactive `[⚡ PULSE SYNAPSE]` button (or double-clicking the canvas) fires glowing radial shockwaves and spawns 20+ travelling neural sparks with haptic feedback and transporter audio chimes.
+  - **Live Cognitive & Hardware Telemetry Roster**:
+    - Real-time cortex matrix status (`256 Nodes / 612 Axonal Synapses`), $42.8\text{ Hz}$ Gamma firing frequency, cognitive latency, and live Raspberry Pi hardware stats (temperature, ARM clock, voltage, throttling status).
+    - Dynamic Chromatic Mood Switcher (`ANALYTICAL`, `TACTICAL`, `CARING`, `PROUD`) which instantaneously shifts the 3D neural core particle and glow colors.
+  - **Hotkey Integration**: Press `N` to open Neural Core Inspector, `ESC` or click outside to dismiss.
+
 ## [3.2.0] - 2026-08-15 — Sovereign Maintenance: DietPi OS Update Detection & Alerting Engine
 
 ### Added & Enhanced

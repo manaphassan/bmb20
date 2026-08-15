@@ -2210,6 +2210,367 @@ function renderBrainOnTargetCanvas(canvas, showBrackets = false) {
     ctx.globalAlpha = 1.0;
 }
 
+// ==============================================================================
+// 3D NEURAL CORE INSPECTION CHAMBER CONTROLLER
+// Interactive 360° Orbit, Zoom, Shockwave Pulse & Live Neural Diagnostics
+// ==============================================================================
+let modalYaw = 0.0;
+let modalPitch = 0.2;
+let modalZoom = 1.3;
+let modalAutoRotate = true;
+let isDraggingNeuralCore = false;
+let lastMousePos = { x: 0, y: 0 };
+let modalShockwaves = [];
+let isNeuralCoreEventsBound = false;
+
+function initNeuralCoreModalEvents() {
+    if (isNeuralCoreEventsBound) return;
+    const canvas = document.getElementById('neural-core-modal-canvas');
+    if (!canvas) return;
+
+    // Mouse drag rotation
+    canvas.addEventListener('mousedown', (e) => {
+        isDraggingNeuralCore = true;
+        lastMousePos = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDraggingNeuralCore) return;
+        const dx = e.clientX - lastMousePos.x;
+        const dy = e.clientY - lastMousePos.y;
+        lastMousePos = { x: e.clientX, y: e.clientY };
+
+        modalYaw += dx * 0.009;
+        modalPitch = Math.max(-1.4, Math.min(1.4, modalPitch - dy * 0.009));
+
+        updateNeuralCoreHud();
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDraggingNeuralCore = false;
+    });
+
+    // Touch drag rotation
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            isDraggingNeuralCore = true;
+            lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (!isDraggingNeuralCore || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - lastMousePos.x;
+        const dy = e.touches[0].clientY - lastMousePos.y;
+        lastMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+        modalYaw += dx * 0.012;
+        modalPitch = Math.max(-1.4, Math.min(1.4, modalPitch - dy * 0.012));
+
+        updateNeuralCoreHud();
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', () => {
+        isDraggingNeuralCore = false;
+    });
+
+    // Mousewheel Zoom
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        modalZoom = Math.max(0.4, Math.min(3.5, modalZoom + delta));
+        updateNeuralCoreHud();
+    }, { passive: false });
+
+    // Double-click canvas to pulse
+    canvas.addEventListener('dblclick', () => {
+        pulseSynapse();
+    });
+
+    isNeuralCoreEventsBound = true;
+}
+
+function updateNeuralCoreHud() {
+    const yawDeg = ((modalYaw * 180 / Math.PI) % 360).toFixed(1);
+    const pitchDeg = (modalPitch * 180 / Math.PI).toFixed(1);
+    
+    const yawEl = document.getElementById('nc-yaw-val');
+    const pitchEl = document.getElementById('nc-pitch-val');
+    const zoomEl = document.getElementById('nc-zoom-val');
+
+    if (yawEl) yawEl.innerText = `${yawDeg}°`;
+    if (pitchEl) pitchEl.innerText = `${pitchDeg}°`;
+    if (zoomEl) zoomEl.innerText = `${modalZoom.toFixed(2)}x`;
+}
+
+function pulseSynapse() {
+    // Add expanding shockwave ring
+    let primaryColor = '#00f0ff';
+    if (meenaCurrentMood === 'TACTICAL') primaryColor = '#ff3344';
+    else if (meenaCurrentMood === 'CARING') primaryColor = '#00e676';
+    else if (meenaCurrentMood === 'PROUD') primaryColor = '#d946ef';
+
+    modalShockwaves.push({
+        radius: 10,
+        maxRadius: 280,
+        alpha: 1.0,
+        color: primaryColor
+    });
+
+    // Rapidly spawn traveling neural sparks on multiple edges
+    for (let i = 0; i < 20; i++) {
+        neuralSparks.push({
+            edgeIdx: Math.floor(Math.random() * brainEdges.length),
+            progress: 0,
+            speed: Math.random() * 0.06 + 0.03
+        });
+    }
+
+    if (window.playTransporterChime) window.playTransporterChime();
+    else if (window.playSound) window.playSound('beep');
+
+    if (navigator.vibrate) {
+        try { navigator.vibrate(30); } catch(e) {}
+    }
+}
+
+function toggleNeuralCoreAutoRotate() {
+    modalAutoRotate = !modalAutoRotate;
+    const label = document.getElementById('nc-autorotate-label');
+    const btn = document.getElementById('nc-autorotate-btn');
+    if (label) label.innerText = modalAutoRotate ? 'ORBIT: ON' : 'ORBIT: OFF';
+    if (btn) {
+        if (modalAutoRotate) {
+            btn.className = 'bg-primary/20 text-primary border border-primary/40 px-2.5 py-1 rounded font-bold transition-all flex items-center gap-1';
+        } else {
+            btn.className = 'bg-surface-bright text-secondary border border-outline-variant/40 px-2.5 py-1 rounded font-bold transition-all flex items-center gap-1';
+        }
+    }
+}
+
+function resetNeuralCoreView() {
+    modalYaw = 0.0;
+    modalPitch = 0.2;
+    modalZoom = 1.3;
+    modalAutoRotate = true;
+    const label = document.getElementById('nc-autorotate-label');
+    if (label) label.innerText = 'ORBIT: ON';
+    updateNeuralCoreHud();
+}
+
+function openNeuralCoreInspectorModal() {
+    const modal = document.getElementById('neural-core-inspector-modal');
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    initNeuralCoreModalEvents();
+    updateNeuralCoreHud();
+
+    // Sync persona and growth stats to sidebar
+    const growth = getMeenaGrowthStatus();
+    const personaPill = document.getElementById('nc-modal-persona-pill');
+    const sidePersona = document.getElementById('nc-sidebar-persona');
+    const sideRank = document.getElementById('nc-sidebar-rank');
+    const sideExp = document.getElementById('nc-sidebar-exp');
+
+    if (personaPill) personaPill.innerText = `${currentPersona} Lv. ${growth.level}`;
+    if (sidePersona) sidePersona.innerText = currentPersona;
+    if (sideRank) sideRank.innerText = growth.rank;
+    if (sideExp) sideExp.innerText = `${growth.totalExp} / ${growth.level * 100} EXP`;
+
+    // Sync live hardware telemetry from DOM
+    const tempVal = document.getElementById('temp-val') ? document.getElementById('temp-val').innerText : '52°C';
+    const hwTemp = document.getElementById('nc-hw-temp');
+    if (hwTemp) hwTemp.innerText = tempVal;
+
+    if (window.playDoorChime) window.playDoorChime();
+    else if (window.playSound) window.playSound('beep');
+}
+
+function closeNeuralCoreInspectorModal() {
+    const modal = document.getElementById('neural-core-inspector-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function renderNeuralCoreChamberCanvas() {
+    const canvas = document.getElementById('neural-core-modal-canvas');
+    if (!canvas || (canvas.offsetParent === null && canvas.clientWidth === 0 && canvas.clientHeight === 0)) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Handle high DPI
+    const rect = canvas.getBoundingClientRect();
+    const targetW = Math.floor(rect.width * (window.devicePixelRatio || 1));
+    const targetH = Math.floor(rect.height * (window.devicePixelRatio || 1));
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+    }
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    if (modalAutoRotate && !isDraggingNeuralCore) {
+        modalYaw += 0.008;
+        updateNeuralCoreHud();
+    }
+
+    const isSpeaking = ('speechSynthesis' in window && window.speechSynthesis.speaking);
+
+    // Dynamic Mood Color Mapping
+    let primaryColor = '#00f0ff';
+    let sparkColor = '#ffe253';
+    if (meenaCurrentMood === 'TACTICAL') {
+        primaryColor = '#ff3344';
+        sparkColor = '#ffffff';
+    } else if (meenaCurrentMood === 'CARING') {
+        primaryColor = '#00e676';
+        sparkColor = '#ffe253';
+    } else if (meenaCurrentMood === 'PROUD') {
+        primaryColor = '#d946ef';
+        sparkColor = '#00f0ff';
+    }
+
+    const cosY = Math.cos(modalYaw);
+    const sinY = Math.sin(modalYaw);
+    const cosX = Math.cos(modalPitch);
+    const sinX = Math.sin(modalPitch);
+
+    const fov = (w * 1.5) * modalZoom;
+    const distance = 58;
+    const pulseFactor = isSpeaking ? (1 + Math.sin(avatarAngle * 8) * 0.16) : 1.0;
+
+    // 1. Project 3D Nodes
+    const projected = brainNodes.map((n, idx) => {
+        const x1 = (n.x * cosY - n.z * sinY) * pulseFactor;
+        const z1 = (n.x * sinY + n.z * cosY) * pulseFactor;
+        const y1 = n.y * pulseFactor;
+
+        const y2 = y1 * cosX - z1 * sinX;
+        const z2 = y1 * sinX + z1 * cosX;
+
+        const scale = fov / (z2 + distance);
+        const px = cx + x1 * scale;
+        const py = cy - y2 * scale;
+        const depthAlpha = Math.max(0.12, Math.min(1.0, (z2 + 30) / 60));
+
+        return { px, py, z: z2, scale, depthAlpha, idx };
+    });
+
+    // 2. Render Synaptic Axon Connections
+    ctx.lineWidth = Math.max(0.8, 1.2 * modalZoom);
+    brainEdges.forEach(edge => {
+        const p1 = projected[edge.from];
+        const p2 = projected[edge.to];
+        if (!p1 || !p2) return;
+
+        const avgAlpha = (p1.depthAlpha + p2.depthAlpha) * 0.5 * 0.45;
+        ctx.strokeStyle = primaryColor;
+        ctx.globalAlpha = isSpeaking ? Math.min(1.0, avgAlpha * 2.2) : avgAlpha;
+        ctx.beginPath();
+        ctx.moveTo(p1.px, p1.py);
+        ctx.lineTo(p2.px, p2.py);
+        ctx.stroke();
+    });
+
+    // 3. Render Traveling Synaptic Sparks
+    neuralSparks.forEach(sp => {
+        const edge = brainEdges[sp.edgeIdx];
+        if (!edge) return;
+        const p1 = projected[edge.from];
+        const p2 = projected[edge.to];
+        if (!p1 || !p2) return;
+
+        const sx = p1.px + (p2.px - p1.px) * sp.progress;
+        const sy = p1.py + (p2.py - p1.py) * sp.progress;
+
+        ctx.globalAlpha = 0.98;
+        ctx.fillStyle = sparkColor;
+        ctx.shadowColor = sparkColor;
+        ctx.shadowBlur = 8 * modalZoom;
+        ctx.beginPath();
+        ctx.arc(sx, sy, Math.max(1.2, 2.5 * modalZoom), 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+
+    // 4. Render Expanding Synaptic Shockwaves
+    for (let i = modalShockwaves.length - 1; i >= 0; i--) {
+        const sw = modalShockwaves[i];
+        sw.radius += 4.5;
+        sw.alpha -= 0.022;
+
+        if (sw.alpha <= 0 || sw.radius >= sw.maxRadius) {
+            modalShockwaves.splice(i, 1);
+            continue;
+        }
+
+        ctx.globalAlpha = sw.alpha;
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = sw.color;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(cx, cy, sw.radius * modalZoom, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    // 5. Render Dot-Matrix Synaptic Nodes (Sorted Back to Front)
+    projected.sort((a, b) => a.z - b.z);
+    projected.forEach(p => {
+        ctx.globalAlpha = p.depthAlpha;
+        ctx.fillStyle = primaryColor;
+        const rad = Math.max(1.0, (p.scale * 1.1));
+        
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, rad, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner glowing core on foreground nodes
+        if (p.depthAlpha > 0.7) {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(p.px, p.py, rad * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    });
+
+    // 6. Sci-Fi Chamber Reticles & Corner Accents
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 1.5;
+    const cornerSize = 24;
+    // Top-Left
+    ctx.beginPath();
+    ctx.moveTo(16, 16 + cornerSize); ctx.lineTo(16, 16); ctx.lineTo(16 + cornerSize, 16);
+    ctx.stroke();
+    // Top-Right
+    ctx.beginPath();
+    ctx.moveTo(w - 16 - cornerSize, 16); ctx.lineTo(w - 16, 16); ctx.lineTo(w - 16, 16 + cornerSize);
+    ctx.stroke();
+    // Bottom-Left
+    ctx.beginPath();
+    ctx.moveTo(16, h - 16 - cornerSize); ctx.lineTo(16, h - 16); ctx.lineTo(16 + cornerSize, h - 16);
+    ctx.stroke();
+    // Bottom-Right
+    ctx.beginPath();
+    ctx.moveTo(w - 16 - cornerSize, h - 16); ctx.lineTo(w - 16, h - 16); ctx.lineTo(w - 16, h - 16 - cornerSize);
+    ctx.stroke();
+
+    ctx.globalAlpha = 1.0;
+}
+
 function animateAvatar() {
     if (document.hidden) {
         requestAnimationFrame(animateAvatar);
@@ -2239,6 +2600,12 @@ function animateAvatar() {
     // 3. Render Meena Dossier Popup Brain Canvas
     const dosCanvas = document.getElementById('dossier-avatar-canvas');
     if (dosCanvas) renderBrainOnTargetCanvas(dosCanvas, false);
+
+    // 4. Render 3D Neural Core Modal Chamber Canvas
+    const modalChamber = document.getElementById('neural-core-inspector-modal');
+    if (modalChamber && !modalChamber.classList.contains('hidden')) {
+        renderNeuralCoreChamberCanvas();
+    }
 
     requestAnimationFrame(animateAvatar);
 }
@@ -4064,6 +4431,11 @@ function initNeuralWaveform() {
 
 window.initNeuralWaveform = initNeuralWaveform;
 window.setSoundTheme = setSoundTheme;
+window.openNeuralCoreInspectorModal = openNeuralCoreInspectorModal;
+window.closeNeuralCoreInspectorModal = closeNeuralCoreInspectorModal;
+window.toggleNeuralCoreAutoRotate = toggleNeuralCoreAutoRotate;
+window.resetNeuralCoreView = resetNeuralCoreView;
+window.pulseSynapse = pulseSynapse;
 
 // Initial call to populate UI tokens & load calendar
 if (typeof document !== 'undefined') {

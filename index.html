@@ -358,9 +358,12 @@
                 <div class="flex justify-between items-center border-b border-outline-variant/30 pb-2 mb-2 flex-shrink-0">
                     <div class="flex items-center gap-3">
                         <!-- 3D Holographic Dot-Matrix Brain Core Canvas -->
-                        <div class="relative w-32 h-16 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)]">
+                        <div ondblclick="openNeuralCoreInspectorModal()" class="relative w-32 h-16 bg-surface-container-lowest/80 border border-primary/40 rounded flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(102,204,255,0.3)] cursor-pointer group hover:border-primary transition-colors" title="Double-click to expand & inspect 3D Neural Core [360° Orbit]">
                             <canvas id="meena-avatar-canvas" width="128" height="64" class="w-full h-full"></canvas>
-                            <div class="absolute bottom-0.5 right-1.5 text-[8.5px] text-primary/80 font-mono tracking-tight font-bold">NEURAL CORE</div>
+                            <div class="absolute bottom-0.5 right-1.5 text-[8.5px] text-primary/80 font-mono tracking-tight font-bold flex items-center gap-0.5">
+                                <span>NEURAL CORE</span>
+                                <span class="material-symbols-outlined text-[10px] text-primary group-hover:scale-125 transition-transform">open_in_full</span>
+                            </div>
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
@@ -969,7 +972,7 @@
     <div class="bg-surface-container-lowest/80 border-b border-outline-variant/30 px-3.5 py-2.5 flex items-center justify-between flex-shrink-0 relative overflow-hidden">
         <!-- Hologram Visualizer / Meena Avatar Canvas (Clickable to open AI Dossier) -->
         <div class="flex items-center gap-3">
-            <div onclick="openMeenaDossierModal()" class="relative w-14 h-14 rounded-full border-2 border-primary/50 flex items-center justify-center bg-surface-container-low shadow-[0_0_12px_rgba(102,204,255,0.3)] overflow-hidden flex-shrink-0 cursor-pointer active:scale-95 transition-transform" title="Tap to open Meena AI Profile Dossier">
+            <div onclick="openMeenaDossierModal()" ondblclick="openNeuralCoreInspectorModal(); event.stopPropagation();" class="relative w-14 h-14 rounded-full border-2 border-primary/50 flex items-center justify-center bg-surface-container-low shadow-[0_0_12px_rgba(102,204,255,0.3)] overflow-hidden flex-shrink-0 cursor-pointer active:scale-95 transition-transform group" title="Tap to open Dossier • Double-tap to inspect 3D Neural Core">
                 <canvas id="comm-avatar-canvas" width="56" height="56" class="w-full h-full"></canvas>
                 <div class="absolute inset-0 rounded-full border border-primary/20 pointer-events-none holo-ring-outer"></div>
             </div>
@@ -1900,16 +1903,188 @@
     </div>
 </div>
 
+<!-- ==============================================================================
+     3D NEURAL CORE SENSORY INSPECTION CHAMBER MODAL (#neural-core-inspector-modal)
+     ============================================================================== -->
+<div id="neural-core-inspector-modal" class="fixed inset-0 bg-black/85 backdrop-blur-xl z-50 hidden items-center justify-center p-3 sm:p-5 select-none" onclick="if(event.target===this) closeNeuralCoreInspectorModal()">
+    <div class="bg-surface-lowest/95 border-2 border-primary/60 rounded-2xl w-full max-w-6xl h-[90vh] max-h-[920px] flex flex-col overflow-hidden shadow-[0_0_50px_rgba(102,204,255,0.35)] relative font-mono text-on-surface">
+        
+        <!-- Top Tactical LCARS Header Bar -->
+        <div class="bg-surface-container-high/90 border-b border-primary/40 px-4 py-2.5 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <!-- Rotating Ring Scanner -->
+                <div class="relative w-8 h-8 flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border border-dashed border-primary animate-spin"></div>
+                    <span class="material-symbols-outlined text-base text-primary">neurology</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-primary tracking-wider">MEENA™ 3D NEURAL CORE INSPECTION CHAMBER</span>
+                        <span class="text-[9.5px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold border border-primary/40" id="nc-modal-persona-pill">ALEX Lv. 14</span>
+                    </div>
+                    <span class="text-[9px] text-secondary">REAL-TIME 3D SYNAPSE TOPOLOGY & COGNITIVE SUBSYSTEM PROBE</span>
+                </div>
+            </div>
+
+            <!-- Top Header Action Controls -->
+            <div class="flex items-center gap-2 text-xs">
+                <button onclick="pulseSynapse()" class="bg-primary/20 hover:bg-primary hover:text-black text-primary px-3 py-1 rounded border border-primary/40 font-bold transition-all flex items-center gap-1 active:scale-95 shadow-sm" title="Fire high-energy synaptic surge [Double-click canvas]">
+                    <span class="material-symbols-outlined text-sm animate-bounce">bolt</span>
+                    <span>PULSE SYNAPSE</span>
+                </button>
+                <button id="nc-autorotate-btn" onclick="toggleNeuralCoreAutoRotate()" class="bg-surface-bright hover:bg-primary hover:text-black text-secondary px-2.5 py-1 rounded border border-outline-variant/40 font-bold transition-all flex items-center gap-1" title="Toggle continuous orbit auto-rotation">
+                    <span class="material-symbols-outlined text-sm">rotate_right</span>
+                    <span id="nc-autorotate-label">ORBIT: ON</span>
+                </button>
+                <button onclick="resetNeuralCoreView()" class="bg-surface-bright hover:bg-primary hover:text-black text-secondary px-2.5 py-1 rounded border border-outline-variant/40 font-bold transition-all flex items-center gap-1" title="Reset Camera Orbit to Default Angle">
+                    <span class="material-symbols-outlined text-sm">restart_alt</span>
+                    <span>RESET</span>
+                </button>
+                <button onclick="closeNeuralCoreInspectorModal()" class="bg-error/20 hover:bg-error hover:text-white text-error px-2.5 py-1 rounded border border-error/40 font-bold transition-all flex items-center gap-1 active:scale-95" title="Close Inspection Chamber [ESC]">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                    <span>CLOSE</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Body: 3D Canvas Chamber (Left 70%) + Telemetry Inspection Matrix (Right 30%) -->
+        <div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden relative">
+            
+            <!-- Left: Interactive 3D Holographic Canvas Viewport -->
+            <div class="flex-1 relative bg-black/60 flex items-center justify-center overflow-hidden border-b md:border-b-0 md:border-r border-outline-variant/30">
+                <canvas id="neural-core-modal-canvas" width="800" height="600" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                
+                <!-- Floating Top-Left HUD Info -->
+                <div class="absolute top-3 left-3 bg-surface-lowest/85 backdrop-blur-md border border-primary/30 p-2.5 rounded-lg text-[10px] text-secondary flex flex-col gap-1 pointer-events-none shadow-md">
+                    <div class="flex justify-between gap-3 text-primary font-bold">
+                        <span>[●] CORTEX MATRIX:</span>
+                        <span id="nc-cortex-status">ONLINE (256 NODES)</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span>[●] AXONAL VECTORS:</span>
+                        <span class="text-on-surface" id="nc-axon-count">612 SYNAPSES</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span>[●] FIRING FREQ:</span>
+                        <span class="text-lcars-gold" id="nc-freq-val">42.8 Hz (GAMMA)</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span>[●] COGNITIVE LATENCY:</span>
+                        <span class="text-primary" id="nc-latency-val">0.24 ms</span>
+                    </div>
+                </div>
+
+                <!-- Floating Bottom Viewport Angle HUD & Controls Hint -->
+                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <div class="bg-surface-lowest/85 backdrop-blur-md border border-outline-variant/40 px-3 py-1.5 rounded-full text-[9.5px] text-secondary flex items-center gap-3">
+                        <span>YAW: <strong class="text-primary" id="nc-yaw-val">0.0°</strong></span>
+                        <span>PITCH: <strong class="text-primary" id="nc-pitch-val">0.0°</strong></span>
+                        <span>ZOOM: <strong class="text-lcars-gold" id="nc-zoom-val">1.30x</strong></span>
+                    </div>
+                    <div class="bg-surface-lowest/85 backdrop-blur-md border border-primary/40 px-3 py-1.5 rounded-full text-[9px] text-primary font-bold flex items-center gap-1 animate-pulse">
+                        <span class="material-symbols-outlined text-xs">touch_app</span>
+                        <span>DRAG TO ROTATE 360° • SCROLL TO ZOOM • DOUBLE-CLICK TO PULSE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Live Neural Matrix Telemetry & Controls -->
+            <div class="w-full md:w-80 bg-surface-container-lowest/90 p-4 flex flex-col gap-3.5 overflow-y-auto text-xs border-outline-variant/20">
+                
+                <!-- 1. Personality & Affinity Card -->
+                <div class="bg-surface-container-low p-3 rounded-xl border border-primary/30 flex flex-col gap-2">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-1">
+                        <span class="text-primary font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">psychology</span>
+                            <span>PERSONALITY MATRIX</span>
+                        </span>
+                        <span class="text-[10px] bg-lcars-purple/20 text-lcars-purple border border-lcars-purple/40 px-2 py-0.2 rounded font-bold" id="nc-sidebar-persona">ALEX</span>
+                    </div>
+                    <div class="flex flex-col gap-1 text-[11px]">
+                        <div class="flex justify-between"><span class="text-secondary">ARCHETYPE:</span> <strong class="text-on-surface">Analytical Intellectual</strong></div>
+                        <div class="flex justify-between"><span class="text-secondary">AFFINITY RANK:</span> <strong class="text-lcars-gold" id="nc-sidebar-rank">RANK C: OPERATOR</strong></div>
+                        <div class="flex justify-between"><span class="text-secondary">SYNAPSE EXP:</span> <strong class="text-primary" id="nc-sidebar-exp">840 / 1000</strong></div>
+                    </div>
+                </div>
+
+                <!-- 2. Mood Color Shift Matrix -->
+                <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 flex flex-col gap-2">
+                    <span class="text-secondary font-bold text-[10px] flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-lcars-gold">palette</span>
+                        <span>SYNAPTIC MOOD & CHROMATIC MATRIX:</span>
+                    </span>
+                    <div class="grid grid-cols-2 gap-1.5 text-[10px] font-bold">
+                        <button onclick="setMeenaMood('ALEX')" class="bg-cyan-500/20 hover:bg-cyan-500 hover:text-black text-cyan-400 p-1.5 rounded border border-cyan-500/40 text-center transition-all flex items-center justify-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            <span>ANALYTICAL</span>
+                        </button>
+                        <button onclick="setMeenaMood('TACTICAL')" class="bg-rose-500/20 hover:bg-rose-500 hover:text-black text-rose-400 p-1.5 rounded border border-rose-500/40 text-center transition-all flex items-center justify-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                            <span>TACTICAL</span>
+                        </button>
+                        <button onclick="setMeenaMood('CARING')" class="bg-amber-500/20 hover:bg-amber-500 hover:text-black text-amber-400 p-1.5 rounded border border-amber-500/40 text-center transition-all flex items-center justify-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span>CARING</span>
+                        </button>
+                        <button onclick="setMeenaMood('PROUD')" class="bg-purple-500/20 hover:bg-purple-500 hover:text-white text-purple-400 p-1.5 rounded border border-purple-500/40 text-center transition-all flex items-center justify-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                            <span>PROUD</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Hardware Synthesis & Telemetry Anchor -->
+                <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 flex flex-col gap-2">
+                    <span class="text-secondary font-bold text-[10px] flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-primary">memory</span>
+                        <span>HARDWARE SYNTHESIS LINK:</span>
+                    </span>
+                    <div class="grid grid-cols-2 gap-1.5 text-[10.5px]">
+                        <div class="bg-surface-dim/80 p-1.5 rounded border border-outline-variant/20">
+                            <span class="text-secondary block text-[9px]">CORE TEMP</span>
+                            <strong class="text-primary font-mono text-xs" id="nc-hw-temp">52°C</strong>
+                        </div>
+                        <div class="bg-surface-dim/80 p-1.5 rounded border border-outline-variant/20">
+                            <span class="text-secondary block text-[9px]">ARM CLOCK</span>
+                            <strong class="text-lcars-gold font-mono text-xs" id="nc-hw-clock">1200 MHz</strong>
+                        </div>
+                        <div class="bg-surface-dim/80 p-1.5 rounded border border-outline-variant/20">
+                            <span class="text-secondary block text-[9px]">VOLTAGE</span>
+                            <strong class="text-tertiary font-mono text-xs" id="nc-hw-volts">1.20 V</strong>
+                        </div>
+                        <div class="bg-surface-dim/80 p-1.5 rounded border border-outline-variant/20">
+                            <span class="text-secondary block text-[9px]">POWER STATUS</span>
+                            <strong class="text-primary font-mono text-[10px]" id="nc-hw-throttle">NOMINAL</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Quick Actions -->
+                <div class="mt-auto flex flex-col gap-2 pt-2">
+                    <button onclick="speakComputerVoice('All neural matrix lobes operating at optimal synchronic capacity, Sensei!')" class="w-full bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/40 font-bold py-2 rounded text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                        <span>TEST NEURAL VOICE SYNTH</span>
+                    </button>
+                    <button onclick="openMeenaDossierModal()" class="w-full bg-surface-bright hover:bg-lcars-purple hover:text-white text-secondary border border-outline-variant/30 font-bold py-2 rounded text-center transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">badge</span>
+                        <span>VIEW FULL PERSONNEL DOSSIER</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <!-- Application Modular Scripts (Fault-Isolated & Deferred) -->
-    <script defer src="assets/js/config.js?v=3.2.0"></script>
-    <script defer src="assets/js/layout-manager.js?v=3.2.0"></script>
-    <script defer src="assets/js/audio.js?v=3.2.0"></script>
-    <script defer src="assets/js/calendar.js?v=3.2.0"></script>
-    <script defer src="assets/js/routine-scheduler.js?v=3.2.0"></script>
-    <script defer src="assets/js/camera-recon.js?v=3.2.0"></script>
-    <script defer src="assets/js/globe.js?v=3.2.0"></script>
-    <script defer src="assets/js/telemetry.js?v=3.2.0"></script>
-    <script defer src="assets/js/main.js?v=3.2.0"></script>
+    <script defer src="assets/js/config.js?v=3.3.0"></script>
+    <script defer src="assets/js/layout-manager.js?v=3.3.0"></script>
+    <script defer src="assets/js/audio.js?v=3.3.0"></script>
+    <script defer src="assets/js/calendar.js?v=3.3.0"></script>
+    <script defer src="assets/js/routine-scheduler.js?v=3.3.0"></script>
+    <script defer src="assets/js/camera-recon.js?v=3.3.0"></script>
+    <script defer src="assets/js/globe.js?v=3.3.0"></script>
+    <script defer src="assets/js/telemetry.js?v=3.3.0"></script>
+    <script defer src="assets/js/main.js?v=3.3.0"></script>
 
     <!-- Progressive Web App Service Worker Registration -->
     <script>
