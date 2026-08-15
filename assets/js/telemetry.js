@@ -402,11 +402,13 @@ function appendSysLog(logLine) {
 
     const div = document.createElement('div');
     div.textContent = formatted;
+    div.className = "hover:text-tertiary transition-colors whitespace-nowrap overflow-hidden text-ellipsis";
     container.appendChild(div);
 
-    if (container.children.length > 8) {
+    while (container.children.length > 25) {
         container.removeChild(container.firstElementChild);
     }
+    container.scrollTop = container.scrollHeight;
 }
 
 function updatePiHoleUI(pihole) {

@@ -208,7 +208,7 @@ function renderMonthGrid(year, month) {
     // Blank cells before month start
     for (let i = 0; i < firstDay; i++) {
         const blank = document.createElement('div');
-        blank.className = "p-1.5 opacity-20 min-h-[44px]";
+        blank.className = "p-1 opacity-20 h-full min-h-0";
         gridElem.appendChild(blank);
     }
 
@@ -218,7 +218,7 @@ function renderMonthGrid(year, month) {
         const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day);
         const isSelected = (calendarState.selectedDate && calendarState.selectedDate.getFullYear() === year && calendarState.selectedDate.getMonth() === month && calendarState.selectedDate.getDate() === day);
         
-        cell.className = `p-1 min-h-[44px] rounded border transition-all cursor-pointer flex flex-col justify-between ${
+        cell.className = `p-1 h-full min-h-0 rounded border transition-all cursor-pointer flex flex-col justify-between ${
             isSelected
                 ? 'bg-secondary/20 border-secondary shadow-[0_0_8px_rgba(120,228,165,0.4)]'
                 : (isToday 
@@ -231,7 +231,7 @@ function renderMonthGrid(year, month) {
                 <span class="text-xs font-mono font-bold ${isToday ? 'text-primary' : (isSelected ? 'text-secondary' : 'text-on-surface')}">${day}</span>
                 ${isToday ? '<span class="text-[7px] bg-primary text-black font-bold px-1 rounded">TODAY</span>' : ''}
             </div>
-            <div class="day-events-container flex flex-col gap-0.5 mt-0.5"></div>
+            <div class="day-events-container flex flex-col gap-0.5 mt-0.5 overflow-hidden"></div>
         `;
 
         // Find events on this specific day from all parsed feeds

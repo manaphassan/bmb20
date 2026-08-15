@@ -156,6 +156,14 @@ html, body {
     overflow: hidden;
 }
 
+/* Deck 3: Chrono Calendar & Operations Agenda (100% Full Height) */
+#deck-3-container {
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
 /* Sleek Scrollbars for Terminal Feeds */
 #meena-chat-feed::-webkit-scrollbar,
 #knowledge-cards-container::-webkit-scrollbar,
