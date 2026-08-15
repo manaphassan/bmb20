@@ -360,6 +360,8 @@ document.addEventListener('keydown', (e) => {
         setAlertCondition('red', true);
     } else if (k === 'n') {
         if (window.openNeuralCoreInspectorModal) window.openNeuralCoreInspectorModal();
+    } else if (k === 'f') {
+        if (window.toggleNeuralCoreFullscreen) window.toggleNeuralCoreFullscreen();
     } else if (k === 'p') {
         if (window.switchHologramView) window.switchHologramView('earth');
     } else if (k === 's') {

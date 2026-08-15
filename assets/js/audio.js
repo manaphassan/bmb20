@@ -2438,11 +2438,93 @@ function closeNeuralCoreInspectorModal() {
     }
 }
 
+let isNeuralCoreFullscreen = false;
+let isNeuralCoreSidebarHidden = false;
+
+function toggleNeuralCoreFullscreen() {
+    isNeuralCoreFullscreen = !isNeuralCoreFullscreen;
+    const box = document.getElementById('nc-modal-box');
+    const modal = document.getElementById('neural-core-inspector-modal');
+    const icon = document.getElementById('nc-fullscreen-icon');
+    const label = document.getElementById('nc-fullscreen-label');
+
+    if (box && modal) {
+        if (isNeuralCoreFullscreen) {
+            modal.className = "fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] flex items-center justify-center p-0 select-none";
+            box.className = "bg-surface-lowest border-0 rounded-none w-screen h-screen flex flex-col overflow-hidden relative font-mono text-on-surface transition-all duration-300";
+            if (icon) icon.innerText = 'fullscreen_exit';
+            if (label) label.innerText = 'COMPACT';
+        } else {
+            modal.className = "fixed inset-0 bg-black/85 backdrop-blur-xl z-[99999] flex items-center justify-center p-3 sm:p-5 select-none";
+            box.className = "bg-surface-lowest/95 border-2 border-primary/60 rounded-2xl w-full max-w-6xl h-[90vh] max-h-[920px] flex flex-col overflow-hidden shadow-[0_0_50px_rgba(102,204,255,0.35)] relative font-mono text-on-surface transition-all duration-300";
+            if (icon) icon.innerText = 'fullscreen';
+            if (label) label.innerText = 'FULL VIEW';
+        }
+    }
+    if (window.playSound) window.playSound('beep2');
+}
+
+function toggleNeuralCoreSidebar() {
+    isNeuralCoreSidebarHidden = !isNeuralCoreSidebarHidden;
+    const sidebar = document.getElementById('nc-sidebar-panel');
+    const label = document.getElementById('nc-sidebar-toggle-label');
+    if (sidebar) {
+        if (isNeuralCoreSidebarHidden) {
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('flex');
+            if (label) label.innerText = 'TELEMETRY: OFF';
+        } else {
+            sidebar.classList.remove('hidden');
+            sidebar.classList.add('flex');
+            if (label) label.innerText = 'TELEMETRY: ON';
+        }
+    }
+    if (window.playSound) window.playSound('beep1');
+}
+
+function setNeuralCoreFocus(lobe) {
+    if (lobe === 'FRONTAL') {
+        modalYaw = 0.0;
+        modalPitch = 0.05;
+        modalZoom = 2.1;
+        modalAutoRotate = false;
+        speakComputerVoice("Focusing on Frontal Cognitive Lobe: High-speed heuristic deduction matrix active.");
+    } else if (lobe === 'TEMPORAL') {
+        modalYaw = 1.57;
+        modalPitch = 0.1;
+        modalZoom = 1.9;
+        modalAutoRotate = false;
+        speakComputerVoice("Focusing on Temporal Language Center: Neural TTS and auditory synthesis nominal.");
+    } else if (lobe === 'OCCIPITAL') {
+        modalYaw = 3.14;
+        modalPitch = -0.15;
+        modalZoom = 2.0;
+        modalAutoRotate = false;
+        speakComputerVoice("Focusing on Occipital Sensory Array: Deck 4 Computer Vision stream verified.");
+    } else if (lobe === 'AXIAL') {
+        modalYaw = 0.0;
+        modalPitch = 1.45;
+        modalZoom = 1.6;
+        modalAutoRotate = false;
+        speakComputerVoice("Switching to Axial Top-Down View: Left and right cerebral hemispheres aligned.");
+    } else {
+        resetNeuralCoreView();
+        speakComputerVoice("Restoring full 360-degree synaptic cortex overview.");
+    }
+    const label = document.getElementById('nc-autorotate-label');
+    if (label) label.innerText = modalAutoRotate ? 'ORBIT: ON' : 'ORBIT: OFF';
+    updateNeuralCoreHud();
+    if (window.playSound) window.playSound('beep');
+}
+
 window.openNeuralCoreInspectorModal = openNeuralCoreInspectorModal;
 window.closeNeuralCoreInspectorModal = closeNeuralCoreInspectorModal;
 window.toggleNeuralCoreAutoRotate = toggleNeuralCoreAutoRotate;
 window.resetNeuralCoreView = resetNeuralCoreView;
 window.pulseSynapse = pulseSynapse;
+window.toggleNeuralCoreFullscreen = toggleNeuralCoreFullscreen;
+window.toggleNeuralCoreSidebar = toggleNeuralCoreSidebar;
+window.setNeuralCoreFocus = setNeuralCoreFocus;
 
 function bindNeuralCoreTriggers() {
     ['meena-avatar-container', 'meena-avatar-canvas', 'comm-avatar-container', 'comm-avatar-canvas'].forEach(id => {
