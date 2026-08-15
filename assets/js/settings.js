@@ -385,6 +385,131 @@ async function testAllCalendarFeeds() {
     }
 }
 
+async function saveMeenaHearth() {
+    const feedback = document.getElementById('hearth-feedback');
+    if (feedback) {
+        feedback.innerText = 'Creating meenaHearth master restore point on DietPi host...';
+        feedback.className = 'text-[10px] font-mono text-lcars-gold font-bold animate-pulse';
+    }
+
+    try {
+        const bank = JSON.parse(localStorage.getItem('meena_knowledge_bank') || '[]');
+        const growth = JSON.parse(localStorage.getItem('meena_growth_profile') || 'null');
+        const persona = localStorage.getItem('meena_persona') || 'ALEX';
+
+        const hearthPayload = {
+            name: "meenaHearth",
+            version: "2.5.0",
+            codename: "Takahara Core Hearth",
+            description: "Master Core Memory Snapshot & Neural Restore Point for MEENA™ Tactical AI Companion",
+            created_at: new Date().toISOString(),
+            author: "Sensei (manaphassan)",
+            facility: "Takahara Academy (高原学園)",
+            persona_and_personality: {
+                active_persona: persona,
+                identity: {
+                    name: "Meena™",
+                    japanese_name: "高原学園 ミーナ",
+                    role: "Tactical AI Bridge & Academy Companion",
+                    master: "Sensei"
+                }
+            },
+            core_memories: bank,
+            growth_achievements_and_habits: growth || {
+                level: 4,
+                title: "Senior Neural Tactician",
+                total_exp: 1850,
+                growth_metrics: { curiosity_index: 92.4, tactical_awareness: 96.8, memory_retention_rate: 100.0 }
+            }
+        };
+
+        const res = await fetch('api.php?action=backup_hearth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(hearthPayload)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (feedback) {
+                feedback.innerText = `✅ meenaHearth restore point created successfully (${bank.length} core memories saved)!`;
+                feedback.className = 'text-[10px] font-mono text-tertiary font-bold';
+            }
+            alert(`meenaHearth Master Restore Point created successfully! Preserved ${bank.length} core memories and personality on DietPi.`);
+        }
+    } catch (e) {
+        if (feedback) {
+            feedback.innerText = `❌ Error: ${e.message}`;
+            feedback.className = 'text-[10px] font-mono text-error font-bold';
+        }
+        alert('Failed to create meenaHearth: ' + e.message);
+    }
+}
+
+async function downloadMeenaHearth() {
+    try {
+        const res = await fetch('meenaHearth.json?t=' + Date.now()).catch(() => fetch('api.php?action=get_hearth'));
+        let data = null;
+        if (res && res.ok) {
+            data = await res.json();
+        } else {
+            const bank = JSON.parse(localStorage.getItem('meena_knowledge_bank') || '[]');
+            data = { name: "meenaHearth", version: "2.5.0", core_memories: bank };
+        }
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `meenaHearth.json`;
+        a.click();
+    } catch(e) {
+        alert('Failed to download meenaHearth: ' + e.message);
+    }
+}
+
+async function restoreFromMeenaHearth() {
+    if (!confirm('Restore core memories, personality, and growth profile from meenaHearth.json?')) return;
+    const feedback = document.getElementById('hearth-feedback');
+    if (feedback) {
+        feedback.innerText = 'Restoring core memories from meenaHearth...';
+        feedback.className = 'text-[10px] font-mono text-lcars-gold font-bold animate-pulse';
+    }
+
+    try {
+        const res = await fetch('api.php?action=restore_hearth', { method: 'POST' });
+        if (res.ok) {
+            const data = await res.json();
+            // Sync local storage as well
+            const hearthRes = await fetch('meenaHearth.json?t=' + Date.now()).catch(() => fetch('api.php?action=get_hearth'));
+            if (hearthRes && hearthRes.ok) {
+                const hearth = await hearthRes.json();
+                if (hearth.core_memories) {
+                    localStorage.setItem('meena_knowledge_bank', JSON.stringify(hearth.core_memories));
+                }
+                if (hearth.persona_and_personality?.active_persona) {
+                    localStorage.setItem('meena_persona', hearth.persona_and_personality.active_persona);
+                }
+                if (hearth.growth_achievements_and_habits) {
+                    localStorage.setItem('meena_growth_profile', JSON.stringify(hearth.growth_achievements_and_habits));
+                }
+            }
+
+            if (feedback) {
+                feedback.innerText = `✅ Successfully restored ${data.restored_nodes || 'core'} memory nodes from meenaHearth!`;
+                feedback.className = 'text-[10px] font-mono text-tertiary font-bold';
+            }
+            alert(`meenaHearth restored successfully! ${data.restored_nodes || 'All'} core synaptic memories restored.`);
+        }
+    } catch(e) {
+        if (feedback) {
+            feedback.innerText = `❌ Restore error: ${e.message}`;
+            feedback.className = 'text-[10px] font-mono text-error font-bold';
+        }
+        alert('Failed to restore meenaHearth: ' + e.message);
+    }
+}
+
 function exportKnowledgeJSON() {
     const data = localStorage.getItem('meena_knowledge_bank') || '[]';
     const blob = new Blob([data], { type: 'application/json' });
@@ -405,6 +530,9 @@ function importKnowledgeJSON(e) {
             if (Array.isArray(json)) {
                 localStorage.setItem('meena_knowledge_bank', JSON.stringify(json));
                 alert(`Successfully imported ${json.length} knowledge nodes!`);
+            } else if (json.core_memories && Array.isArray(json.core_memories)) {
+                localStorage.setItem('meena_knowledge_bank', JSON.stringify(json.core_memories));
+                alert(`Successfully imported ${json.core_memories.length} knowledge nodes from meenaHearth!`);
             } else {
                 alert('Invalid knowledge JSON format.');
             }
@@ -454,6 +582,9 @@ window.addNewCalendarFromSettings = addNewCalendarFromSettings;
 window.toggleCalendarFromSettings = toggleCalendarFromSettings;
 window.removeCalendarFromSettings = removeCalendarFromSettings;
 window.testAllCalendarFeeds = testAllCalendarFeeds;
+window.saveMeenaHearth = saveMeenaHearth;
+window.downloadMeenaHearth = downloadMeenaHearth;
+window.restoreFromMeenaHearth = restoreFromMeenaHearth;
 window.exportKnowledgeJSON = exportKnowledgeJSON;
 window.importKnowledgeJSON = importKnowledgeJSON;
 window.executeMaintenanceAction = executeMaintenanceAction;

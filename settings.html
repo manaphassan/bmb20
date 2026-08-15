@@ -269,29 +269,60 @@
             <section id="panel-memory-graph" class="settings-panel hidden flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/30">
                 <div class="border-b border-outline-variant/30 pb-2">
                     <h2 class="text-sm font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-base">hub</span>
-                        <span>SYNAPTIC KNOWLEDGE GRAPH MEMORY & BACKUPS</span>
+                        <span class="material-symbols-outlined text-base">local_fire_department</span>
+                        <span>MEENA HEARTH // CORE MEMORY, PERSONALITY & GROWTH VAULT</span>
                     </h2>
-                    <p class="text-[11px] text-secondary">Backup, export, restore, or synchronize learned memories stored on your DietPi host.</p>
+                    <p class="text-[11px] text-secondary">Manage <code class="text-primary font-mono font-bold">meenaHearth</code> &mdash; Meena's master core memory snapshot, personality archetypes, learning habits, and achievement milestones.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- meenaHearth Master Core Card -->
+                <div class="bg-surface-container-high p-4 rounded-xl border border-primary/40 shadow-[0_0_15px_rgba(194,193,255,0.1)] flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-primary animate-pulse"></span>
+                            <strong class="text-xs font-bold text-primary font-mono">MASTER RESTORE POINT: meenaHearth.json</strong>
+                        </div>
+                        <span id="hearth-status-badge" class="text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-mono font-bold">ACTIVE & SYNCED</span>
+                    </div>
+
+                    <p class="text-[10.5px] text-secondary leading-relaxed">
+                        The <strong class="text-on-surface">meenaHearth</strong> serves as Meena's immortal core memory anchor. It preserves her episodic knowledge graph, Alex/Chloe/Nova/Nexus persona parameters, EXP growth levels, and autonomous learning habits across reboots and fresh installations.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                        <button onclick="saveMeenaHearth()" class="bg-primary text-black font-bold py-2.5 px-3 rounded-lg text-xs hover:bg-primary/80 transition-all flex items-center justify-center gap-1.5 font-mono shadow-sm">
+                            <span class="material-symbols-outlined text-sm">save</span>
+                            <span>CREATE HEARTH</span>
+                        </button>
+                        <button onclick="downloadMeenaHearth()" class="bg-surface-bright text-on-surface border border-outline-variant/40 font-bold py-2.5 px-3 rounded-lg text-xs hover:bg-surface-container-highest hover:text-primary transition-all flex items-center justify-center gap-1.5 font-mono">
+                            <span class="material-symbols-outlined text-sm">download</span>
+                            <span>DOWNLOAD FILE</span>
+                        </button>
+                        <button onclick="restoreFromMeenaHearth()" class="bg-tertiary/20 text-tertiary border border-tertiary/40 font-bold py-2.5 px-3 rounded-lg text-xs hover:bg-tertiary hover:text-black transition-all flex items-center justify-center gap-1.5 font-mono">
+                            <span class="material-symbols-outlined text-sm">history</span>
+                            <span>RESTORE HEARTH</span>
+                        </button>
+                    </div>
+                    <div id="hearth-feedback" class="text-[10px] font-mono text-tertiary font-bold min-h-[16px]"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
                     <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
-                        <span class="text-xs font-bold text-primary">EXPORT MEMORIES</span>
-                        <p class="text-[10px] text-secondary">Download your entire knowledge graph as a JSON file backup.</p>
-                        <button onclick="exportKnowledgeJSON()" class="bg-primary text-black font-bold py-2 rounded text-xs hover:bg-primary/80 transition-all flex items-center justify-center gap-1 font-mono mt-auto">
+                        <span class="text-xs font-bold text-primary">EXPORT RAW MEMORIES</span>
+                        <p class="text-[10px] text-secondary">Export raw knowledge graph nodes only as a simple JSON array.</p>
+                        <button onclick="exportKnowledgeJSON()" class="bg-surface-bright text-on-surface border border-outline-variant/40 font-bold py-2 rounded text-xs hover:text-primary transition-all flex items-center justify-center gap-1 font-mono mt-auto">
                             <span class="material-symbols-outlined text-xs">download</span>
-                            <span>EXPORT BACKUP (.JSON)</span>
+                            <span>EXPORT MEMORIES (.JSON)</span>
                         </button>
                     </div>
 
                     <div class="bg-surface-container-high p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
-                        <span class="text-xs font-bold text-tertiary">IMPORT MEMORIES</span>
-                        <p class="text-[10px] text-secondary">Restore your knowledge graph from an existing JSON backup file.</p>
+                        <span class="text-xs font-bold text-tertiary">IMPORT CUSTOM JSON</span>
+                        <p class="text-[10px] text-secondary">Import an external knowledge graph JSON into Meena's synaptic memory.</p>
                         <input type="file" id="import-json-file" accept=".json" class="hidden" onchange="importKnowledgeJSON(event)">
-                        <button onclick="document.getElementById('import-json-file').click()" class="bg-tertiary text-black font-bold py-2 rounded text-xs hover:bg-tertiary/80 transition-all flex items-center justify-center gap-1 font-mono mt-auto">
+                        <button onclick="document.getElementById('import-json-file').click()" class="bg-surface-bright text-on-surface border border-outline-variant/40 font-bold py-2 rounded text-xs hover:text-tertiary transition-all flex items-center justify-center gap-1 font-mono mt-auto">
                             <span class="material-symbols-outlined text-xs">upload</span>
-                            <span>IMPORT FILE</span>
+                            <span>IMPORT CUSTOM FILE</span>
                         </button>
                     </div>
                 </div>

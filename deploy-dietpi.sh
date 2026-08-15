@@ -55,6 +55,13 @@ if [ -f "${SCRIPT_DIR}/calendar_events.json" ]; then
     chmod 0664 "${TARGET_DIR}/calendar_events.json" 2>/dev/null || true
 fi
 
+if [ -f "${SCRIPT_DIR}/meenaHearth.json" ]; then
+    echo "[+] Deploying meenaHearth.json master core memory..."
+    cp -fv "${SCRIPT_DIR}/meenaHearth.json" "${TARGET_DIR}/meenaHearth.json"
+    cp -fv "${SCRIPT_DIR}/meenaHearth.json" "/var/www/meenaHearth.json" 2>/dev/null || true
+    chmod 0664 "${TARGET_DIR}/meenaHearth.json" 2>/dev/null || true
+fi
+
 if [ -d "${SCRIPT_DIR}/assets" ]; then
     echo "[+] Deploying unified assets directory..."
     mkdir -p "${TARGET_DIR}/assets" "/var/www/assets"

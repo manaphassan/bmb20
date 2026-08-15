@@ -13,6 +13,8 @@ $action = trim($action);
 if (!empty($action)) {
     $memFile = file_exists('/var/www/html/knowledge_bank.json') ? '/var/www/html/knowledge_bank.json' : (file_exists('/var/www/knowledge_bank.json') ? '/var/www/knowledge_bank.json' : '/var/www/html/knowledge_bank.json');
 
+    $hearthFile = file_exists('/var/www/html/meenaHearth.json') ? '/var/www/html/meenaHearth.json' : (file_exists('/var/www/meenaHearth.json') ? '/var/www/meenaHearth.json' : (__DIR__ . '/meenaHearth.json'));
+
     if ($action === 'get_memories') {
         if (file_exists($memFile)) {
             $content = file_get_contents($memFile);
@@ -35,6 +37,63 @@ if (!empty($action)) {
             }
         }
         echo json_encode(['status' => 'error', 'message' => 'Invalid JSON payload']);
+        exit;
+    }
+
+    if ($action === 'get_hearth') {
+        if (file_exists($hearthFile)) {
+            echo file_get_contents($hearthFile);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'meenaHearth.json not found']);
+        }
+        exit;
+    }
+
+    if ($action === 'backup_hearth') {
+        $raw = file_get_contents('php://input');
+        $payload = null;
+        if ($raw) {
+            $payload = json_decode($raw, true);
+        }
+
+        if (!$payload && file_exists($hearthFile)) {
+            $payload = json_decode(file_get_contents($hearthFile), true);
+        }
+
+        if ($payload !== null) {
+            $payload['created_at'] = date('c');
+            $jsonOut = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            @file_put_contents($hearthFile, $jsonOut);
+            @file_put_contents('/var/www/html/meenaHearth.json', $jsonOut);
+            @file_put_contents('/var/www/meenaHearth.json', $jsonOut);
+            @chmod($hearthFile, 0664);
+            echo json_encode(['status' => 'success', 'message' => 'meenaHearth core memory backup created successfully', 'hearth' => $payload]);
+            exit;
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Failed to create meenaHearth backup']);
+        exit;
+    }
+
+    if ($action === 'restore_hearth') {
+        if (file_exists($hearthFile)) {
+            $hearth = json_decode(file_get_contents($hearthFile), true);
+            if ($hearth && !empty($hearth['core_memories'])) {
+                $memData = [
+                    'bank' => $hearth['core_memories'],
+                    'growth' => $hearth['growth_achievements_and_habits'] ?? null,
+                    'persona' => $hearth['persona_and_personality']['active_persona'] ?? 'ALEX',
+                    'timestamp' => date('c')
+                ];
+                $jsonOut = json_encode($memData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                @file_put_contents($memFile, $jsonOut);
+                @file_put_contents('/var/www/html/knowledge_bank.json', $jsonOut);
+                @file_put_contents('/var/www/knowledge_bank.json', $jsonOut);
+                @chmod($memFile, 0664);
+                echo json_encode(['status' => 'success', 'message' => 'Restored core memories from meenaHearth', 'restored_nodes' => count($hearth['core_memories'])]);
+                exit;
+            }
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Invalid or missing meenaHearth.json']);
         exit;
     }
 
