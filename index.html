@@ -171,66 +171,75 @@
         </div>
 
         <!-- 4. Sensors & Hardware Telemetry Dock -->
-        <div class="px-2 mb-2 font-data-mono text-[10px] flex flex-col gap-1.5 bg-surface-container/70 p-2.5 rounded mr-2 border border-outline-variant/30 shadow-inner">
+        <div class="px-2 mb-2 font-data-mono text-xs flex flex-col gap-2 bg-surface-container/80 p-3 rounded mr-2 border border-outline-variant/30 shadow-inner">
             <!-- Atmospheric Weather Readout -->
-            <div class="text-tertiary uppercase text-[10px] font-headline-sm border-b border-outline-variant/30 pb-1 flex justify-between items-center font-bold">
+            <div class="text-tertiary uppercase text-xs font-headline-sm border-b border-outline-variant/30 pb-1.5 flex justify-between items-center font-bold">
                 <span class="flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-xs" id="wx-icon">partly_cloudy_day</span>
-                    <span>ATMOSPHERIC</span>
+                    <span class="material-symbols-outlined text-sm text-tertiary" id="wx-icon">partly_cloudy_day</span>
+                    <span class="tracking-wider">ATMOSPHERIC</span>
                 </span>
-                <span class="text-on-surface font-bold font-mono text-xs" id="wx-temp">--&deg;C</span>
+                <span class="text-on-surface font-black font-mono text-sm text-lcars-gold" id="wx-temp">--&deg;C</span>
             </div>
-            <div class="flex justify-between text-secondary text-[9px]">
-                <span id="wx-desc" class="truncate max-w-[100px]">TERRA SENSORS</span>
-                <span id="wx-wind" class="text-primary font-mono font-bold">--</span>
+            <div class="flex justify-between items-center text-xs">
+                <span id="wx-desc" class="truncate font-semibold text-secondary text-xs">TERRA SENSORS</span>
+                <span id="wx-wind" class="text-primary font-mono font-bold text-xs">--</span>
             </div>
             <!-- 3-Day Mini Forecast Strip -->
-            <div class="grid grid-cols-3 gap-1 py-1 border-t border-b border-outline-variant/20" id="wx-forecast">
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                    <span class="text-[7.5px] text-secondary font-bold">TODAY</span>
-                    <span class="text-[8px] text-on-surface font-mono font-bold">33&deg;/24&deg;</span>
+            <div class="grid grid-cols-3 gap-1.5 py-1 border-t border-b border-outline-variant/20" id="wx-forecast">
+                <div class="flex flex-col items-center bg-surface-container-highest/80 px-1 py-1 rounded text-center">
+                    <span class="text-[10px] text-secondary font-bold">TODAY</span>
+                    <span class="text-xs text-on-surface font-mono font-bold">33&deg;/24&deg;</span>
                 </div>
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                    <span class="text-[7.5px] text-secondary font-bold">TMRW</span>
-                    <span class="text-[8px] text-on-surface font-mono font-bold">32&deg;/24&deg;</span>
+                <div class="flex flex-col items-center bg-surface-container-highest/80 px-1 py-1 rounded text-center">
+                    <span class="text-[10px] text-secondary font-bold">TMRW</span>
+                    <span class="text-xs text-on-surface font-mono font-bold">32&deg;/24&deg;</span>
                 </div>
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-1 py-0.5 rounded text-center">
-                    <span class="text-[7.5px] text-secondary font-bold">DAY 3</span>
-                    <span class="text-[8px] text-on-surface font-mono font-bold">33&deg;/25&deg;</span>
+                <div class="flex flex-col items-center bg-surface-container-highest/80 px-1 py-1 rounded text-center">
+                    <span class="text-[10px] text-secondary font-bold">DAY 3</span>
+                    <span class="text-xs text-on-surface font-mono font-bold">33&deg;/25&deg;</span>
                 </div>
             </div>
 
             <!-- Hardware Diagnostics -->
-            <div class="text-secondary uppercase text-[9px] font-headline-sm pt-0.5 flex justify-between items-center font-bold">
-                <span>HARDWARE METRICS</span>
-                <span class="text-primary text-[8.5px] font-bold" id="os-upgrades-badge">OPTIMIZED</span>
+            <div class="text-secondary uppercase text-xs font-headline-sm pt-1 flex justify-between items-center font-bold">
+                <span class="tracking-wider">HARDWARE METRICS</span>
+                <span class="text-primary text-[11px] font-bold bg-primary/10 px-1.5 py-0.5 rounded border border-primary/30" id="os-upgrades-badge">OPTIMIZED</span>
             </div>
             <!-- CPU & RAM in 2 Cols -->
-            <div class="grid grid-cols-2 gap-1.5">
-                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
-                    <div class="flex justify-between text-secondary text-[8.5px]">
-                        <span class="flex items-center gap-0.5 font-bold">CPU <span class="hidden text-[7px] bg-error text-on-error px-0.5 rounded font-bold" id="cpu-alert">HOT</span></span>
-                        <span id="cpu-val" class="text-primary font-bold">--%</span>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="flex flex-col gap-1 bg-surface-dim/80 p-2 rounded border border-outline-variant/20 shadow-sm">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="flex items-center gap-1 font-bold text-secondary text-[11px]">CPU <span class="hidden text-[8px] bg-error text-on-error px-1 rounded font-bold" id="cpu-alert">HOT</span></span>
+                        <span id="cpu-val" class="text-primary font-bold font-mono text-xs">--%</span>
                     </div>
-                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
                         <div class="bg-primary h-full w-[25%] transition-all" id="cpu-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
-                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">RAM</span> <span id="mem-val" class="text-tertiary font-bold">--%</span></div>
-                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-1 bg-surface-dim/80 p-2 rounded border border-outline-variant/20 shadow-sm">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-secondary text-[11px]">RAM</span>
+                        <span id="mem-val" class="text-tertiary font-bold font-mono text-xs">--%</span>
+                    </div>
+                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
                         <div class="bg-tertiary h-full w-[35%] transition-all" id="mem-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
-                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">TEMP</span> <span id="temp-val" class="text-lcars-blue font-bold">--&deg;C</span></div>
-                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-1 bg-surface-dim/80 p-2 rounded border border-outline-variant/20 shadow-sm">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-secondary text-[11px]">TEMP</span>
+                        <span id="temp-val" class="text-lcars-blue font-bold font-mono text-xs">--&deg;C</span>
+                    </div>
+                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
                         <div class="bg-lcars-blue h-full w-[50%] transition-all" id="temp-bar"></div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-0.5 bg-surface-dim/70 p-1.5 rounded border border-outline-variant/20">
-                    <div class="flex justify-between text-secondary text-[8.5px]"><span class="font-bold">DISK</span> <span id="disk-val" class="text-on-surface font-bold">--%</span></div>
-                    <div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+                <div class="flex flex-col gap-1 bg-surface-dim/80 p-2 rounded border border-outline-variant/20 shadow-sm">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-secondary text-[11px]">DISK</span>
+                        <span id="disk-val" class="text-on-surface font-bold font-mono text-xs">--%</span>
+                    </div>
+                    <div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
                         <div class="bg-secondary-container h-full w-[40%]" id="disk-bar"></div>
                     </div>
                 </div>

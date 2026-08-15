@@ -543,10 +543,10 @@ function updateWeatherUI(weather) {
         for (let i = 0; i < Math.min(3, daily.temperature_2m_max.length); i++) {
             const fWmo = WMO_MAP[daily.weather_code ? daily.weather_code[i] : 2] || { icon: "partly_cloudy_day" };
             html += `
-                <div class="flex flex-col items-center bg-surface-container-highest/60 px-2 py-0.5 rounded text-center">
-                    <span class="text-[8px] text-secondary font-bold">${days[i]}</span>
-                    <span class="material-symbols-outlined text-xs text-tertiary my-0.5">${fWmo.icon}</span>
-                    <span class="text-[8px] text-on-surface font-mono">${Math.round(daily.temperature_2m_max[i])}\u00B0/${Math.round(daily.temperature_2m_min[i])}\u00B0</span>
+                <div class="flex flex-col items-center bg-surface-container-highest/80 px-1.5 py-1 rounded text-center border border-outline-variant/20 shadow-sm">
+                    <span class="text-[10px] text-secondary font-bold font-mono">${days[i]}</span>
+                    <span class="material-symbols-outlined text-sm text-tertiary my-0.5">${fWmo.icon}</span>
+                    <span class="text-xs text-on-surface font-mono font-bold">${Math.round(daily.temperature_2m_max[i])}\u00B0/${Math.round(daily.temperature_2m_min[i])}\u00B0</span>
                 </div>
             `;
         }
