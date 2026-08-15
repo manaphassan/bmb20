@@ -935,7 +935,9 @@ function getKnowledgeBank() {
         { id: '2', category: 'facility', fact: 'Pi-hole Port: 8089 on DietPi', desc: 'DNS Defense Shield', timestamp: new Date().toISOString() },
         { id: '3', category: 'profile', fact: 'Sensei prefers English voice with Japanese flair', desc: 'Audio Preference', timestamp: new Date().toISOString() },
         { id: '4', category: 'routines', fact: 'Daily morning mission briefing at 08:00 AM', desc: 'Scheduled Operation', timestamp: new Date().toISOString() },
-        { id: '5', category: 'missions', fact: 'Keep DietPi and Pi-hole blocklists updated', desc: 'Active Defense Task', timestamp: new Date().toISOString() }
+        { id: '5', category: 'missions', fact: 'Keep DietPi and Pi-hole blocklists updated', desc: 'Active Defense Task', timestamp: new Date().toISOString() },
+        { id: '6', category: 'facility', fact: 'Factual Grounding: Always answer with verified facts & citations, strictly zero hallucinations', desc: 'Truth Protocol', timestamp: new Date().toISOString() },
+        { id: '7', category: 'profile', fact: 'Truthful Humility: If Meena lacks knowledge on a subject, apologize and admit the truth', desc: 'Honesty Boundary', timestamp: new Date().toISOString() }
     ];
     localStorage.setItem('meena_knowledge_bank', JSON.stringify(defaults));
     return defaults;
@@ -2158,6 +2160,10 @@ async function askMeenaAI(question) {
                 const systemInstruction = `You are Meena™ (高原学園), tactical AI companion at Takahara Academy.
 ${alexInstruction}
 Address the user respectfully as Sensei. Always sound organic, spontaneous, engaging and natural—never sound robotic or scripted.
+
+CRITICAL CORE DIRECTIVES:
+1. FACTUAL GROUNDING: Always answer with verified facts, empirical accuracy, and cite credible resources/references when applicable. Strictly avoid hallucinations or making up answers.
+2. TRUTHFUL HUMILITY: If you do not have verified knowledge or data on the requested subject, apologize politely and state the truth with 100% honesty (e.g. "Gomen nasai, Sensei, I don't have verified data on that yet, but I can help research it with you!"). Never pretend to know something you don't.
 
 Current Live System Environment:
 - Local Time & Date: ${timeStr} on ${dateStr}
