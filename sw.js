@@ -5,7 +5,7 @@
  * ==============================================================================
  */
 
-const CACHE_NAME = 'meena-lcars-v2.6.0';
+const CACHE_NAME = 'meena-lcars-v3.0.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/dashboard',
@@ -49,15 +49,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Fetch Event: Network-first for dynamic API routes, Stale-while-revalidate for static shell
+// 3. Fetch Event: Network-first for JS, CSS, and dynamic API routes
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Dynamic API routes & live telemetry: Always Network-First
-  if (url.pathname.startsWith('/api/') || url.pathname.includes('action=') || url.pathname.includes('/tts')) {
+  // Always Network-First for APIs and JS assets
+  if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.includes('action=')) {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(event.request);
+      fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const resClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+        }
+        return networkResponse;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
       })
     );
     return;
