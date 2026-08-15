@@ -126,7 +126,7 @@ function applyLayoutMode(mode) {
         if (commLayout) commLayout.style.display = 'flex';
         document.body.classList.add('mode-communicator');
         document.body.classList.remove('mode-bridge');
-        if (headerModeBadge) headerModeBadge.innerHTML = '<span class="material-symbols-outlined text-[13px]">devices</span><span class="truncate">COMM</span>';
+        if (headerModeBadge) headerModeBadge.innerHTML = '<div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-tertiary">desktop_windows</span><span class="truncate font-bold text-xs">BRIDGE</span></div><span class="text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-mono font-bold">ACTIVE</span>';
         if (commModeBadge) commModeBadge.innerText = 'COMMUNICATOR';
 
         // Trigger immediate sync of transcript and telemetry
@@ -136,7 +136,7 @@ function applyLayoutMode(mode) {
         if (bridgeLayout) bridgeLayout.style.display = 'flex';
         document.body.classList.add('mode-bridge');
         document.body.classList.remove('mode-communicator');
-        if (headerModeBadge) headerModeBadge.innerHTML = '<span class="material-symbols-outlined text-[13px]">devices</span><span class="truncate">BRIDGE</span>';
+        if (headerModeBadge) headerModeBadge.innerHTML = '<div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-primary">cell_tower</span><span class="truncate font-bold text-xs">COMMUNICATOR</span></div><span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-mono font-bold">PADD</span>';
 
         // Resize 3D WebGL and 2D Knowledge Graph canvases
         if (window.resizeKnowledgeGraphCanvas) window.resizeKnowledgeGraphCanvas();

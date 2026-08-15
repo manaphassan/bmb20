@@ -247,18 +247,15 @@
         </div>
 
         <!-- 5. Bottom LCARS Command Actions Cluster -->
-        <div class="px-2 mt-auto flex flex-col gap-1.5 font-data-mono">
-            <!-- Top Action Row: Layout Mode + Pi-hole Shield -->
-            <div class="grid grid-cols-2 gap-1.5 mr-2 text-xs">
-                <button onclick="toggleLayoutMode()" class="bg-surface-container-high hover:bg-primary hover:text-black text-primary font-bold py-2 px-2.5 rounded-l-full text-left transition-all flex items-center justify-between border border-outline-variant/30 shadow-sm active:scale-95" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
-                    <span class="material-symbols-outlined text-sm">devices</span>
-                    <span class="truncate font-bold">BRIDGE</span>
-                </button>
-                <button class="bg-lcars-orange hover:bg-lcars-gold text-black font-bold py-2 px-2.5 rounded-r text-right transition-all flex items-center justify-between shadow-sm active:scale-95" id="sidebar-shield-btn" onclick="openPiholeModal()" title="Manage Pi-hole Defense Shield">
-                    <span class="material-symbols-outlined text-sm">security</span>
-                    <span class="truncate font-bold" id="sidebar-shield-label">SHIELD</span>
-                </button>
-            </div>
+        <div class="px-2 mt-auto flex flex-col gap-2 font-data-mono">
+            <!-- Mode Switcher Action Button -->
+            <button onclick="toggleLayoutMode()" class="w-full bg-surface-container-high hover:bg-primary hover:text-black text-primary font-bold py-2.5 px-3 rounded-l-full text-left transition-all flex items-center justify-between border border-outline-variant/30 shadow-sm active:scale-95 mr-2" id="header-mode-badge" title="Toggle between Desktop Command Bridge and Mobile Communicator">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">cell_tower</span>
+                    <span class="truncate font-bold text-xs">COMMUNICATOR</span>
+                </div>
+                <span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-mono font-bold">PADD</span>
+            </button>
 
             <!-- Middle Action Row: Voice Mic + Meena Dossier -->
             <div class="grid grid-cols-2 gap-1.5 mr-2 text-xs">
@@ -964,40 +961,40 @@
     </div>
 
     <!-- Main Message Transcript Stream -->
-    <div id="comm-transcript-stream" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 font-mono text-xs leading-relaxed">
-        <div class="bg-surface-container-low/90 p-2.5 rounded-xl border border-outline-variant/30 self-start max-w-[90%] flex flex-col gap-1">
-            <div class="flex items-center gap-1.5">
-                <span class="text-[9px] font-bold text-primary font-mono">[MEENA]</span>
-                <span class="text-[8px] text-secondary">TRANSMISSION ACTIVE</span>
+    <div id="comm-transcript-stream" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5 font-mono text-sm leading-relaxed">
+        <div class="bg-surface-container-low/95 p-3 rounded-2xl border border-outline-variant/40 self-start max-w-[92%] flex flex-col gap-1.5 shadow-md">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-primary font-mono bg-primary/15 px-1.5 py-0.5 rounded border border-primary/30">[MEENA]</span>
+                <span class="text-[9px] text-secondary font-mono">TRANSMISSION ACTIVE</span>
             </div>
-            <p class="text-on-surface text-xs leading-snug">Ohayou, Sensei! Starfleet Communicator channel is active and secure. How can I assist you right now?</p>
+            <p class="text-on-surface text-sm leading-relaxed font-sans">Ohayou, Sensei! Starfleet Communicator channel is active and secure. How can I assist you right now?</p>
         </div>
     </div>
 
     <!-- Quick Action Comms Chips (Horizontal Touch Slider) -->
-    <div class="bg-surface-container/60 border-t border-outline-variant/30 px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar flex-shrink-0 text-[9px] font-bold">
-        <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30 text-tertiary">
-            <span class="material-symbols-outlined text-[11px] text-tertiary">calendar_month</span>
+    <div class="bg-surface-container/80 border-t border-outline-variant/30 px-2.5 py-2 flex gap-2 overflow-x-auto no-scrollbar flex-shrink-0 text-xs font-bold">
+        <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary">
+            <span class="material-symbols-outlined text-sm text-tertiary">calendar_month</span>
             <span>CALENDAR</span>
         </button>
-        <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
-            <span class="material-symbols-outlined text-[11px] text-primary">analytics</span>
+        <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary">
+            <span class="material-symbols-outlined text-sm text-primary">analytics</span>
             <span>STATUS</span>
         </button>
-        <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
-            <span class="material-symbols-outlined text-[11px] text-lcars-orange">shield</span>
+        <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-lcars-orange">
+            <span class="material-symbols-outlined text-sm text-lcars-orange">shield</span>
             <span>PI-HOLE</span>
         </button>
-        <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
-            <span class="material-symbols-outlined text-[11px] text-primary">memory</span>
+        <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary">
+            <span class="material-symbols-outlined text-sm text-primary">memory</span>
             <span>HARDWARE</span>
         </button>
-        <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
-            <span class="material-symbols-outlined text-[11px] text-error">cleaning_services</span>
+        <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers')" class="bg-surface-bright hover:bg-error hover:text-white py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-error">
+            <span class="material-symbols-outlined text-sm text-error">cleaning_services</span>
             <span>PURGE RAM</span>
         </button>
-        <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-2.5 rounded-full text-center transition-all shadow-sm flex items-center gap-1 flex-shrink-0 border border-outline-variant/30">
-            <span class="material-symbols-outlined text-[11px] text-tertiary">wb_sunny</span>
+        <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary">
+            <span class="material-symbols-outlined text-sm text-tertiary">wb_sunny</span>
             <span>BRIEFING</span>
         </button>
     </div>
@@ -1007,7 +1004,7 @@
         <!-- Large Ergonomic Push-To-Talk Button -->
         <div class="flex items-center justify-center py-1">
             <button id="comm-ptt-button" onclick="if (window.toggleVoiceRecognition) window.toggleVoiceRecognition()" 
-                    class="ptt-button w-full max-w-xs bg-gradient-to-r from-primary to-lcars-blue text-black font-bold py-3.5 px-4 rounded-full shadow-[0_0_20px_rgba(102,204,255,0.4)] flex items-center justify-center gap-2 text-sm tracking-wider uppercase border border-white/30">
+                    class="ptt-button w-full max-w-xs bg-gradient-to-r from-primary to-lcars-blue text-black font-bold py-3.5 px-4 rounded-full shadow-[0_0_20px_rgba(102,204,255,0.4)] flex items-center justify-center gap-2 text-sm tracking-wider uppercase border border-white/30 active:scale-95 transition-transform">
                 <div class="ptt-ripple-ring"></div>
                 <span class="material-symbols-outlined text-xl" id="comm-ptt-mic-icon">mic</span>
                 <span id="comm-ptt-label">PUSH TO TRANSMIT</span>
@@ -1015,13 +1012,13 @@
         </div>
 
         <!-- Text Input Fallback -->
-        <div class="flex gap-1.5">
+        <div class="flex gap-2">
             <input type="text" id="comm-text-input" placeholder="Type tactical command..."
-                   class="flex-1 bg-surface-lowest border border-outline-variant px-3 py-2 rounded-full text-xs text-on-surface focus:outline-none focus:border-primary font-mono"
+                   class="flex-1 bg-surface-lowest border border-outline-variant px-4 py-2.5 rounded-full text-xs text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); const v = this.value.trim(); if (v) { this.value = ''; sendChatMessage(v); } }"/>
             <button onclick="const inp = document.getElementById('comm-text-input'); if (inp && inp.value.trim()) { const v = inp.value.trim(); inp.value = ''; sendChatMessage(v); }"
-                    class="bg-primary hover:bg-primary/80 text-black font-bold px-4 py-2 rounded-full text-xs flex items-center justify-center shadow-sm">
-                <span class="material-symbols-outlined text-sm">send</span>
+                    class="bg-primary hover:bg-primary/80 text-black font-bold px-4 py-2.5 rounded-full text-xs flex items-center justify-center shadow-sm active:scale-95 transition-transform">
+                <span class="material-symbols-outlined text-base">send</span>
             </button>
         </div>
     </div>
