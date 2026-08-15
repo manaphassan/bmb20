@@ -37,20 +37,20 @@ let motionAnalysisCtx = null;
 let prevFrameData = null;
 
 let headCentroid = {
-    x: 0.5,
-    y: 0.4,
-    smoothX: 0.5,
-    smoothY: 0.4,
+    x: 0.52,
+    y: 0.42,
+    smoothX: 0.52,
+    smoothY: 0.42,
     width: 0.28,
     height: 0.36,
     smoothW: 0.28,
     smoothH: 0.36,
-    active: false,
-    intensity: 0,
+    active: true,
+    intensity: 75,
     velocity: 0,
     bbox: null,
     landmarks: null,
-    lastDetectedTime: 0
+    lastDetectedTime: performance.now()
 };
 let headTrail = [];
 
@@ -346,6 +346,8 @@ async function startVisualRecon(facingMode = currentCameraFacing) {
 
         reconMediaStream = stream;
         isReconActive = true;
+        headCentroid.active = true;
+        headCentroid.lastDetectedTime = performance.now();
 
         if (!motionAnalysisCanvas) {
             motionAnalysisCanvas = document.createElement('canvas');
@@ -734,7 +736,7 @@ function startTacticalHUDLoop() {
         const canvases = [
             document.getElementById('recon-hud-overlay'),
             document.getElementById('comm-recon-hud-overlay')
-        ].filter(c => c && c.offsetParent !== null);
+        ].filter(c => c && (c.clientWidth > 0 || c.offsetWidth > 0 || c.offsetParent !== null));
 
         for (const canvas of canvases) {
             const w = canvas.clientWidth || 320;
