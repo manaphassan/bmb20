@@ -165,7 +165,30 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     if (diskVal) diskVal.innerText = `${disk}%`;
     if (diskBar) diskBar.style.width = `${diskPct}%`;
 
-    // 5. OS Updates & Kernel Health
+    // 5. Mobile Communicator Telemetry Drawer Bindings
+    const commCpuVal = document.getElementById('comm-cpu-val');
+    const commCpuBar = document.getElementById('comm-cpu-bar');
+    const commMemVal = document.getElementById('comm-mem-val');
+    const commMemBar = document.getElementById('comm-mem-bar');
+    const commTempVal = document.getElementById('comm-temp-val');
+    const commTempBar = document.getElementById('comm-temp-bar');
+    const commDiskVal = document.getElementById('comm-disk-val');
+    const commDiskBar = document.getElementById('comm-disk-bar');
+    const commMiniCpu = document.getElementById('comm-mini-cpu');
+    const commMiniTemp = document.getElementById('comm-mini-temp');
+
+    if (commCpuVal) commCpuVal.innerText = `${cpu}%`;
+    if (commCpuBar) commCpuBar.style.width = `${cpuPct}%`;
+    if (commMemVal) commMemVal.innerText = `${mem}%`;
+    if (commMemBar) commMemBar.style.width = `${memPct}%`;
+    if (commTempVal) commTempVal.innerText = `${temp}\u00B0C`;
+    if (commTempBar) commTempBar.style.width = `${tempPct}%`;
+    if (commDiskVal) commDiskVal.innerText = `${disk}%`;
+    if (commDiskBar) commDiskBar.style.width = `${diskPct}%`;
+    if (commMiniCpu) commMiniCpu.innerText = `CPU: ${cpu}%`;
+    if (commMiniTemp) commMiniTemp.innerText = `TEMP: ${temp}\u00B0C`;
+
+    // 6. OS Updates & Kernel Health
     const osBadge = document.getElementById('os-upgrades-badge');
     if (osBadge) {
         if (fullData && fullData.os_health) {

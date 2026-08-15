@@ -91,16 +91,31 @@ function loadMeenaVoice() {
 
 function appendMeenaChat(sender, message, isMeena = true) {
     const feed = document.getElementById('meena-chat-feed');
-    if (!feed) return;
-    const row = document.createElement('div');
-    row.className = isMeena ? 'flex items-start gap-1.5 text-primary' : 'flex items-start gap-1.5 text-lcars-gold';
-    row.innerHTML = `<span class="${isMeena ? 'text-tertiary' : 'text-secondary'} font-bold">[${sender}]:</span><span>${message}</span>`;
-    feed.appendChild(row);
-    feed.scrollTop = feed.scrollHeight;
-    
-    // Keep max 30 messages in feed
-    while (feed.children.length > 30) {
-        feed.removeChild(feed.firstChild);
+    if (feed) {
+        const row = document.createElement('div');
+        row.className = isMeena ? 'flex items-start gap-1.5 text-primary' : 'flex items-start gap-1.5 text-lcars-gold';
+        row.innerHTML = `<span class="${isMeena ? 'text-tertiary' : 'text-secondary'} font-bold">[${sender}]:</span><span>${message}</span>`;
+        feed.appendChild(row);
+        feed.scrollTop = feed.scrollHeight;
+        while (feed.children.length > 30) feed.removeChild(feed.firstChild);
+    }
+
+    const commFeed = document.getElementById('comm-transcript-stream');
+    if (commFeed) {
+        const bubble = document.createElement('div');
+        bubble.className = isMeena 
+            ? "bg-surface-container-low/90 p-2.5 rounded-xl border border-outline-variant/30 self-start max-w-[92%] flex flex-col gap-1 shadow-sm"
+            : "bg-primary/15 p-2.5 rounded-xl border border-primary/40 self-end max-w-[92%] flex flex-col gap-1 shadow-sm";
+        bubble.innerHTML = `
+            <div class="flex items-center gap-1.5 text-[8.5px]">
+                <span class="font-bold ${isMeena ? 'text-primary' : 'text-lcars-gold'} font-mono">[${sender}]</span>
+                <span class="text-secondary">${new Date().toLocaleTimeString()}</span>
+            </div>
+            <p class="text-on-surface text-xs leading-snug">${message}</p>
+        `;
+        commFeed.appendChild(bubble);
+        commFeed.scrollTop = commFeed.scrollHeight;
+        while (commFeed.children.length > 30) commFeed.removeChild(commFeed.firstChild);
     }
 }
 
@@ -186,10 +201,14 @@ if ('speechSynthesis' in window) {
 function speakComputerVoice(text) {
     appendMeenaChat('MEENA', text, true);
     const status = document.getElementById('meena-status-indicator');
+    const commStatus = document.getElementById('comm-voice-status');
+
     if (status) status.innerText = 'TRANSMITTING VOICE';
+    if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span><span>TRANSMITTING VOICE</span>';
 
     if (!audioActive || !voiceEnabled || !('speechSynthesis' in window)) {
         if (status) setTimeout(() => { status.innerText = 'STANDBY [LISTENING]'; }, 1500);
+        if (commStatus) setTimeout(() => { commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>'; }, 1500);
         return;
     }
 
@@ -209,15 +228,18 @@ function speakComputerVoice(text) {
 
         utterance.onend = () => {
             if (status) status.innerText = 'STANDBY [LISTENING]';
+            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
         };
         utterance.onerror = () => {
             if (status) status.innerText = 'STANDBY [LISTENING]';
+            if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
         };
 
         window.speechSynthesis.speak(utterance);
     } catch (e) {
         console.warn("M.E.E.N.A. speech synthesis skipped:", e);
         if (status) status.innerText = 'STANDBY [LISTENING]';
+        if (commStatus) commStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>STANDBY [LISTENING]</span>';
     }
 }
 

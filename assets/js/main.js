@@ -340,6 +340,12 @@ window.addEventListener('DOMContentLoaded', () => {
         setAlertCondition('green', false);
         switchDeck(1);
     } catch (e) { console.warn("[Deck] Init error:", e); }
+
+    // 8. Initialize Holographic Boot Scanner & Mobile Communicator PTT
+    try {
+        if (window.initBootScanner) window.initBootScanner();
+        if (window.initCommunicatorPTT) window.initCommunicatorPTT();
+    } catch (e) { console.warn("[LayoutManager] Init error:", e); }
 });
 
 window.toggleScanlines = toggleScanlines;
