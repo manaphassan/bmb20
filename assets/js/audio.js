@@ -16,18 +16,7 @@ let redAlertInterval = null;
 let isRedAlertPlaying = false;
 let audioInitialized = false;
 let currentPersona = localStorage.getItem('meena_persona') || 'ALEX';
-let meenaCurrentMood = localStorage.getItem('meena_mood') || 'ALEX';
-
-function setMeenaMood(mood) {
-    if (!mood) return;
-    meenaCurrentMood = mood;
-    localStorage.setItem('meena_mood', mood);
-    if (typeof setPersonaArchetype === 'function') {
-        setPersonaArchetype(mood);
-    }
-    if (window.playSound) window.playSound('beep2');
-}
-window.setMeenaMood = setMeenaMood;
+let meenaCurrentMood = localStorage.getItem('meena_mood') || 'CHEERFUL';
 
 // Auto-resume AudioContext on first user interaction and start default audio
 function unlockAudioContext() {
@@ -1415,15 +1404,18 @@ function updateGrowthUI() {
  * MOOD & AFFECTION MATRIX
  * ==========================================================================
  */
-let meenaCurrentMood = 'CHEERFUL';
+meenaCurrentMood = localStorage.getItem('meena_mood') || 'CHEERFUL';
 
 function setMeenaMood(mood) {
+    if (!mood) return;
     meenaCurrentMood = mood;
+    localStorage.setItem('meena_mood', mood);
+
     const badge = document.getElementById('meena-mood-badge');
     const commMood = document.getElementById('comm-mood-pill');
 
     if (badge) {
-        if (mood === 'CHEERFUL') {
+        if (mood === 'CHEERFUL' || mood === 'ALEX') {
             badge.className = 'text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40';
             badge.innerText = 'CHEERFUL';
         } else if (mood === 'TACTICAL') {
@@ -1441,7 +1433,13 @@ function setMeenaMood(mood) {
     if (commMood) {
         commMood.innerText = mood.toUpperCase();
     }
+
+    if (typeof setPersonaArchetype === 'function' && PERSONA_CONFIGS && PERSONA_CONFIGS[mood]) {
+        setPersonaArchetype(mood);
+    }
+    if (window.playSound) window.playSound('beep2');
 }
+window.setMeenaMood = setMeenaMood;
 
 /**
  * ==========================================================================
