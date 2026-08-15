@@ -612,7 +612,7 @@ async function detectHeadMovement(video) {
 
 // ==============================================================================
 // 3. ANATOMICAL BIOMETRIC HUMAN DETECTION ENGINE
-// Isolates Cranial Peak & Head Centroid from Torso/Background
+// 2D Spatial Density Peak Finder (Eliminates Background False Positives)
 // ==============================================================================
 function runFallbackHeadChromaTracker(video) {
     const mw = motionAnalysisCanvas.width;
@@ -627,8 +627,10 @@ function runFallbackHeadChromaTracker(video) {
         return;
     }
 
-    let detectedPixels = [];
-    let topY = mh, bottomY = 0;
+    // 1. Dual-Spectrum Skin & Motion Detection with 2D Histogram Binning
+    const histX = new Float32Array(mw);
+    const histY = new Float32Array(mh);
+    const candidatePoints = [];
 
     for (let i = 0; i < currData.length; i += 4) {
         const pixelIdx = i / 4;
@@ -640,73 +642,320 @@ function runFallbackHeadChromaTracker(video) {
         const normR = r / sum;
         const normG = g / sum;
         
-        // 1. Dual-Spectrum Normalized RGB & YCbCr Skin Locus
-        const isNormSkin = (normR >= 0.30 && normR <= 0.65) && (normG >= 0.20 && normG <= 0.42) && (normR > normG) && (r > 26) && (Math.abs(r - g) >= 4);
+        // Adaptive Normalized Chrominance & YCbCr Skin Locus
+        const isNormSkin = (normR >= 0.31 && normR <= 0.63) && (normG >= 0.21 && normG <= 0.40) && (normR > normG) && (r > 30) && (Math.abs(r - g) >= 5);
 
         const y = 0.299 * r + 0.587 * g + 0.114 * b;
         const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
         const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
-        const isYCbCrSkin = (y > 20 && y < 250) && (cb >= 65 && cb <= 152) && (cr >= 118 && cr <= 192);
+        const isYCbCrSkin = (y > 25 && y < 245) && (cb >= 70 && cb <= 145) && (cr >= 125 && cr <= 185);
 
         const isSkin = isNormSkin || isYCbCrSkin;
 
-        // 2. Optical Motion Differential
         const diff = (Math.abs(r - prevFrameData[i]) + Math.abs(g - prevFrameData[i + 1]) + Math.abs(b - prevFrameData[i + 2])) / 3;
-        const isMoving = diff > 8;
+        const isMoving = diff > 9;
 
-        if (isSkin || (isMoving && py < mh * 0.75)) {
-            const weight = isMoving ? 1.5 : 1.0;
-            detectedPixels.push({ px, py, weight });
-            if (py < topY) topY = py;
-            if (py > bottomY) bottomY = py;
+        if (isSkin || (isMoving && py < mh * 0.70)) {
+            const weight = (isSkin ? 1.0 : 0) + (isMoving ? 1.5 : 0.4);
+            candidatePoints.push({ px, py, weight });
+            histX[px] += weight;
+            histY[py] += weight;
         }
     }
 
     prevFrameData.set(currData);
 
-    // 3. Human Presence Validation Gate
-    if (detectedPixels.length >= 8) {
-        // Isolate Cranial Peak (upper 55% of the detected human mass)
-        const totalHeight = bottomY - topY;
-        const cranialCutoffY = topY + Math.max(14, totalHeight * 0.55);
+    if (candidatePoints.length < 8) {
+        if (performance.now() - headCentroid.lastDetectedTime > 500) {
+            headCentroid.active = false;
+            headCentroid.intensity = Math.max(0, headCentroid.intensity - 15);
+            if (headTrail.length > 0) headTrail.shift();
+        }
+        return;
+    }
 
-        let headSumX = 0, headSumY = 0, headWeightSum = 0;
-        let cranialMinX = mw, cranialMaxX = 0;
+    // 2. Find Spatial Density Peak (Smoothed Gaussian Mode)
+    let bestPeakX = mw / 2, maxDensX = 0;
+    for (let x = 1; x < mw - 1; x++) {
+        const dens = histX[x - 1] * 0.25 + histX[x] * 0.5 + histX[x + 1] * 0.25;
+        if (dens > maxDensX) {
+            maxDensX = dens;
+            bestPeakX = x;
+        }
+    }
 
-        for (const pt of detectedPixels) {
-            if (pt.py <= cranialCutoffY) {
-                headSumX += pt.px * pt.weight;
-                headSumY += pt.py * pt.weight;
-                headWeightSum += pt.weight;
+    // Upper cranial Y peak (search in upper 65% of screen)
+    let bestPeakY = mh * 0.4, maxDensY = 0;
+    for (let y = 1; y < Math.floor(mh * 0.68); y++) {
+        const dens = histY[y - 1] * 0.25 + histY[y] * 0.5 + histY[y + 1] * 0.25;
+        if (dens > maxDensY) {
+            maxDensY = dens;
+            bestPeakY = y;
+        }
+    }
 
-                if (pt.px < cranialMinX) cranialMinX = pt.px;
-                if (pt.px > cranialMaxX) cranialMaxX = pt.px;
+    // 3. Cluster filtering around Peak (Eliminates background artifacts like staircases or side curtains)
+    const radiusX = mw * 0.20; // 20% width window around face peak
+    const radiusY = mh * 0.22; // 22% height window around face peak
+
+    let headSumX = 0, headSumY = 0, headWeightSum = 0;
+    let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
+
+    for (const pt of candidatePoints) {
+        if (Math.abs(pt.px - bestPeakX) <= radiusX && Math.abs(pt.py - bestPeakY) <= radiusY) {
+            headSumX += pt.px * pt.weight;
+            headSumY += pt.py * pt.weight;
+            headWeightSum += pt.weight;
+
+            if (pt.px < minClusterX) minClusterX = pt.px;
+            if (pt.px > maxClusterX) maxClusterX = pt.px;
+            if (pt.py < minClusterY) minClusterY = pt.py;
+            if (pt.py > maxClusterY) maxClusterY = pt.py;
+        }
+    }
+
+    if (headWeightSum >= 6) {
+        const rawHeadX = (headSumX / headWeightSum) / mw;
+        const rawHeadY = (headSumY / headWeightSum) / mh;
+        const clusterW = Math.max(14, maxClusterX - minClusterX);
+        const clusterH = Math.max(18, maxClusterY - minClusterY);
+        const rawHeadW = Math.max(0.20, clusterW / mw);
+        const rawHeadH = Math.max(0.26, clusterH / mh);
+
+        updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
+            minX: Math.max(0, (minClusterX / mw) - 0.03),
+            minY: Math.max(0, (minClusterY / mh) - 0.03),
+            maxX: Math.min(1, (maxClusterX / mw) + 0.03),
+            maxY: Math.min(1, (maxClusterY / mh) + 0.03)
+        });
+    }
+}
+
+/**
+ * Tactical Canvas HUD Rendering Loop with Ergonomics Halo & Sentry Gauges
+ */
+function startTacticalHUDLoop() {
+    if (hudAnimationId) {
+        cancelAnimationFrame(hudAnimationId);
+        hudAnimationId = null;
+    }
+
+    let pulsePhase = 0;
+
+    function renderHUD() {
+        if (!isReconActive) return;
+
+        pulsePhase += 0.04;
+        const pulseScale = 1 + 0.12 * Math.sin(pulsePhase);
+
+        const activeVideo = getActiveReconVideo();
+        if (activeVideo && isHeadTrackingEnabled) {
+            detectHeadMovement(activeVideo);
+        }
+
+        const canvases = [
+            document.getElementById('recon-hud-overlay'),
+            document.getElementById('comm-recon-hud-overlay')
+        ].filter(c => c && c.offsetParent !== null);
+
+        for (const canvas of canvases) {
+            const w = canvas.clientWidth || 320;
+            const h = canvas.clientHeight || 240;
+            if (canvas.width !== w) canvas.width = w;
+            if (canvas.height !== h) canvas.height = h;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) continue;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Minimal Corner Viewfinder Brackets
+            const bracketSize = Math.min(14, w * 0.04);
+            ctx.strokeStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.30)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(8, 8 + bracketSize); ctx.lineTo(8, 8); ctx.lineTo(8 + bracketSize, 8);
+            ctx.moveTo(w - 8 - bracketSize, 8); ctx.lineTo(w - 8, 8); ctx.lineTo(w - 8, 8 + bracketSize);
+            ctx.moveTo(8, h - 8 - bracketSize); ctx.lineTo(8, h - 8); ctx.lineTo(8 + bracketSize, h - 8);
+            ctx.moveTo(w - 8 - bracketSize, h - 8); ctx.lineTo(w - 8, h - 8); ctx.lineTo(w - 8, h - 8 - bracketSize);
+            ctx.stroke();
+
+            // Compute Mirrored/Flipped Head Coordinates
+            let headX = headCentroid.smoothX * w;
+            let headY = headCentroid.smoothY * h;
+            if (isCameraFlippedH) headX = (1 - headCentroid.smoothX) * w;
+            if (isCameraFlippedV) headY = (1 - headCentroid.smoothY) * h;
+
+            const headW = Math.max(48, headCentroid.smoothW * w);
+            const headH = Math.max(64, headCentroid.smoothH * h);
+            const hx = headX - headW / 2;
+            const hy = headY - headH / 2;
+
+            // 2. Real-Time Head Reticle (Clean, Minimal, Tight on Face)
+            if (isHeadTrackingEnabled && headCentroid.active) {
+                ctx.save();
+
+                const hCorner = Math.min(10, headW * 0.20);
+                const reticleColor = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
+                ctx.strokeStyle = reticleColor;
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([]);
+
+                // Tight 4-Corner Viewfinder Brackets around Face
+                ctx.beginPath();
+                ctx.moveTo(hx, hy + hCorner); ctx.lineTo(hx, hy); ctx.lineTo(hx + hCorner, hy);
+                ctx.moveTo(hx + headW - hCorner, hy); ctx.lineTo(hx + headW, hy); ctx.lineTo(hx + headW, hy + hCorner);
+                ctx.moveTo(hx, hy + headH - hCorner); ctx.lineTo(hx + headH); ctx.lineTo(hx + hCorner, hy + headH);
+                ctx.moveTo(hx + headW - hCorner, hy + headH); ctx.lineTo(hx + headW, hy + headH); ctx.lineTo(hx + headW, hy + headH - hCorner);
+                ctx.stroke();
+
+                // Center Anatomical Vertex Crosshair
+                ctx.fillStyle = reticleColor;
+                ctx.beginPath();
+                ctx.arc(headX, headY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Small pulsing focal ring
+                ctx.strokeStyle = reticleColor;
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.arc(headX, headY, 8 * pulseScale, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // 3. Top Stardate & Telemetry Status HUD Strip
+            ctx.font = '9px "Space Mono", monospace';
+            ctx.fillStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.85)';
+            ctx.fillText(
+                isLaserScanning ? `[●] SCANNING OPTICAL TARGET...` : 
+                (headCentroid.active ? `[●] STUDY SENTRY: SENSEI LOCKED // POSTURE: ${postureState} (${cervicalAngle}°)` : `OPTICAL SENSOR [${currentCameraFacing.toUpperCase()}] ${isCameraFlippedH ? '⇄ MIRRORED' : ''} ${isCameraFlippedV ? '⇅ INVERTED' : ''}`),
+                16, 20
+            );
+            ctx.fillStyle = headCentroid.active ? '#ffe253' : 'rgba(255, 226, 83, 0.8)';
+            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'AWAY'}`, 16, 32);
+
+            // 4. Laser Scan Sweep (when active)
+            if (isLaserScanning) {
+                laserScanY = (laserScanY + 4) % h;
+                ctx.save();
+                const grad = ctx.createLinearGradient(0, laserScanY - 15, 0, laserScanY + 15);
+                grad.addColorStop(0, 'rgba(51, 255, 102, 0)');
+                grad.addColorStop(0.5, 'rgba(51, 255, 102, 0.6)');
+                grad.addColorStop(1, 'rgba(51, 255, 102, 0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, laserScanY - 15, w, 30);
+
+                ctx.strokeStyle = '#33ff66';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#33ff66';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.moveTo(0, laserScanY);
+                ctx.lineTo(w, laserScanY);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 5. Intelligent Tactical Callout (Clean, Non-Overlapping Leader Line)
+            if (isCalloutsEnabled && headCentroid.active) {
+                ctx.save();
+
+                // Smart non-overlapping leader line:
+                // If head is in left half of screen, point towards upper right.
+                // If head is in right half of screen, point towards upper left.
+                const isLeftHalf = headX < w * 0.52;
+                const leaderLen = Math.max(45, Math.min(85, w * 0.16));
+                const angleRad = (isLeftHalf ? -35 : -145) * (Math.PI / 180);
+                const elbowX = headX + Math.cos(angleRad) * leaderLen;
+                const elbowY = Math.max(45, headY + Math.sin(angleRad) * leaderLen);
+
+                const cardWidth = Math.max(180, Math.min(230, w * 0.38));
+                const cardHeight = 34;
+                const endX = isLeftHalf ? (elbowX + cardWidth) : (elbowX - cardWidth);
+                const calloutColor = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
+
+                // A. Dashed Leader Line from Head Vertex
+                ctx.setLineDash([4, 3]);
+                ctx.strokeStyle = calloutColor;
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                ctx.moveTo(headX, headY);
+                ctx.lineTo(elbowX, elbowY);
+                ctx.stroke();
+
+                // B. Solid Horizontal Base
+                ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.moveTo(elbowX, elbowY);
+                ctx.lineTo(endX, elbowY);
+                ctx.stroke();
+
+                // C. Joint Pivot Dot
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(elbowX, elbowY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // D. Sleek Dark Glass Callout Card
+                const cardX = isLeftHalf ? elbowX : (elbowX - cardWidth);
+                const cardY = elbowY - cardHeight - 2;
+
+                ctx.fillStyle = 'rgba(4, 13, 20, 0.88)';
+                ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
+
+                ctx.strokeStyle = calloutColor;
+                ctx.lineWidth = 1.2;
+                ctx.strokeRect(cardX, cardY, cardWidth, cardHeight);
+
+                // E. Callout Typography
+                ctx.font = 'bold 9px "Space Mono", monospace';
+                ctx.fillStyle = calloutColor;
+                ctx.fillText(`[SENSEI - HEAD LOCK]`, cardX + 6, cardY + 13);
+
+                ctx.font = '8px "Space Mono", monospace';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillText(`CERVICAL: ${cervicalAngle}° (${postureState}) // VEL: ${headCentroid.velocity}px/s`, cardX + 6, cardY + 26);
+
+                ctx.restore();
+            }
+
+            // 6. User Manual Dropped Target Pins (if any)
+            if (isCalloutsEnabled) {
+                activeCallouts.forEach(callout => {
+                    if (callout.isAuto) return; // Handled by intelligent sentry above
+
+                    let pinX = callout.relX * w;
+                    let pinY = callout.relY * h;
+                    if (isCameraFlippedH) pinX = (1 - callout.relX) * w;
+                    if (isCameraFlippedV) pinY = (1 - callout.relY) * h;
+
+                    ctx.save();
+                    ctx.fillStyle = callout.color || '#33ffff';
+                    ctx.beginPath();
+                    ctx.arc(pinX, pinY, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = callout.color || '#33ffff';
+                    ctx.lineWidth = 1.2;
+                    ctx.strokeRect(pinX + 6, pinY - 14, 90, 16);
+                    ctx.fillStyle = 'rgba(4, 13, 20, 0.85)';
+                    ctx.fillRect(pinX + 6, pinY - 14, 90, 16);
+
+                    ctx.font = '8px "Space Mono", monospace';
+                    ctx.fillStyle = callout.color || '#33ffff';
+                    ctx.fillText(callout.tag || 'PIN', pinX + 9, pinY - 3);
+                    ctx.restore();
+                });
             }
         }
 
-        if (headWeightSum > 0) {
-            const rawHeadX = (headSumX / headWeightSum) / mw;
-            const rawHeadY = (headSumY / headWeightSum) / mh;
-            const cranialW = Math.max(14, cranialMaxX - cranialMinX);
-            const rawHeadW = Math.max(0.20, cranialW / mw);
-            const rawHeadH = Math.max(0.26, (cranialCutoffY - topY) / mh * 1.3);
-
-            updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
-                minX: Math.max(0, (cranialMinX / mw) - 0.04),
-                minY: Math.max(0, (topY / mh) - 0.04),
-                maxX: Math.min(1, (cranialMaxX / mw) + 0.04),
-                maxY: Math.min(1, (cranialCutoffY / mh) + 0.04)
-            });
-            return;
-        }
+        hudAnimationId = requestAnimationFrame(renderHUD);
     }
 
-    // Decay when no human is detected
-    if (performance.now() - headCentroid.lastDetectedTime > 500) {
-        headCentroid.active = false;
-        headCentroid.intensity = Math.max(0, headCentroid.intensity - 15);
-        if (headTrail.length > 0) headTrail.shift();
-    }
+    renderHUD();
 }
 
 function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
