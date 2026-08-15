@@ -934,6 +934,19 @@
         <!-- Acoustic Voice Tuning & Live Test -->
         <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
             <span class="text-[10px] text-secondary font-bold uppercase tracking-wider">ACOUSTIC SYNTHESIS CALIBRATION</span>
+
+            <!-- Neural Voice Dropdown Selector -->
+            <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[9px] text-secondary font-bold">
+                    <span>NEURAL VOICE PROFILE (DEVICE TTS)</span>
+                    <span class="text-tertiary font-mono" id="dossier-voice-status">ACTIVE</span>
+                </div>
+                <select id="dossier-voice-select" onchange="setMeenaVoiceByName(this.value)"
+                        class="w-full bg-surface-dim border border-outline-variant/40 rounded px-2 py-1.5 text-xs text-primary font-mono focus:outline-none focus:border-primary">
+                    <option value="">Detecting available voices...</option>
+                </select>
+            </div>
+
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <!-- Pitch Slider -->
                 <div class="flex flex-col gap-1">

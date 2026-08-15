@@ -129,42 +129,62 @@ function appendMeenaChat(sender, message, isMeena = true) {
 }
 
 function populateVoiceSelector() {
-    const select = document.getElementById('meena-voice-select');
-    if (!select || !('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
     if (!voices || voices.length === 0) return;
 
-    select.innerHTML = '';
-    
+    const selectIds = ['meena-voice-select', 'dossier-voice-select'];
+
     // Filter to female voices and sort best multilingual voices first
     const femaleOnly = voices.filter(isFemaleVoice);
     const displayList = femaleOnly.length > 0 ? femaleOnly : voices;
 
     const sorted = [...displayList].sort((a, b) => {
-        const aScore = (a.name.includes('Jenny') || a.name.includes('Aria') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Yasmin') || a.name.includes('Luna')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
-        const bScore = (b.name.includes('Jenny') || b.name.includes('Aria') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Yasmin') || b.name.includes('Luna')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
+        const aScore = (a.name.includes('Jenny') || a.name.includes('Aria') || a.name.includes('Nanami') || a.name.includes('Aoi') || a.name.includes('Keiko') || a.name.includes('Yasmin') || a.name.includes('Luna') || a.name.includes('Google') || a.name.includes('Natural')) ? 3 : (a.lang.startsWith('en') ? 1 : 0);
+        const bScore = (b.name.includes('Jenny') || b.name.includes('Aria') || b.name.includes('Nanami') || b.name.includes('Aoi') || b.name.includes('Keiko') || b.name.includes('Yasmin') || b.name.includes('Luna') || b.name.includes('Google') || b.name.includes('Natural')) ? 3 : (b.lang.startsWith('en') ? 1 : 0);
         return bScore - aScore;
     });
 
-    sorted.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v.name;
-        opt.innerText = `${v.name} (${v.lang})`;
-        if (meenaVoice && v.name === meenaVoice.name) {
-            opt.selected = true;
-        }
-        select.appendChild(opt);
+    selectIds.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        select.innerHTML = '';
+
+        sorted.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.name;
+            opt.innerText = `${v.name} [${v.lang}]`;
+            if (meenaVoice && v.name === meenaVoice.name) {
+                opt.selected = true;
+            }
+            select.appendChild(opt);
+        });
     });
+
+    const vStatus = document.getElementById('dossier-voice-status');
+    if (vStatus && meenaVoice) {
+        vStatus.innerText = meenaVoice.lang ? meenaVoice.lang.toUpperCase() : 'ACTIVE';
+    }
 }
 
 function setMeenaVoiceByName(voiceName) {
     if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
-    const found = voices.find(v => v.name === voiceName && isFemaleVoice(v));
+    const found = voices.find(v => v.name === voiceName);
     if (found) {
         meenaVoice = found;
         localStorage.setItem('lcars_meena_voice', voiceName);
-        testMeenaVoice();
+        
+        // Sync all select elements
+        ['meena-voice-select', 'dossier-voice-select'].forEach(id => {
+            const s = document.getElementById(id);
+            if (s && s.value !== voiceName) s.value = voiceName;
+        });
+
+        const vStatus = document.getElementById('dossier-voice-status');
+        if (vStatus) vStatus.innerText = found.lang ? found.lang.toUpperCase() : 'ACTIVE';
+
+        speakComputerVoice("Neural voice updated to " + found.name + ", Sensei!");
     }
 }
 
@@ -819,6 +839,8 @@ function closeMeenaDossierModal() {
 }
 
 function updateDossierUI() {
+    populateVoiceSelector();
+
     const pAlex = document.getElementById('dossier-persona-alex');
     const pTac = document.getElementById('dossier-persona-tactical');
     const pEng = document.getElementById('dossier-persona-engineer');
@@ -834,6 +856,15 @@ function updateDossierUI() {
     else if (currentPersona === 'TACTICAL' && pTac) pTac.className = "p-1.5 rounded bg-tertiary text-black font-bold border border-tertiary shadow-sm";
     else if (currentPersona === 'ENGINEER' && pEng) pEng.className = "p-1.5 rounded bg-lcars-gold text-black font-bold border border-lcars-gold shadow-sm";
     else if (currentPersona === 'SENTRY' && pSen) pSen.className = "p-1.5 rounded bg-secondary text-black font-bold border border-secondary shadow-sm";
+
+    const dVoice = document.getElementById('dossier-voice-select');
+    if (dVoice && meenaVoice) {
+        dVoice.value = meenaVoice.name;
+    }
+    const dVoiceStatus = document.getElementById('dossier-voice-status');
+    if (dVoiceStatus && meenaVoice) {
+        dVoiceStatus.innerText = meenaVoice.lang ? meenaVoice.lang.toUpperCase() : 'ACTIVE';
+    }
 
     const pSlider = document.getElementById('dossier-pitch-slider');
     const pLabel = document.getElementById('dossier-pitch-label');
@@ -3470,6 +3501,10 @@ window.openMeenaDossierModal = openMeenaDossierModal;
 window.closeMeenaDossierModal = closeMeenaDossierModal;
 window.updateDossierUI = updateDossierUI;
 window.testMeenaDossierVoice = testMeenaDossierVoice;
+window.setMeenaVoiceByName = setMeenaVoiceByName;
+window.populateVoiceSelector = populateVoiceSelector;
+window.setMeenaPitch = setMeenaPitch;
+window.setMeenaRate = setMeenaRate;
 window.openVoiceModal = openVoiceModal;
 window.closeVoiceModal = closeVoiceModal;
 window.openMeenaProfileModal = openMeenaProfileModal;
