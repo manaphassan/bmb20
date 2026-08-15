@@ -66,10 +66,6 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-      })
-    );
-    return;
-  }
 
   // Static Assets: Stale-While-Revalidate
   event.respondWith(

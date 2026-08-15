@@ -569,7 +569,6 @@ if (!empty($action)) {
         ]);
         exit;
     }
-    }
 
     if ($action === 'purge_ram') {
         @shell_exec('sync; sudo /sbin/sysctl -w vm.drop_caches=3 2>/dev/null');
