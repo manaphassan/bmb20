@@ -284,49 +284,62 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// Master App Startup Sequence
+// Master App Startup Sequence with Isolated Fault Circuit Breakers
 window.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Clocks
-    updateClock();
-    setInterval(updateClock, 1000);
+    // 1. Initialize Clocks & Time Ticker
+    try {
+        updateClock();
+        setInterval(updateClock, 1000);
+    } catch (e) { console.warn("[Clock] Init error:", e); }
 
-    // 2. Initialize CRT Scanline Display Preference (Default High Clarity Mode)
-    initScanlines();
+    // 2. Start Real-Time Telemetry Engine Immediately
+    try {
+        if (window.fetchTelemetry) {
+            window.fetchTelemetry();
+            telemetryTimer = setInterval(window.fetchTelemetry, (window.BMB20_CONFIG && window.BMB20_CONFIG.pollIntervalMs) || 1000);
+        }
+        if (window.drawBandwidthCanvas) {
+            window.drawBandwidthCanvas();
+        }
+    } catch (e) { console.warn("[Telemetry] Init error:", e); }
 
-    // 3. Initialize Meena AI Avatar Core & Knowledge Bank
-    if (window.initMeenaAvatarCanvas) {
-        window.initMeenaAvatarCanvas();
-    }
-    if (window.updateGrowthUI) {
-        window.updateGrowthUI();
-    }
-    if (window.initKnowledgeGraph) {
-        window.initKnowledgeGraph();
-    }
-    if (window.initAmbientCognition) {
-        window.initAmbientCognition();
-    }
+    // 3. Initialize CRT Scanline Display Preference
+    try {
+        initScanlines();
+    } catch (e) { console.warn("[Scanlines] Init error:", e); }
 
-    // 4. Initialize 3D Earth Hologram
-    if (window.initEarth) {
-        window.initEarth();
-    }
+    // 4. Initialize Meena AI Avatar Core & Knowledge Bank
+    try {
+        if (window.initMeenaAvatarCanvas) window.initMeenaAvatarCanvas();
+    } catch (e) { console.warn("[Avatar] Init error:", e); }
 
-    // 5. Start Telemetry Engine & Initial Canvas Draw
-    if (window.drawBandwidthCanvas) {
-        window.drawBandwidthCanvas();
-    }
-    if (window.fetchTelemetry) {
-        window.fetchTelemetry();
-        telemetryTimer = setInterval(window.fetchTelemetry, (window.BMB20_CONFIG && window.BMB20_CONFIG.pollIntervalMs) || 1000);
-    }
+    try {
+        if (window.updateGrowthUI) window.updateGrowthUI();
+    } catch (e) { console.warn("[Growth] Init error:", e); }
+
+    try {
+        if (window.initKnowledgeGraph) window.initKnowledgeGraph();
+    } catch (e) { console.warn("[KnowledgeGraph] Init error:", e); }
+
+    try {
+        if (window.initAmbientCognition) window.initAmbientCognition();
+    } catch (e) { console.warn("[Cognition] Init error:", e); }
+
+    // 5. Initialize 3D Earth / Orbit Hologram
+    try {
+        if (window.initEarth) window.initEarth();
+    } catch (e) { console.warn("[Earth3D] Init error:", e); }
 
     // 6. Start Background Cascade Effect
-    cascadeTimer = setInterval(generateCascade, 250);
+    try {
+        cascadeTimer = setInterval(generateCascade, 250);
+    } catch (e) { console.warn("[Cascade] Init error:", e); }
 
     // 7. Default Condition Green & Default Deck 1 (Meena AI Deck)
-    setAlertCondition('green', false);
-    switchDeck(1);
+    try {
+        setAlertCondition('green', false);
+        switchDeck(1);
+    } catch (e) { console.warn("[Deck] Init error:", e); }
 });
 
 window.toggleScanlines = toggleScanlines;

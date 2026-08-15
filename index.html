@@ -298,11 +298,26 @@
 
                 <!-- Quick Action Suggestion Chips -->
                 <div class="grid grid-cols-5 gap-1.5 text-[9px] font-bold my-1 flex-shrink-0">
-                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">💡 STATUS</button>
-                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🛡️ PI-HOLE</button>
-                    <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">⚡ HARDWARE</button>
-                    <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm">🧹 PURGE RAM</button>
-                    <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm">🌅 BRIEFING</button>
+                    <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-[12px] text-primary">analytics</span>
+                        <span>STATUS</span>
+                    </button>
+                    <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-[12px] text-lcars-orange">shield</span>
+                        <span>PI-HOLE</span>
+                    </button>
+                    <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-[12px] text-primary">memory</span>
+                        <span>HARDWARE</span>
+                    </button>
+                    <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers (drop_caches)')" class="bg-surface-bright hover:bg-error hover:text-white py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-[12px] text-error">cleaning_services</span>
+                        <span>PURGE RAM</span>
+                    </button>
+                    <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1 px-1 rounded text-center transition-colors shadow-sm flex items-center justify-center gap-1 font-mono">
+                        <span class="material-symbols-outlined text-[12px] text-tertiary">wb_sunny</span>
+                        <span>BRIEFING</span>
+                    </button>
                 </div>
 
                 <!-- Unified Chat & Voice Command Input Form -->

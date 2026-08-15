@@ -1072,7 +1072,7 @@ function buildGraphData() {
     if (nodeCountElem) nodeCountElem.innerText = graphNodes.length.toString();
     if (edgeCountElem) edgeCountElem.innerText = graphLinks.length.toString();
     if (hearthSizeElem) {
-        const rawBytes = JSON.stringify(knowledgeBank).length + 1500;
+        const rawBytes = JSON.stringify(bank).length + 1500;
         hearthSizeElem.innerText = rawBytes < 1024 ? `${rawBytes} B` : `${(rawBytes / 1024).toFixed(1)} KB`;
     }
 }
