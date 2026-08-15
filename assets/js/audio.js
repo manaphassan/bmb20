@@ -710,12 +710,13 @@ let isListening = false;
 let isContinuousListening = false;
 let isPTTHolding = false;
 let capturedPTTText = '';
+let pttBufferTimer = null;
 
 function initVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        console.warn("SpeechRecognition API not supported in this browser.");
-        return;
+        console.warn("SpeechRecognition API not supported or disabled on this origin.");
+        return null;
     }
 
     try {
@@ -762,8 +763,8 @@ function initVoiceRecognition() {
                 // Show live preview in mobile PTT label or text input
                 const pttLabel = document.getElementById('comm-ptt-label');
                 const commInput = document.getElementById('comm-text-input');
-                if (pttLabel && isPTTHolding) {
-                    pttLabel.innerText = `"${currentSpeech.substring(0, 20)}..."`;
+                if (pttLabel && (isPTTHolding || isContinuousListening)) {
+                    pttLabel.innerText = `"${currentSpeech.substring(0, 18)}..."`;
                 }
                 if (commInput && isPTTHolding) {
                     commInput.value = currentSpeech;
@@ -785,26 +786,40 @@ function initVoiceRecognition() {
                 isContinuousListening = false;
                 isPTTHolding = false;
                 updateVoiceHUD("MIC RESTRICTED", false);
+                if (window.showNotificationAlert) {
+                    window.showNotificationAlert("MIC ACCESS RESTRICTED", "Please grant microphone permissions in your mobile browser settings.", "warning");
+                }
             } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
                 console.warn("Speech recognition error:", event.error);
             }
         };
 
         recognition.onend = () => {
-            if (isContinuousListening && !isMeenaSpeaking) {
+            if (isContinuousListening && !isMeenaSpeaking && !isPTTHolding) {
                 // Auto-restart if user has always-listening ON
                 try { recognition.start(); } catch (e) {}
             } else if (!isPTTHolding) {
                 isListening = false;
                 updateVoiceHUD("MIC OFF", false);
+                const pttBtn = document.getElementById('comm-ptt-button');
+                const pttLabel = document.getElementById('comm-ptt-label');
+                if (pttBtn) pttBtn.classList.remove('recording-active');
+                if (pttLabel && !isContinuousListening) pttLabel.innerText = 'PUSH TO TRANSMIT';
             }
         };
+        return recognition;
     } catch (e) {
         console.warn("Speech recognition init failed:", e);
+        return null;
     }
 }
 
 function startPTTListening() {
+    if (pttBufferTimer) {
+        clearTimeout(pttBufferTimer);
+        pttBufferTimer = null;
+    }
+
     isPTTHolding = true;
     capturedPTTText = '';
     
@@ -813,7 +828,10 @@ function startPTTListening() {
         const inp = document.getElementById('comm-text-input');
         if (inp) {
             inp.focus();
-            inp.placeholder = "Type tactical command...";
+            inp.placeholder = "Type command (Mic requires HTTPS)...";
+        }
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("SPEECH ENGINE NOTICE", "Speech recognition unavailable on this browser/origin. Please use text input or enable HTTPS.", "info");
         }
         return;
     }
@@ -822,13 +840,13 @@ function startPTTListening() {
     try {
         recognition.start();
     } catch (e) {
-        // If already running (e.g. InvalidStateError), safely proceed
+        // If already running, proceed safely
     }
 
     const pttLabel = document.getElementById('comm-ptt-label');
     const pttBtn = document.getElementById('comm-ptt-button');
     if (pttBtn) pttBtn.classList.add('recording-active');
-    if (pttLabel) pttLabel.innerText = 'HOLDING... SPEAK NOW';
+    if (pttLabel) pttLabel.innerText = 'TRANSMITTING...';
 
     updateVoiceHUD("TRANSMITTING...", true);
     if (window.playSound) window.playSound('beep2');
@@ -836,32 +854,32 @@ function startPTTListening() {
 }
 
 function stopPTTListening() {
-    const wasHolding = isPTTHolding;
     isPTTHolding = false;
 
     const pttBtn = document.getElementById('comm-ptt-button');
     const pttLabel = document.getElementById('comm-ptt-label');
     if (pttBtn) pttBtn.classList.remove('recording-active');
-    if (pttLabel) pttLabel.innerText = 'PUSH TO TRANSMIT';
-    
-    // If not in continuous listening mode, stop recognition on PTT release
-    if (!isContinuousListening && recognition) {
-        try { recognition.stop(); } catch (e) {}
-        isListening = false;
-        updateVoiceHUD("MIC OFF", false);
-    }
+    if (pttLabel) pttLabel.innerText = isContinuousListening ? 'ALWAYS LISTENING' : 'PUSH TO TRANSMIT';
 
     if (window.playSound) window.playSound('beep1');
     if (navigator.vibrate) navigator.vibrate(30);
 
-    // Send captured message to Meena immediately on release
-    if (capturedPTTText && capturedPTTText.trim()) {
-        const textToSend = capturedPTTText.trim();
-        capturedPTTText = '';
-        const commInput = document.getElementById('comm-text-input');
-        if (commInput) commInput.value = '';
-        handleVoiceCommand(textToSend);
-    }
+    // Buffer 450ms for speech-to-text server packets to finalize
+    pttBufferTimer = setTimeout(() => {
+        if (!isContinuousListening && recognition) {
+            try { recognition.stop(); } catch (e) {}
+            isListening = false;
+            updateVoiceHUD("MIC OFF", false);
+        }
+
+        if (capturedPTTText && capturedPTTText.trim()) {
+            const textToSend = capturedPTTText.trim();
+            capturedPTTText = '';
+            const commInput = document.getElementById('comm-text-input');
+            if (commInput) commInput.value = '';
+            handleVoiceCommand(textToSend);
+        }
+    }, 450);
 }
 
 // Dedicated Continuous Always-Listening Toggle Button (Desktop Sidebar & Mobile Header)
@@ -873,9 +891,22 @@ function toggleVoiceRecognition() {
     if (!recognition) initVoiceRecognition();
     if (!recognition) {
         const commInp = document.getElementById('comm-text-input');
-        if (commInp) commInp.focus();
+        if (commInp) {
+            commInp.focus();
+            commInp.placeholder = "Type command (Mic requires HTTPS)...";
+        }
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("SPEECH ENGINE NOTICE", "Speech recognition unavailable on this browser/origin. Please use text input or enable HTTPS.", "info");
+        }
         return;
     }
+
+    const pttLabel = document.getElementById('comm-ptt-label');
+    const pttBtn = document.getElementById('comm-ptt-button');
+    const micLabels = [
+        document.getElementById('sidebar-mic-label'),
+        document.getElementById('comm-mic-label')
+    ];
 
     if (isContinuousListening) {
         // Turn Always-Listening OFF
@@ -884,8 +915,11 @@ function toggleVoiceRecognition() {
         isPTTHolding = false;
         try { recognition.stop(); } catch (e) {}
         updateVoiceHUD("MIC OFF", false);
+        if (pttBtn) pttBtn.classList.remove('recording-active');
+        if (pttLabel) pttLabel.innerText = 'PUSH TO TRANSMIT';
+        micLabels.forEach(l => { if (l) l.innerText = 'MIC: MUTED'; });
         if (playSound) playSound('beep1');
-        if (speakComputerVoice) speakComputerVoice("Always-listening deactivated. Meena standing by.");
+        if (speakComputerVoice) speakComputerVoice("Voice listening paused. Meena standing by.");
     } else {
         // Turn Always-Listening ON
         isContinuousListening = true;
@@ -893,11 +927,15 @@ function toggleVoiceRecognition() {
         try {
             recognition.start();
             updateVoiceHUD("ALWAYS LISTENING", true);
+            if (pttBtn) pttBtn.classList.add('recording-active');
+            if (pttLabel) pttLabel.innerText = 'LISTENING... [TAP TO STOP]';
+            micLabels.forEach(l => { if (l) l.innerText = 'MIC: ON'; });
             if (playSound) playSound('beep2');
+            if (navigator.vibrate) navigator.vibrate(40);
             const hour = new Date().getHours();
-            let promptGreeting = "Always-listening active, Sensei! Meena is ready.";
-            if (hour >= 5 && hour < 12) promptGreeting = "Good morning, Sensei! Always-listening active.";
-            else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Always-listening active.";
+            let promptGreeting = "Voice recognition online, Sensei! Meena is listening.";
+            if (hour >= 5 && hour < 12) promptGreeting = "Good morning, Sensei! Voice recognition online.";
+            else if (hour >= 18 && hour < 22) promptGreeting = "Good evening, Sensei! Voice recognition online.";
             if (speakComputerVoice) speakComputerVoice(promptGreeting);
         } catch (e) {
             if (e.name !== 'InvalidStateError') {
@@ -1326,11 +1364,24 @@ function updateGrowthUI() {
     const rankElem = document.getElementById('meena-rank-badge');
     const barElem = document.getElementById('meena-exp-bar');
     const textElem = document.getElementById('meena-exp-text');
+    const commBadge = document.getElementById('comm-persona-badge');
+    const dossierLvl = document.getElementById('dossier-level-pill');
 
     if (lvlElem) lvlElem.innerText = `Lv. ${status.level}`;
     if (rankElem) rankElem.innerText = status.rank;
     if (barElem) barElem.style.width = `${status.expInLevel}%`;
     if (textElem) textElem.innerText = `${status.expInLevel} / 100 EXP`;
+
+    // Mobile Communicator Persona & Level Sync
+    if (commBadge) {
+        const personaName = (typeof currentPersona !== 'undefined' && currentPersona) ? currentPersona : (localStorage.getItem('meena_persona') || 'ALEX');
+        commBadge.innerText = `${personaName.toUpperCase()} Lv. ${status.level}`;
+    }
+
+    // AI Dossier Profile Modal Level Sync
+    if (dossierLvl) {
+        dossierLvl.innerText = `LEVEL ${status.level}`;
+    }
 }
 
 /**
@@ -1343,20 +1394,26 @@ let meenaCurrentMood = 'CHEERFUL';
 function setMeenaMood(mood) {
     meenaCurrentMood = mood;
     const badge = document.getElementById('meena-mood-badge');
-    if (!badge) return;
+    const commMood = document.getElementById('comm-mood-pill');
 
-    if (mood === 'CHEERFUL') {
-        badge.className = 'text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40';
-        badge.innerText = 'CHEERFUL';
-    } else if (mood === 'TACTICAL') {
-        badge.className = 'text-[9px] bg-error/20 text-error px-1.5 py-0.5 rounded font-bold border border-error/40 animate-pulse';
-        badge.innerText = 'TACTICAL DEFENSE';
-    } else if (mood === 'CARING') {
-        badge.className = 'text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40';
-        badge.innerText = 'CARING';
-    } else if (mood === 'PROUD') {
-        badge.className = 'text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40';
-        badge.innerText = 'PROUD';
+    if (badge) {
+        if (mood === 'CHEERFUL') {
+            badge.className = 'text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold border border-primary/40';
+            badge.innerText = 'CHEERFUL';
+        } else if (mood === 'TACTICAL') {
+            badge.className = 'text-[9px] bg-error/20 text-error px-1.5 py-0.5 rounded font-bold border border-error/40 animate-pulse';
+            badge.innerText = 'TACTICAL DEFENSE';
+        } else if (mood === 'CARING') {
+            badge.className = 'text-[9px] bg-tertiary/20 text-tertiary px-1.5 py-0.5 rounded font-bold border border-tertiary/40';
+            badge.innerText = 'CARING';
+        } else if (mood === 'PROUD') {
+            badge.className = 'text-[9px] bg-lcars-purple/20 text-lcars-purple px-1.5 py-0.5 rounded font-bold border border-lcars-purple/40';
+            badge.innerText = 'PROUD';
+        }
+    }
+
+    if (commMood) {
+        commMood.innerText = mood.toUpperCase();
     }
 }
 
@@ -2244,6 +2301,12 @@ function setPersonaArchetype(archetype) {
     if (badge) {
         badge.innerText = cfg.name;
         badge.className = `text-[9px] px-1.5 py-0.5 rounded font-bold border ${cfg.badgeClass}`;
+    }
+
+    const commBadge = document.getElementById('comm-persona-badge');
+    if (commBadge) {
+        commBadge.innerText = cfg.name;
+        commBadge.className = `text-[9px] px-2 py-0.5 rounded font-bold border ${cfg.badgeClass}`;
     }
 
     if (window.playSound) window.playSound('beep2');

@@ -194,7 +194,7 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     if (diskVal) diskVal.innerText = `${disk}%`;
     if (diskBar) diskBar.style.width = `${diskPct}%`;
 
-    // 5. Mobile Communicator Telemetry Drawer Bindings
+    // 5. Mobile Communicator Telemetry Drawer & Header Bindings
     const commCpuVal = document.getElementById('comm-cpu-val');
     const commCpuBar = document.getElementById('comm-cpu-bar');
     const commMemVal = document.getElementById('comm-mem-val');
@@ -205,6 +205,9 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     const commDiskBar = document.getElementById('comm-disk-bar');
     const commMiniCpu = document.getElementById('comm-mini-cpu');
     const commMiniTemp = document.getElementById('comm-mini-temp');
+    const commLinkStatus = document.getElementById('comm-link-status');
+    const commStatusChip = document.getElementById('comm-status-chip');
+    const commHwChip = document.getElementById('comm-hw-chip');
 
     if (commCpuVal) commCpuVal.innerText = `${cpu}%`;
     if (commCpuBar) commCpuBar.style.width = `${cpuPct}%`;
@@ -216,6 +219,17 @@ function updateMetricsUI(cpu, mem, temp, disk, uptime, sourceText, fullData = {}
     if (commDiskBar) commDiskBar.style.width = `${diskPct}%`;
     if (commMiniCpu) commMiniCpu.innerText = `CPU: ${cpu}%`;
     if (commMiniTemp) commMiniTemp.innerText = `TEMP: ${temp}\u00B0C`;
+
+    if (commLinkStatus) {
+        const hostIp = (fullData && fullData.ip) ? fullData.ip : (window.location.hostname || 'dietpi.local');
+        commLinkStatus.innerText = `NODE: DIETPI (${hostIp}) // UP: ${uptime || 'ONLINE'}`;
+    }
+    if (commStatusChip) {
+        commStatusChip.innerText = (cpu > 80 || temp > 68) ? `STATUS: WARN (${temp}\u00B0C)` : 'STATUS: NOMINAL';
+    }
+    if (commHwChip) {
+        commHwChip.innerText = `HW: CPU ${cpu}% // ${temp}\u00B0C`;
+    }
 
     // 6. OS Updates & Kernel Health
     const osBadge = document.getElementById('os-upgrades-badge');
@@ -486,6 +500,22 @@ function updatePiHoleUI(pihole) {
         led.className = isEnabled 
             ? "w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_#66ccff]"
             : "w-2 h-2 rounded-full bg-error shadow-[0_0_6px_#cc3333]";
+    }
+
+    // Mobile Communicator Drawer & Comms Chip Bindings
+    const commMiniPihole = document.getElementById('comm-mini-pihole');
+    const commPiholeChip = document.getElementById('comm-pihole-chip');
+    if (commMiniPihole) {
+        if (isEnabled) {
+            commMiniPihole.innerText = `SHIELD: ACTIVE (${pct}%)`;
+            commMiniPihole.className = "text-tertiary";
+        } else {
+            commMiniPihole.innerText = "SHIELD: PAUSED";
+            commMiniPihole.className = "text-error font-bold";
+        }
+    }
+    if (commPiholeChip) {
+        commPiholeChip.innerText = isEnabled ? `SHIELD: ${pct}%` : "PI-HOLE: OFF";
     }
 }
 

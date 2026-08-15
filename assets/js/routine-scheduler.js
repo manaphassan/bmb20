@@ -165,6 +165,11 @@ function updatePrayerBadgeUI() {
 
     label.innerText = `SOLAT: ${info.next} ${info.time} (${info.diffStr})`;
     badge.title = `Zon: ${activePrayerZone} | Waktu Semasa: ${info.current} | Seterusnya: ${info.next} pada ${info.time}`;
+
+    const commSolatChip = document.getElementById('comm-solat-chip');
+    if (commSolatChip) {
+        commSolatChip.innerText = `SOLAT: ${info.next} ${info.time}`;
+    }
 }
 
 /**

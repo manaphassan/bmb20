@@ -91,11 +91,60 @@
                         <span class="material-symbols-outlined text-base">psychology</span>
                         <span>AI PERSONA & SPEECH SYNTHESIS ENGINE</span>
                     </h2>
-                    <p class="text-[11px] text-secondary">Tune Meena's personality matrix, vocal acoustics, pitch and speaking rate.</p>
+                    <p class="text-[11px] text-secondary">Tune Meena's personality matrix, vocal acoustics, pitch, and growth level progression.</p>
+                </div>
+
+                <!-- M.E.E.N.A. Neural Sync & Growth Metrics HUD -->
+                <div class="bg-surface-container-high/90 border border-primary/40 rounded-xl p-4 flex flex-col gap-3 shadow-lg relative overflow-hidden">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-primary/20 border border-primary/50 flex items-center justify-center text-primary shadow-[0_0_8px_#66ccff]">
+                                <span class="material-symbols-outlined text-lg">military_tech</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-on-surface uppercase tracking-wider font-headline">NEURAL SYNC & EXP METRICS</span>
+                                    <span class="text-[10px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-bold font-mono" id="settings-meena-level">Lv. 34</span>
+                                </div>
+                                <span class="text-[10px] text-tertiary font-mono font-bold" id="settings-meena-rank">RANK A: CHIEF TACTICAL DIRECTOR</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-secondary font-mono">TOTAL ACCUMULATED:</span>
+                            <span class="text-xs font-bold text-on-surface font-mono bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/30" id="settings-meena-total-exp">3,470 EXP</span>
+                        </div>
+                    </div>
+
+                    <!-- EXP Progress Bar -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="text-secondary font-bold">LEVEL PROGRESSION:</span>
+                            <span class="text-primary font-bold" id="settings-meena-exp-text">70 / 100 EXP (30 EXP to Lv. 35)</span>
+                        </div>
+                        <div class="w-full bg-surface-container-lowest h-2.5 rounded-full overflow-hidden border border-outline-variant/40">
+                            <div class="bg-gradient-to-r from-primary via-tertiary to-lcars-cyan h-full w-[70%] transition-all duration-500 shadow-[0_0_8px_#66ccff]" id="settings-meena-exp-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Next Milestone & Quick Calibration -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-outline-variant/20 text-[10px] font-mono">
+                        <div class="flex items-center gap-1.5 text-secondary">
+                            <span class="material-symbols-outlined text-xs text-lcars-gold">lock_open</span>
+                            <span>NEXT MILESTONE: <strong class="text-on-surface" id="settings-meena-next-tier">Level 50 (Rank EX: Soulbound Guardian)</strong></span>
+                        </div>
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="addBonusEXP(50)" class="bg-surface-container hover:bg-primary hover:text-black text-tertiary px-2.5 py-1 rounded font-bold border border-outline-variant/40 transition-all text-[9.5px]" title="Award training synchronization EXP">
+                                +50 EXP DRILL
+                            </button>
+                            <button onclick="resetEXPWarning()" class="bg-error/10 hover:bg-error hover:text-white text-error px-2 py-1 rounded font-bold border border-error/30 transition-all text-[9.5px]" title="Reset EXP to baseline">
+                                RE-CALIBRATE
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Persona Selector -->
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1.5 mt-1">
                     <label class="text-xs text-on-surface font-bold">Active Persona Archetype:</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high border-2 border-transparent hover:border-primary/50 cursor-pointer transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10">

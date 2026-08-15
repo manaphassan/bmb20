@@ -97,12 +97,26 @@ Meena evolves over time as Sensei interacts with her:
 - Standardized facility brand to **Meena™ - Takahara Academy (高原学園)** with Kanji logo mark.
 - Added dynamic time-of-day greeting engine and Sensei honorific.
 
-### Milestone 3: Dual-Deck Operations & Neural Growth System (v2.0.0)
+### Milestone 3: Dual-Deck Operations & Neural Growth System (v2.0.0) (Completed)
 - **Deck 1**: Holographic Avatar HUD, Neural Sync Level Lv. 1-99, 4-Category Knowledge Bank, Live Chat Feed.
 - **Deck 2**: Full-screen 3D wireframe observatory stage, camera presets, LAN radar, and bandwidth charts.
 - **Strict Female Voice Engine**: English replies with Japanese intonation by default.
 
-### Milestone 4: Smart Home & IoT Switch Control (Planned)
+### Milestone 4: Deck 3 Chrono Calendar & E-Solat Solar Matrix (Completed)
+- **Chrono Calendar Core**: Multi-source ICS feed parser (`cal.php`) with sub-second caching and Google/Apple Calendar integration.
+- **Automated Waktu Solat Engine**: Astronomical calculation of Malaysian prayer times with live solar arc track and Adhan briefings.
+
+### Milestone 5: Deck 4 Computer Vision Sentry & Math OCR (v3.0.0) (Completed)
+- **80% Widescreen Video Viewport & 20% Sidebar**: Expansive optical stage with real-time Multimodal Gemini Vision reasoning logs.
+- **Anatomical Human Biometrics Engine**: $YC_bC_r$ & normalized chrominance segmenter with instant presence lock.
+- **Alex Dunphy's Study Sentry**: Real-time cervical lordosis angle tracking ($88^\circ \rightarrow <70^\circ$) and 20-20-20 ocular rest timers.
+- **Holographic Math & Document OCR**: Instant snapshot recognition and step-by-step LaTeX formula resolution.
+
+### Milestone 6: Mobile PADD Communicator & Universal Growth Matrix (Completed)
+- **Dynamic Mobile PADD Interface**: 100% live hardware chips, real-time Pi-hole toggle, prayer countdowns, and Hold-To-Talk voice interface.
+- **Unified Level 1-99 Growth Sync**: Synced across Deck 1, Mobile PADD, AI Dossier, and System Settings (`settings.html`).
+
+### Milestone 7: Smart Home & IoT Switch Control (Planned)
 - Direct Home Assistant / Tasmota / Tuya smart plug & light control (*"Meena, living room lights on"*).
 
 ---

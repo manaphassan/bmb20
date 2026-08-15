@@ -153,49 +153,57 @@ function toggleLayoutMode() {
     selectLayoutMode(nextMode, true);
 }
 
-// 6. Mobile Push-To-Talk (PTT) Communicator Button Handling (Strict Hold-To-Talk)
+// 6. Mobile Push-To-Talk (PTT) Communicator Button Handling (Dual Tap & Hold-To-Talk)
 function initCommunicatorPTT() {
     const pttBtn = document.getElementById('comm-ptt-button');
     if (!pttBtn) return;
 
     let pressStartTime = 0;
     let isHoldingPTT = false;
+    let longPressTimer = null;
 
     const handlePointerDown = (e) => {
-        e.preventDefault();
-        pressStartTime = Date.now();
-        isHoldingPTT = true;
-
-        // Start PTT transmission
-        if (window.startPTTListening) {
-            window.startPTTListening();
+        // Prevent ghost clicks while allowing smooth touch
+        if (e.type === 'touchstart') {
+            e.preventDefault();
         }
+        pressStartTime = Date.now();
+        
+        // Start hold timer
+        longPressTimer = setTimeout(() => {
+            isHoldingPTT = true;
+            if (window.startPTTListening) {
+                window.startPTTListening();
+            }
+        }, 220);
     };
 
     const handlePointerUp = (e) => {
-        if (!isHoldingPTT) return;
-        e.preventDefault();
+        if (e.type === 'touchend') {
+            e.preventDefault();
+        }
         const duration = Date.now() - pressStartTime;
-        isHoldingPTT = false;
-
-        // Stop PTT transmission and dispatch speech to Meena
-        if (window.stopPTTListening) {
-            window.stopPTTListening();
+        
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
         }
 
-        // If tap was too brief (< 180ms), show helpful reminder
-        if (duration < 180) {
-            const pttLabel = document.getElementById('comm-ptt-label');
-            if (pttLabel) {
-                pttLabel.innerText = 'HOLD TO TALK';
-                setTimeout(() => {
-                    if (!isHoldingPTT && pttLabel) pttLabel.innerText = 'PUSH TO TRANSMIT';
-                }, 1200);
+        if (isHoldingPTT) {
+            // User held the button (Hold-To-Talk mode)
+            isHoldingPTT = false;
+            if (window.stopPTTListening) {
+                window.stopPTTListening();
+            }
+        } else if (duration < 280) {
+            // User did a quick tap: toggle voice recognition mode
+            if (window.toggleVoiceRecognition) {
+                window.toggleVoiceRecognition();
             }
         }
     };
 
-    // Mobile Touch Listeners (Immediate responsive touch)
+    // Mobile Touch Listeners
     pttBtn.addEventListener('touchstart', handlePointerDown, { passive: false });
     pttBtn.addEventListener('touchend', handlePointerUp, { passive: false });
     pttBtn.addEventListener('touchcancel', handlePointerUp, { passive: false });

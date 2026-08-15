@@ -364,12 +364,12 @@
                                 <span class="text-xs bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/30 font-mono" id="token-meter-badge" title="Live AI Tokens Consumed">TOKENS: 0</span>
                             </div>
                             <!-- Neural Sync EXP Progress Bar -->
-                            <div class="flex items-center gap-2 mt-1.5">
-                                <span class="text-xs text-secondary font-bold">SYNC: <strong class="text-on-surface" id="meena-sync-level">Lv. 14</strong></span>
-                                <div class="w-40 bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30">
+                            <div class="flex items-center gap-2 mt-1.5 flex-wrap sm:flex-nowrap">
+                                <span class="text-xs text-secondary font-bold whitespace-nowrap flex-shrink-0">SYNC: <strong class="text-on-surface" id="meena-sync-level">Lv. 14</strong></span>
+                                <div class="w-36 sm:w-44 bg-surface-dim h-2 rounded-full overflow-hidden border border-outline-variant/30 flex-shrink-0">
                                     <div class="bg-primary h-full w-[65%] transition-all duration-500 shadow-[0_0_8px_#c2c1ff]" id="meena-exp-bar"></div>
                                 </div>
-                                <span class="text-xs text-on-surface-variant font-mono" id="meena-exp-text">840 / 1000 EXP</span>
+                                <span class="text-xs text-on-surface-variant font-mono whitespace-nowrap flex-shrink-0" id="meena-exp-text">840 / 1000 EXP</span>
                             </div>
                         </div>
                     </div>
@@ -806,44 +806,80 @@
                         <p class="text-xs text-secondary mt-0.5">Tactical Video Stream, Real-Time HUD Reticles & Multimodal Gemini Vision AI</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button id="recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold px-3.5 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button id="recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm transition-all active:scale-95">
                         <span class="material-symbols-outlined text-sm">videocam</span>
-                        <span>ENGAGE OPTICAL RECON</span>
+                        <span>ENGAGE RECON</span>
                     </button>
-                    <button onclick="switchCameraFacing()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-3 py-1.5 rounded font-bold text-xs flex items-center gap-1.5 border border-outline-variant/30 transition-all" title="Switch Camera (Front/Back/USB)">
+                    <button onclick="switchCameraFacing()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface px-2.5 py-1.5 rounded font-bold text-xs flex items-center gap-1 border border-outline-variant/30 transition-all active:scale-95" title="Switch Camera (Front/Back/USB)">
                         <span class="material-symbols-outlined text-sm">flip_camera_ios</span>
-                        <span>SWITCH LENS</span>
+                        <span>LENS</span>
+                    </button>
+                    <button id="recon-flip-h-btn" onclick="toggleCameraFlipH()" class="bg-surface-container text-on-surface hover:bg-surface-bright px-2.5 py-1.5 rounded text-xs font-bold border border-outline-variant/40 transition-all flex items-center gap-1 active:scale-95" title="Toggle Horizontal Mirror View (Selfie mode)">
+                        <span class="material-symbols-outlined text-sm">flip</span>
+                        <span>MIRROR [H]</span>
+                    </button>
+                    <button id="recon-flip-v-btn" onclick="toggleCameraFlipV()" class="bg-surface-container text-on-surface hover:bg-surface-bright px-2.5 py-1.5 rounded text-xs font-bold border border-outline-variant/40 transition-all flex items-center gap-1 active:scale-95" title="Toggle Vertical Invert (180° ceiling/sentry mount)">
+                        <span class="material-symbols-outlined text-sm">swap_vert</span>
+                        <span>FLIP [V]</span>
+                    </button>
+                    <button id="recon-sentry-toggle-btn" onclick="toggleStudySentry()" class="bg-emerald-500 text-black px-2.5 py-1.5 rounded text-xs font-bold border border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)] transition-all flex items-center gap-1 active:scale-95" title="Toggle Alex's Study Sentry (Posture & Ergonomics HUD)">
+                        <span class="material-symbols-outlined text-sm">self_improvement</span>
+                        <span>SENTRY: ACTIVE</span>
+                    </button>
+                    <button id="recon-motion-track-btn" onclick="toggleHeadTracking()" class="bg-lcars-gold text-black px-2.5 py-1.5 rounded text-xs font-bold border border-lcars-gold shadow-[0_0_8px_rgba(255,226,83,0.4)] transition-all flex items-center gap-1 active:scale-95" title="Toggle Real-Time Optical Head & Face Movement Tracking">
+                        <span class="material-symbols-outlined text-sm">face</span>
+                        <span>HEAD TRACK: ON</span>
+                    </button>
+                    <button id="recon-callouts-toggle-btn" onclick="toggleCalloutAnnotations()" class="bg-lcars-cyan text-black px-2.5 py-1.5 rounded text-xs font-bold border border-lcars-cyan shadow-[0_0_8px_rgba(51,255,255,0.4)] transition-all flex items-center gap-1 active:scale-95" title="Toggle Real-Time Tactical Line Callout Annotations">
+                        <span class="material-symbols-outlined text-sm">pin_drop</span>
+                        <span>CALLOUTS: ON</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Main Full-Height 2-Column Grid -->
-            <div class="grid grid-cols-12 gap-2 flex-1 min-h-0 h-full overflow-hidden">
-                <!-- Left Column: Tactical Video Feed & HUD Overlay (7 Cols) -->
-                <div class="col-span-7 flex flex-col h-full min-h-0 bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 shadow-sm relative overflow-hidden justify-between">
-                    <div class="relative w-full flex-1 min-h-0 bg-black rounded overflow-hidden flex items-center justify-center border border-outline-variant/40">
-                        <video id="recon-video-stream" autoplay playsinline muted class="w-full h-full object-contain"></video>
+            <!-- Main Full-Height 2-Column Grid (80% Camera / 20% Recon Dialogue) -->
+            <div class="flex gap-2 flex-1 min-h-0 h-full overflow-hidden w-full">
+                <!-- Left Column: Tactical Video Feed & HUD Overlay (80% Width) -->
+                <div class="w-[80%] flex flex-col h-full min-h-0 bg-surface-container-lowest p-2.5 rounded border border-outline-variant/30 shadow-sm relative overflow-hidden justify-between">
+                    <div id="recon-video-container" class="relative w-full flex-1 min-h-0 bg-black rounded overflow-hidden flex items-center justify-center border border-outline-variant/40 cursor-crosshair">
+                        <video id="recon-video-stream" autoplay playsinline webkit-playsinline muted class="w-full h-full object-contain transition-transform duration-200"></video>
                         <canvas id="recon-hud-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
                         
                         <!-- Standby Screen Prompt when camera offline -->
                         <div id="recon-standby-screen" class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-secondary z-0 pointer-events-none">
                             <span class="material-symbols-outlined text-5xl text-outline-variant animate-pulse">videocam_off</span>
                             <span class="text-sm font-mono font-bold tracking-widest text-outline-variant">OPTICAL FEED STANDBY</span>
-                            <span class="text-xs text-secondary/70">Click 'ENGAGE OPTICAL RECON' or say 'Meena, open camera'</span>
+                            <span class="text-xs text-secondary/70">Click 'ENGAGE RECON' or say 'Meena, open camera'</span>
                         </div>
                     </div>
 
                     <!-- Tactical Action Controls Toolbar -->
                     <div class="pt-2.5 flex items-center justify-between gap-2 flex-shrink-0 font-data-mono">
-                        <div class="flex items-center gap-2">
-                            <button onclick="analyzeVisualRecon()" class="bg-lcars-cyan hover:bg-lcars-cyan/80 text-black font-bold px-3.5 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-md transition-all">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button onclick="scanFaceBiometrics()" class="bg-gradient-to-r from-lcars-cyan to-primary hover:from-primary hover:to-lcars-cyan text-black font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95" title="Initiate Facial Recognition, Age Estimation & Retinal Profile Scan">
+                                <span class="material-symbols-outlined text-sm">face_retouching_natural</span>
+                                <span>RECON SCAN</span>
+                            </button>
+                            <button onclick="scanDocumentOCR()" class="bg-gradient-to-r from-tertiary to-lcars-gold hover:from-lcars-gold hover:to-tertiary text-black font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95" title="Capture Document / Math Equations & Solve with Gemini 1.5 Flash Vision">
+                                <span class="material-symbols-outlined text-sm">document_scanner</span>
+                                <span>OCR / MATH SOLVER</span>
+                            </button>
+                            <button onclick="analyzeVisualRecon()" class="bg-surface-container hover:bg-lcars-cyan hover:text-black text-on-surface font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1.5 border border-outline-variant/30 shadow-sm transition-all active:scale-95">
                                 <span class="material-symbols-outlined text-sm">center_focus_strong</span>
                                 <span>ANALYZE SCENE</span>
                             </button>
-                            <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface px-3 py-1.5 rounded text-xs font-bold border border-outline-variant/30 flex items-center gap-1.5 transition-all">
+                            <button onclick="openBiometricHistoryModal()" class="bg-surface-container hover:bg-lcars-purple hover:text-white text-lcars-purple px-2.5 py-1.5 rounded text-xs font-bold border border-lcars-purple/40 flex items-center gap-1 transition-all active:scale-95" title="View Historical Personnel Biometric Dossier Logs">
+                                <span class="material-symbols-outlined text-sm">history_edu</span>
+                                <span>BIO HISTORY</span>
+                            </button>
+                            <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container text-on-surface hover:bg-primary hover:text-black px-2.5 py-1.5 rounded text-xs font-bold border border-outline-variant/30 flex items-center gap-1 transition-all active:scale-95">
                                 <span class="material-symbols-outlined text-sm">quiz</span>
-                                <span>ASK VISUAL QUESTION</span>
+                                <span>ASK</span>
+                            </button>
+                            <button onclick="clearCustomCallouts()" class="bg-surface-container hover:bg-error hover:text-white text-secondary px-2 py-1.5 rounded text-xs font-bold border border-outline-variant/30 flex items-center gap-1 transition-all active:scale-95" title="Clear User Dropped Tactical Annotation Pins">
+                                <span class="material-symbols-outlined text-xs">clear_all</span>
+                                <span>CLEAR PINS</span>
                             </button>
                         </div>
                         <div id="recon-analyzing-badge" class="hidden items-center gap-2 text-xs text-lcars-gold font-bold animate-pulse font-mono">
@@ -853,23 +889,22 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Visual Recon Dialogue & Detection Cards (5 Cols) -->
-                <div class="col-span-5 flex flex-col h-full min-h-0 bg-surface-container-low p-3 rounded border border-outline-variant/30 shadow-sm gap-2">
+                <!-- Right Column: Visual Recon Dialogue & Detection Cards (20% Width) -->
+                <div class="w-[20%] flex flex-col h-full min-h-0 bg-surface-container-low p-2.5 rounded border border-outline-variant/30 shadow-sm gap-2">
                     <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5 flex-shrink-0">
                         <div class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-lcars-cyan text-sm">auto_awesome</span>
-                            <h3 class="text-xs sm:text-sm font-bold text-on-surface font-headline tracking-wide">VISUAL RECON DIALOGUE</h3>
+                            <h3 class="text-xs font-bold text-on-surface font-headline tracking-wide truncate">RECON DIALOGUE</h3>
                         </div>
-                        <span class="text-xs text-secondary font-mono">Multimodal Optical Intelligence</span>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2 pr-0.5 text-xs sm:text-sm" id="recon-analysis-log">
-                        <div class="p-3 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-secondary text-xs flex flex-col gap-1">
+                    <div class="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2 pr-0.5 text-xs" id="recon-analysis-log">
+                        <div class="p-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-secondary text-xs flex flex-col gap-1">
                             <div class="flex items-center gap-1 text-primary font-bold text-[10px]">
                                 <span class="material-symbols-outlined text-xs">info</span>
                                 <span>STANDBY READY</span>
                             </div>
-                            <p class="text-[10px] leading-relaxed">Engage optical recon to inspect ambient physical objects, documents, device LEDs, or anomalies via Gemini Vision AI.</p>
+                            <p class="text-[10px] leading-relaxed">Engage optical recon to inspect ambient objects, documents, device LEDs, or anomalies via Gemini Vision AI.</p>
                         </div>
                     </div>
                 </div>
@@ -908,7 +943,7 @@
                     <span class="material-symbols-outlined text-[13px] text-lcars-orange">cell_tower</span>
                     <span class="text-xs font-bold text-lcars-orange tracking-wider">TAKAHARA // COMMUNICATOR</span>
                 </div>
-                <span class="text-[9px] text-secondary font-mono">LINK: 142.85 MHz // ACTIVE</span>
+                <span id="comm-link-status" class="text-[9px] text-secondary font-mono">LINK: CONNECTING // SYNCING...</span>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -973,27 +1008,35 @@
 
     <!-- Quick Action Comms Chips (Horizontal Touch Slider) -->
     <div class="bg-surface-container/80 border-t border-outline-variant/30 px-2.5 py-2 flex gap-2 overflow-x-auto no-scrollbar flex-shrink-0 text-xs font-bold">
-        <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary">
+        <button onclick="openMobileReconModal()" class="bg-lcars-cyan/20 hover:bg-lcars-cyan hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-lcars-cyan/50 text-lcars-cyan active:scale-95" title="Open Mobile Optical Recon Camera">
+            <span class="material-symbols-outlined text-sm text-lcars-cyan">videocam</span>
+            <span>RECON CAM</span>
+        </button>
+        <button onclick="openCommCalendarModal()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary active:scale-95">
             <span class="material-symbols-outlined text-sm text-tertiary">calendar_month</span>
-            <span>CALENDAR</span>
+            <span id="comm-cal-chip">CALENDAR</span>
         </button>
-        <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary">
+        <button onclick="handleVoiceCommand('status report')" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary active:scale-95">
             <span class="material-symbols-outlined text-sm text-primary">analytics</span>
-            <span>STATUS</span>
+            <span id="comm-status-chip">STATUS: OK</span>
         </button>
-        <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-lcars-orange">
+        <button onclick="handleVoiceCommand('waktu solat')" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary active:scale-95" title="Waktu Solat Prayer Schedule Briefing">
+            <span class="material-symbols-outlined text-sm text-tertiary">mosque</span>
+            <span id="comm-solat-chip">SOLAT</span>
+        </button>
+        <button onclick="openPiholeModal()" class="bg-surface-bright hover:bg-lcars-orange hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-lcars-orange active:scale-95">
             <span class="material-symbols-outlined text-sm text-lcars-orange">shield</span>
-            <span>PI-HOLE</span>
+            <span id="comm-pihole-chip">PI-HOLE: ACTIVE</span>
         </button>
-        <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary">
+        <button onclick="speakVerbalHardwareReport()" class="bg-surface-bright hover:bg-primary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-primary active:scale-95">
             <span class="material-symbols-outlined text-sm text-primary">memory</span>
-            <span>HARDWARE</span>
+            <span id="comm-hw-chip">HARDWARE</span>
         </button>
-        <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers')" class="bg-surface-bright hover:bg-error hover:text-white py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-error">
+        <button onclick="requestSudoAuthorization('purge_ram', 'Purge Linux Page Cache & Memory Buffers')" class="bg-surface-bright hover:bg-error hover:text-white py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-error active:scale-95">
             <span class="material-symbols-outlined text-sm text-error">cleaning_services</span>
             <span>PURGE RAM</span>
         </button>
-        <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary">
+        <button onclick="triggerMorningBriefing()" class="bg-surface-bright hover:bg-tertiary hover:text-black py-1.5 px-3 rounded-full text-center transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 border border-outline-variant/40 text-tertiary active:scale-95">
             <span class="material-symbols-outlined text-sm text-tertiary">wb_sunny</span>
             <span>BRIEFING</span>
         </button>
@@ -1003,8 +1046,9 @@
     <div class="bg-surface-container-high border-t-2 border-lcars-orange p-3 flex flex-col gap-2.5 flex-shrink-0 pb-10 relative">
         <!-- Large Ergonomic Push-To-Talk Button -->
         <div class="flex items-center justify-center py-1">
-            <button id="comm-ptt-button" onclick="if (window.toggleVoiceRecognition) window.toggleVoiceRecognition()" 
-                    class="ptt-button w-full max-w-xs bg-gradient-to-r from-primary to-lcars-blue text-black font-bold py-3.5 px-4 rounded-full shadow-[0_0_20px_rgba(102,204,255,0.4)] flex items-center justify-center gap-2 text-sm tracking-wider uppercase border border-white/30 active:scale-95 transition-transform">
+            <button id="comm-ptt-button" 
+                    class="ptt-button w-full max-w-xs bg-gradient-to-r from-primary to-lcars-blue text-black font-bold py-3.5 px-4 rounded-full shadow-[0_0_20px_rgba(102,204,255,0.4)] flex items-center justify-center gap-2 text-sm tracking-wider uppercase border border-white/30 active:scale-95 transition-transform cursor-pointer"
+                    title="Tap to Toggle Voice Mic or Hold to Transmit (PTT)">
                 <div class="ptt-ripple-ring"></div>
                 <span class="material-symbols-outlined text-xl" id="comm-ptt-mic-icon">mic</span>
                 <span id="comm-ptt-label">PUSH TO TRANSMIT</span>
@@ -1017,7 +1061,7 @@
                    class="flex-1 bg-surface-lowest border border-outline-variant px-4 py-2.5 rounded-full text-xs text-on-surface focus:outline-none focus:border-primary font-mono shadow-inner"
                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); const v = this.value.trim(); if (v) { this.value = ''; sendChatMessage(v); } }"/>
             <button onclick="const inp = document.getElementById('comm-text-input'); if (inp && inp.value.trim()) { const v = inp.value.trim(); inp.value = ''; sendChatMessage(v); }"
-                    class="bg-primary hover:bg-primary/80 text-black font-bold px-4 py-2.5 rounded-full text-xs flex items-center justify-center shadow-sm active:scale-95 transition-transform">
+                    class="bg-primary hover:bg-primary/80 text-black font-bold px-4 py-2.5 rounded-full text-xs flex items-center justify-center shadow-sm active:scale-95 transition-transform" title="Send Command">
                 <span class="material-symbols-outlined text-base">send</span>
             </button>
         </div>
@@ -1068,6 +1112,145 @@
                     <div class="bg-secondary-container h-full w-[40%]" id="comm-disk-bar"></div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     STARFLEET MOBILE COMMUNICATOR OPTICAL RECON MODAL (#comm-recon-modal)
+     ====================================================================== -->
+<div id="comm-recon-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex-col p-3 sm:p-4 overflow-y-auto font-data-mono">
+    <div class="bg-surface-container border-2 border-lcars-cyan rounded-2xl p-3.5 max-w-lg w-full shadow-2xl flex flex-col gap-3 my-auto mx-auto">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-lcars-cyan animate-pulse shadow-[0_0_8px_#33ffff]"></span>
+                <span class="font-headline-sm text-sm text-lcars-cyan font-bold tracking-wider">OPTICAL RECON // COMMUNICATOR PADD</span>
+            </div>
+            <button onclick="closeMobileReconModal()" class="text-on-surface-variant hover:text-error text-xs font-bold px-2 py-0.5 rounded bg-surface-bright border border-outline-variant/30 active:scale-95">CLOSE [ESC]</button>
+        </div>
+
+        <!-- Viewfinder Stream Area -->
+        <div id="comm-recon-video-container" class="relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden flex items-center justify-center border border-outline-variant/40 shadow-inner cursor-crosshair">
+            <video id="comm-recon-video-stream" autoplay playsinline webkit-playsinline muted class="w-full h-full object-contain transition-transform duration-200"></video>
+            <canvas id="comm-recon-hud-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+            
+            <!-- Standby Overlay -->
+            <div id="comm-recon-standby-screen" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-secondary z-0 pointer-events-none">
+                <span class="material-symbols-outlined text-4xl text-outline-variant animate-pulse">videocam_off</span>
+                <span class="text-xs font-mono font-bold tracking-widest text-outline-variant">OPTICAL SENSOR STANDBY</span>
+                <span class="text-[10px] text-secondary/70">Tap 'ENGAGE RECON' below or tap screen to pin</span>
+            </div>
+
+            <!-- Lens Control Floating Quick Action Toolbar -->
+            <div class="absolute top-2 right-2 z-20 flex items-center gap-1.5">
+                <button onclick="switchCameraFacing()" class="bg-black/60 backdrop-blur hover:bg-tertiary hover:text-black text-white p-1.5 rounded-full border border-white/20 shadow-md transition-all active:scale-95" title="Switch Camera Lens">
+                    <span class="material-symbols-outlined text-xs">flip_camera_ios</span>
+                </button>
+                <button id="comm-recon-fliph-btn" onclick="toggleCameraFlipH()" class="bg-black/60 backdrop-blur text-white p-1.5 rounded-full border border-white/20 shadow-md transition-all active:scale-95" title="Mirror Horizontal">
+                    <span class="material-symbols-outlined text-xs">flip</span>
+                </button>
+                <button id="comm-recon-flipv-btn" onclick="toggleCameraFlipV()" class="bg-black/60 backdrop-blur text-white p-1.5 rounded-full border border-white/20 shadow-md transition-all active:scale-95" title="Flip Vertical">
+                    <span class="material-symbols-outlined text-xs">swap_vert</span>
+                </button>
+                <button id="comm-recon-motion-track-btn" onclick="toggleHeadTracking()" class="bg-lcars-gold text-black p-1.5 rounded-full border border-lcars-gold shadow-[0_0_8px_rgba(255,226,83,0.5)] transition-all active:scale-95" title="Toggle Head Movement Tracking">
+                    <span class="material-symbols-outlined text-xs">face</span>
+                </button>
+                <button id="comm-recon-callouts-btn" onclick="toggleCalloutAnnotations()" class="bg-lcars-cyan text-black p-1.5 rounded-full border border-lcars-cyan shadow-md transition-all active:scale-95" title="Toggle Real-Time Line Callouts">
+                    <span class="material-symbols-outlined text-xs">pin_drop</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Status and Controls Toolbar -->
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <span id="comm-recon-status-badge" class="text-[9px] bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/40">OPTICAL FEED: STANDBY</span>
+                <div id="comm-recon-analyzing-badge" class="hidden items-center gap-1.5 text-[9px] text-lcars-gold font-bold animate-pulse font-mono">
+                    <div class="w-2 h-2 rounded-full bg-lcars-gold animate-ping"></div>
+                    <span>GEMINI VISION REASONING...</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1.5">
+                <button onclick="scanFaceBiometrics()" class="bg-gradient-to-r from-lcars-cyan to-primary hover:from-primary hover:to-lcars-cyan text-black font-bold py-2 px-1 rounded-lg text-[11px] flex items-center justify-center gap-1 shadow-md active:scale-95 transition-all" title="Scan Face & Profile">
+                    <span class="material-symbols-outlined text-xs">face</span>
+                    <span>FACE</span>
+                </button>
+                <button onclick="scanDocumentOCR()" class="bg-surface-container-high hover:bg-tertiary hover:text-black text-on-surface font-bold py-2 px-1 rounded-lg text-[11px] border border-outline-variant/30 flex items-center justify-center gap-1 active:scale-95 transition-all" title="Scan Document / Math">
+                    <span class="material-symbols-outlined text-xs">menu_book</span>
+                    <span>DOC</span>
+                </button>
+                <button onclick="analyzeVisualRecon()" class="bg-lcars-cyan hover:bg-lcars-cyan/80 text-black font-bold py-2 px-1 rounded-lg text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-xs">center_focus_strong</span>
+                    <span>ANALYZE</span>
+                </button>
+                <button onclick="openBiometricHistoryModal()" class="bg-surface-container hover:bg-lcars-purple hover:text-white text-lcars-purple py-2 px-1 rounded-lg text-[11px] font-bold border border-lcars-purple/40 flex items-center justify-center gap-1 active:scale-95 transition-all" title="Biometric Dossier Log">
+                    <span class="material-symbols-outlined text-xs">history_edu</span>
+                    <span>LOG</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5">
+                <button id="comm-recon-power-btn" onclick="toggleVisualRecon()" class="bg-primary hover:bg-primary/80 text-black font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-sm">videocam</span>
+                    <span>ENGAGE RECON</span>
+                </button>
+                <button onclick="const q = prompt('What would you like Meena to look for in this frame?'); if(q) analyzeVisualRecon(q);" class="bg-surface-container-high hover:bg-primary hover:text-black text-on-surface py-2 px-3 rounded-lg text-xs font-bold border border-outline-variant/30 flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-sm">quiz</span>
+                    <span>ASK QUESTION</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Visual Analysis Feedback Stream Log -->
+        <div class="flex flex-col gap-1.5 max-h-40 overflow-y-auto pr-0.5" id="comm-recon-analysis-log">
+            <div class="p-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-secondary text-[10px] flex flex-col gap-0.5">
+                <span class="text-primary font-bold">[OPTICAL SCAN READY]</span>
+                <span>Tap 'SCAN FACE' for biometric identification & age analysis, or 'ANALYZE' to examine physical objects via Gemini Vision.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================
+     STARFLEET BIOMETRIC PERSONNEL DOSSIER & HISTORY MODAL (#biometric-history-modal)
+     ====================================================================== -->
+<div id="biometric-history-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex-col p-3 sm:p-4 overflow-y-auto font-data-mono">
+    <div class="bg-surface-container border-2 border-lcars-cyan rounded-2xl p-4 max-w-lg w-full shadow-2xl flex flex-col gap-3 my-auto mx-auto">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-lcars-cyan animate-pulse shadow-[0_0_8px_#33ffff]"></span>
+                <span class="font-headline-sm text-sm text-lcars-cyan font-bold tracking-wider">BIOMETRIC PERSONNEL DOSSIER ARCHIVE</span>
+            </div>
+            <button onclick="closeBiometricHistoryModal()" class="text-on-surface-variant hover:text-error text-xs font-bold px-2 py-0.5 rounded bg-surface-bright border border-outline-variant/30 active:scale-95">CLOSE [ESC]</button>
+        </div>
+
+        <!-- Header Summary Bar -->
+        <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant/30 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-base">fingerprint</span>
+                <span class="text-xs text-on-surface font-bold">HISTORICAL FACIAL & RETINAL SCANS</span>
+            </div>
+            <span id="biometric-history-count" class="text-[9px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-mono font-bold">0 SCANS</span>
+        </div>
+
+        <!-- Scrollable Scan Records List -->
+        <div id="biometric-history-container" class="flex flex-col gap-2 max-h-96 overflow-y-auto pr-0.5">
+            <!-- Rendered dynamically by assets/js/camera-recon.js -->
+        </div>
+
+        <!-- Action Footer -->
+        <div class="flex justify-between items-center border-t border-outline-variant/30 pt-2 text-xs">
+            <button onclick="scanFaceBiometrics(); closeBiometricHistoryModal();" class="bg-primary hover:bg-primary/80 text-black font-bold px-3 py-1.5 rounded flex items-center gap-1 shadow-sm active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-sm">face</span>
+                <span>NEW SCAN</span>
+            </button>
+            <button onclick="clearBiometricHistory()" class="bg-surface-bright hover:bg-error hover:text-white text-secondary px-3 py-1.5 rounded font-bold border border-outline-variant/30 flex items-center gap-1 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                <span>CLEAR ARCHIVE</span>
+            </button>
         </div>
     </div>
 </div>

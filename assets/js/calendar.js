@@ -329,6 +329,12 @@ function renderAgendaTimeline() {
     const commTodayList = document.getElementById('comm-chrono-today-events');
     if (commTodayList) commTodayList.innerHTML = todayHtml;
 
+    const commCalChip = document.getElementById('comm-cal-chip');
+    if (commCalChip) {
+        const count = calendarState.eventsToday.length;
+        commCalChip.innerText = count > 0 ? `CALENDAR (${count})` : 'CALENDAR [0]';
+    }
+
     let upcomingHtml = '';
     if (calendarState.eventsUpcoming.length === 0) {
         upcomingHtml = `<div class="text-secondary text-sm italic p-3">No upcoming events found in active horizon.</div>`;

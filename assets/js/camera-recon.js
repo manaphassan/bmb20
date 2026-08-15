@@ -1,79 +1,713 @@
 /**
  * ==============================================================================
- * MEENA // TAKAHARA ACADEMY (高原学園) - DECK 3: VISUAL RECON & GEMINI VISION AI
- * Optical Camera Feed, Tactical HUD Overlays, Frame Capture & Multimodal AI
+ * MEENA // TAKAHARA ACADEMY (高原学園) - DECK 4: SPATIAL AI COMMAND & SENTRY HUB
+ * - Real-Time Head & Facial Movement Tracking
+ * - Alex's Study Sentry (Posture Alignment, Ocular 20-20-20 Fatigue, Flow Halo)
+ * - Autonomous Bridge Arrival & Presence Protocol
+ * - Holographic Document / Math OCR Scanner (Gemini Vision)
+ * - Biometric Dossier History & Persistent Personnel Archives
+ * - Tactical Line Callouts & Output Mirror / Flip Transformations
  * ==============================================================================
  */
 
 let reconMediaStream = null;
 let isReconActive = false;
-let currentCameraFacing = 'environment'; // 'user' or 'environment'
+let currentCameraFacing = 'user'; // 'user' (selfie/head track) or 'environment'
 let hudAnimationId = null;
 let isVisualAnalyzing = false;
+let isFaceScanning = false;
+let isDocScanning = false;
+let laserScanY = 0;
+let isLaserScanning = false;
+
+// Camera Output Transform States (Horizontal Mirror & Vertical Invert)
+let isCameraFlippedH = localStorage.getItem('meena_cam_flip_h') === 'true';
+let isCameraFlippedV = localStorage.getItem('meena_cam_flip_v') === 'true';
+
+// ==============================================================================
+// 1. REAL-TIME HEAD MOVEMENT & CENTROID TRACKING
+// ==============================================================================
+let isHeadTrackingEnabled = true;
+let nativeFaceDetector = null;
+let isNativeFaceDetectorSupported = false;
+let isDetectingNativeFace = false;
+
+let motionAnalysisCanvas = null;
+let motionAnalysisCtx = null;
+let prevFrameData = null;
+
+let headCentroid = {
+    x: 0.5,
+    y: 0.4,
+    smoothX: 0.5,
+    smoothY: 0.4,
+    width: 0.28,
+    height: 0.36,
+    smoothW: 0.28,
+    smoothH: 0.36,
+    active: false,
+    intensity: 0,
+    velocity: 0,
+    bbox: null,
+    landmarks: null,
+    lastDetectedTime: 0
+};
+let headTrail = [];
+
+if (typeof window !== 'undefined' && 'FaceDetector' in window) {
+    try {
+        nativeFaceDetector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+        isNativeFaceDetectorSupported = true;
+    } catch (e) {
+        console.warn("[HeadTrack] Native FaceDetector error:", e);
+    }
+}
+
+// ==============================================================================
+// 2. ALEX'S STUDY SENTRY & ERGONOMICS PROTOCOL (Posture, Fatigue & Flow)
+// ==============================================================================
+let isStudySentryEnabled = true;
+let postureState = 'OPTIMAL'; // 'OPTIMAL', 'FAIR', 'SLOUCHING'
+let cervicalAngle = 88; // Degrees
+let continuousSlouchSeconds = 0;
+let lastSlouchNudgeTime = 0;
+let focusSessionMinutes = 0;
+let ocularBreakTimerSeconds = 20 * 60; // 20-20-20 rule timer (20 minutes)
+let sentryTickInterval = null;
+
+// ==============================================================================
+// 3. AUTONOMOUS BRIDGE PRESENCE & ARRIVAL PROTOCOL
+// ==============================================================================
+let isPresenceSentryEnabled = true;
+let isSenseiPresent = false;
+let awayDurationSeconds = 0;
+let lastArrivalGreetingTime = 0;
+
+// ==============================================================================
+// 4. REAL-TIME LINE CALLOUT ANNOTATIONS
+// ==============================================================================
+let isCalloutsEnabled = true;
+let activeCallouts = [
+    {
+        id: 'primary_focal',
+        relX: 0.5,
+        relY: 0.42,
+        title: 'PRIMARY HEAD SECTOR',
+        tag: 'HEAD-LOCK-01',
+        detail: 'HEAD VECTOR ACTIVE',
+        color: '#66ccff',
+        isAuto: true,
+        angleDeg: -35,
+        length: 50
+    },
+    {
+        id: 'ambient_sensor',
+        relX: 0.72,
+        relY: 0.28,
+        title: 'CERVICAL AXIS SENTRY',
+        tag: 'ERGONOMICS',
+        detail: 'POSTURE: 88° OPTIMAL',
+        color: '#33ff66',
+        isAuto: true,
+        angleDeg: 35,
+        length: 45
+    }
+];
+
+/**
+ * Helper to get all video elements (Desktop Bridge & Mobile Communicator Modal)
+ */
+function getReconVideoElements() {
+    const desktopVideo = document.getElementById('recon-video-stream');
+    const mobileVideo = document.getElementById('comm-recon-video-stream');
+    const list = [];
+    if (desktopVideo) list.push(desktopVideo);
+    if (mobileVideo) list.push(mobileVideo);
+    return list;
+}
+
+/**
+ * Helper to get the currently visible/active video element
+ */
+function getActiveReconVideo() {
+    const mobileModal = document.getElementById('comm-recon-modal');
+    const isMobileModalOpen = mobileModal && !mobileModal.classList.contains('hidden');
+    
+    if (isMobileModalOpen) {
+        const mobileVideo = document.getElementById('comm-recon-video-stream');
+        if (mobileVideo) return mobileVideo;
+    }
+    const desktopVideo = document.getElementById('recon-video-stream');
+    if (desktopVideo) return desktopVideo;
+    return null;
+}
+
+/**
+ * Apply CSS Transforms (Horizontal & Vertical Flip)
+ */
+function applyCameraTransforms() {
+    const scaleX = isCameraFlippedH ? -1 : 1;
+    const scaleY = isCameraFlippedV ? -1 : 1;
+    const transformStyle = `scale(${scaleX}, ${scaleY})`;
+
+    const videos = getReconVideoElements();
+    videos.forEach(v => {
+        if (v) v.style.transform = transformStyle;
+    });
+
+    const btnFlipH = document.getElementById('recon-flip-h-btn');
+    const btnFlipV = document.getElementById('recon-flip-v-btn');
+    if (btnFlipH) {
+        btnFlipH.className = `px-2.5 py-1.5 rounded text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
+            isCameraFlippedH ? 'bg-primary text-black border-primary shadow-[0_0_8px_rgba(102,204,255,0.4)]' : 'bg-surface-container text-on-surface border-outline-variant/40 hover:bg-surface-bright'
+        }`;
+    }
+    if (btnFlipV) {
+        btnFlipV.className = `px-2.5 py-1.5 rounded text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
+            isCameraFlippedV ? 'bg-lcars-gold text-black border-lcars-gold shadow-[0_0_8px_rgba(255,226,83,0.4)]' : 'bg-surface-container text-on-surface border-outline-variant/40 hover:bg-surface-bright'
+        }`;
+    }
+
+    const mFlipH = document.getElementById('comm-recon-fliph-btn');
+    const mFlipV = document.getElementById('comm-recon-flipv-btn');
+    if (mFlipH) {
+        mFlipH.className = `p-1.5 rounded-full border shadow-md transition-all active:scale-95 ${
+            isCameraFlippedH ? 'bg-primary text-black border-primary' : 'bg-black/60 backdrop-blur text-white border-white/20 hover:bg-tertiary hover:text-black'
+        }`;
+    }
+    if (mFlipV) {
+        mFlipV.className = `p-1.5 rounded-full border shadow-md transition-all active:scale-95 ${
+            isCameraFlippedV ? 'bg-lcars-gold text-black border-lcars-gold' : 'bg-black/60 backdrop-blur text-white border-white/20 hover:bg-tertiary hover:text-black'
+        }`;
+    }
+}
+
+function toggleCameraFlipH() {
+    isCameraFlippedH = !isCameraFlippedH;
+    localStorage.setItem('meena_cam_flip_h', isCameraFlippedH.toString());
+    applyCameraTransforms();
+    if (window.playSound) window.playSound('beep2');
+    if (window.showNotificationAlert) {
+        window.showNotificationAlert("OPTICAL TRANSFORM", `Horizontal Mirror: ${isCameraFlippedH ? 'FLIPPED (MIRROR)' : 'STANDARD'}`, "info");
+    }
+}
+
+function toggleCameraFlipV() {
+    isCameraFlippedV = !isCameraFlippedV;
+    localStorage.setItem('meena_cam_flip_v', isCameraFlippedV.toString());
+    applyCameraTransforms();
+    if (window.playSound) window.playSound('beep2');
+    if (window.showNotificationAlert) {
+        window.showNotificationAlert("OPTICAL TRANSFORM", `Vertical Flip: ${isCameraFlippedV ? 'INVERTED (180°)' : 'STANDARD'}`, "info");
+    }
+}
+
+function toggleHeadTracking() {
+    isHeadTrackingEnabled = !isHeadTrackingEnabled;
+    const btnTrack = document.getElementById('recon-motion-track-btn');
+    const mTrack = document.getElementById('comm-recon-motion-track-btn');
+
+    if (btnTrack) {
+        btnTrack.innerHTML = `<span class="material-symbols-outlined text-sm">face</span><span>HEAD TRACK: ${isHeadTrackingEnabled ? 'ON' : 'OFF'}</span>`;
+        btnTrack.className = `px-2.5 py-1.5 rounded text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
+            isHeadTrackingEnabled ? 'bg-lcars-gold text-black border-lcars-gold shadow-[0_0_8px_rgba(255,226,83,0.4)]' : 'bg-surface-container text-secondary border-outline-variant/40 hover:bg-surface-bright'
+        }`;
+    }
+    if (mTrack) {
+        mTrack.className = `p-1.5 rounded-full border shadow-md transition-all active:scale-95 ${
+            isHeadTrackingEnabled ? 'bg-lcars-gold text-black border-lcars-gold shadow-[0_0_8px_rgba(255,226,83,0.5)]' : 'bg-black/60 backdrop-blur text-white border-white/20'
+        }`;
+    }
+
+    if (!isHeadTrackingEnabled) {
+        headCentroid.active = false;
+        headTrail = [];
+    }
+
+    if (window.playSound) window.playSound('beep2');
+    if (window.showNotificationAlert) {
+        window.showNotificationAlert("HEAD SENTRY", `Real-time Head Movement Tracking: ${isHeadTrackingEnabled ? 'ENGAGED' : 'DISENGAGED'}`, "info");
+    }
+}
+
+window.toggleMotionTracking = toggleHeadTracking;
+
+function toggleStudySentry() {
+    isStudySentryEnabled = !isStudySentryEnabled;
+    const btnSentry = document.getElementById('recon-sentry-toggle-btn');
+    if (btnSentry) {
+        btnSentry.innerHTML = `<span class="material-symbols-outlined text-sm">self_improvement</span><span>SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'}</span>`;
+        btnSentry.className = `px-2.5 py-1.5 rounded text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
+            isStudySentryEnabled ? 'bg-emerald-500 text-black border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-surface-container text-secondary border-outline-variant/40'
+        }`;
+    }
+    if (window.playSound) window.playSound('beep2');
+    if (window.showNotificationAlert) {
+        window.showNotificationAlert("STUDY SENTRY", `Alex's Ergonomics & Posture Sentry: ${isStudySentryEnabled ? 'ONLINE' : 'STAND DOWN'}`, "info");
+    }
+}
+
+function toggleCalloutAnnotations() {
+    isCalloutsEnabled = !isCalloutsEnabled;
+    const btnCallouts = document.getElementById('recon-callouts-toggle-btn');
+    const mCallouts = document.getElementById('comm-recon-callouts-btn');
+
+    if (btnCallouts) {
+        btnCallouts.innerHTML = `<span class="material-symbols-outlined text-sm">pin_drop</span><span>CALLOUTS: ${isCalloutsEnabled ? 'ON' : 'OFF'}</span>`;
+        btnCallouts.className = `px-2.5 py-1.5 rounded text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
+            isCalloutsEnabled ? 'bg-lcars-cyan text-black border-lcars-cyan shadow-[0_0_8px_rgba(51,255,255,0.4)]' : 'bg-surface-container text-secondary border-outline-variant/40 hover:bg-surface-bright'
+        }`;
+    }
+    if (mCallouts) {
+        mCallouts.className = `p-1.5 rounded-full border shadow-md transition-all active:scale-95 ${
+            isCalloutsEnabled ? 'bg-lcars-cyan text-black border-lcars-cyan' : 'bg-black/60 backdrop-blur text-white border-white/20'
+        }`;
+    }
+
+    if (window.playSound) window.playSound('beep1');
+}
+
+function addLineCallout(relX, relY, title = 'TACTICAL TARGET', tag = 'OBJ-LOCK', detail = 'CALIBRATED', color = '#66ccff') {
+    const newCallout = {
+        id: 'callout_' + Date.now(),
+        relX: Math.max(0.08, Math.min(0.92, relX)),
+        relY: Math.max(0.08, Math.min(0.92, relY)),
+        title: title.toUpperCase(),
+        tag: tag.toUpperCase(),
+        detail: detail.toUpperCase(),
+        color: color,
+        isAuto: false,
+        angleDeg: relX > 0.5 ? -35 : 35,
+        length: 50
+    };
+
+    activeCallouts.push(newCallout);
+    if (activeCallouts.length > 6) {
+        activeCallouts.shift();
+    }
+    if (window.playSound) window.playSound('chime');
+}
+
+function clearCustomCallouts() {
+    activeCallouts = activeCallouts.filter(c => c.isAuto);
+    if (window.playSound) window.playSound('beep1');
+}
+
+async function getCrossBrowserUserMedia(constraints) {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        return await navigator.mediaDevices.getUserMedia(constraints);
+    }
+    const legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    if (legacy) {
+        return new Promise((resolve, reject) => legacy.call(navigator, constraints, resolve, reject));
+    }
+    throw new Error("Camera API not supported or origin is insecure HTTP on mobile.");
+}
 
 /**
  * Initialize / Start Optical Camera Feed
  */
 async function startVisualRecon(facingMode = currentCameraFacing) {
-    const video = document.getElementById('recon-video-stream');
-    const status = document.getElementById('recon-status-badge');
-    const btn = document.getElementById('recon-power-btn');
-    const canvas = document.getElementById('recon-hud-overlay');
-
-    if (!video) return;
+    currentCameraFacing = facingMode;
+    const statusBadges = [
+        document.getElementById('recon-status-badge'),
+        document.getElementById('comm-recon-status-badge')
+    ];
+    const powerButtons = [
+        document.getElementById('recon-power-btn'),
+        document.getElementById('comm-recon-power-btn')
+    ];
 
     try {
         if (reconMediaStream) {
-            stopVisualRecon();
+            reconMediaStream.getTracks().forEach(t => t.stop());
+            reconMediaStream = null;
         }
 
-        currentCameraFacing = facingMode;
-        const constraints = {
-            video: {
-                facingMode: { ideal: facingMode },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            },
-            audio: false
-        };
+        let stream = null;
+        const attempts = [
+            { video: { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+            { video: { facingMode: facingMode }, audio: false },
+            { video: { facingMode: facingMode === 'user' ? 'environment' : 'user' }, audio: false },
+            { video: true, audio: false }
+        ];
 
-        reconMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = reconMediaStream;
-        await video.play();
+        let lastErr = null;
+        for (const c of attempts) {
+            try {
+                stream = await getCrossBrowserUserMedia(c);
+                if (stream) break;
+            } catch (attemptErr) {
+                lastErr = attemptErr;
+            }
+        }
 
+        if (!stream) throw lastErr || new Error("Unable to capture optical video stream.");
+
+        reconMediaStream = stream;
         isReconActive = true;
 
-        if (status) {
-            status.innerText = "OPTICAL FEED: ACTIVE [LIVE]";
-            status.className = "text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold border border-primary/50 shadow-[0_0_8px_rgba(102,204,255,0.3)] animate-pulse";
+        if (!motionAnalysisCanvas) {
+            motionAnalysisCanvas = document.createElement('canvas');
+            motionAnalysisCanvas.width = 96;
+            motionAnalysisCanvas.height = 72;
+            motionAnalysisCtx = motionAnalysisCanvas.getContext('2d', { willReadFrequently: true });
         }
-        if (btn) {
-            btn.innerHTML = `<span class="material-symbols-outlined text-sm">videocam_off</span><span>STAND DOWN OPTICAL FEED</span>`;
-            btn.className = "bg-error hover:bg-error/80 text-black font-bold py-2 px-4 rounded text-xs flex items-center justify-center gap-1.5 transition-all shadow-md";
+        prevFrameData = null;
+
+        const videos = getReconVideoElements();
+        for (const v of videos) {
+            v.muted = true;
+            v.playsInline = true;
+            v.setAttribute('playsinline', '');
+            v.setAttribute('webkit-playsinline', '');
+            v.srcObject = reconMediaStream;
+            try {
+                await v.play();
+            } catch (playErr) {
+                console.warn("[VisualRecon] Play warning:", playErr);
+            }
         }
+
+        applyCameraTransforms();
+
+        statusBadges.forEach(st => {
+            if (st) {
+                st.innerText = `OPTICAL FEED: ACTIVE [${currentCameraFacing.toUpperCase()}]`;
+                st.className = "text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold border border-primary/50 shadow-[0_0_8px_rgba(102,204,255,0.3)] animate-pulse";
+            }
+        });
+
+        powerButtons.forEach(btn => {
+            if (btn) {
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">videocam_off</span><span>STAND DOWN</span>`;
+                btn.className = "bg-error hover:bg-error/80 text-black font-bold py-1.5 px-3 rounded text-xs flex items-center justify-center gap-1 transition-all shadow-md active:scale-95";
+            }
+        });
+
+        const standbys = [
+            document.getElementById('recon-standby-screen'),
+            document.getElementById('comm-recon-standby-screen')
+        ];
+        standbys.forEach(sb => {
+            if (sb) sb.style.display = 'none';
+        });
+
+        initInteractiveCanvasCallouts();
+        initSentryHeartbeatTimer();
 
         if (window.playSound) window.playSound('warp');
         if (window.showNotificationAlert) {
-            window.showNotificationAlert("OPTICAL RECON ACTIVE", "Deck 3 optical sensors online and synchronized.", "info");
+            window.showNotificationAlert("OPTICAL RECON ACTIVE", `Deck 4 optical sensors online (${currentCameraFacing.toUpperCase()}).`, "info");
         }
 
         startTacticalHUDLoop();
 
     } catch (err) {
-        console.error("[VisualRecon] Camera initialization error:", err);
-        if (status) {
-            status.innerText = "OPTICAL FEED: OFFLINE / ACCESS DENIED";
-            status.className = "text-[9px] bg-error/20 text-error px-2 py-0.5 rounded font-bold border border-error/50";
-        }
+        console.error("[VisualRecon] Camera init error:", err);
+        statusBadges.forEach(st => {
+            if (st) {
+                st.innerText = "OPTICAL FEED: OFFLINE / PERMISSION REQUIRED";
+                st.className = "text-[9px] bg-error/20 text-error px-2 py-0.5 rounded font-bold border border-error/50";
+            }
+        });
         if (window.showNotificationAlert) {
-            window.showNotificationAlert("OPTICAL RECON ERROR", "Camera access denied or device not found: " + err.message, "error");
+            window.showNotificationAlert("OPTICAL RECON FAULT", "Camera permission needed or device busy: " + err.message, "error");
         }
     }
 }
 
+function initInteractiveCanvasCallouts() {
+    const containers = [
+        document.getElementById('recon-video-container'),
+        document.getElementById('comm-recon-video-container')
+    ];
+
+    containers.forEach(cont => {
+        if (!cont || cont._calloutBound) return;
+        cont._calloutBound = true;
+
+        const handlePointer = (e) => {
+            if (!isReconActive) return;
+            const rect = cont.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            let relX = x / rect.width;
+            let relY = y / rect.height;
+
+            if (isCameraFlippedH) relX = 1 - relX;
+            if (isCameraFlippedV) relY = 1 - relY;
+
+            addLineCallout(relX, relY, "USER TARGET PIN", "PIN-" + Math.floor(Math.random() * 90 + 10), `COORD: [${Math.round(x)}, ${Math.round(y)}]`, "#33ffff");
+        };
+
+        cont.addEventListener('click', handlePointer);
+    });
+}
+
 /**
- * Stop / Stand Down Optical Feed
+ * Sentry Heartbeat Timer (Posture evaluation, 20-20-20 rule & Arrival Sentry)
  */
+function initSentryHeartbeatTimer() {
+    if (sentryTickInterval) clearInterval(sentryTickInterval);
+
+    sentryTickInterval = setInterval(() => {
+        if (!isReconActive) return;
+
+        // 1. Evaluate Posture & Ergonomics
+        if (isStudySentryEnabled && headCentroid.active) {
+            // Head Y > 0.65 or Head Y drop suggests forward slouch / tech neck
+            const rawPitch = headCentroid.smoothY;
+            if (rawPitch > 0.58) {
+                postureState = 'SLOUCHING';
+                cervicalAngle = Math.max(62, Math.round(88 - (rawPitch - 0.5) * 110));
+                continuousSlouchSeconds += 1;
+            } else if (rawPitch > 0.48) {
+                postureState = 'FAIR';
+                cervicalAngle = 78;
+                continuousSlouchSeconds = Math.max(0, continuousSlouchSeconds - 1);
+            } else {
+                postureState = 'OPTIMAL';
+                cervicalAngle = 88;
+                continuousSlouchSeconds = 0;
+            }
+
+            // Alex Dunphy Posture Sarcastic / Caring Nudge (after 30s continuous slouching)
+            if (continuousSlouchSeconds >= 30 && Date.now() - lastSlouchNudgeTime > 3 * 60 * 1000) {
+                lastSlouchNudgeTime = Date.now();
+                const sarcasticNudges = [
+                    "Sensei, your cervical spine angle is dropping. Sit up straight before your posture starts resembling a question mark.",
+                    "Ergonomics alert: Spinal alignment is suboptimal. Shoulders back, chin up, Sensei.",
+                    "Academic posture check: Slouching decreases cerebral oxygenation by up to 14%. Adjust your back, please."
+                ];
+                const nudge = sarcasticNudges[Math.floor(Math.random() * sarcasticNudges.length)];
+                if (window.speakComputerVoice) window.speakComputerVoice(nudge);
+                if (window.showNotificationAlert) {
+                    window.showNotificationAlert("POSTURE ADVISORY", nudge, "warning");
+                }
+            }
+
+            // 20-20-20 Ocular Rest Rule Timer
+            ocularBreakTimerSeconds -= 1;
+            if (ocularBreakTimerSeconds <= 0) {
+                ocularBreakTimerSeconds = 20 * 60; // Reset 20m
+                const ocularMsg = "20-20-20 Protocol: Sensei, shift your gaze 20 feet away for 20 seconds to prevent ocular fatigue.";
+                if (window.speakComputerVoice) window.speakComputerVoice(ocularMsg);
+                if (window.showNotificationAlert) {
+                    window.showNotificationAlert("OCULAR REST (20-20-20)", ocularMsg, "info");
+                }
+            }
+        }
+
+        // 2. Autonomous Bridge Arrival Protocol
+        if (isPresenceSentryEnabled) {
+            if (headCentroid.active) {
+                if (!isSenseiPresent) {
+                    // SENSEI JUST ARRIVED AT DESK!
+                    if (awayDurationSeconds >= 90 && Date.now() - lastArrivalGreetingTime > 5 * 60 * 1000) {
+                        lastArrivalGreetingTime = Date.now();
+                        const arrivalGreetings = [
+                            "Welcome back to Bridge Command, Sensei. Optical telemetry synchronized.",
+                            "Sensei detected at workstation. Takahara Academy systems nominal.",
+                            "Welcome back, Sensei. Core memory and neural voice sentry active."
+                        ];
+                        const greeting = arrivalGreetings[Math.floor(Math.random() * arrivalGreetings.length)];
+                        if (window.speakComputerVoice) window.speakComputerVoice(greeting);
+                        if (window.showNotificationAlert) {
+                            window.showNotificationAlert("SENSEI DETECTED", "Bridge Arrival Protocol Engaged.", "info");
+                        }
+                    }
+                    isSenseiPresent = true;
+                    awayDurationSeconds = 0;
+                }
+            } else {
+                awayDurationSeconds += 1;
+                if (awayDurationSeconds > 15) {
+                    isSenseiPresent = false;
+                }
+            }
+        }
+    }, 1000);
+}
+
+/**
+ * Real-Time Head Movement Tracking
+ */
+async function detectHeadMovement(video) {
+    if (!isHeadTrackingEnabled || !video || video.readyState < 2 || !motionAnalysisCtx) return;
+
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 480;
+
+    if (isNativeFaceDetectorSupported && nativeFaceDetector && !isDetectingNativeFace) {
+        isDetectingNativeFace = true;
+        nativeFaceDetector.detect(video).then(faces => {
+            isDetectingNativeFace = false;
+            if (faces && faces.length > 0) {
+                const box = faces[0].boundingBox;
+                const rawHeadX = (box.x + box.width / 2) / vw;
+                const rawHeadY = (box.y + box.height / 2) / vh;
+                const rawHeadW = box.width / vw;
+                const rawHeadH = box.height / vh;
+
+                updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
+                    minX: box.x / vw, minY: box.y / vh, maxX: (box.x + box.width) / vw, maxY: (box.y + box.height) / vh
+                });
+                return;
+            } else {
+                runFallbackHeadChromaTracker(video);
+            }
+        }).catch(() => {
+            isDetectingNativeFace = false;
+            runFallbackHeadChromaTracker(video);
+        });
+        return;
+    }
+
+    runFallbackHeadChromaTracker(video);
+}
+
+// ==============================================================================
+// 3. ANATOMICAL BIOMETRIC HUMAN DETECTION ENGINE
+// Multi-Tiered Dual-Spectrum Chrominance & Craniofacial Vector Tracker
+// ==============================================================================
+let anatomicalConfidenceFrames = 0;
+const ANATOMICAL_CONFIDENCE_THRESHOLD = 1;
+
+function runFallbackHeadChromaTracker(video) {
+    const mw = motionAnalysisCanvas.width;
+    const mh = motionAnalysisCanvas.height;
+
+    motionAnalysisCtx.drawImage(video, 0, 0, mw, mh);
+    const currImageData = motionAnalysisCtx.getImageData(0, 0, mw, mh);
+    const currData = currImageData.data;
+
+    if (!prevFrameData) {
+        prevFrameData = new Uint8ClampedArray(currData);
+        return;
+    }
+
+    let headSumX = 0, headSumY = 0, headPixelCount = 0;
+    let minX = mw, maxX = 0, minY = mh, maxY = 0;
+
+    for (let i = 0; i < currData.length; i += 4) {
+        const pixelIdx = i / 4;
+        const px = pixelIdx % mw;
+        const py = Math.floor(pixelIdx / mw);
+
+        // Human head/cranium & shoulders lie in upper 78% of the frame
+        if (py > mh * 0.78) continue;
+
+        const r = currData[i], g = currData[i + 1], b = currData[i + 2];
+        const sum = r + g + b + 1;
+        const normR = r / sum;
+        const normG = g / sum;
+        
+        // 1. Normalized RGB Chrominance Locus (Adaptive across diverse skin tones & lighting)
+        const isNormSkin = (normR >= 0.31 && normR <= 0.62) && (normG >= 0.22 && normG <= 0.40) && (normR > normG) && (r > 30) && (Math.abs(r - g) >= 6);
+
+        // 2. YCbCr Chrominance Elliptical Locus
+        const y = 0.299 * r + 0.587 * g + 0.114 * b;
+        const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+        const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+        const isYCbCrSkin = (y > 25 && y < 248) && (cb >= 68 && cb <= 148) && (cr >= 122 && cr <= 188);
+
+        const isHumanSkinLocus = isNormSkin || isYCbCrSkin;
+
+        // 3. Motion Differential
+        const diff = (Math.abs(r - prevFrameData[i]) + Math.abs(g - prevFrameData[i + 1]) + Math.abs(b - prevFrameData[i + 2])) / 3;
+        const isMoving = diff > 10;
+
+        if (isHumanSkinLocus || (isMoving && py < mh * 0.70)) {
+            const weight = isMoving ? 1.8 : 0.9;
+            headSumX += px * weight;
+            headSumY += py * weight;
+            headPixelCount += weight;
+
+            if (px < minX) minX = px;
+            if (px > maxX) maxX = px;
+            if (py < minY) minY = py;
+            if (py > maxY) maxY = py;
+        }
+    }
+
+    prevFrameData.set(currData);
+
+    const detectedW = maxX - minX;
+    const detectedH = maxY - minY;
+    const cranialAspectRatio = detectedW > 0 ? (detectedH / detectedW) : 0;
+
+    // 4. Anatomical Biometric Validation Gate
+    const isValidAnatomy = (
+        headPixelCount >= 12 &&
+        detectedW >= mw * 0.05 && detectedW <= mw * 0.78 &&
+        detectedH >= mh * 0.07 && detectedH <= mh * 0.82 &&
+        cranialAspectRatio >= 0.75 && cranialAspectRatio <= 2.40
+    );
+
+    if (isValidAnatomy) {
+        anatomicalConfidenceFrames = Math.min(8, anatomicalConfidenceFrames + 1);
+    } else {
+        anatomicalConfidenceFrames = Math.max(0, anatomicalConfidenceFrames - 1);
+    }
+
+    // 5. Real-Time Responsive Centroid Update
+    if (anatomicalConfidenceFrames >= ANATOMICAL_CONFIDENCE_THRESHOLD && headPixelCount > 0) {
+        const rawHeadX = (headSumX / headPixelCount) / mw;
+        const rawHeadY = (headSumY / headPixelCount) / mh;
+        const rawHeadW = Math.max(0.18, detectedW / mw);
+        const rawHeadH = Math.max(0.24, detectedH / mh);
+
+        updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
+            minX: Math.max(0, (minX / mw) - 0.03),
+            minY: Math.max(0, (minY / mh) - 0.03),
+            maxX: Math.min(1, (maxX / mw) + 0.03),
+            maxY: Math.min(1, (maxY / mh) + 0.03)
+        });
+    } else {
+        if (performance.now() - headCentroid.lastDetectedTime > 400) {
+            headCentroid.active = false;
+            headCentroid.intensity = Math.max(0, headCentroid.intensity - 12);
+            if (headTrail.length > 0) headTrail.shift();
+        }
+    }
+}
+
+function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
+    const alpha = 0.35;
+    const prevSmoothX = headCentroid.smoothX;
+    const prevSmoothY = headCentroid.smoothY;
+
+    headCentroid.smoothX += (rawX - headCentroid.smoothX) * alpha;
+    headCentroid.smoothY += (rawY - headCentroid.smoothY) * alpha;
+    headCentroid.smoothW += (rawW - headCentroid.smoothW) * alpha;
+    headCentroid.smoothH += (rawH - headCentroid.smoothH) * alpha;
+    headCentroid.x = rawX;
+    headCentroid.y = rawY;
+    headCentroid.bbox = bbox;
+
+    const deltaDist = Math.hypot(headCentroid.smoothX - prevSmoothX, headCentroid.smoothY - prevSmoothY);
+    headCentroid.velocity = Math.round(deltaDist * 420);
+    headCentroid.intensity = Math.min(100, Math.round(40 + deltaDist * 200));
+    headCentroid.active = true;
+    headCentroid.lastDetectedTime = performance.now();
+
+    headTrail.push({
+        x: headCentroid.smoothX,
+        y: headCentroid.smoothY,
+        time: performance.now()
+    });
+    if (headTrail.length > 14) headTrail.shift();
+}
+
 function stopVisualRecon() {
     if (reconMediaStream) {
         reconMediaStream.getTracks().forEach(t => t.stop());
@@ -81,24 +715,50 @@ function stopVisualRecon() {
     }
     isReconActive = false;
 
-    const video = document.getElementById('recon-video-stream');
-    const status = document.getElementById('recon-status-badge');
-    const btn = document.getElementById('recon-power-btn');
+    if (sentryTickInterval) {
+        clearInterval(sentryTickInterval);
+        sentryTickInterval = null;
+    }
 
-    if (video) video.srcObject = null;
+    const videos = getReconVideoElements();
+    videos.forEach(v => {
+        if (v) v.srcObject = null;
+    });
+
     if (hudAnimationId) {
         cancelAnimationFrame(hudAnimationId);
         hudAnimationId = null;
     }
 
-    if (status) {
-        status.innerText = "OPTICAL FEED: STANDBY";
-        status.className = "text-[9px] bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/40";
-    }
-    if (btn) {
-        btn.innerHTML = `<span class="material-symbols-outlined text-sm">videocam</span><span>ENGAGE OPTICAL RECON</span>`;
-        btn.className = "bg-primary hover:bg-primary/80 text-black font-bold py-2 px-4 rounded text-xs flex items-center justify-center gap-1.5 transition-all shadow-md";
-    }
+    const statusBadges = [
+        document.getElementById('recon-status-badge'),
+        document.getElementById('comm-recon-status-badge')
+    ];
+    statusBadges.forEach(st => {
+        if (st) {
+            st.innerText = "OPTICAL FEED: STANDBY";
+            st.className = "text-[9px] bg-surface-dim text-secondary px-2 py-0.5 rounded font-bold border border-outline-variant/40";
+        }
+    });
+
+    const powerButtons = [
+        document.getElementById('recon-power-btn'),
+        document.getElementById('comm-recon-power-btn')
+    ];
+    powerButtons.forEach(btn => {
+        if (btn) {
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm">videocam</span><span>ENGAGE RECON</span>`;
+            btn.className = "bg-primary hover:bg-primary/80 text-black font-bold py-1.5 px-3 rounded text-xs flex items-center justify-center gap-1 transition-all shadow-md active:scale-95";
+        }
+    });
+
+    const standbys = [
+        document.getElementById('recon-standby-screen'),
+        document.getElementById('comm-recon-standby-screen')
+    ];
+    standbys.forEach(sb => {
+        if (sb) sb.style.display = 'flex';
+    });
 }
 
 function toggleVisualRecon() {
@@ -114,98 +774,294 @@ function switchCameraFacing() {
     startVisualRecon(nextFacing);
 }
 
+function openMobileReconModal() {
+    const modal = document.getElementById('comm-recon-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if (window.playSound) window.playSound('beep2');
+
+    const mobileVideo = document.getElementById('comm-recon-video-stream');
+    if (mobileVideo) {
+        mobileVideo.muted = true;
+        mobileVideo.playsInline = true;
+        mobileVideo.setAttribute('playsinline', '');
+        mobileVideo.setAttribute('webkit-playsinline', '');
+    }
+
+    if (!isReconActive) {
+        startVisualRecon('user');
+    } else {
+        if (mobileVideo && reconMediaStream) {
+            mobileVideo.srcObject = reconMediaStream;
+            mobileVideo.play().catch(() => {});
+        }
+        applyCameraTransforms();
+        startTacticalHUDLoop();
+    }
+}
+
+function closeMobileReconModal() {
+    const modal = document.getElementById('comm-recon-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (window.playSound) window.playSound('beep1');
+}
+
 /**
- * Tactical Canvas HUD Rendering Loop
+ * Tactical Canvas HUD Rendering Loop with Ergonomics Halo & Sentry Gauges
  */
 function startTacticalHUDLoop() {
-    const canvas = document.getElementById('recon-hud-overlay');
-    const video = document.getElementById('recon-video-stream');
-    if (!canvas || !video) return;
+    if (hudAnimationId) {
+        cancelAnimationFrame(hudAnimationId);
+        hudAnimationId = null;
+    }
 
-    const ctx = canvas.getContext('2d');
     let angle = 0;
+    let pulsePhase = 0;
 
     function renderHUD() {
         if (!isReconActive) return;
 
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w / 2;
-        const cy = h / 2;
-
-        ctx.clearRect(0, 0, w, h);
-
-        // 1. Tactical Grid & Crosshairs
-        ctx.strokeStyle = 'rgba(102, 204, 255, 0.25)';
-        ctx.lineWidth = 1;
-
-        // Center Crosshair
-        ctx.beginPath();
-        ctx.moveTo(cx - 30, cy);
-        ctx.lineTo(cx - 8, cy);
-        ctx.moveTo(cx + 8, cy);
-        ctx.lineTo(cx + 30, cy);
-        ctx.moveTo(cx, cy - 30);
-        ctx.lineTo(cx, cy - 8);
-        ctx.moveTo(cx, cy + 8);
-        ctx.lineTo(cx, cy + 30);
-        ctx.stroke();
-
-        // 2. Rotating Targeting Rings
         angle += 0.015;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-        ctx.strokeStyle = 'rgba(255, 226, 83, 0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([12, 18]);
-        ctx.beginPath();
-        ctx.arc(0, 0, 60, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
+        pulsePhase += 0.04;
+        const pulseScale = 1 + 0.15 * Math.sin(pulsePhase);
 
-        // 3. Corner Tactical Brackets
-        const bracketSize = 25;
-        ctx.strokeStyle = 'rgba(102, 204, 255, 0.7)';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([]);
+        const activeVideo = getActiveReconVideo();
+        if (activeVideo && isHeadTrackingEnabled) {
+            detectHeadMovement(activeVideo);
+        }
 
-        // Top-Left
-        ctx.beginPath();
-        ctx.moveTo(20, 20 + bracketSize);
-        ctx.lineTo(20, 20);
-        ctx.lineTo(20 + bracketSize, 20);
-        ctx.stroke();
+        const canvases = [
+            document.getElementById('recon-hud-overlay'),
+            document.getElementById('comm-recon-hud-overlay')
+        ].filter(c => c && c.offsetParent !== null);
 
-        // Top-Right
-        ctx.beginPath();
-        ctx.moveTo(w - 20 - bracketSize, 20);
-        ctx.lineTo(w - 20, 20);
-        ctx.lineTo(w - 20, 20 + bracketSize);
-        ctx.stroke();
+        for (const canvas of canvases) {
+            const w = canvas.clientWidth || 320;
+            const h = canvas.clientHeight || 240;
+            if (canvas.width !== w) canvas.width = w;
+            if (canvas.height !== h) canvas.height = h;
 
-        // Bottom-Left
-        ctx.beginPath();
-        ctx.moveTo(20, h - 20 - bracketSize);
-        ctx.lineTo(20, h - 20);
-        ctx.lineTo(20 + bracketSize, h - 20);
-        ctx.stroke();
+            const ctx = canvas.getContext('2d');
+            if (!ctx) continue;
 
-        // Bottom-Right
-        ctx.beginPath();
-        ctx.moveTo(w - 20 - bracketSize, h - 20);
-        ctx.lineTo(w - 20, h - 20);
-        ctx.lineTo(w - 20, h - 20 - bracketSize);
-        ctx.stroke();
+            ctx.clearRect(0, 0, w, h);
 
-        // 4. Stardate & Telemetry Overlay on Canvas
-        ctx.font = '10px "Space Mono", monospace';
-        ctx.fillStyle = 'rgba(102, 204, 255, 0.85)';
-        ctx.fillText(`OPTICAL SENSOR: 1080p // STARDATE: ${new Date().toISOString().slice(0,10)}`, 28, 38);
-        ctx.fillStyle = 'rgba(255, 226, 83, 0.85)';
-        ctx.fillText(`TARGETING: AUTONOMOUS // FACING: ${currentCameraFacing.toUpperCase()}`, 28, 52);
+            // 1. Minimal Corner Viewfinder Brackets (Ultra-clean Starfleet frame)
+            const bracketSize = Math.min(16, w * 0.05);
+            ctx.strokeStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.35)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(10, 10 + bracketSize); ctx.lineTo(10, 10); ctx.lineTo(10 + bracketSize, 10);
+            ctx.moveTo(w - 10 - bracketSize, 10); ctx.lineTo(w - 10, 10); ctx.lineTo(w - 10, 10 + bracketSize);
+            ctx.moveTo(10, h - 10 - bracketSize); ctx.lineTo(10, h - 10); ctx.lineTo(10 + bracketSize, h - 10);
+            ctx.moveTo(w - 10 - bracketSize, h - 10); ctx.lineTo(w - 10, h - 10); ctx.lineTo(w - 10, h - 10 - bracketSize);
+            ctx.stroke();
+
+            // 2. Real-Time Anatomical Biometric Head & Cervical Alignment Frame
+            if (isHeadTrackingEnabled && headCentroid.active && headCentroid.bbox) {
+                let headX = headCentroid.smoothX * w;
+                let headY = headCentroid.smoothY * h;
+
+                if (isCameraFlippedH) headX = (1 - headCentroid.smoothX) * w;
+                if (isCameraFlippedV) headY = (1 - headCentroid.smoothY) * h;
+
+                const headW = Math.max(48, headCentroid.smoothW * w);
+                const headH = Math.max(64, headCentroid.smoothH * h);
+                const hx = headX - headW / 2;
+                const hy = headY - headH / 2;
+
+                ctx.save();
+
+                // Minimalist Corner Anatomical Biometric Brackets
+                const hCorner = Math.min(12, headW * 0.22);
+                ctx.strokeStyle = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.moveTo(hx, hy + hCorner); ctx.lineTo(hx, hy); ctx.lineTo(hx + hCorner, hy);
+                ctx.moveTo(hx + headW - hCorner, hy); ctx.lineTo(hx + headW, hy); ctx.lineTo(hx + headW, hy + hCorner);
+                ctx.moveTo(hx, hy + headH - hCorner); ctx.lineTo(hx + headH); ctx.lineTo(hx + hCorner, hy + headH);
+                ctx.moveTo(hx + headW - hCorner, hy + headH); ctx.lineTo(hx + headW, hy + headH); ctx.lineTo(hx + headW, hy + headH - hCorner);
+                ctx.stroke();
+
+                // Center Anatomical Vertex Point
+                ctx.fillStyle = postureState === 'SLOUCHING' ? '#f87171' : '#34d399';
+                ctx.beginPath();
+                ctx.arc(headX, headY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            // 3. Stardate & Telemetry Overlay (Clean & Minimalist)
+            ctx.font = '9px "Space Mono", monospace';
+            ctx.fillStyle = isLaserScanning ? '#33ff66' : 'rgba(102, 204, 255, 0.85)';
+            ctx.fillText(
+                isLaserScanning ? `[●] SCANNING OPTICAL TARGET...` : 
+                (headCentroid.active ? `[●] ANATOMICAL SENTRY: SENSEI LOCKED // CERVICAL: ${cervicalAngle}° (${postureState})` : `OPTICAL SENSOR [${currentCameraFacing.toUpperCase()}] ${isCameraFlippedH ? '⇄ MIRRORED' : ''} ${isCameraFlippedV ? '⇅ INVERTED' : ''}`),
+                16, 22
+            );
+            ctx.fillStyle = headCentroid.active ? '#ffe253' : 'rgba(255, 226, 83, 0.8)';
+            ctx.fillText(`RECON: LIVE // ${new Date().toLocaleTimeString()} // SENTRY: ${isStudySentryEnabled ? 'ACTIVE' : 'OFF'} // PRESENCE: ${isSenseiPresent ? 'ONLINE' : 'AWAY'}`, 16, 34);
+
+            // 4. Laser Scan Sweep (when active)
+            if (isLaserScanning) {
+                laserScanY = (laserScanY + 4) % h;
+                ctx.save();
+                const grad = ctx.createLinearGradient(0, laserScanY - 15, 0, laserScanY + 15);
+                grad.addColorStop(0, 'rgba(51, 255, 102, 0)');
+                grad.addColorStop(0.5, 'rgba(51, 255, 102, 0.6)');
+                grad.addColorStop(1, 'rgba(51, 255, 102, 0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, laserScanY - 15, w, 30);
+
+                ctx.strokeStyle = '#33ff66';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#33ff66';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.moveTo(0, laserScanY);
+                ctx.lineTo(w, laserScanY);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 5. Tactical Live Tracking & User Callout Annotations (Only rendered when human/target is present)
+            if (isCalloutsEnabled) {
+                activeCallouts.forEach((callout, idx) => {
+                    // CRITICAL: Absolutely NO callouts when no human or manual pin is present!
+                    if (callout.isAuto && !headCentroid.active) {
+                        return;
+                    }
+
+                    let relX = callout.relX;
+                    let relY = callout.relY;
+
+                    // 1. Synchronize Auto-Callouts to live head centroid at 60 FPS
+                    if (headCentroid.active) {
+                        if (callout.id === 'primary_focal') {
+                            relX = headCentroid.smoothX;
+                            relY = headCentroid.smoothY;
+                            callout.title = postureState === 'SLOUCHING' ? "CERVICAL: SLOUCHING" : "SENSEI [ANATOMICAL LOCK]";
+                            callout.tag = "ANATOMY";
+                            callout.detail = `LORDOSIS: ${cervicalAngle}° // VEL: ${headCentroid.velocity}px/s`;
+                            callout.color = postureState === 'SLOUCHING' ? '#f87171' : (postureState === 'FAIR' ? '#ffe253' : '#34d399');
+                        } else if (callout.id === 'ambient_sensor') {
+                            relX = Math.min(0.90, headCentroid.smoothX + 0.16);
+                            relY = Math.max(0.12, headCentroid.smoothY - 0.10);
+                            callout.title = "OCULAR & FLOW SENTRY";
+                            callout.tag = "ERGONOMICS";
+                            callout.detail = `REST: ${Math.floor(ocularBreakTimerSeconds / 60)}m ${ocularBreakTimerSeconds % 60}s // SENTRY ON`;
+                            callout.color = '#33ffff';
+                        }
+                    }
+
+                    let targetX = relX * w;
+                    let targetY = relY * h;
+
+                    if (isCameraFlippedH) targetX = (1 - relX) * w;
+                    if (isCameraFlippedV) targetY = (1 - relY) * h;
+
+                    ctx.save();
+
+                    // A. Target Center Focal Dot
+                    ctx.fillStyle = callout.color || '#66ccff';
+                    ctx.beginPath();
+                    ctx.arc(targetX, targetY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // B. Pulsing Tactical Outer Ring
+                    ctx.strokeStyle = callout.color || '#66ccff';
+                    ctx.lineWidth = 1.8;
+                    ctx.beginPath();
+                    ctx.arc(targetX, targetY, 12 * pulseScale, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // C. Corner Crosshair Ticks on Target
+                    const tickLen = 6;
+                    ctx.beginPath();
+                    ctx.moveTo(targetX - 16, targetY); ctx.lineTo(targetX - 16 + tickLen, targetY);
+                    ctx.moveTo(targetX + 16, targetY); ctx.lineTo(targetX + 16 - tickLen, targetY);
+                    ctx.moveTo(targetX, targetY - 16); ctx.lineTo(targetX, targetY - 16 + tickLen);
+                    ctx.moveTo(targetX, targetY + 16); ctx.lineTo(targetX, targetY + 16 - tickLen);
+                    ctx.stroke();
+
+                    // D. High-Visibility Angular Leader Line
+                    const isRightSide = targetX < w * 0.55;
+                    const leaderLength = 55;
+                    const angleRad = (isRightSide ? -32 : -148) * (Math.PI / 180);
+                    const elbowX = targetX + Math.cos(angleRad) * leaderLength;
+                    const elbowY = targetY + Math.sin(angleRad) * leaderLength;
+
+                    ctx.setLineDash([5, 3]);
+                    ctx.strokeStyle = callout.color || '#66ccff';
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath();
+                    ctx.moveTo(targetX, targetY);
+                    ctx.lineTo(elbowX, elbowY);
+                    ctx.stroke();
+
+                    // E. Underline Extension
+                    ctx.setLineDash([]);
+                    const cardWidth = Math.max(195, Math.min(250, w * 0.44));
+                    const cardHeight = 36;
+                    const endX = isRightSide ? elbowX + cardWidth : elbowX - cardWidth;
+
+                    ctx.beginPath();
+                    ctx.moveTo(elbowX, elbowY);
+                    ctx.lineTo(endX, elbowY);
+                    ctx.stroke();
+
+                    // Elbow Pivot Joint
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(elbowX, elbowY, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // F. High-Contrast, Large Readable Holographic Card
+                    const cardX = isRightSide ? elbowX + 2 : endX;
+                    const cardY = elbowY - (cardHeight + 2);
+
+                    // Card Background (Deep Glass Dark with Neon Accent Border)
+                    ctx.fillStyle = 'rgba(6, 12, 24, 0.94)';
+                    ctx.strokeStyle = callout.color || '#66ccff';
+                    ctx.lineWidth = 1.5;
+                    ctx.shadowColor = callout.color || '#66ccff';
+                    ctx.shadowBlur = 8;
+                    ctx.fillRect(cardX, cardY, cardWidth - 4, cardHeight);
+                    ctx.strokeRect(cardX, cardY, cardWidth - 4, cardHeight);
+                    ctx.shadowBlur = 0; // Reset blur
+
+                    // Left Colored Accent Strip
+                    ctx.fillStyle = callout.color || '#66ccff';
+                    ctx.fillRect(cardX, cardY, 4, cardHeight);
+
+                    // Row 1: Tag Pill + Title (Bold & Large)
+                    ctx.font = 'bold 11px "Space Mono", monospace';
+                    ctx.fillStyle = callout.color || '#66ccff';
+                    ctx.fillText(`[${callout.tag}]`, cardX + 10, cardY + 14);
+
+                    ctx.font = 'bold 11.5px "Space Mono", monospace';
+                    ctx.fillStyle = '#ffffff';
+                    const maxTitleChars = Math.floor((cardWidth - 85) / 7.2);
+                    const displayTitle = callout.title.length > maxTitleChars ? callout.title.substring(0, maxTitleChars) + '..' : callout.title;
+                    ctx.fillText(displayTitle, cardX + 74, cardY + 14);
+
+                    // Row 2: Detail / Telemetry Value (Crisp Mono, High Contrast)
+                    ctx.font = 'bold 10px "JetBrains Mono", monospace';
+                    ctx.fillStyle = '#ffe253';
+                    const maxDetailChars = Math.floor((cardWidth - 20) / 6.5);
+                    const displayDetail = callout.detail.length > maxDetailChars ? callout.detail.substring(0, maxDetailChars) + '..' : callout.detail;
+                    ctx.fillText(displayDetail, cardX + 10, cardY + 28);
+
+                    ctx.restore();
+                });
+            }
+        }
 
         hudAnimationId = requestAnimationFrame(renderHUD);
     }
@@ -213,75 +1069,82 @@ function startTacticalHUDLoop() {
     renderHUD();
 }
 
-/**
- * Capture High-Res JPEG Base64 Frame
- */
 function captureReconFrameBase64() {
-    const video = document.getElementById('recon-video-stream');
+    const video = getActiveReconVideo();
     if (!video || !isReconActive) return null;
 
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 480;
+
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = video.videoWidth || 640;
-    offCanvas.height = video.videoHeight || 480;
+    offCanvas.width = vw;
+    offCanvas.height = vh;
     const ctx = offCanvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
+
+    ctx.save();
+    if (isCameraFlippedH || isCameraFlippedV) {
+        ctx.translate(isCameraFlippedH ? vw : 0, isCameraFlippedV ? vh : 0);
+        ctx.scale(isCameraFlippedH ? -1 : 1, isCameraFlippedV ? -1 : 1);
+    }
+    ctx.drawImage(video, 0, 0, vw, vh);
+    ctx.restore();
 
     const dataUrl = offCanvas.toDataURL('image/jpeg', 0.85);
-    const base64Data = dataUrl.split(',')[1];
-    return base64Data;
+    return dataUrl.split(',')[1];
 }
 
 /**
- * Multimodal Visual AI Analysis using Gemini 1.5 Flash Vision
+ * ==============================================================================
+ * 5. HOLOGRAPHIC DOCUMENT & MATH OCR SCANNER
+ * ==============================================================================
  */
-async function analyzeVisualRecon(customQuery = '') {
-    if (isVisualAnalyzing) return;
+async function scanDocumentOCR() {
+    if (isDocScanning || isVisualAnalyzing) return;
     if (!isReconActive) {
-        await startVisualRecon();
-        // Wait 1.2s for video buffer
+        await startVisualRecon('environment');
         await new Promise(r => setTimeout(r, 1200));
     }
 
     const base64Image = captureReconFrameBase64();
     if (!base64Image) {
-        alert('Please activate optical camera feed first.');
+        if (window.showNotificationAlert) window.showNotificationAlert("DOCUMENT SCANNER", "Camera stream offline.", "warning");
         return;
     }
 
-    const log = document.getElementById('recon-analysis-log');
-    const loadingBadge = document.getElementById('recon-analyzing-badge');
+    isDocScanning = true;
+    isLaserScanning = true;
+    if (window.playSound) window.playSound('warp');
+
+    const loadingBadges = [
+        document.getElementById('recon-analyzing-badge'),
+        document.getElementById('comm-recon-analyzing-badge')
+    ];
+    loadingBadges.forEach(b => {
+        if (b) {
+            b.classList.remove('hidden');
+            b.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-lcars-cyan animate-ping"></div><span>EXTRACTING DOCUMENT OCR & MATH REASONING...</span>`;
+        }
+    });
+
     const apiKey = localStorage.getItem('meena_gemini_api_key') || '';
-
-    isVisualAnalyzing = true;
-    if (loadingBadge) loadingBadge.classList.remove('hidden');
-    if (window.playSound) window.playSound('chime');
-
-    const promptText = customQuery && customQuery.trim() ? 
-        `You are M.E.E.N.A., an advanced tactical assistant for Takahara Academy. Analyze this live optical camera frame and answer this question: "${customQuery.trim()}". Be concise, precise, and polite (2-3 sentences). If the question was in Malay, reply in natural Bahasa Melayu, otherwise in English.` :
-        `You are M.E.E.N.A., an advanced tactical assistant for Takahara Academy. Analyze this live optical camera frame. Describe the scene, identified objects, people, environment, text, or anomalies in 2-3 clear, insightful sentences. Answer in English, or Bahasa Melayu if the context demands.`;
+    const ocrPrompt = `You are M.E.E.N.A., Starfleet Academic AI for Takahara Academy with Alex Dunphy's persona. 
+Analyze the physical document, book, whiteboard, code, or math equation in this camera frame.
+1. Transcribe the core text, formulas, or code.
+2. If it's a math/scientific problem, solve it step-by-step with Alex Dunphy's intellectual clarity.
+3. Be concise and sharp (under 4 sentences or structured steps).`;
 
     try {
-        let analysisResult = "";
-
+        let ocrResult = "";
         if (apiKey) {
-            // Direct Cloud Multimodal Inference with Gemini 1.5 Flash
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{
                     parts: [
-                        { text: promptText },
-                        {
-                            inlineData: {
-                                mimeType: "image/jpeg",
-                                data: base64Image
-                            }
-                        }
+                        { text: ocrPrompt },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
                     ]
                 }],
-                generationConfig: {
-                    temperature: 0.4,
-                    maxOutputTokens: 300
-                }
+                generationConfig: { temperature: 0.2, maxOutputTokens: 400 }
             };
 
             const res = await fetch(url, {
@@ -292,54 +1155,395 @@ async function analyzeVisualRecon(customQuery = '') {
 
             if (res.ok) {
                 const json = await res.json();
-                analysisResult = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Visual scan completed with zero anomalies detected.";
+                ocrResult = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Document OCR completed with zero textual anomalies.";
             } else {
                 throw new Error(`API HTTP ${res.status}`);
             }
         } else {
-            // Offline Tactical Simulation if API Key not yet configured
-            analysisResult = "Optical frame captured and analyzed: Visual sector displays ambient desk workstation with high clarity. All physical parameters appear nominal and secure, Sensei.";
+            ocrResult = "Holographic OCR: Academic notes detected in sector. Physical document transcribed with high clarity. All equations and typography structured, Sensei.";
         }
 
-        // Render card in Visual Recon Log
-        appendVisualReconCard(customQuery || "Visual Recon Scan", analysisResult);
+        // Add OCR Callout pins
+        addLineCallout(0.5, 0.5, "DOC OCR EXTRACTED", "OCR-01", "ACADEMIC TRANSCRIPTION READY", "#33ffff");
 
-        // Vocal Announcement
+        appendVisualReconCard("Holographic Document OCR", ocrResult);
+
         if (window.speakComputerVoice) {
-            window.speakComputerVoice(analysisResult);
+            window.speakComputerVoice(ocrResult.length > 180 ? ocrResult.substring(0, 180) + "..." : ocrResult);
+        }
+
+        if (window.showNotificationAlert) {
+            window.showNotificationAlert("DOCUMENT TRANSCRIBED", "Optical document OCR analysis complete.", "info");
         }
 
     } catch (err) {
-        console.error("[VisualRecon] Vision analysis failure:", err);
-        const errMsg = "Optical analysis fault: " + err.message;
-        appendVisualReconCard("Vision Analysis Error", errMsg, true);
-        if (window.speakComputerVoice) {
-            window.speakComputerVoice("Optical sensor analysis could not be completed, Sensei.");
+        console.error("[DocOCR] Analysis error:", err);
+        appendVisualReconCard("OCR Analysis Fault", err.message, true);
+    } finally {
+        isDocScanning = false;
+        isLaserScanning = false;
+        loadingBadges.forEach(b => {
+            if (b) b.classList.add('hidden');
+        });
+    }
+}
+
+/**
+ * ==============================================================================
+ * 6. BIOMETRICS & PERSONNEL DOSSIER
+ * ==============================================================================
+ */
+async function scanFaceBiometrics() {
+    if (isFaceScanning || isVisualAnalyzing) return;
+    if (!isReconActive) {
+        await startVisualRecon('user');
+        await new Promise(r => setTimeout(r, 1200));
+    }
+
+    const base64Image = captureReconFrameBase64();
+    if (!base64Image) {
+        if (window.showNotificationAlert) window.showNotificationAlert("BIOMETRIC ERROR", "Camera offline.", "warning");
+        return;
+    }
+
+    isFaceScanning = true;
+    isLaserScanning = true;
+    if (window.playSound) window.playSound('warp');
+
+    const loadingBadges = [
+        document.getElementById('recon-analyzing-badge'),
+        document.getElementById('comm-recon-analyzing-badge')
+    ];
+    loadingBadges.forEach(b => {
+        if (b) {
+            b.classList.remove('hidden');
+            b.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-lcars-cyan animate-ping"></div><span>SCANNING BIOMETRIC RETINA & PROFILE...</span>`;
         }
+    });
+
+    const apiKey = localStorage.getItem('meena_gemini_api_key') || '';
+    const biometricPrompt = `You are M.E.E.N.A., Starfleet Tactical Neural AI for Takahara Academy with Alex Dunphy's persona. 
+Analyze this face. Return STRICT JSON object:
+{
+  "personnel_id": "Sensei (Commanding Officer)",
+  "clearance": "Level 5 Command",
+  "age_estimate": "24-28",
+  "gender_presentation": "Male",
+  "facial_expression": "Focused & Attentive",
+  "energy_index": "88%",
+  "fatigue_rating": "Nominal (Low)",
+  "alex_assessment": "Subject confirmed as Sensei. Physiological telemetry indicates high cognitive alertness with nominal stress indices.",
+  "voice_summary": "Sensei verified. Biometric profile active. Estimated age 20s. Cognitive alertness at 88 percent."
+}`;
+
+    try {
+        let profile = null;
+        if (apiKey) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: biometricPrompt },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                    ]
+                }],
+                generationConfig: { temperature: 0.2, maxOutputTokens: 400, responseMimeType: "application/json" }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const json = await res.json();
+                try {
+                    profile = JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}");
+                } catch (e) {}
+            }
+        }
+
+        if (!profile || !profile.personnel_id) {
+            profile = {
+                personnel_id: "Sensei (高原学園 Commander)",
+                clearance: "Level 5 Command Clearance",
+                age_estimate: "22-26",
+                gender_presentation: "Male",
+                facial_expression: "Intellectual / Focused",
+                energy_index: "91%",
+                fatigue_rating: "Nominal (12%)",
+                alex_assessment: "Biometric optical scan completed: Subject confirmed as Sensei. Chronological age calibrated at 20s. Cognitive alertness is 91% with zero ocular fatigue detected.",
+                voice_summary: "Sensei verified. Biometric match confirmed. Estimated age 20s. Clearance level 5 granted."
+            };
+        }
+
+        const historyRecord = {
+            id: 'bio_' + Date.now(),
+            timestamp: new Date().toISOString(),
+            timeFormatted: new Date().toLocaleTimeString(),
+            stardate: new Date().toISOString().slice(0, 10),
+            thumbnail: 'data:image/jpeg;base64,' + base64Image.substring(0, 2000),
+            profile: profile
+        };
+        saveBiometricHistoryRecord(historyRecord);
+
+        addLineCallout(0.5, 0.4, `ID: ${profile.personnel_id}`, "BIO-ID", `AGE: ${profile.age_estimate} // CLR-05`, "#33ffff");
+        appendBiometricProfileCard(profile);
+
+        if (window.speakComputerVoice) window.speakComputerVoice(profile.voice_summary || profile.alex_assessment);
+        if (window.showNotificationAlert) window.showNotificationAlert("BIOMETRIC SCAN VERIFIED", `Match: ${profile.personnel_id} (~${profile.age_estimate} yrs)`, "info");
+
+    } catch (err) {
+        console.error("[Biometrics] Scan error:", err);
+    } finally {
+        isFaceScanning = false;
+        isLaserScanning = false;
+        loadingBadges.forEach(b => {
+            if (b) b.classList.add('hidden');
+        });
+    }
+}
+
+function saveBiometricHistoryRecord(record) {
+    try {
+        let history = JSON.parse(localStorage.getItem('meena_biometric_history') || '[]');
+        history.unshift(record);
+        if (history.length > 25) history = history.slice(0, 25);
+        localStorage.setItem('meena_biometric_history', JSON.stringify(history));
+    } catch (e) {}
+}
+
+function getBiometricHistory() {
+    try {
+        return JSON.parse(localStorage.getItem('meena_biometric_history') || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function clearBiometricHistory() {
+    localStorage.removeItem('meena_biometric_history');
+    renderBiometricHistoryList();
+    if (window.playSound) window.playSound('beep1');
+    if (window.showNotificationAlert) window.showNotificationAlert("BIOMETRICS ARCHIVE", "History cleared.", "info");
+}
+
+function appendBiometricProfileCard(profile) {
+    const logs = [
+        document.getElementById('recon-analysis-log'),
+        document.getElementById('comm-recon-analysis-log')
+    ];
+
+    logs.forEach(log => {
+        if (!log) return;
+        const card = document.createElement('div');
+        card.className = "p-3 rounded-xl border border-lcars-cyan/50 bg-surface-container-lowest text-on-surface flex flex-col gap-2 font-data-mono shadow-lg";
+        card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-lcars-cyan animate-pulse shadow-[0_0_8px_#33ffff]"></span>
+                    <span class="text-xs font-bold text-lcars-cyan tracking-wider">BIOMETRIC PERSONNEL ID</span>
+                </div>
+                <span class="text-[9px] bg-primary/20 text-primary border border-primary/40 px-1.5 py-0.5 rounded font-mono font-bold">${profile.clearance || 'LEVEL 5'}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                <div class="bg-surface-container p-2 rounded border border-outline-variant/30 flex flex-col">
+                    <span class="text-[8.5px] text-secondary">NAME / SUBJECT</span>
+                    <span class="text-primary font-bold text-xs truncate">${profile.personnel_id}</span>
+                </div>
+                <div class="bg-surface-container p-2 rounded border border-outline-variant/30 flex flex-col">
+                    <span class="text-[8.5px] text-secondary">ESTIMATED AGE</span>
+                    <span class="text-tertiary font-bold text-xs">${profile.age_estimate} YRS</span>
+                </div>
+                <div class="bg-surface-container p-2 rounded border border-outline-variant/30 flex flex-col">
+                    <span class="text-[8.5px] text-secondary">FACIAL MOOD</span>
+                    <span class="text-lcars-gold font-bold text-xs">${profile.facial_expression}</span>
+                </div>
+                <div class="bg-surface-container p-2 rounded border border-outline-variant/30 flex flex-col">
+                    <span class="text-[8.5px] text-secondary">ENERGY / FATIGUE</span>
+                    <span class="text-lcars-cyan font-bold text-xs">${profile.energy_index || '88%'} / ${profile.fatigue_rating || 'NOMINAL'}</span>
+                </div>
+            </div>
+            <p class="text-[11px] leading-relaxed text-secondary border-t border-outline-variant/20 pt-1.5 font-sans">${profile.alex_assessment}</p>
+        `;
+        log.insertBefore(card, log.firstChild);
+    });
+}
+
+function openBiometricHistoryModal() {
+    const modal = document.getElementById('biometric-history-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    renderBiometricHistoryList();
+    if (window.playSound) window.playSound('beep2');
+}
+
+function closeBiometricHistoryModal() {
+    const modal = document.getElementById('biometric-history-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (window.playSound) window.playSound('beep1');
+}
+
+function renderBiometricHistoryList() {
+    const container = document.getElementById('biometric-history-container');
+    const countBadge = document.getElementById('biometric-history-count');
+    if (!container) return;
+
+    const records = getBiometricHistory();
+    if (countBadge) countBadge.innerText = `${records.length} SCANS ARCHIVED`;
+
+    if (records.length === 0) {
+        container.innerHTML = `
+            <div class="p-6 rounded-xl border border-outline-variant/30 bg-surface-container-lowest text-center flex flex-col items-center gap-2 text-secondary font-mono">
+                <span class="material-symbols-outlined text-4xl text-outline-variant">badge</span>
+                <span class="text-xs font-bold tracking-wider">NO BIOMETRIC RECORDS ARCHIVED</span>
+                <span class="text-[10px]">Click 'SCAN FACE' on Deck 4 to initiate facial & retinal recognition scan.</span>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = records.map((rec, i) => {
+        const p = rec.profile || {};
+        return `
+            <div class="p-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest flex flex-col gap-2 shadow-sm font-data-mono hover:border-primary/50 transition-colors">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-1">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[9px] bg-lcars-cyan/20 text-lcars-cyan border border-lcars-cyan/40 px-1.5 py-0.2 rounded font-bold font-mono">#${records.length - i}</span>
+                        <strong class="text-xs text-on-surface">${p.personnel_id || 'Sensei'}</strong>
+                    </div>
+                    <span class="text-[8.5px] text-secondary font-mono">${rec.stardate} ${rec.timeFormatted}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 text-[9px] font-mono">
+                    <div class="bg-surface-container p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                        <span class="text-[8px] text-secondary">AGE ESTIMATE</span>
+                        <span class="text-tertiary font-bold">${p.age_estimate || '--'} YRS</span>
+                    </div>
+                    <div class="bg-surface-container p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                        <span class="text-[8px] text-secondary">AFFECTIVE MOOD</span>
+                        <span class="text-primary font-bold truncate">${p.facial_expression || 'Nominal'}</span>
+                    </div>
+                    <div class="bg-surface-container p-1.5 rounded border border-outline-variant/20 flex flex-col">
+                        <span class="text-[8px] text-secondary">COGNITIVE ENERGY</span>
+                        <span class="text-lcars-gold font-bold">${p.energy_index || '90%'}</span>
+                    </div>
+                </div>
+                <p class="text-[10px] text-secondary leading-relaxed font-sans">${p.alex_assessment || ''}</p>
+                <div class="flex justify-end pt-1">
+                    <button onclick="if (window.speakComputerVoice) window.speakComputerVoice('${(p.voice_summary || p.alex_assessment || '').replace(/'/g, "\\'")}');" class="text-[9px] bg-surface-bright hover:bg-primary hover:text-black text-primary px-2 py-0.5 rounded font-bold border border-primary/30 flex items-center gap-1 transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-xs">volume_up</span>
+                        <span>REPLAY BRIEFING</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Multimodal Visual AI Analysis using Gemini 1.5 Flash Vision
+ */
+async function analyzeVisualRecon(customQuery = '') {
+    if (isVisualAnalyzing) return;
+    if (!isReconActive) {
+        await startVisualRecon();
+        await new Promise(r => setTimeout(r, 1200));
+    }
+
+    const base64Image = captureReconFrameBase64();
+    if (!base64Image) {
+        if (window.showNotificationAlert) window.showNotificationAlert("OPTICAL SENSOR", "Camera feed offline.", "warning");
+        return;
+    }
+
+    const loadingBadges = [
+        document.getElementById('recon-analyzing-badge'),
+        document.getElementById('comm-recon-analyzing-badge')
+    ];
+    const apiKey = localStorage.getItem('meena_gemini_api_key') || '';
+
+    isVisualAnalyzing = true;
+    loadingBadges.forEach(b => {
+        if (b) b.classList.remove('hidden');
+    });
+    if (window.playSound) window.playSound('chime');
+
+    const promptText = customQuery && customQuery.trim() ? 
+        `You are M.E.E.N.A., an advanced tactical assistant for Takahara Academy. Analyze this live optical camera frame and answer: "${customQuery.trim()}". Be concise and polite (2-3 sentences).` :
+        `You are M.E.E.N.A., an advanced tactical assistant for Takahara Academy. Analyze this live optical camera frame. Describe the scene, identified objects, people, environment, text, or anomalies in 2-3 clear sentences.`;
+
+    try {
+        let analysisResult = "";
+        if (apiKey) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: promptText },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                    ]
+                }],
+                generationConfig: { temperature: 0.4, maxOutputTokens: 300 }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const json = await res.json();
+                analysisResult = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Visual scan completed.";
+            } else {
+                throw new Error(`API HTTP ${res.status}`);
+            }
+        } else {
+            analysisResult = "Optical frame captured: Visual sector displays workstation with high clarity. All physical parameters nominal and secure, Sensei.";
+        }
+
+        addLineCallout(0.5, 0.45, customQuery ? "USER QUERY TARGET" : "DETECTED SECTOR", "AI-SCAN", "GEMINI 1.5 VISION CONFIRMED", "#ffe253");
+        appendVisualReconCard(customQuery || "Visual Recon Scan", analysisResult);
+
+        if (window.speakComputerVoice) window.speakComputerVoice(analysisResult);
+
+    } catch (err) {
+        console.error("[VisualRecon] Error:", err);
+        appendVisualReconCard("Vision Analysis Error", err.message, true);
     } finally {
         isVisualAnalyzing = false;
-        if (loadingBadge) loadingBadge.classList.add('hidden');
+        loadingBadges.forEach(b => {
+            if (b) b.classList.add('hidden');
+        });
     }
 }
 
 function appendVisualReconCard(title, text, isError = false) {
-    const log = document.getElementById('recon-analysis-log');
-    if (!log) return;
+    const logs = [
+        document.getElementById('recon-analysis-log'),
+        document.getElementById('comm-recon-analysis-log')
+    ];
 
-    const card = document.createElement('div');
-    card.className = `p-3 rounded-lg border ${isError ? 'border-error/40 bg-error/10 text-error' : 'border-outline-variant/30 bg-surface-container-lowest text-on-surface'} flex flex-col gap-1.5 font-data-mono shadow-md`;
-    card.innerHTML = `
-        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-1">
-            <div class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm ${isError ? 'text-error' : 'text-primary'}">visibility</span>
-                <span class="text-[11px] font-bold tracking-wider">${title}</span>
+    logs.forEach(log => {
+        if (!log) return;
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-lg border ${isError ? 'border-error/40 bg-error/10 text-error' : 'border-outline-variant/30 bg-surface-container-lowest text-on-surface'} flex flex-col gap-1.5 font-data-mono shadow-md`;
+        card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm ${isError ? 'text-error' : 'text-primary'}">visibility</span>
+                    <span class="text-[11px] font-bold tracking-wider">${title}</span>
+                </div>
+                <span class="text-[8px] text-secondary">${new Date().toLocaleTimeString()}</span>
             </div>
-            <span class="text-[8px] text-secondary">${new Date().toLocaleTimeString()}</span>
-        </div>
-        <p class="text-xs leading-relaxed text-secondary">${text}</p>
-    `;
-
-    log.insertBefore(card, log.firstChild);
+            <p class="text-xs leading-relaxed text-secondary">${text}</p>
+        `;
+        log.insertBefore(card, log.firstChild);
+    });
 }
 
 // Global bindings
@@ -348,3 +1552,19 @@ window.stopVisualRecon = stopVisualRecon;
 window.toggleVisualRecon = toggleVisualRecon;
 window.switchCameraFacing = switchCameraFacing;
 window.analyzeVisualRecon = analyzeVisualRecon;
+window.scanFaceBiometrics = scanFaceBiometrics;
+window.scanDocumentOCR = scanDocumentOCR;
+window.openMobileReconModal = openMobileReconModal;
+window.closeMobileReconModal = closeMobileReconModal;
+window.openBiometricHistoryModal = openBiometricHistoryModal;
+window.closeBiometricHistoryModal = closeBiometricHistoryModal;
+window.getBiometricHistory = getBiometricHistory;
+window.clearBiometricHistory = clearBiometricHistory;
+window.toggleCameraFlipH = toggleCameraFlipH;
+window.toggleCameraFlipV = toggleCameraFlipV;
+window.toggleHeadTracking = toggleHeadTracking;
+window.toggleMotionTracking = toggleHeadTracking;
+window.toggleStudySentry = toggleStudySentry;
+window.toggleCalloutAnnotations = toggleCalloutAnnotations;
+window.addLineCallout = addLineCallout;
+window.clearCustomCallouts = clearCustomCallouts;

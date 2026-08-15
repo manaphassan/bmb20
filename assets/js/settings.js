@@ -124,6 +124,56 @@ function loadAllSettings() {
 
     // 6. Speech Voices
     populateVoices();
+
+    // 7. Meena Neural Sync & EXP Metrics
+    loadMeenaGrowthMetrics();
+}
+
+function loadMeenaGrowthMetrics() {
+    const exp = parseInt(localStorage.getItem('meena_sync_exp') || '3470', 10);
+    const level = Math.max(1, Math.floor(exp / 100) + 1);
+    const expInLevel = exp % 100;
+    
+    let rank = 'RANK E: CADET AI';
+    let nextTier = 'Level 11 (Rank C: Tactical Operator)';
+    if (level >= 50) {
+        rank = 'RANK EX: SOULBOUND GUARDIAN';
+        nextTier = 'MAX RANK ACHIEVED // TRANSCENDENT';
+    } else if (level >= 26) {
+        rank = 'RANK A: CHIEF TACTICAL DIRECTOR';
+        nextTier = 'Level 50 (Rank EX: Soulbound Guardian)';
+    } else if (level >= 11) {
+        rank = 'RANK C: TACTICAL OPERATOR';
+        nextTier = 'Level 26 (Rank A: Chief Tactical Director)';
+    }
+
+    const lvlBadge = document.getElementById('settings-meena-level');
+    const rankBadge = document.getElementById('settings-meena-rank');
+    const expBar = document.getElementById('settings-meena-exp-bar');
+    const expText = document.getElementById('settings-meena-exp-text');
+    const totalExpText = document.getElementById('settings-meena-total-exp');
+    const nextTierText = document.getElementById('settings-meena-next-tier');
+
+    if (lvlBadge) lvlBadge.innerText = `Lv. ${level}`;
+    if (rankBadge) rankBadge.innerText = rank;
+    if (expBar) expBar.style.width = `${expInLevel}%`;
+    if (expText) expText.innerText = `${expInLevel} / 100 EXP (${100 - expInLevel} EXP to Lv. ${level + 1})`;
+    if (totalExpText) totalExpText.innerText = `${exp.toLocaleString()} EXP`;
+    if (nextTierText) nextTierText.innerText = nextTier;
+}
+
+function addBonusEXP(amount) {
+    const current = parseInt(localStorage.getItem('meena_sync_exp') || '3470', 10);
+    const newTotal = Math.max(0, current + amount);
+    localStorage.setItem('meena_sync_exp', newTotal.toString());
+    loadMeenaGrowthMetrics();
+}
+
+function resetEXPWarning() {
+    if (confirm('Re-calibrate Meena Neural Sync EXP to baseline cadet level (100 EXP)?')) {
+        localStorage.setItem('meena_sync_exp', '100');
+        loadMeenaGrowthMetrics();
+    }
 }
 
 function populateVoices() {

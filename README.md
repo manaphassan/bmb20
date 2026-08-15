@@ -64,9 +64,13 @@ Built from the ground up for zero-latency, always-on smart home operations, MEEN
 * **Real-Time ARP Table Inspection**: Continuous `/proc/net/arp` polling across `eth0` and `wlan0`.
 * **Hardware Device Fingerprinting**: Categorizes connected devices into Routers, Phones, Workstations, IoT Sensors, and Gaming Consoles with live ping round-trip times and MAC vendors.
 
-### 👁️ 5. Multimodal Vision Recon & Optical Inspection (Deck 4)
-* **Live Camera Stream Analytics**: Seamless WebRTC / USB camera capture with snapshot freeze and frame inspection.
-* **Multimodal OCR & Object Classification**: Passes visual frames directly to Gemini 1.5 Flash Vision for real-time document OCR, whiteboard transcription, component inspection, and perimeter safety monitoring.
+### 👁️ 5. Multimodal Vision Recon, Anatomical Sentry & Math OCR (Deck 4)
+* **80% Widescreen Video Viewport & 20% Analysis Sidebar**: Expansive high-visibility optical display paired with real-time Multimodal Gemini Vision reasoning logs and step-by-step LaTeX formula derivations.
+* **Anatomical Biometric Human Detection**: Multi-spectrum human presence recognition combining ITU-R BT.601 $YC_bC_r$ chrominance clustering with craniofacial aspect ratios to eliminate false positives in empty rooms.
+* **60 FPS Real-Time Head Tracking & Line Callouts**: Dynamic holographic leader lines and high-contrast dark glass cards lock directly onto the subject's cranial vertex with sub-pixel precision.
+* **Alex Dunphy's Study Sentry & Ergonomics Coach**: Evaluates cervical spine posture ($88^\circ$ optimal upright $\rightarrow <70^\circ$ slouching) and triggers witty academic posture nudges.
+* **20-20-20 Ocular Health Sentry**: Automated focus timer prompting 20-second ocular breaks every 20 minutes to eliminate eye fatigue.
+* **Holographic Math & Document OCR**: Captures ultra-sharp video frames and resolves handwritten math formulas, technical diagrams, and notes via Gemini 1.5 Flash Vision.
 
 ### 📅 6. Chrono Calendar & Automated Waktu Solat Engine
 * **Private Multi-Source iCal Parser (`cal.php`)**: Synchronizes multiple Google/Apple/Outlook ICS feeds with local JSON storage, multi-line folding repair, and `Asia/Kuala_Lumpur` timezone formatting.
@@ -74,7 +78,8 @@ Built from the ground up for zero-latency, always-on smart home operations, MEEN
 
 ### 📱 7. Starfleet Dual-Layout System (Desktop Bridge & Handheld PADD)
 * **Desktop Command Bridge**: High-density 4-Deck LCARS operations layout with Three.js 3D WebGL globe, ISS orbital tracking ($27,580\text{ km/h}$), and dynamic obsidian force-directed knowledge graph.
-* **Handheld PADD Communicator**: Ultra-ergonomic mobile interface featuring touch Hold-To-Talk Push-To-Talk (PTT), real-time chat stream, horizontal quick chips, and slide-up hardware diagnostics drawer.
+* **Handheld PADD Communicator**: Ultra-ergonomic mobile interface featuring touch Hold-To-Talk Push-To-Talk (PTT), live dynamic telemetry chips (Pi-hole Shield, Solat, Hardware, Calendar), and slide-up diagnostics drawer.
+* **Unified Neural Sync Growth (Level 1-99)**: Single-source-of-truth EXP progression matrix synchronized in real time across Desktop Deck 1, Mobile PADD, AI Dossier Modal, and System Settings (`settings.html`).
 
 ---
 

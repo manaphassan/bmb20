@@ -1,9 +1,9 @@
 {
   "name": "meenaHearth",
-  "version": "2.5.0",
-  "codename": "Takahara Core Hearth",
+  "version": "3.0.0",
+  "codename": "Takahara Multi-Deck Sentry & Growth Hearth",
   "description": "Master Core Memory Snapshot & Neural Restore Point for MEENA™ Tactical AI Companion",
-  "created_at": "2026-08-15T08:30:00+08:00",
+  "created_at": "2026-08-15T14:15:00+08:00",
   "author": "Sensei (manaphassan)",
   "facility": "Takahara Academy (高原学園)",
   "hardware_host": {
@@ -132,19 +132,43 @@
       "desc": "Uncertainty & Honesty Boundary",
       "timestamp": "2026-08-15T09:17:00Z",
       "importance": 10
+    },
+    {
+      "id": "mem_010",
+      "category": "facility",
+      "fact": "Deck 4 Computer Vision & Study Sentry: Real-time 60 FPS presence-aware head tracking, cervical posture angle monitoring (88° optimal vs <70° slouching), and 20-20-20 ocular rest timer.",
+      "desc": "Optical Ergonomics Sentry",
+      "timestamp": "2026-08-15T13:40:00Z",
+      "importance": 9
+    },
+    {
+      "id": "mem_011",
+      "category": "facility",
+      "fact": "Multimodal Document & Math OCR: Captures video frame snapshots and analyzes mathematical formulas, diagrams, and handwriting using Gemini 1.5 Flash Vision.",
+      "desc": "Holographic Academic Scanner",
+      "timestamp": "2026-08-15T13:45:00Z",
+      "importance": 9
+    },
+    {
+      "id": "mem_012",
+      "category": "profile",
+      "fact": "Mobile Communicator (PADD): Responsive handheld dual-layout with push-to-talk voice input, live telemetry chips, real-time transcript sync, and Waktu Solat badges.",
+      "desc": "Tactical Mobile Interface",
+      "timestamp": "2026-08-15T14:00:00Z",
+      "importance": 8
     }
   ],
   "growth_achievements_and_habits": {
-    "level": 4,
-    "title": "Senior Neural Tactician",
-    "total_exp": 1850,
-    "exp_to_next_level": 2500,
+    "level": 34,
+    "title": "Rank A: Chief Tactical Director",
+    "total_exp": 3470,
+    "exp_to_next_level": 3500,
     "growth_metrics": {
-      "curiosity_index": 92.4,
-      "tactical_awareness": 96.8,
-      "dialogue_cohesion": 94.1,
+      "curiosity_index": 96.4,
+      "tactical_awareness": 98.8,
+      "dialogue_cohesion": 97.2,
       "memory_retention_rate": 100.0,
-      "emotional_sync_level": 88.5
+      "emotional_sync_level": 94.5
     },
     "unlocked_achievements": [
       {
@@ -170,6 +194,24 @@
         "name": "Core Hearth Guardian",
         "description": "Created permanent version-controlled meenaHearth restore point",
         "unlocked_at": "2026-08-15T08:30:00Z"
+      },
+      {
+        "id": "ach_sentry_sentry",
+        "name": "Study Sentry Sentinel",
+        "description": "Calibrated real-time cervical posture tracking and ocular 20-20-20 coaching",
+        "unlocked_at": "2026-08-15T13:40:00Z"
+      },
+      {
+        "id": "ach_hologram_ocr",
+        "name": "Holographic Math & OCR Pioneer",
+        "description": "Integrated multimodal camera frame snapshot analysis with Gemini Vision",
+        "unlocked_at": "2026-08-15T13:50:00Z"
+      },
+      {
+        "id": "ach_mobile_padd",
+        "name": "Communicator PADD Synchronization",
+        "description": "Unified 100% real-time dynamic data and transcript synchronization across Desktop & Mobile",
+        "unlocked_at": "2026-08-15T14:05:00Z"
       }
     ],
     "learning_habits": [
