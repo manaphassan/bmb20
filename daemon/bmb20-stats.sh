@@ -264,6 +264,14 @@ while true; do
         KERNEL_VER=$(uname -r 2>/dev/null || echo "6.1.21-v7+")
         UPD_JSON="{\"pending\":${PENDING_UPGRADES},\"kernel\":\"${KERNEL_VER}\",\"dietpi_version\":\"v9.x\",\"status\":\"$([ "$PENDING_UPGRADES" -eq 0 ] && echo 'OPTIMIZED' || echo 'UPDATES AVAILABLE')\"}"
         LAST_UPD_TIME=$CUR_TIME
+
+        # Trigger background calendar and hearth maintenance
+        if [ -f /var/www/html/cal.php ]; then
+            php /var/www/html/cal.php >/dev/null 2>&1 &
+        fi
+        if [ -f /var/www/html/meenaHearth.json ]; then
+            chmod 0664 /var/www/html/meenaHearth.json /var/www/meenaHearth.json 2>/dev/null || true
+        fi
     fi
 
     # --------------------------------------------------------------------------
