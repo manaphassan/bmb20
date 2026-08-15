@@ -649,160 +649,124 @@ async function detectHeadMovement(video) {
 }
 
 // ==============================================================================
-// 3. ANATOMICAL BIOMETRIC HUMAN DETECTION ENGINE
-// High-Entropy Facial Gradient & Dynamic Motion Density Tracker
+// 3. HYBRID NEUROMORPHIC EVENT SURFACE + PAGEAU SPATIAL MOMENT ENGINE
+// (UZH-RPG Direct Event Simulation + Claude Pageau Contour Moments M00, M10, M01)
 // ==============================================================================
+let eventTimeSurface = null;
+let prevLogLuminance = null;
+let lastEventGridW = 0, lastEventGridH = 0;
+
 function runFallbackHeadChromaTracker(video) {
-    const mw = motionAnalysisCanvas.width;
-    const mh = motionAnalysisCanvas.height;
+    const mw = motionAnalysisCanvas.width || 96;
+    const mh = motionAnalysisCanvas.height || 72;
+    const totalPixels = mw * mh;
+
+    if (!eventTimeSurface || lastEventGridW !== mw || lastEventGridH !== mh) {
+        eventTimeSurface = new Float32Array(totalPixels);
+        prevLogLuminance = new Float32Array(totalPixels);
+        lastEventGridW = mw;
+        lastEventGridH = mh;
+    }
 
     motionAnalysisCtx.drawImage(video, 0, 0, mw, mh);
     const currImageData = motionAnalysisCtx.getImageData(0, 0, mw, mh);
     const currData = currImageData.data;
+    const now = performance.now();
+    const tauDecayMs = 380; // 380ms exponential decay for event surface
 
-    if (!prevFrameData) {
-        prevFrameData = new Uint8ClampedArray(currData);
-        return;
-    }
+    let M00 = 0, M10 = 0, M01 = 0;
+    let minX = mw, maxX = 0, minY = mh, maxY = 0;
+    let activeEventPixels = 0;
+    let skinPixelCount = 0;
+    let darkFeatureCount = 0;
 
-    const histX = new Float32Array(mw);
-    const histY = new Float32Array(mh);
-    const candidatePoints = [];
-
-    // Analyze pixel frame differences, skin locus, and local facial contrast gradients
     for (let y = 1; y < mh - 1; y++) {
         for (let x = 1; x < mw - 1; x++) {
-            const idx = (y * mw + x) * 4;
-            const r = currData[idx], g = currData[idx + 1], b = currData[idx + 2];
+            const idx = y * mw + x;
+            const byteIdx = idx * 4;
+            const r = currData[byteIdx], g = currData[byteIdx + 1], b = currData[byteIdx + 2];
+
+            // 1. Logarithmic Luminance & Temporal Event Generator (UZH-RPG Principle)
+            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+            const logLum = Math.log(lum + 1);
+            const prevLog = prevLogLuminance[idx];
+            const deltaLog = Math.abs(logLum - prevLog);
+            prevLogLuminance[idx] = logLum;
+
+            // Trigger Neuromorphic Event on significant log-contrast change
+            if (deltaLog > 0.055) {
+                eventTimeSurface[idx] = now;
+            }
+
+            // 2. Exponential Event Surface Decay (Static walls decay to 0 within 380ms)
+            const dt = now - eventTimeSurface[idx];
+            const sae = dt < 1200 ? Math.exp(-dt / tauDecayMs) : 0;
+
+            // 3. Biological Skin Chrominance & Anatomical Feature Filters
             const sum = r + g + b + 1;
             const normR = r / sum;
             const normG = g / sum;
-
-            // Skin Chrominance Locus
             const isSkin = (normR >= 0.33 && normR <= 0.58) && 
                            (normG >= 0.23 && normG <= 0.38) && 
                            (normR > normG) && 
                            ((r - b) > 18) && 
                            (r > 45);
 
-            // Temporal Motion (Head movement, blinking, breathing)
-            const diff = (Math.abs(r - prevFrameData[idx]) + 
-                          Math.abs(g - prevFrameData[idx + 1]) + 
-                          Math.abs(b - prevFrameData[idx + 2])) / 3;
-
-            // Spatial Gradient / Contrast (Separates textured face/hair/features from flat wall)
-            const idxRight = (y * mw + (x + 1)) * 4;
-            const idxDown = ((y + 1) * mw + x) * 4;
-            const contrast = Math.abs(r - currData[idxRight]) + Math.abs(r - currData[idxDown]);
-
-            // Hair or dark facial feature (eyebrows, eyes, beard)
+            // Spatial contrast (eyeballs, eyebrows, nostrils, hairline)
+            const rightByteIdx = (y * mw + (x + 1)) * 4;
+            const downByteIdx = ((y + 1) * mw + x) * 4;
+            const contrast = Math.abs(r - currData[rightByteIdx]) + Math.abs(r - currData[downByteIdx]);
             const isDarkFeature = (r < 60 && g < 60 && b < 60);
 
-            let weight = 0;
-            if (isSkin && contrast > 7) weight += 2.5;
-            if (isSkin && isDarkFeature) weight += 3.0;
-            if (diff > 4) weight += diff * 1.2;
-            if (isSkin && diff > 2.5) weight += 2.5;
+            let pixelWeight = sae * 2.2;
+            if (isSkin && contrast > 7) pixelWeight += 1.8;
+            if (isSkin && isDarkFeature) pixelWeight += 2.4;
 
-            if (weight > 1.4) {
-                candidatePoints.push({ px: x, py: y, weight, isSkin, isDark: isDarkFeature });
-                histX[x] += weight;
-                histY[y] += weight;
+            if (pixelWeight > 0.8) {
+                M00 += pixelWeight;
+                M10 += x * pixelWeight;
+                M01 += y * pixelWeight;
+                activeEventPixels++;
+
+                if (isSkin) skinPixelCount++;
+                if (isDarkFeature) darkFeatureCount++;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
             }
         }
     }
 
-    prevFrameData.set(currData);
+    // 4. Area Gating & Minimum Mass Gate (Zero Ghost Reticles)
+    const contourWidth = Math.max(1, maxX - minX);
+    const contourHeight = Math.max(1, maxY - minY);
+    const hasSufficientHumanMass = (M00 >= 22) && (activeEventPixels >= 14) && (skinPixelCount >= 5 || darkFeatureCount >= 4);
 
-    // Require minimum facial candidate density
-    if (candidatePoints.length < 18) {
+    if (!hasSufficientHumanMass) {
         headCentroid.active = false;
         isSenseiPresent = false;
+        headCentroid.velocity = 0;
         return;
     }
 
-    // Find spatial mode peak across full frame (Gaussian smoothed 1D)
-    let bestPeakX = mw * 0.5, maxDensX = 0;
-    for (let x = 2; x < mw - 2; x++) {
-        const dens = histX[x - 2] * 0.15 + histX[x - 1] * 0.25 + histX[x] * 0.40 + histX[x + 1] * 0.25 + histX[x + 2] * 0.15;
-        if (dens > maxDensX) {
-            maxDensX = dens;
-            bestPeakX = x;
-        }
-    }
+    // 5. Spatial Centroid Moments (Claude Pageau cam-track Formula)
+    const rawCentroidX = M10 / M00;
 
-    let bestPeakY = mh * 0.5, maxDensY = 0;
-    for (let y = 2; y < mh - 2; y++) {
-        const dens = histY[y - 2] * 0.15 + histY[y - 1] * 0.25 + histY[y] * 0.40 + histY[y + 1] * 0.25 + histY[y + 2] * 0.15;
-        if (dens > maxDensY) {
-            maxDensY = dens;
-            bestPeakY = y;
-        }
-    }
+    // 6. Cranial Biometric Isolation:
+    // Position reticle strictly at the upper eye/forehead band (top 30% of active mass)
+    const cranialY = minY + contourHeight * 0.30;
+    const targetNormX = Math.max(0.05, Math.min(0.95, rawCentroidX / mw));
+    const targetNormY = Math.max(0.05, Math.min(0.95, cranialY / mh));
+    const targetNormW = Math.max(0.20, Math.min(0.36, contourWidth / mw));
+    const targetNormH = Math.max(0.24, Math.min(0.44, contourHeight / mh * 0.75));
 
-    // Require strong cluster density to reject background room shadows/curtains
-    if (maxDensX < 12 || maxDensY < 12) {
-        headCentroid.active = false;
-        isSenseiPresent = false;
-        return;
-    }
-
-    // First pass: find full human bounding envelope around the peak
-    const radiusX = mw * 0.20;
-    const radiusY = mh * 0.30;
-    let envMinY = mh, envMaxY = 0, envMinX = mw, envMaxX = 0;
-    let skinCount = 0, darkCount = 0;
-
-    for (const pt of candidatePoints) {
-        if (Math.abs(pt.px - bestPeakX) <= radiusX && Math.abs(pt.py - bestPeakY) <= radiusY) {
-            if (pt.isSkin) skinCount++;
-            if (pt.isDark) darkCount++;
-            if (pt.py < envMinY) envMinY = pt.py;
-            if (pt.py > envMaxY) envMaxY = pt.py;
-            if (pt.px < envMinX) envMinX = pt.px;
-            if (pt.px > envMaxX) envMaxX = pt.px;
-        }
-    }
-
-    const envHeight = Math.max(12, envMaxY - envMinY);
-    // Isolate upper cranial region (top 45% of the human envelope) to stay locked on eyes/forehead and ignore bare chest
-    const cranialCutoffY = envMinY + envHeight * 0.45;
-
-    let headSumX = 0, headSumY = 0, headWeightSum = 0;
-    let minClusterX = mw, maxClusterX = 0, minClusterY = mh, maxClusterY = 0;
-
-    for (const pt of candidatePoints) {
-        if (Math.abs(pt.px - bestPeakX) <= radiusX && pt.py <= cranialCutoffY && pt.py >= envMinY) {
-            headSumX += pt.px * pt.weight;
-            headSumY += pt.py * pt.weight;
-            headWeightSum += pt.weight;
-
-            if (pt.px < minClusterX) minClusterX = pt.px;
-            if (pt.px > maxClusterX) maxClusterX = pt.px;
-            if (pt.py < minClusterY) minClusterY = pt.py;
-            if (pt.py > maxClusterY) maxClusterY = pt.py;
-        }
-    }
-
-    // Must be a valid biological human cluster with significant weight and both skin + facial features
-    if (headWeightSum >= 16 && (skinCount >= 6 || darkCount >= 5)) {
-        const rawHeadX = (headSumX / headWeightSum) / mw;
-        const rawHeadY = (headSumY / headWeightSum) / mh;
-        const clusterW = Math.max(14, maxClusterX - minClusterX);
-        const clusterH = Math.max(16, maxClusterY - minClusterY);
-        const rawHeadW = Math.max(0.20, Math.min(0.36, clusterW / mw));
-        const rawHeadH = Math.max(0.24, Math.min(0.44, clusterH / mh * 1.3));
-
-        updateHeadTrackingCentroid(rawHeadX, rawHeadY, rawHeadW, rawHeadH, {
-            minX: Math.max(0, (minClusterX / mw) - 0.03),
-            minY: Math.max(0, (minClusterY / mh) - 0.03),
-            maxX: Math.min(1, (maxClusterX / mw) + 0.03),
-            maxY: Math.min(1, (maxClusterY / mh) + 0.03)
-        });
-    } else {
-        headCentroid.active = false;
-        isSenseiPresent = false;
-    }
+    updateHeadTrackingCentroid(targetNormX, targetNormY, targetNormW, targetNormH, {
+        minX: Math.max(0, (minX / mw) - 0.03),
+        minY: Math.max(0, (minY / mh) - 0.03),
+        maxX: Math.min(1, (maxX / mw) + 0.03),
+        maxY: Math.min(1, (maxY / mh) + 0.03)
+    });
 }
 
 /**
