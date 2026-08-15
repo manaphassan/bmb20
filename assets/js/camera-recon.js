@@ -543,28 +543,47 @@ function initSentryHeartbeatTimer() {
     }, 1000);
 }
 
+let lastAnalysisTime = 0;
+
 /**
- * Update Head Tracking Centroid & Smooth State
+ * Update Head Tracking Centroid & Smooth State with Adaptive 1-Euro Filter & Deadband
  */
 function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
-    const alpha = 0.35; // Smoothing factor for 60 FPS
+    // 1. Calculate Spatial Delta
+    const deltaX = rawX - headCentroid.smoothX;
+    const deltaY = rawY - headCentroid.smoothY;
+    const dist = Math.hypot(deltaX, deltaY);
+
+    // 2. Deadband Gate: Suppress sensor noise jitter below 1.2%
+    let targetX = rawX;
+    let targetY = rawY;
+    if (dist < 0.012) {
+        targetX = headCentroid.smoothX;
+        targetY = headCentroid.smoothY;
+    }
+
+    // 3. Adaptive Dynamic Alpha (Rock-solid stationary damping, responsive trajectory tracking)
+    const dynamicAlpha = dist < 0.03 ? 0.09 : (dist < 0.08 ? 0.20 : 0.40);
+    const sizeAlpha = 0.08;
+
+    const dx = deltaX * 640;
+    const dy = deltaY * 480;
+    const currentVelocity = Math.round(Math.hypot(dx, dy) * 6);
     
-    const dx = (rawX - headCentroid.x) * 640;
-    const dy = (rawY - headCentroid.y) * 480;
-    const currentVelocity = Math.round(Math.hypot(dx, dy) * 8);
-    
-    headCentroid.velocity = Math.round(headCentroid.velocity * 0.7 + currentVelocity * 0.3);
-    headCentroid.x = rawX;
-    headCentroid.y = rawY;
-    headCentroid.smoothX = headCentroid.smoothX * (1 - alpha) + rawX * alpha;
-    headCentroid.smoothY = headCentroid.smoothY * (1 - alpha) + rawY * alpha;
-    headCentroid.width = Math.max(0.20, Math.min(0.45, rawW));
-    headCentroid.height = Math.max(0.26, Math.min(0.55, rawH));
-    headCentroid.smoothW = headCentroid.smoothW * (1 - alpha) + headCentroid.width * alpha;
-    headCentroid.smoothH = headCentroid.smoothH * (1 - alpha) + headCentroid.height * alpha;
-    headCentroid.bbox = bbox || { minX: rawX - 0.12, minY: rawY - 0.15, maxX: rawX + 0.12, maxY: rawY + 0.15 };
+    headCentroid.velocity = Math.round(headCentroid.velocity * 0.85 + currentVelocity * 0.15);
+    headCentroid.x = targetX;
+    headCentroid.y = targetY;
+    headCentroid.smoothX = headCentroid.smoothX * (1 - dynamicAlpha) + targetX * dynamicAlpha;
+    headCentroid.smoothY = headCentroid.smoothY * (1 - dynamicAlpha) + targetY * dynamicAlpha;
+
+    headCentroid.width = Math.max(0.22, Math.min(0.40, rawW));
+    headCentroid.height = Math.max(0.28, Math.min(0.50, rawH));
+    headCentroid.smoothW = headCentroid.smoothW * (1 - sizeAlpha) + headCentroid.width * sizeAlpha;
+    headCentroid.smoothH = headCentroid.smoothH * (1 - sizeAlpha) + headCentroid.height * sizeAlpha;
+
+    headCentroid.bbox = bbox || { minX: targetX - 0.12, minY: targetY - 0.15, maxX: targetX + 0.12, maxY: targetY + 0.15 };
     headCentroid.active = true;
-    headCentroid.intensity = Math.min(100, headCentroid.intensity + 20);
+    headCentroid.intensity = Math.min(100, headCentroid.intensity + 15);
     headCentroid.lastDetectedTime = performance.now();
 
     isSenseiPresent = true;
@@ -575,14 +594,18 @@ function updateHeadTrackingCentroid(rawX, rawY, rawW, rawH, bbox) {
         y: headCentroid.smoothY,
         time: performance.now()
     });
-    if (headTrail.length > 12) headTrail.shift();
+    if (headTrail.length > 10) headTrail.shift();
 }
 
 /**
- * Real-Time Head Movement Tracking
+ * Real-Time Head Movement Tracking with Cadence Throttling
  */
 async function detectHeadMovement(video) {
     if (!isHeadTrackingEnabled || !video || video.readyState < 2 || !motionAnalysisCtx) return;
+
+    const now = performance.now();
+    if (now - lastAnalysisTime < 35) return; // 28 FPS cadence for ultra-stable, smooth analysis
+    lastAnalysisTime = now;
 
     const vw = video.videoWidth || 640;
     const vh = video.videoHeight || 480;
